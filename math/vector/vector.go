@@ -29,12 +29,26 @@ func (v1 Vector) Sub(v2 Vector) Vector {
 }
 
 func (v Vector) Normalize() Vector {
-	return v.Scale(1.0 / math.Sqrt(math.Pow(v.X, 2)+math.Pow(v.Y, 2)))
+	return v.Scale(1.0 / v.Length())
 }
 
 func (v Vector) Scale(s float64) Vector {
 	return Vector{
 		X: v.X * s,
 		Y: v.Y * s,
+	}
+}
+
+func (v Vector) Length() float64 {
+	return math.Sqrt(math.Pow(v.X, 2) + math.Pow(v.Y, 2))
+}
+
+func (v Vector) Clamp(max float64) Vector {
+	length := v.Length()
+
+	if length > max {
+		return v.Scale(max / length)
+	} else {
+		return v
 	}
 }

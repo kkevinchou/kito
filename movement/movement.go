@@ -1,7 +1,6 @@
 package movement
 
 import (
-	// "fmt"
 	"github.com/kkevinchou/ant/math/vector"
 	"github.com/kkevinchou/ant/physics"
 	"time"
@@ -35,8 +34,7 @@ func (m *MovementSystem) Update(delta time.Duration) {
 	for _, moveable := range m.moveables {
 		physComp := moveable.GetPhysicsComponent()
 		steeringVelocity := moveable.CalculateSteeringVelocity()
-		physComp.Velocity = physComp.Velocity.Add(steeringVelocity).Normalize().Scale(physComp.MaxSpeed)
-		// fmt.Println(physComp.Velocity)
+		physComp.Velocity = physComp.Velocity.Add(steeringVelocity).Clamp(physComp.MaxSpeed)
 		moveable.Update(delta)
 	}
 }

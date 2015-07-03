@@ -17,7 +17,7 @@ type Entity struct {
 
 func New() Entity {
 	physicsComponent := &physics.PhysicsComponent{
-		MaxSpeed: 200,
+		MaxSpeed: 100,
 		Mass:     10,
 	}
 

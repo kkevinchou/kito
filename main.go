@@ -9,7 +9,6 @@ import (
 	"github.com/kkevinchou/ant/render"
 	"github.com/veandco/go-sdl2/sdl"
 	"time"
-	// "github.com/kkevinchou/ant/physics"
 )
 
 func setupWindow() *sdl.Window {
