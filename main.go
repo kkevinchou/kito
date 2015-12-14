@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/entity"
 	"github.com/kkevinchou/ant/math/vector"
 	"github.com/kkevinchou/ant/movement"
 	"github.com/kkevinchou/ant/render"
 	"github.com/veandco/go-sdl2/sdl"
-	"time"
 )
 
 func setupWindow() *sdl.Window {
@@ -23,23 +24,24 @@ func setupWindow() *sdl.Window {
 }
 
 func main() {
-	entity := entity.New()
-	entity.SetTarget(vector.Vector{100, 0})
-
-	movementSystem := movement.NewMovementSystem()
-	movementSystem.Register(&entity)
-
 	window := setupWindow()
+	defer window.Destroy()
+
 	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to create renderer: %s\n", err))
 	}
+	defer renderer.Destroy()
+
+	entity := entity.New()
+	entity.SetTarget(vector.Vector{100, 0})
+
+	movementSystem := movement.NewMovementSystem()
+	movementSystem.Register(entity)
 
 	assetManager := assets.NewAssetManager(renderer, "assets/icons")
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
-	renderSystem.Register(&entity)
-
-	// defer window.Destroy()
+	renderSystem.Register(entity)
 
 	var event sdl.Event
 	gameOver := false
@@ -67,7 +69,6 @@ func main() {
 		movementSystem.Update(delta)
 		renderSystem.Update(delta)
 	}
-	fmt.Println("DONE")
 	sdl.Quit()
 
 	// node1 := pathing.CreateNode(0, 1)

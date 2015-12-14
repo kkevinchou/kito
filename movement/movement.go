@@ -1,18 +1,14 @@
 package movement
 
 import (
+	"time"
+
 	"github.com/kkevinchou/ant/math/vector"
 	"github.com/kkevinchou/ant/physics"
-	"time"
 )
 
-type Updateable interface {
-	Update(delta time.Duration)
-}
-
 type Moveable interface {
-	Updateable
-	physics.PhysicsComposed
+	physics.PhysicsI
 	CalculateSteeringVelocity() vector.Vector
 }
 

@@ -3,10 +3,11 @@ package entity
 import (
 	// "fmt"
 	// "github.com/kkevinchou/ant/math/vector"
+	"time"
+
 	"github.com/kkevinchou/ant/physics"
 	"github.com/kkevinchou/ant/render"
 	"github.com/kkevinchou/ant/steering"
-	"time"
 )
 
 type Entity struct {
@@ -15,23 +16,24 @@ type Entity struct {
 	*render.RenderComponent
 }
 
-func New() Entity {
+func New() *Entity {
+	entity := &Entity{}
+
 	physicsComponent := &physics.PhysicsComponent{
 		MaxSpeed: 100,
 		Mass:     10,
 	}
 
 	seekComponent := &steering.SeekComponent{}
-	seekComponent.Initialize(physicsComponent)
+	seekComponent.Initialize(entity)
 
 	renderComponent := &render.RenderComponent{}
-	renderComponent.Initialize("stag-head.png", physicsComponent)
+	renderComponent.Initialize("stag-head.png", entity)
 
-	entity := Entity{
-		PhysicsComponent: physicsComponent,
-		SeekComponent:    seekComponent,
-		RenderComponent:  renderComponent,
-	}
+	entity.PhysicsComponent = physicsComponent
+	entity.SeekComponent = seekComponent
+	entity.RenderComponent = renderComponent
+
 	return entity
 }
 

@@ -6,16 +6,16 @@ import (
 )
 
 type SeekComponent struct {
-	physicsComponent *physics.PhysicsComponent
-	target           vector.Vector
+	entity physics.PhysicsI
+	target vector.Vector
 }
 
-func (s *SeekComponent) Initialize(p *physics.PhysicsComponent) {
-	s.physicsComponent = p
+func (s *SeekComponent) Initialize(entity physics.PhysicsI) {
+	s.entity = entity
 }
 
 func (s *SeekComponent) CalculateSteeringVelocity() vector.Vector {
-	physComp := s.physicsComponent
+	physComp := s.entity.GetPhysicsComponent()
 	desiredVelocity := s.target.Sub(physComp.Position).Normalize().Scale(physComp.MaxSpeed)
 	return desiredVelocity.Sub(physComp.Velocity).Scale(1.0 / physComp.Mass)
 }

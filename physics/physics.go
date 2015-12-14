@@ -2,12 +2,14 @@ package physics
 
 import (
 	// "fmt"
-	"github.com/kkevinchou/ant/math/vector"
 	"time"
+
+	"github.com/kkevinchou/ant/math/vector"
 )
 
-type PhysicsComposed interface {
+type PhysicsI interface {
 	GetPhysicsComponent() *PhysicsComponent
+	Update(delta time.Duration)
 }
 
 type PhysicsComponent struct {
