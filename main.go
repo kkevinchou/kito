@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"runtime"
 	"time"
 
 	"github.com/kkevinchou/ant/assets"
@@ -11,6 +13,14 @@ import (
 	"github.com/kkevinchou/ant/render"
 	"github.com/veandco/go-sdl2/sdl"
 )
+
+func init() {
+	// We want to lock the main thread to this goroutine.  Otherwise,
+	// SDL rendering will randomly panic
+	//
+	// For more details: https://github.com/golang/go/wiki/LockOSThread
+	runtime.LockOSThread()
+}
 
 func setupWindow() *sdl.Window {
 	sdl.Init(sdl.INIT_EVERYTHING)
@@ -34,7 +44,6 @@ func main() {
 	defer renderer.Destroy()
 
 	entity := entity.New()
-	entity.SetTarget(vector.Vector{100, 0})
 
 	movementSystem := movement.NewMovementSystem()
 	movementSystem.Register(entity)
@@ -46,18 +55,28 @@ func main() {
 	var event sdl.Event
 	gameOver := false
 
+	retargetSum := 0 * time.Second
+	entity.SetTarget(vector.Vector{400, 300})
+	rand.Seed(time.Now().Unix())
+
 	previousTime := time.Now()
 	for gameOver != true {
 		now := time.Now()
 		delta := time.Since(previousTime)
+		retargetSum += delta
 		previousTime = now
+
+		if retargetSum > 5*time.Second {
+			retargetSum = 0 * time.Second
+			entity.SetTarget(vector.Vector{float64(rand.Intn(800)), float64(rand.Intn(600))})
+		}
 
 		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch e := event.(type) {
 			case *sdl.QuitEvent:
 				gameOver = true
-			case *sdl.MouseMotionEvent:
-				entity.SetTarget(vector.Vector{float64(e.X), float64(e.Y)})
+			// case *sdl.MouseMotionEvent:
+			// 	entity.SetTarget(vector.Vector{float64(e.X), float64(e.Y)})
 			case *sdl.KeyUpEvent:
 				if e.Keysym.Sym == sdl.K_ESCAPE {
 					gameOver = true

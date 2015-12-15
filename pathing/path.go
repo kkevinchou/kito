@@ -1,5 +1,7 @@
 package pathing
 
+import "github.com/kkevinchou/ant/util"
+
 // README
 // Find path from a to b.
 // a and b may or may not be an existing node
@@ -63,5 +65,8 @@ func CreateNode(x int, y int) *Node {
 }
 
 func (planner *Planner) FindPath(startNode *Node) {
+	cameFrom := map[*Node]*Node{}
 
+	open := priorityqueue.PriorityQueue{}
+	open.Push(&Item{})
 }
