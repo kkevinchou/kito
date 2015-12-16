@@ -52,3 +52,7 @@ func (v Vector) Clamp(max float64) Vector {
 		return v
 	}
 }
+
+func (v Vector) Cross(v2 Vector) float64 {
+	return (v.X * v2.Y) - (v.Y * v2.X)
+}

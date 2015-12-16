@@ -2,13 +2,9 @@ package pathing
 
 import "github.com/kkevinchou/ant/util"
 
-// README
-// Find path from a to b.
-// a and b may or may not be an existing node
-// need to recompute graph with a and b added
-// compute a path
-// delete a and b
-// return path
+// Assumtions for pathfinding
+// 1. Polygons are non overlapping - though they can share vertices
+// 2. Polygons are convex
 
 var nodeIdGenerator int = 0
 
@@ -64,9 +60,13 @@ func CreateNode(x int, y int) *Node {
 	return &node
 }
 
-func (planner *Planner) FindPath(startNode *Node) {
+func (planner *Planner) FindPath(startNode *Node, goalNode *Node) {
 	cameFrom := map[*Node]*Node{}
+	cameFrom[startNode] = nil
 
-	open := priorityqueue.PriorityQueue{}
+	costSoFar := map[*Node]int{}
+	costSoFar[startNode] = 0
+
+	open := priorityqueue.New()
 	open.Push(&Item{})
 }
