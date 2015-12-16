@@ -21,10 +21,16 @@ type Polygon struct {
 	points []Point
 }
 
+// TODO: Should I return the internal reference to the points? Or
+// return copies? Concern is that points could be manipulated externally
+// unintentionally thus breaking the polygon -- extremely hard to debug :(
 func (p *Polygon) Points() []Point {
 	return p.points
 }
 
+// TODO: Might be worth considering caching or constructing the edges at construction time
+// as opposed to reconstructing edges each time.  My concern was that edges could be modified
+// externally but it may not be a big issue *shrugs*
 func (p *Polygon) Edges() []Edge {
 	n := len(p.points)
 	edges := make([]Edge, n)
@@ -35,6 +41,7 @@ func (p *Polygon) Edges() []Edge {
 	return edges
 }
 
+// We consider the borders to be inclusive, may be subject to change in the future
 func (p *Polygon) ContainsPoint(point Point) bool {
 	n := len(p.points)
 
