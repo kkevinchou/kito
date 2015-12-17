@@ -5,7 +5,7 @@ import "container/heap"
 // An Item is something we manage in a priority queue.
 type Item struct {
 	value    interface{} // The value of the item; arbitrary.
-	priority int         // The priority of the item in the queue.
+	priority float64     // The priority of the item in the queue.
 }
 
 // A Heap implements heap.Interface and holds Items.
@@ -43,7 +43,7 @@ func New() *PriorityQueue {
 	return &pq
 }
 
-func (pq *PriorityQueue) Push(x interface{}, priority int) {
+func (pq *PriorityQueue) Push(x interface{}, priority float64) {
 	heap.Push(pq.h, &Item{value: x, priority: priority})
 }
 
@@ -54,4 +54,8 @@ func (pq *PriorityQueue) Pop() interface{} {
 
 func (pq *PriorityQueue) Len() int {
 	return pq.h.Len()
+}
+
+func (pq *PriorityQueue) Empty() bool {
+	return pq.Len() == 0
 }
