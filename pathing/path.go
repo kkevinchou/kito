@@ -176,7 +176,7 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 			newCost := costSoFar[current] + p.navmesh.Cost(current, neighbor)
 			if cost, ok := costSoFar[neighbor]; !ok || newCost < cost {
 				costSoFar[neighbor] = newCost
-				frontier.Push(neighbor, newCost+p.navmesh.HeuristicCost(current, neighbor))
+				frontier.Push(neighbor, newCost+p.navmesh.HeuristicCost(goalNode, neighbor))
 				cameFrom[neighbor] = current
 			}
 		}
