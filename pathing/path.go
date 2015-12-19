@@ -12,38 +12,65 @@ import (
 // 1. Polygons are non overlapping - though they can share vertices
 // 2. Polygons are convex
 
-type Node vector.Vector
+type Polygon struct {
+	*geometry.Polygon
+	neighbors map[*Polygon]Portal
+}
+
+type Node struct {
+	X       float64
+	Y       float64
+	Polygon *Polygon
+}
+
+func (n Node) Less(other Node) bool {
+	if n.X < other.X {
+		return true
+	} else if n.X > other.X {
+		return false
+	}
+
+	if n.Y < other.Y {
+		return true
+	} else if n.Y > other.Y {
+		return false
+	}
+
+	return true
+}
 
 func (n Node) String() string {
 	return fmt.Sprintf("N[%.1f, %.1f]", n.X, n.Y)
 }
 
-type Edge struct {
-	From   Node
-	To     Node
-	length float64
+// Portals are edges that have a deterministic ordering of nodes
+// for predictable map lookups.
+// TODO: maybe define another node type that doesn't have a polygon pointer?
+// chance of bugs occuring where two ordered edges don't equal due to the
+// polygon pointer
+type Portal struct {
+	Node1 Node
+	Node2 Node
 }
 
-func (e Edge) String() string {
-	return fmt.Sprintf("E{%s -> %s | %.1f}", e.From, e.To, e.length)
-}
-
-func CreateEdge(from, to Node) Edge {
-	v1 := vector.Vector{X: from.X, Y: from.Y}
-	v2 := vector.Vector{X: to.X, Y: to.Y}
-
-	length := v1.Sub(v2).Length()
-
-	return Edge{From: from, To: to, length: length}
+func CreatePortal(node1, node2 Node) Portal {
+	node1.Polygon = nil
+	node2.Polygon = nil
+	if node1.Less(node2) {
+		return Portal{Node1: node1, Node2: node2}
+	} else {
+		return Portal{Node1: node2, Node2: node1}
+	}
 }
 
 type NavMesh struct {
 	neighbors map[Node][]Node
 	costs     map[Node]map[Node]float64
-	polygons  []*geometry.Polygon
+	polygons  []*Polygon
+	portals   map[Portal][]*Polygon
 }
 
-func (nm *NavMesh) Polygons() []*geometry.Polygon {
+func (nm *NavMesh) Polygons() []*Polygon {
 	return nm.polygons
 }
 
@@ -51,6 +78,7 @@ func ConstructNavMesh(polygons []*geometry.Polygon) *NavMesh {
 	navmesh := &NavMesh{
 		neighbors: map[Node][]Node{},
 		costs:     map[Node]map[Node]float64{},
+		portals:   map[Portal][]*Polygon{},
 	}
 
 	for _, polygon := range polygons {
@@ -60,30 +88,72 @@ func ConstructNavMesh(polygons []*geometry.Polygon) *NavMesh {
 	return navmesh
 }
 
+func (nm *NavMesh) AddPolygon(geoPolygon *geometry.Polygon) {
+	polygon := &Polygon{Polygon: geoPolygon}
+	polygon.neighbors = map[*Polygon]Portal{}
+
+	nm.polygons = append(nm.polygons, polygon)
+	for _, point1 := range polygon.Points() {
+		node1 := Node{X: point1.X, Y: point1.Y, Polygon: polygon}
+		for _, point2 := range polygon.Points() {
+			node2 := Node{X: point2.X, Y: point2.Y, Polygon: polygon}
+			if node1 != node2 {
+				nm.addEdge(node1, node2)
+
+				orderedEdge := CreatePortal(node1, node2)
+				// Setting up and detecting nm.portals could probably be done more efficiently
+				if len(nm.portals[orderedEdge]) == 1 {
+					if nm.portals[orderedEdge][0] != polygon {
+						polygon.neighbors[nm.portals[orderedEdge][0]] = orderedEdge
+						nm.portals[orderedEdge][0].neighbors[polygon] = orderedEdge
+						// We've found a portal that connects two pathPolygons, attach the nodes as neighbors
+						nm.addEdge(
+							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: nm.portals[orderedEdge][0]},
+							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: polygon},
+						)
+
+						nm.addEdge(
+							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: polygon},
+							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: nm.portals[orderedEdge][0]},
+						)
+
+						nm.addEdge(
+							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: nm.portals[orderedEdge][0]},
+							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: polygon},
+						)
+
+						nm.addEdge(
+							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: polygon},
+							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: nm.portals[orderedEdge][0]},
+						)
+					}
+				} else {
+					nm.portals[orderedEdge] = append(nm.portals[orderedEdge], polygon)
+				}
+			}
+		}
+	}
+}
+
 func (nm *NavMesh) addEdge(from, to Node) {
 	if _, ok := nm.neighbors[from]; !ok {
 		nm.neighbors[from] = []Node{}
 		nm.costs[from] = map[Node]float64{}
 	}
 
-	edge := CreateEdge(from, to)
-
 	if _, ok := nm.costs[from][to]; !ok {
-		nm.costs[from][to] = edge.length
-		nm.neighbors[from] = append(nm.neighbors[from], to)
-	}
-}
+		v1 := vector.Vector{X: from.X, Y: from.Y}
+		v2 := vector.Vector{X: to.X, Y: to.Y}
 
-func (nm *NavMesh) AddPolygon(polygon *geometry.Polygon) {
-	nm.polygons = append(nm.polygons, polygon)
-	for _, point1 := range polygon.Points() {
-		node1 := Node{point1.X, point1.Y}
-		for _, point2 := range polygon.Points() {
-			node2 := Node{point2.X, point2.Y}
-			if node1 != node2 {
-				nm.addEdge(node1, node2)
-			}
+		var length float64
+		if (v1.X == v2.X) && (v1.Y == v1.Y) {
+			length = 0
+		} else {
+			length = v1.Sub(v2).Length()
 		}
+
+		nm.costs[from][to] = length
+		nm.neighbors[from] = append(nm.neighbors[from], to)
 	}
 }
 
@@ -116,20 +186,24 @@ func (p *Planner) SetNavMesh(navmesh *NavMesh) {
 func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 	startNode, goalNode := Node{X: start.X, Y: start.Y}, Node{X: goal.X, Y: goal.Y}
 
+	// Initialize
 	frontier := priorityqueue.New()
 	cameFrom := map[Node]Node{}
 	costSoFar := map[Node]float64{startNode: 0}
+	explored := map[Node]bool{}
 
-	// Find which polygon our start and goal lies in
-
+	// Find which polygon our start node lies in
 	for _, polygon := range p.navmesh.Polygons() {
 		if polygon.ContainsPoint(start) {
 			for _, point := range polygon.Points() {
-				node := Node{point.X, point.Y}
+				node := Node{X: point.X, Y: point.Y, Polygon: polygon}
 				cost := point.Vector().Sub(start.Vector()).Length()
+				startNode.Polygon = polygon
 				cameFrom[node] = startNode
 				costSoFar[node] = cost
 
+				// Initialize the frontier with each of the neighbors
+				// of the start node within the polygon
 				frontier.Push(node, cost)
 			}
 			break
@@ -141,9 +215,11 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 		return nil
 	}
 
-	var goalPolygon *geometry.Polygon
+	// Find which polygon our goal node lies in
+	var goalPolygon *Polygon
 	for _, polygon := range p.navmesh.Polygons() {
 		if polygon.ContainsPoint(goal) {
+			goalNode.Polygon = polygon
 			goalPolygon = polygon
 			break
 		}
@@ -154,12 +230,20 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 		return nil
 	}
 
+	// If we have a direct path from start to goal, return it
+	if startNode.Polygon == goalNode.Polygon {
+		return []Node{startNode, goalNode}
+	}
+
+	// Set the goal node as the neighbor of each node in the goal
+	// polygon
 	goalNeighbors := map[Node]bool{}
 	for _, point := range goalPolygon.Points() {
-		node := Node{X: point.X, Y: point.Y}
+		node := Node{X: point.X, Y: point.Y, Polygon: goalPolygon}
 		goalNeighbors[node] = true
 	}
 
+	// Start searching for a path!
 	for !frontier.Empty() {
 		current := frontier.Pop().(Node)
 
@@ -167,12 +251,18 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 			break
 		}
 
+		explored[current] = true
+
 		neighbors := p.navmesh.Neighbors(current)
 		if _, ok := goalNeighbors[current]; ok {
 			neighbors = append(neighbors, goalNode)
 		}
 
 		for _, neighbor := range neighbors {
+			if _, ok := explored[neighbor]; ok {
+				continue
+			}
+
 			newCost := costSoFar[current] + p.navmesh.Cost(current, neighbor)
 			if cost, ok := costSoFar[neighbor]; !ok || newCost < cost {
 				costSoFar[neighbor] = newCost

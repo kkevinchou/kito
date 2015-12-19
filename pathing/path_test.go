@@ -44,7 +44,7 @@ func TestPriorityQueue(t *testing.T) {
 	p := pathing.Planner{}
 	p.SetNavMesh(navmesh)
 
-	fmt.Println(p.FindPath(geometry.Point{1, 5}, geometry.Point{17, 5}))
+	fmt.Println(p.FindPath(geometry.Point{1, 5}, geometry.Point{15, 5}))
 	// fmt.Println(graph.Neighbors(pathing.Node{6, 6}))
 	// n1 := CreateNode(0, 0)
 	// n2 := CreateNode(1, 1)
