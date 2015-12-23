@@ -42,112 +42,107 @@ func tri4() *geometry.Polygon {
 	return geometry.NewPolygon(points)
 }
 
-// func TestWithNewApex(t *testing.T) {
-// 	polygons := []*geometry.Polygon{
-// 		tri1(),
-// 		tri2(),
-// 		tri3(),
-// 		tri4(),
-// 	}
+func TestWithNewApex(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		tri1(),
+		tri2(),
+		tri3(),
+		tri4(),
+	}
 
-// 	navmesh := ConstructNavMesh(polygons)
-// 	p := Planner{}
-// 	p.SetNavMesh(navmesh)
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
 
-// 	path := p.FindPath(geometry.Point{13, 7}, geometry.Point{18, 5})
-// 	expectedPath := []Node{Node{X: 13, Y: 7}, Node{X: 17, Y: 8}, Node{X: 18, Y: 5}}
-// 	assertPathEq(t, expectedPath, path)
-// }
+	path := p.FindPath(geometry.Point{13, 7}, geometry.Point{18, 5})
+	expectedPath := []Node{Node{X: 13, Y: 7}, Node{X: 17, Y: 8}, Node{X: 18, Y: 5}}
+	assertPathEq(t, expectedPath, path)
+}
 
-// func TestSmoothing(t *testing.T) {
-// 	polygons := []*geometry.Polygon{
-// 		sqWithXOffset(0),
-// 		sqWithXOffset(6),
-// 		sqWithXOffset(12),
-// 		sqWithXOffset(18),
-// 	}
+func TestSmoothing(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithXOffset(0),
+		sqWithXOffset(6),
+		sqWithXOffset(12),
+		sqWithXOffset(18),
+	}
 
-// 	navmesh := ConstructNavMesh(polygons)
-// 	p := Planner{}
-// 	p.SetNavMesh(navmesh)
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
 
-// 	path := p.FindPath(geometry.Point{1, 1}, geometry.Point{17, 5})
-// 	expectedPath := []Node{Node{X: 1, Y: 1}, Node{X: 17, Y: 5}}
-// 	assertPathEq(t, expectedPath, path)
-// }
+	path := p.FindPath(geometry.Point{1, 1}, geometry.Point{17, 5})
+	expectedPath := []Node{Node{X: 1, Y: 1}, Node{X: 17, Y: 5}}
+	assertPathEq(t, expectedPath, path)
+}
 
-// func TestTwoApexes(t *testing.T) {
-// 	polygons := []*geometry.Polygon{
-// 		sqWithOffset(30, 0, 0),
-// 		sqWithOffset(30, 1, 0),
-// 		sqWithOffset(30, 2, 0),
-// 		sqWithOffset(30, 2, 1),
-// 		sqWithOffset(30, 2, 2),
-// 		sqWithOffset(30, 3, 2),
-// 	}
+func TestTwoApexes(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(30, 0, 0),
+		sqWithOffset(30, 1, 0),
+		sqWithOffset(30, 2, 0),
+		sqWithOffset(30, 2, 1),
+		sqWithOffset(30, 2, 2),
+		sqWithOffset(30, 3, 2),
+	}
 
-// 	navmesh := ConstructNavMesh(polygons)
-// 	p := Planner{}
-// 	p.SetNavMesh(navmesh)
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
 
-// 	path := p.FindPath(geometry.Point{0, 0}, geometry.Point{110, 69})
-// 	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 60, Y: 30}, Node{X: 90, Y: 60}, Node{X: 110, Y: 69}}
-// 	assertPathEq(t, expectedPath, path)
-// }
+	path := p.FindPath(geometry.Point{0, 0}, geometry.Point{110, 69})
+	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 60, Y: 30}, Node{X: 90, Y: 60}, Node{X: 110, Y: 69}}
+	assertPathEq(t, expectedPath, path)
+}
 
-// func TestStartNodeOverlapsNode(t *testing.T) {
-// 	polygons := []*geometry.Polygon{
-// 		sqWithOffset(30, 0, 0),
-// 		sqWithOffset(30, 1, 0),
-// 	}
+func TestStartNodeOverlapsNode(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(30, 0, 0),
+		sqWithOffset(30, 1, 0),
+	}
 
-// 	navmesh := ConstructNavMesh(polygons)
-// 	p := Planner{}
-// 	p.SetNavMesh(navmesh)
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
 
-// 	path := p.FindPath(geometry.Point{0, 0}, geometry.Point{50, 20})
-// 	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 50, Y: 20}}
-// 	assertPathEq(t, expectedPath, path)
-// }
+	path := p.FindPath(geometry.Point{0, 0}, geometry.Point{50, 20})
+	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 50, Y: 20}}
+	assertPathEq(t, expectedPath, path)
+}
 
-// func TestGoalNodeOverlapsNode(t *testing.T) {
-// 	polygons := []*geometry.Polygon{
-// 		sqWithOffset(30, 0, 0),
-// 		sqWithOffset(30, 1, 0),
-// 	}
+func TestGoalNodeOverlapsNode(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(30, 0, 0),
+		sqWithOffset(30, 1, 0),
+	}
 
-// 	navmesh := ConstructNavMesh(polygons)
-// 	p := Planner{}
-// 	p.SetNavMesh(navmesh)
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
 
-// 	path := p.FindPath(geometry.Point{1, 1}, geometry.Point{30, 30})
-// 	expectedPath := []Node{Node{X: 1, Y: 1}, Node{X: 30, Y: 30}}
-// 	assertPathEq(t, expectedPath, path)
-// }
+	path := p.FindPath(geometry.Point{1, 1}, geometry.Point{30, 30})
+	expectedPath := []Node{Node{X: 1, Y: 1}, Node{X: 30, Y: 30}}
+	assertPathEq(t, expectedPath, path)
+}
 
-// func TestStartAndGoalNodeOverlapsNode(t *testing.T) {
-// 	polygons := []*geometry.Polygon{
-// 		sqWithOffset(30, 0, 0),
-// 		sqWithOffset(30, 1, 0),
-// 		sqWithOffset(30, 1, 1),
-// 	}
+func TestStartAndGoalNodeOverlapsNode(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(30, 0, 0),
+		sqWithOffset(30, 1, 0),
+		sqWithOffset(30, 1, 1),
+	}
 
-// 	navmesh := ConstructNavMesh(polygons)
-// 	p := Planner{}
-// 	p.SetNavMesh(navmesh)
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
 
-// 	path := p.FindPath(geometry.Point{0, 0}, geometry.Point{30, 60})
-// 	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 30, Y: 30}, Node{X: 30, Y: 60}}
-// 	assertPathEq(t, expectedPath, path)
-// }
+	path := p.FindPath(geometry.Point{0, 0}, geometry.Point{30, 60})
+	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 30, Y: 30}, Node{X: 30, Y: 60}}
+	assertPathEq(t, expectedPath, path)
+}
 
 func TestReverseC(t *testing.T) {
 	polygons := []*geometry.Polygon{
-		// sqWithOffset(30, 1, 0),
-		// sqWithOffset(30, 1, 1),
-		// sqWithOffset(30, 1, 2),
-		// sqWithOffset(30, 0, 2),
-
 		sqWithOffset(60, 0, 0),
 		sqWithOffset(60, 1, 0),
 		sqWithOffset(60, 1, 1),
@@ -160,32 +155,27 @@ func TestReverseC(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{0, 0}, geometry.Point{20, 140})
-	expectedPath := []Node{Node{X: 15, Y: 15}, Node{X: 30, Y: 30}, Node{X: 30, Y: 60}, Node{X: 16, Y: 65}}
+	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 60, Y: 60}, Node{X: 60, Y: 120}, Node{X: 20, Y: 140}}
 	assertPathEq(t, expectedPath, path)
 }
 
-// func TestC(t *testing.T) {
-// 	polygons := []*geometry.Polygon{
-// 		// sqWithOffset(30, 1, 0),
-// 		// sqWithOffset(30, 1, 1),
-// 		// sqWithOffset(30, 1, 2),
-// 		// sqWithOffset(30, 0, 2),
+func TestC(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(60, 0, 0),
+		sqWithOffset(60, 1, 0),
+		sqWithOffset(60, 0, 1),
+		sqWithOffset(60, 0, 2),
+		sqWithOffset(60, 1, 2),
+	}
 
-// 		sqWithOffset(60, 0, 0),
-// 		sqWithOffset(60, 1, 0),
-// 		sqWithOffset(60, 0, 1),
-// 		sqWithOffset(60, 0, 2),
-// 		sqWithOffset(60, 1, 2),
-// 	}
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
 
-// 	navmesh := ConstructNavMesh(polygons)
-// 	p := Planner{}
-// 	p.SetNavMesh(navmesh)
-
-// 	path := p.FindPath(geometry.Point{80, 20}, geometry.Point{80, 140})
-// 	expectedPath := []Node{Node{X: 15, Y: 15}, Node{X: 30, Y: 30}, Node{X: 30, Y: 60}, Node{X: 16, Y: 65}}
-// 	assertPathEq(t, expectedPath, path)
-// }
+	path := p.FindPath(geometry.Point{80, 20}, geometry.Point{80, 140})
+	expectedPath := []Node{Node{X: 80, Y: 20}, Node{X: 60, Y: 60}, Node{X: 60, Y: 120}, Node{X: 80, Y: 140}}
+	assertPathEq(t, expectedPath, path)
+}
 
 func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
 	points := []geometry.Point{
