@@ -4,11 +4,13 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/math/vector"
-	"github.com/kkevinchou/ant/physics"
 )
 
 type Moveable interface {
-	physics.PhysicsI
+	Update(time.Duration)
+	Velocity() vector.Vector
+	SetVelocity(vector.Vector)
+	MaxSpeed() float64
 	CalculateSteeringVelocity() vector.Vector
 }
 
@@ -28,9 +30,8 @@ func NewMovementSystem() MovementSystem {
 
 func (m *MovementSystem) Update(delta time.Duration) {
 	for _, moveable := range m.moveables {
-		physComp := moveable.GetPhysicsComponent()
 		steeringVelocity := moveable.CalculateSteeringVelocity()
-		physComp.Velocity = physComp.Velocity.Add(steeringVelocity).Clamp(physComp.MaxSpeed)
+		moveable.SetVelocity(moveable.Velocity().Add(steeringVelocity).Clamp(moveable.MaxSpeed()))
 		moveable.Update(delta)
 	}
 }

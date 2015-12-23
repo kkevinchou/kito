@@ -1,19 +1,22 @@
 package steering
 
-import (
-	"github.com/kkevinchou/ant/math/vector"
-	"github.com/kkevinchou/ant/physics"
-)
+import "github.com/kkevinchou/ant/math/vector"
+
+type Seekable interface {
+	Position() vector.Vector
+	Velocity() vector.Vector
+	Mass() float64
+	MaxSpeed() float64
+}
 
 type SeekComponent struct {
-	Entity physics.PhysicsI
+	Entity Seekable
 	target vector.Vector
 }
 
 func (s *SeekComponent) CalculateSteeringVelocity() vector.Vector {
-	physComp := s.Entity.GetPhysicsComponent()
-	desiredVelocity := s.target.Sub(physComp.Position).Normalize().Scale(physComp.MaxSpeed)
-	return desiredVelocity.Sub(physComp.Velocity).Scale(1.0 / physComp.Mass)
+	desiredVelocity := s.target.Sub(s.Entity.Position()).Normalize().Scale(s.Entity.MaxSpeed())
+	return desiredVelocity.Sub(s.Entity.Velocity()).Scale(1.0 / s.Entity.Mass())
 }
 
 func (s *SeekComponent) SetTarget(v vector.Vector) {

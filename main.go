@@ -87,7 +87,7 @@ func main() {
 	defer renderer.Destroy()
 
 	entity := entity.New()
-	entity.Position = vector.Vector{1, 1}
+	entity.SetPosition(vector.Vector{1, 1})
 
 	movementSystem := movement.NewMovementSystem()
 	movementSystem.Register(entity)
@@ -107,13 +107,7 @@ func main() {
 	var path []pathing.Node
 	pathIndex := 0
 
-	// path = p.FindPath(
-	// 	geometry.Point{X: entity.PhysicsComponent.Position.X, Y: entity.PhysicsComponent.Position.Y},
-	// 	geometry.Point{X: 12, Y: 373},
-	// )
 	entity.SetTarget(vector.Vector{0, 0})
-
-	fmt.Println(path)
 
 	previousTime := time.Now()
 	for gameOver != true {
@@ -126,9 +120,10 @@ func main() {
 			case *sdl.QuitEvent:
 				gameOver = true
 			case *sdl.MouseButtonEvent:
-				if e.State == 0 {
+				if e.State == 0 { // Mouse Up
+					position := entity.Position()
 					path = p.FindPath(
-						geometry.Point{X: entity.PhysicsComponent.Position.X, Y: entity.PhysicsComponent.Position.Y},
+						geometry.Point{X: position.X, Y: position.Y},
 						geometry.Point{X: float64(e.X), Y: float64(e.Y)},
 					)
 					if path != nil {
@@ -136,8 +131,6 @@ func main() {
 						entity.SetTarget(path[0].Vector())
 					}
 				}
-
-				// entity.SetTarget(vector.Vector{float64(e.X), float64(e.Y)})
 			case *sdl.KeyUpEvent:
 				if e.Keysym.Sym == sdl.K_ESCAPE {
 					gameOver = true
@@ -146,7 +139,7 @@ func main() {
 		}
 
 		if path != nil {
-			if entity.Position.Sub(path[pathIndex].Vector()).Length() <= 2 && pathIndex < len(path)-1 {
+			if entity.Position().Sub(path[pathIndex].Vector()).Length() <= 2 && pathIndex < len(path)-1 {
 				pathIndex += 1
 				entity.SetTarget(path[pathIndex].Vector())
 			}
