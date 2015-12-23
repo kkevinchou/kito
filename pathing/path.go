@@ -1,179 +1,14 @@
 package pathing
 
 import (
-	"fmt"
-
 	"github.com/kkevinchou/ant/geometry"
 	"github.com/kkevinchou/ant/math/vector"
 	"github.com/kkevinchou/ant/util"
 )
 
-// Assumptions for pathfinding
-// 1. Polygons are non overlapping - though they can share vertices
-// 2. Polygons are convex
-
-type Polygon struct {
-	*geometry.Polygon
-	neighbors map[*Polygon]Portal
-}
-
-type Node struct {
-	X       float64
-	Y       float64
-	Polygon *Polygon
-}
-
-func (n Node) Less(other Node) bool {
-	if n.X < other.X {
-		return true
-	} else if n.X > other.X {
-		return false
-	}
-
-	if n.Y < other.Y {
-		return true
-	} else if n.Y > other.Y {
-		return false
-	}
-
-	return true
-}
-
-func (n Node) String() string {
-	return fmt.Sprintf("N[%.1f, %.1f]", n.X, n.Y)
-}
-
-// Portals are edges that have a deterministic ordering of nodes
-// for predictable map lookups.
-// TODO: maybe define another node type that doesn't have a polygon pointer?
-// chance of bugs occuring where two ordered edges don't equal due to the
-// polygon pointer
-type Portal struct {
-	Node1 Node
-	Node2 Node
-}
-
-func CreatePortal(node1, node2 Node) Portal {
-	node1.Polygon = nil
-	node2.Polygon = nil
-	if node1.Less(node2) {
-		return Portal{Node1: node1, Node2: node2}
-	} else {
-		return Portal{Node1: node2, Node2: node1}
-	}
-}
-
-type NavMesh struct {
-	neighbors map[Node][]Node
-	costs     map[Node]map[Node]float64
-	polygons  []*Polygon
-	portals   map[Portal][]*Polygon
-}
-
-func (nm *NavMesh) Polygons() []*Polygon {
-	return nm.polygons
-}
-
-func ConstructNavMesh(polygons []*geometry.Polygon) *NavMesh {
-	navmesh := &NavMesh{
-		neighbors: map[Node][]Node{},
-		costs:     map[Node]map[Node]float64{},
-		portals:   map[Portal][]*Polygon{},
-	}
-
-	for _, polygon := range polygons {
-		navmesh.AddPolygon(polygon)
-	}
-
-	return navmesh
-}
-
-func (nm *NavMesh) AddPolygon(geoPolygon *geometry.Polygon) {
-	polygon := &Polygon{Polygon: geoPolygon}
-	polygon.neighbors = map[*Polygon]Portal{}
-
-	nm.polygons = append(nm.polygons, polygon)
-	for _, point1 := range polygon.Points() {
-		node1 := Node{X: point1.X, Y: point1.Y, Polygon: polygon}
-		for _, point2 := range polygon.Points() {
-			node2 := Node{X: point2.X, Y: point2.Y, Polygon: polygon}
-			if node1 != node2 {
-				nm.addEdge(node1, node2)
-
-				orderedEdge := CreatePortal(node1, node2)
-				// Setting up and detecting nm.portals could probably be done more efficiently
-				if len(nm.portals[orderedEdge]) == 1 {
-					if nm.portals[orderedEdge][0] != polygon {
-						polygon.neighbors[nm.portals[orderedEdge][0]] = orderedEdge
-						nm.portals[orderedEdge][0].neighbors[polygon] = orderedEdge
-						// We've found a portal that connects two pathPolygons, attach the nodes as neighbors
-						nm.addEdge(
-							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: nm.portals[orderedEdge][0]},
-							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: polygon},
-						)
-
-						nm.addEdge(
-							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: polygon},
-							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: nm.portals[orderedEdge][0]},
-						)
-
-						nm.addEdge(
-							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: nm.portals[orderedEdge][0]},
-							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: polygon},
-						)
-
-						nm.addEdge(
-							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: polygon},
-							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: nm.portals[orderedEdge][0]},
-						)
-					}
-				} else {
-					nm.portals[orderedEdge] = append(nm.portals[orderedEdge], polygon)
-				}
-			}
-		}
-	}
-}
-
-func (nm *NavMesh) addEdge(from, to Node) {
-	if _, ok := nm.neighbors[from]; !ok {
-		nm.neighbors[from] = []Node{}
-		nm.costs[from] = map[Node]float64{}
-	}
-
-	if _, ok := nm.costs[from][to]; !ok {
-		v1 := vector.Vector{X: from.X, Y: from.Y}
-		v2 := vector.Vector{X: to.X, Y: to.Y}
-
-		var length float64
-		if (v1.X == v2.X) && (v1.Y == v1.Y) {
-			length = 0
-		} else {
-			length = v1.Sub(v2).Length()
-		}
-
-		nm.costs[from][to] = length
-		nm.neighbors[from] = append(nm.neighbors[from], to)
-	}
-}
-
-func (nm *NavMesh) Neighbors(node Node) []Node {
-	if neighbors, ok := nm.neighbors[node]; ok {
-		return neighbors
-	}
-	return []Node{}
-}
-
-func (nm *NavMesh) Cost(from, to Node) float64 {
-	return nm.costs[from][to]
-}
-
-func (nm *NavMesh) HeuristicCost(from, to Node) float64 {
-	v1 := vector.Vector{X: from.X, Y: from.Y}
-	v2 := vector.Vector{X: to.X, Y: to.Y}
-
-	return v1.Sub(v2).Length()
-}
+const (
+	floatEpsilon = float64(0.001) * float64(0.001)
+)
 
 type Planner struct {
 	navmesh *NavMesh
@@ -184,6 +19,36 @@ func (p *Planner) SetNavMesh(navmesh *NavMesh) {
 }
 
 func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
+	roughPath := p.findNodePath(start, goal)
+	if roughPath == nil {
+		return nil
+	}
+
+	startNode, goalNode := Node{X: start.X, Y: start.Y}, Node{X: goal.X, Y: goal.Y}
+	portals := findPortals(startNode, goalNode, roughPath)
+
+	smoothedPath := smoothPath(portals)
+
+	return smoothedPath
+}
+
+func findPortals(start Node, goal Node, nodes []Node) []Portal {
+	portals := []Portal{CreatePortal(start, start)}
+	prevPolygon := nodes[0].Polygon
+
+	for _, node := range nodes {
+		if node.Polygon != prevPolygon {
+			portals = append(portals, prevPolygon.neighbors[node.Polygon])
+			prevPolygon = node.Polygon
+		}
+	}
+
+	portals = append(portals, CreatePortal(goal, goal))
+
+	return portals
+}
+
+func (p *Planner) findNodePath(start geometry.Point, goal geometry.Point) []Node {
 	startNode, goalNode := Node{X: start.X, Y: start.Y}, Node{X: goal.X, Y: goal.Y}
 
 	// Initialize
@@ -197,6 +62,7 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 		if polygon.ContainsPoint(start) {
 			for _, point := range polygon.Points() {
 				node := Node{X: point.X, Y: point.Y, Polygon: polygon}
+
 				cost := point.Vector().Sub(start.Vector()).Length()
 				startNode.Polygon = polygon
 				cameFrom[node] = startNode
@@ -278,14 +144,14 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 	}
 
 	path := []Node{}
-	var ok bool
 	pathNode := goalNode
 
 	for {
 		path = append(path, pathNode)
-		if pathNode, ok = cameFrom[pathNode]; !ok {
+		if pathNode == startNode {
 			break
 		}
+		pathNode = cameFrom[pathNode]
 	}
 
 	reversePath := make([]Node, len(path))
@@ -294,4 +160,119 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 	}
 
 	return reversePath
+}
+
+func orderPortalNodes(portals []Portal) []Node {
+	portalNodes := []Node{portals[0].Node1, portals[0].Node2}
+	prevLeft := portals[0].Node1
+	prevRight := portals[0].Node2
+
+	for i := 1; i < len(portals); i++ {
+		nextLeft := portals[i].Node1
+		nextRight := portals[i].Node2
+
+		leftVec := nextLeft.Vector().Sub(prevLeft.Vector())
+		rightVec := nextRight.Vector().Sub(prevRight.Vector())
+
+		if rightVec.Cross(leftVec) > 0 {
+			nextLeft, nextRight = nextRight, nextLeft
+		}
+		// TODO: handle where they're == 0
+
+		portalNodes = append(portalNodes, nextLeft)
+		portalNodes = append(portalNodes, nextRight)
+
+		prevLeft, prevRight = nextLeft, nextRight
+	}
+
+	return portalNodes
+}
+
+// Returns true if v is to left of reference
+func vecOnLeft(reference, v vector.Vector) bool {
+	return reference.Cross(v) < floatEpsilon
+}
+
+// Returns true if v is to the right of reference
+func vecOnRight(reference, v vector.Vector) bool {
+	return reference.Cross(v) > -1*floatEpsilon
+}
+
+func smoothPath(unorderedPortals []Portal) []Node {
+	portalNodes := orderPortalNodes(unorderedPortals)
+
+	// This algorithm was retrieved online but a confusing note:
+	// lastValidRightIndex actually represent "left" indexes
+	// lastValidRightIndex represents the left index of the last valid
+	// right index.  These indexes are used purely to reset the apex
+	// at the correct point
+
+	lastValidLeftIndex := 0
+	lastValidRightIndex := 0
+
+	apex := portalNodes[0]
+	portalLeft := apex
+	portalRight := apex
+
+	contactNodes := []Node{apex}
+
+	lastValidLeftVec := vector.Vector{}
+	lastValidRightVec := vector.Vector{}
+
+	for i := 2; i < len(portalNodes); i += 2 {
+		leftNode := portalNodes[i]
+		rightNode := portalNodes[i+1]
+
+		leftVec := leftNode.Vector().Sub(apex.Vector())
+		rightVec := rightNode.Vector().Sub(apex.Vector())
+
+		// Left side of funnel
+		// The leftVec is to the right of lastValidLeftVec, so we
+		// shrink the funnel
+		if vecOnLeft(leftVec, lastValidLeftVec) {
+			if (portalLeft == apex) || !vecOnRight(lastValidRightVec, leftVec) {
+				portalLeft = leftNode
+				lastValidLeftVec = leftVec
+				lastValidLeftIndex = i
+			} else {
+				// If the new leftVec is to the right of the last valid
+				// right vec, we set the new apex
+				_ = "breakpoint"
+				apex = portalRight
+				portalLeft = apex
+				contactNodes = append(contactNodes, apex)
+				lastValidLeftVec = vector.Vector{}
+				lastValidRightVec = vector.Vector{}
+
+				lastValidLeftIndex = lastValidRightIndex
+				i = lastValidRightIndex
+				continue
+			}
+		}
+
+		// Right side of funnel
+		if vecOnRight(rightVec, lastValidRightVec) {
+			if (portalRight == apex) || !vecOnLeft(lastValidLeftVec, rightVec) {
+				portalRight = rightNode
+				lastValidRightVec = rightVec
+				lastValidRightIndex = i
+			} else {
+				apex = portalLeft
+				portalRight = apex
+				contactNodes = append(contactNodes, apex)
+				lastValidRightVec = vector.Vector{}
+				lastValidLeftVec = vector.Vector{}
+
+				lastValidRightIndex = lastValidLeftIndex
+				i = lastValidLeftIndex
+				continue
+			}
+		}
+	}
+
+	if contactNodes[len(contactNodes)-1] != portalNodes[len(portalNodes)-1] {
+		contactNodes = append(contactNodes, portalNodes[len(portalNodes)-1])
+	}
+
+	return contactNodes
 }

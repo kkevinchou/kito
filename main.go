@@ -8,8 +8,10 @@ import (
 
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/entity"
+	"github.com/kkevinchou/ant/geometry"
 	"github.com/kkevinchou/ant/math/vector"
 	"github.com/kkevinchou/ant/movement"
+	"github.com/kkevinchou/ant/pathing"
 	"github.com/kkevinchou/ant/render"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -33,9 +35,33 @@ func setupWindow() *sdl.Window {
 	return window
 }
 
+func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
+	points := []geometry.Point{
+		geometry.Point{xOffset * size, yOffset * size},
+		geometry.Point{xOffset * size, yOffset*size + size},
+		geometry.Point{xOffset*size + size, yOffset*size + size},
+		geometry.Point{xOffset*size + size, yOffset * size},
+	}
+	return geometry.NewPolygon(points)
+}
+
+func setupNavMesh() *pathing.NavMesh {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(30, 0, 0),
+		sqWithOffset(30, 1, 0),
+		sqWithOffset(30, 1, 1),
+		sqWithOffset(30, 1, 2),
+		sqWithOffset(30, 0, 2),
+	}
+
+	return pathing.ConstructNavMesh(polygons)
+}
+
 func main() {
 	window := setupWindow()
 	defer window.Destroy()
+
+	rand.Seed(time.Now().Unix())
 
 	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
@@ -50,75 +76,61 @@ func main() {
 
 	assetManager := assets.NewAssetManager(renderer, "assets/icons")
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
+
+	navMesh := setupNavMesh()
 	renderSystem.Register(entity)
+	renderSystem.Register(navMesh)
+	p := pathing.Planner{}
+	p.SetNavMesh(navMesh)
 
 	var event sdl.Event
 	gameOver := false
 
-	retargetSum := 0 * time.Second
-	entity.SetTarget(vector.Vector{400, 300})
-	rand.Seed(time.Now().Unix())
+	var path []pathing.Node
+	pathIndex := 0
+
+	entity.SetTarget(vector.Vector{1, 1})
 
 	previousTime := time.Now()
 	for gameOver != true {
 		now := time.Now()
 		delta := time.Since(previousTime)
-		retargetSum += delta
 		previousTime = now
-
-		if retargetSum > 5*time.Second {
-			retargetSum = 0 * time.Second
-			entity.SetTarget(vector.Vector{float64(rand.Intn(800)), float64(rand.Intn(600))})
-		}
 
 		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch e := event.(type) {
 			case *sdl.QuitEvent:
 				gameOver = true
-			// case *sdl.MouseMotionEvent:
-			// 	entity.SetTarget(vector.Vector{float64(e.X), float64(e.Y)})
+			case *sdl.MouseButtonEvent:
+				if e.State == 0 {
+					path = p.FindPath(
+						geometry.Point{X: entity.PhysicsComponent.Position.X, Y: entity.PhysicsComponent.Position.Y},
+						geometry.Point{X: float64(e.X), Y: float64(e.Y)},
+					)
+					if path != nil {
+						fmt.Println(path)
+						pathIndex = 0
+						entity.SetTarget(path[0].Vector())
+					}
+				}
+
+				// entity.SetTarget(vector.Vector{float64(e.X), float64(e.Y)})
 			case *sdl.KeyUpEvent:
 				if e.Keysym.Sym == sdl.K_ESCAPE {
 					gameOver = true
 				}
 			}
+		}
 
+		if path != nil {
+			if entity.Position.Sub(path[pathIndex].Vector()).Length() <= 1 && pathIndex < len(path)-1 {
+				pathIndex += 1
+				entity.SetTarget(path[pathIndex].Vector())
+			}
 		}
 
 		movementSystem.Update(delta)
 		renderSystem.Update(delta)
 	}
 	sdl.Quit()
-
-	// node1 := pathing.CreateNode(0, 1)
-	// node2 := pathing.CreateNode(1, 1)
-
-	// nodes := []*pathing.Node{
-	// 	node1,
-	// 	node2,
-	// }
-
-	// edges := []*pathing.Edge{
-	// 	pathing.CreateEdge(node1, node2),
-	// }
-
-	// planner := pathing.CreatePlanner(nodes, edges)
-	// fmt.Println(planner)
-	// fmt.Println(node1)
-	// fmt.Println(node2)
-
-	// surface, err := window.GetSurface()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// var i int32
-	// for i = 0; i < 10; i++ {
-	// 	surface.FillRect(&sdl.Rect{0, 0, 800, 600}, 0x0)
-	// 	rect := sdl.Rect{i * 75, 0, 200, 200}
-	// 	surface.FillRect(&rect, 0xffff0000)
-	// 	window.UpdateSurface()
-	// 	sdl.Delay(500)
-	// }
-
 }
