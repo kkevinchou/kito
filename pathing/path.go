@@ -191,18 +191,21 @@ func orderPortalNodes(portals []Portal) []Node {
 // Returns true if v is to left of reference
 func vecOnLeft(reference, v vector.Vector) bool {
 	return reference.Cross(v) < floatEpsilon
+	// return reference.Cross(v) < 0
 }
 
 // Returns true if v is to the right of reference
 func vecOnRight(reference, v vector.Vector) bool {
 	return reference.Cross(v) > -1*floatEpsilon
+	// return reference.Cross(v) > 0
 }
 
 func smoothPath(unorderedPortals []Portal) []Node {
 	portalNodes := orderPortalNodes(unorderedPortals)
 
 	// This algorithm was retrieved online but a confusing note:
-	// lastValidRightIndex actually represent "left" indexes
+	// lastValidRightIndex actually represent "left" index
+	//
 	// lastValidRightIndex represents the left index of the last valid
 	// right index.  These indexes are used purely to reset the apex
 	// at the correct point
@@ -216,15 +219,15 @@ func smoothPath(unorderedPortals []Portal) []Node {
 
 	contactNodes := []Node{apex}
 
-	lastValidLeftVec := vector.Vector{}
-	lastValidRightVec := vector.Vector{}
-
+	_ = "breakpoint"
 	for i := 2; i < len(portalNodes); i += 2 {
 		leftNode := portalNodes[i]
 		rightNode := portalNodes[i+1]
 
 		leftVec := leftNode.Vector().Sub(apex.Vector())
 		rightVec := rightNode.Vector().Sub(apex.Vector())
+		lastValidLeftVec := portalLeft.Vector().Sub(apex.Vector())
+		lastValidRightVec := portalRight.Vector().Sub(apex.Vector())
 
 		// Left side of funnel
 		// The leftVec is to the right of lastValidLeftVec, so we
@@ -232,17 +235,15 @@ func smoothPath(unorderedPortals []Portal) []Node {
 		if vecOnLeft(leftVec, lastValidLeftVec) {
 			if (portalLeft == apex) || !vecOnRight(lastValidRightVec, leftVec) {
 				portalLeft = leftNode
-				lastValidLeftVec = leftVec
 				lastValidLeftIndex = i
 			} else {
 				// If the new leftVec is to the right of the last valid
 				// right vec, we set the new apex
-				_ = "breakpoint"
 				apex = portalRight
 				portalLeft = apex
-				contactNodes = append(contactNodes, apex)
-				lastValidLeftVec = vector.Vector{}
-				lastValidRightVec = vector.Vector{}
+				if contactNodes[len(contactNodes)-1] != apex {
+					contactNodes = append(contactNodes, apex)
+				}
 
 				lastValidLeftIndex = lastValidRightIndex
 				i = lastValidRightIndex
@@ -254,14 +255,13 @@ func smoothPath(unorderedPortals []Portal) []Node {
 		if vecOnRight(rightVec, lastValidRightVec) {
 			if (portalRight == apex) || !vecOnLeft(lastValidLeftVec, rightVec) {
 				portalRight = rightNode
-				lastValidRightVec = rightVec
 				lastValidRightIndex = i
 			} else {
 				apex = portalLeft
 				portalRight = apex
-				contactNodes = append(contactNodes, apex)
-				lastValidRightVec = vector.Vector{}
-				lastValidLeftVec = vector.Vector{}
+				if contactNodes[len(contactNodes)-1] != apex {
+					contactNodes = append(contactNodes, apex)
+				}
 
 				lastValidRightIndex = lastValidLeftIndex
 				i = lastValidLeftIndex
