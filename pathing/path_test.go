@@ -141,25 +141,7 @@ func tri4() *geometry.Polygon {
 // 	assertPathEq(t, expectedPath, path)
 // }
 
-// func TestReverseC(t *testing.T) {
-// 	polygons := []*geometry.Polygon{
-// 		sqWithOffset(30, 0, 0),
-// 		sqWithOffset(30, 1, 0),
-// 		sqWithOffset(30, 1, 1),
-// 		sqWithOffset(30, 1, 2),
-// 		sqWithOffset(30, 0, 2),
-// 	}
-
-// 	navmesh := ConstructNavMesh(polygons)
-// 	p := Planner{}
-// 	p.SetNavMesh(navmesh)
-
-// 	path := p.FindPath(geometry.Point{15, 15}, geometry.Point{15, 65})
-// 	expectedPath := []Node{Node{X: 15, Y: 15}, Node{X: 30, Y: 30}, Node{X: 30, Y: 60}, Node{X: 16, Y: 65}}
-// 	assertPathEq(t, expectedPath, path)
-// }
-
-func TestSingleApex(t *testing.T) {
+func TestReverseC(t *testing.T) {
 	polygons := []*geometry.Polygon{
 		sqWithOffset(30, 0, 0),
 		sqWithOffset(30, 1, 0),
