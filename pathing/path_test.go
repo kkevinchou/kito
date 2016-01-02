@@ -177,6 +177,50 @@ func TestC(t *testing.T) {
 	assertPathEq(t, expectedPath, path)
 }
 
+func TestOnEdgeToApex(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(60, 0, 0),
+		sqWithOffset(60, 0, 1),
+		sqWithOffset(60, -1, 1),
+	}
+
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
+
+	path := p.FindPath(geometry.Point{0, 30}, geometry.Point{-20, 60})
+	expectedPath := []Node{Node{X: 0, Y: 30}, Node{X: 0, Y: 60}, Node{X: -20, Y: 60}}
+	assertPathEq(t, expectedPath, path)
+}
+
+func TestPathDoesNotExist(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(60, 0, 0),
+		sqWithOffset(60, 0, 1),
+	}
+
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
+
+	path := p.FindPath(geometry.Point{0, 30}, geometry.Point{61, 0})
+	assertPathEq(t, nil, path)
+}
+
+func TestStartEqualsGoal(t *testing.T) {
+	polygons := []*geometry.Polygon{
+		sqWithOffset(60, 0, 0),
+	}
+
+	navmesh := ConstructNavMesh(polygons)
+	p := Planner{}
+	p.SetNavMesh(navmesh)
+
+	path := p.FindPath(geometry.Point{0, 30}, geometry.Point{0, 30})
+	expectedPath := []Node{Node{X: 0, Y: 30}}
+	assertPathEq(t, expectedPath, path)
+}
+
 func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
 	points := []geometry.Point{
 		geometry.Point{xOffset * size, yOffset * size},

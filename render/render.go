@@ -7,14 +7,14 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type RenderI interface {
+type Renderable interface {
 	Render(*assets.Manager, *sdl.Renderer)
 }
 
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	assetManager *assets.Manager
-	renderables  []RenderI
+	renderables  []Renderable
 }
 
 func NewRenderSystem(renderer *sdl.Renderer, assetManager *assets.Manager) RenderSystem {
@@ -26,7 +26,7 @@ func NewRenderSystem(renderer *sdl.Renderer, assetManager *assets.Manager) Rende
 	return renderSystem
 }
 
-func (r *RenderSystem) Register(renderable RenderI) {
+func (r *RenderSystem) Register(renderable Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
 

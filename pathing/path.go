@@ -219,7 +219,6 @@ func smoothPath(unorderedPortals []Portal) []Node {
 
 	contactNodes := []Node{apex}
 
-	_ = "breakpoint"
 	for i := 2; i < len(portalNodes); i += 2 {
 		leftNode := portalNodes[i]
 		rightNode := portalNodes[i+1]
