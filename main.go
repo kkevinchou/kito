@@ -121,7 +121,7 @@ func main() {
 	var path []pathing.Node
 	pathIndex := 0
 
-	entity.SetTarget(vector.Vector{0, 0})
+	// entity.SetTarget(vector.Vector{0, 0})
 
 	previousTime := time.Now()
 	for gameOver != true {
@@ -153,9 +153,15 @@ func main() {
 		}
 
 		if path != nil {
-			if entity.Position().Sub(path[pathIndex].Vector()).Length() <= 2 && pathIndex < len(path)-1 {
+			if entity.Position().Sub(path[pathIndex].Vector()).Length() <= 2 {
 				pathIndex += 1
-				entity.SetTarget(path[pathIndex].Vector())
+				if pathIndex == len(path) {
+					path = nil
+					entity.SetSeekActive(false)
+					entity.SetVelocity(vector.Zero())
+				} else {
+					entity.SetTarget(path[pathIndex].Vector())
+				}
 			}
 		}
 

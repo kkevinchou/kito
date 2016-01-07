@@ -1,8 +1,6 @@
 package entity
 
 import (
-	// "fmt"
-	// "github.com/kkevinchou/ant/math/vector"
 	"time"
 
 	"github.com/kkevinchou/ant/physics"

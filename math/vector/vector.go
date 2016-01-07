@@ -10,6 +10,10 @@ type Vector struct {
 	Y float64
 }
 
+func Zero() Vector {
+	return Vector{X: 0, Y: 0}
+}
+
 func (v Vector) String() string {
 	return fmt.Sprintf("<Vector %.2f, %.2f>", v.X, v.Y)
 }

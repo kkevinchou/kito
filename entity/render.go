@@ -9,6 +9,7 @@ import (
 type Renderable interface {
 	Position() vector.Vector
 	Velocity() vector.Vector
+	Heading() vector.Vector
 }
 
 type RenderComponent struct {
@@ -21,7 +22,7 @@ func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Ren
 	texture := assetManager.GetTexture(r.iconName)
 	renderer.Copy(texture, &sdl.Rect{0, 0, 64, 64}, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 32, 64, 64})
 
-	heading := r.entity.Velocity().Normalize()
+	heading := r.entity.Heading().Normalize()
 	lineStart := heading.Scale(40).Add(position)
 	lineEnd := heading.Scale(55).Add(position)
 
