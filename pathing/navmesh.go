@@ -3,7 +3,7 @@ package pathing
 import (
 	"fmt"
 
-	"github.com/kkevinchou/ant/geometry"
+	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/math/vector"
 )
 

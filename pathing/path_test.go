@@ -3,7 +3,7 @@ package pathing
 import (
 	"testing"
 
-	"github.com/kkevinchou/ant/geometry"
+	"github.com/kkevinchou/ant/lib/geometry"
 )
 
 func tri1() *geometry.Polygon {

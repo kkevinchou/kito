@@ -1,7 +1,7 @@
 package pathing
 
 import (
-	"github.com/kkevinchou/ant/geometry"
+	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/math/vector"
 	"github.com/kkevinchou/ant/util"
 )
