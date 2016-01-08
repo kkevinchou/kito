@@ -1,6 +1,6 @@
 package steering
 
-import "github.com/kkevinchou/ant/math/vector"
+import "github.com/kkevinchou/ant/lib/math/vector"
 
 type Seekable interface {
 	Position() vector.Vector

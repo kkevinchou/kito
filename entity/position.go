@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/kkevinchou/ant/math/vector"
+import "github.com/kkevinchou/ant/lib/math/vector"
 
 type PositionComponent struct {
 	position vector.Vector

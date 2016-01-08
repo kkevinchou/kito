@@ -2,7 +2,7 @@ package entity
 
 import (
 	"github.com/kkevinchou/ant/assets"
-	"github.com/kkevinchou/ant/math/vector"
+	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
 )
 

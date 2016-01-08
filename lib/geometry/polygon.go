@@ -1,6 +1,6 @@
 package geometry
 
-import "github.com/kkevinchou/ant/math/vector"
+import "github.com/kkevinchou/ant/lib/math/vector"
 
 // Assumptions:
 // Counter clock-wise winding order of vertices

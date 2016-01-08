@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kkevinchou/ant/lib/geometry"
-	"github.com/kkevinchou/ant/math/vector"
+	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
 // Portals are edges that have a deterministic ordering of nodes

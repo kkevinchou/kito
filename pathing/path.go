@@ -2,8 +2,8 @@ package pathing
 
 import (
 	"github.com/kkevinchou/ant/lib/geometry"
-	"github.com/kkevinchou/ant/math/vector"
-	"github.com/kkevinchou/ant/util"
+	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/ant/lib/util"
 )
 
 const (

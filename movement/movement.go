@@ -3,7 +3,7 @@ package movement
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/math/vector"
+	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
 type Moveable interface {
