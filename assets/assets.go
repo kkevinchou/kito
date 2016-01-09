@@ -2,28 +2,60 @@ package assets
 
 import (
 	"fmt"
+	"io/ioutil"
+
+	"path/filepath"
+
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_image"
-	"io/ioutil"
-	"path/filepath"
+	"github.com/veandco/go-sdl2/sdl_ttf"
 )
 
 type Manager struct {
-	assets map[string]*sdl.Texture
+	icons map[string]*sdl.Texture
+	fonts map[string]*ttf.Font
 }
 
 func NewAssetManager(renderer *sdl.Renderer, directory string) *Manager {
+	ttf.Init()
+
 	assetManager := Manager{
-		assets: loadAssets(renderer, directory),
+		icons: loadTextures(renderer, filepath.Join(directory, "icons")),
+		fonts: loadFonts(filepath.Join(directory, "fonts")),
 	}
 	return &assetManager
 }
 
 func (assetManager *Manager) GetTexture(filename string) *sdl.Texture {
-	return assetManager.assets[filename]
+	return assetManager.icons[filename]
 }
 
-func loadAssets(renderer *sdl.Renderer, directory string) map[string]*sdl.Texture {
+func loadFonts(directory string) map[string]*ttf.Font {
+	fonts := make(map[string]*ttf.Font)
+
+	files, err := ioutil.ReadDir(directory)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	for _, file := range files {
+		fontPath := filepath.Join(directory, file.Name())
+
+		font, err := ttf.OpenFont(fontPath, 30)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		fonts[file.Name()] = font
+	}
+
+	return fonts
+}
+
+func loadTextures(renderer *sdl.Renderer, directory string) map[string]*sdl.Texture {
 	m := make(map[string]*sdl.Texture)
 
 	files, err := ioutil.ReadDir(directory)

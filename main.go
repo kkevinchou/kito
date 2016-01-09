@@ -106,7 +106,7 @@ func main() {
 	movementSystem := movement.NewMovementSystem()
 	movementSystem.Register(entity)
 
-	assetManager := assets.NewAssetManager(renderer, "assets/icons")
+	assetManager := assets.NewAssetManager(renderer, "assets")
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
 
 	navMesh := setupNavMesh()
@@ -129,6 +129,10 @@ func main() {
 		delta := time.Since(previousTime)
 		previousTime = now
 
+		if path != nil {
+			// fmt.Println(pathIndex)
+		}
+
 		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch e := event.(type) {
 			case *sdl.QuitEvent:
@@ -141,8 +145,8 @@ func main() {
 						geometry.Point{X: float64(e.X), Y: float64(e.Y)},
 					)
 					if path != nil {
-						pathIndex = 0
-						entity.SetTarget(path[0].Vector())
+						pathIndex = 1
+						entity.SetTarget(path[1].Vector())
 					}
 				}
 			case *sdl.KeyUpEvent:
