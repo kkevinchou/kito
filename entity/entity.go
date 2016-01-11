@@ -18,7 +18,7 @@ func New() *Entity {
 	entity := &Entity{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
-	entity.PhysicsComponent.Init(entity, 100, 20)
+	entity.PhysicsComponent.Init(entity, 100, 10)
 
 	entity.PositionComponent = &PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
