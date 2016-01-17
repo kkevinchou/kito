@@ -3,6 +3,7 @@ package entity
 import (
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/ant/render"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -13,13 +14,13 @@ type Renderable interface {
 }
 
 type RenderComponent struct {
-	entity   Renderable
-	iconName string
+	entity         Renderable
+	animationState render.AnimationState
 }
 
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
 	position := r.entity.Position()
-	texture := assetManager.GetTexture(r.iconName)
+	texture := assetManager.GetAnimation(r.animationState.MetaData.Name, 0)
 	renderer.Copy(texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 32, 64, 64})
 
 	// heading := r.entity.Heading().Normalize()

@@ -100,14 +100,14 @@ func main() {
 	}
 	defer renderer.Destroy()
 
-	entity := entity.New()
+	assetManager := assets.NewAssetManager(renderer, "assets")
+	renderSystem := render.NewRenderSystem(renderer, assetManager)
+
+	entity := entity.New(assetManager)
 	entity.SetPosition(vector.Vector{1, 1})
 
 	movementSystem := movement.NewMovementSystem()
 	movementSystem.Register(entity)
-
-	assetManager := assets.NewAssetManager(renderer, "assets")
-	renderSystem := render.NewRenderSystem(renderer, assetManager)
 
 	navMesh := setupNavMesh()
 	renderSystem.Register(entity)

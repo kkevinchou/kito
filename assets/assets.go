@@ -20,11 +20,13 @@ type Animation struct {
 	numFrames       int
 	secondsPerFrame float64
 	frames          []*sdl.Texture
+	metaData        MetaData
 }
 
 type MetaData struct {
 	Fps       int `json:"fps"`
 	NumFrames int `json:"num_frames"`
+	Name      string
 }
 
 type Manager struct {
@@ -55,6 +57,10 @@ func (assetManager *Manager) GetFont(filename string) *ttf.Font {
 
 func (assetManager *Manager) GetAnimation(animation string, frame int) *sdl.Texture {
 	return assetManager.animations[animation].frames[frame]
+}
+
+func (assetManager *Manager) GetAnimationMetaData(animation string) MetaData {
+	return assetManager.animations[animation].metaData
 }
 
 func loadAnimations(directory string, renderer *sdl.Renderer) map[string]*Animation {
@@ -88,6 +94,8 @@ func loadAnimation(directory string, renderer *sdl.Renderer) *Animation {
 	var metaData MetaData
 	json.Unmarshal(bytes, &metaData)
 
+	metaData.Name = filepath.Base(directory)
+
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		fmt.Println(err)
@@ -115,6 +123,7 @@ func loadAnimation(directory string, renderer *sdl.Renderer) *Animation {
 	a.numFrames = metaData.NumFrames
 	a.secondsPerFrame = 1 / float64(metaData.Fps)
 	a.frames = frames
+	a.metaData = metaData
 
 	return &a
 }

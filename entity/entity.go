@@ -3,7 +3,9 @@ package entity
 import (
 	"time"
 
+	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/physics"
+	"github.com/kkevinchou/ant/render"
 	"github.com/kkevinchou/ant/steering"
 )
 
@@ -14,7 +16,7 @@ type Entity struct {
 	*PositionComponent
 }
 
-func New() *Entity {
+func New(assetManager *assets.Manager) *Entity {
 	entity := &Entity{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
@@ -22,7 +24,13 @@ func New() *Entity {
 
 	entity.PositionComponent = &PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
-	entity.RenderComponent = &RenderComponent{entity: entity, iconName: "stag-head.png"}
+
+	entity.RenderComponent = &RenderComponent{
+		entity: entity,
+		animationState: render.AnimationState{
+			MetaData: assetManager.GetAnimationMetaData("ant"),
+		},
+	}
 
 	return entity
 }
