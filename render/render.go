@@ -72,6 +72,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	r.renderer.Clear()
 	r.renderer.SetDrawColor(151, 117, 170, 255)
 	r.renderer.FillRect(&sdl.Rect{0, 0, 800, 600})
+	r.renderer.Copy(r.assetManager.GetAnimation("ant", 0), nil, &sdl.Rect{500, 500, 64, 64})
 
 	for _, renderable := range r.renderables {
 		renderable.Render(r.assetManager, r.renderer)

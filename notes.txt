@@ -4,3 +4,4 @@ Bugs
 
 Pathfinding where two polys share a vertex but have no portal.  Pathfinding will find a path but smoothing will fail (i think?).
 Need to decide whether moving along a single vertex is allowed.
+Renderer is shared between asset manager and render system atm, may want to isolate it in one place.

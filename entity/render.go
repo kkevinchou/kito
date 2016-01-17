@@ -20,7 +20,7 @@ type RenderComponent struct {
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
 	position := r.entity.Position()
 	texture := assetManager.GetTexture(r.iconName)
-	renderer.Copy(texture, &sdl.Rect{0, 0, 64, 64}, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 32, 64, 64})
+	renderer.Copy(texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 32, 64, 64})
 
 	// heading := r.entity.Heading().Normalize()
 	heading := r.entity.Velocity().Normalize()
