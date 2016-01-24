@@ -21,10 +21,6 @@ func (s *SeekComponent) CalculateSteeringVelocity() vector.Vector {
 	}
 
 	desiredVelocity := s.target.Sub(s.Entity.Position()).Normalize().Scale(s.Entity.MaxSpeed())
-	// fmt.Println("POS:", s.Entity.Position())
-	// fmt.Println("TARGET:", s.target)
-	// fmt.Println("VEL:", s.Entity.Velocity())
-	// fmt.Println("DESIRED:", desiredVelocity.Sub(s.Entity.Velocity()).Scale(1.0/s.Entity.Mass()))
 	return desiredVelocity.Sub(s.Entity.Velocity()).Scale(1.0 / s.Entity.Mass())
 }
 

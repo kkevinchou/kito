@@ -60,7 +60,7 @@ func NewRenderSystem(renderer *sdl.Renderer, assetManager *assets.Manager) *Rend
 		assetManager: assetManager,
 	}
 
-	// initFont(renderer)
+	_ = initFont()
 
 	return &renderSystem
 }

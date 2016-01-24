@@ -11,7 +11,7 @@ type AnimationState struct {
 	timeCounter     float64
 	secondsPerFrame int
 
-	MetaData assets.MetaData
+	MetaData assets.AnimationMetaData
 }
 
 func (a *AnimationState) GetFrame() int {
