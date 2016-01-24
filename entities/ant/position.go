@@ -1,4 +1,4 @@
-package entity
+package ant
 
 import "github.com/kkevinchou/ant/lib/math/vector"
 

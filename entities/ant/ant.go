@@ -1,4 +1,4 @@
-package entity
+package ant
 
 import (
 	"time"
@@ -9,15 +9,15 @@ import (
 	"github.com/kkevinchou/ant/steering"
 )
 
-type Entity struct {
+type Ant struct {
 	*physics.PhysicsComponent
 	*steering.SeekComponent
 	*RenderComponent
 	*PositionComponent
 }
 
-func New(assetManager *assets.Manager) *Entity {
-	entity := &Entity{}
+func New(assetManager *assets.Manager) *Ant {
+	entity := &Ant{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
 	entity.PhysicsComponent.Init(entity, 100, 10)
@@ -35,6 +35,6 @@ func New(assetManager *assets.Manager) *Entity {
 	return entity
 }
 
-func (e *Entity) Update(delta time.Duration) {
+func (e *Ant) Update(delta time.Duration) {
 	e.PhysicsComponent.Update(delta)
 }

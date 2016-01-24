@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/entities/ant"
 	"github.com/kkevinchou/ant/entities/grass"
-	"github.com/kkevinchou/ant/entity"
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/movement"
@@ -117,14 +117,14 @@ func main() {
 	assetManager := assets.NewAssetManager(renderer, "assets")
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
 
-	entity := entity.New(assetManager)
-	entity.SetPosition(vector.Vector{1, 1})
+	ant := ant.New(assetManager)
+	ant.SetPosition(vector.Vector{1, 1})
 
 	movementSystem := movement.NewMovementSystem()
-	movementSystem.Register(entity)
+	movementSystem.Register(ant)
 
 	navMesh := setupNavMesh()
-	renderSystem.Register(entity)
+	renderSystem.Register(ant)
 	renderSystem.Register(navMesh)
 	setupGrass(assetManager, renderSystem)
 
@@ -149,14 +149,14 @@ func main() {
 				gameOver = true
 			case *sdl.MouseButtonEvent:
 				if e.State == 0 { // Mouse Up
-					position := entity.Position()
+					position := ant.Position()
 					path = p.FindPath(
 						geometry.Point{X: position.X, Y: position.Y},
 						geometry.Point{X: float64(e.X), Y: float64(e.Y)},
 					)
 					if path != nil {
 						pathIndex = 1
-						entity.SetTarget(path[1].Vector())
+						ant.SetTarget(path[1].Vector())
 					}
 				}
 			case *sdl.KeyUpEvent:
@@ -167,14 +167,14 @@ func main() {
 		}
 
 		if path != nil {
-			if entity.Position().Sub(path[pathIndex].Vector()).Length() <= 2 {
+			if ant.Position().Sub(path[pathIndex].Vector()).Length() <= 2 {
 				pathIndex += 1
 				if pathIndex == len(path) {
 					path = nil
-					entity.SetSeekActive(false)
-					entity.SetVelocity(vector.Zero())
+					ant.SetSeekActive(false)
+					ant.SetVelocity(vector.Zero())
 				} else {
-					entity.SetTarget(path[pathIndex].Vector())
+					ant.SetTarget(path[pathIndex].Vector())
 				}
 			}
 		}
