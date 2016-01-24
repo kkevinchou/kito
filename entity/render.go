@@ -34,6 +34,6 @@ func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Ren
 	renderer.DrawLine(int(lineStart.X), int(lineStart.Y), int(lineEnd.X), int(lineEnd.Y))
 }
 
-func (r *RenderComponent) Update(delta time.Duration) {
+func (r *RenderComponent) UpdateRenderComponent(delta time.Duration) {
 	r.animationState.Update(delta)
 }

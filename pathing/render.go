@@ -2,6 +2,7 @@ package pathing
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/kkevinchou/ant/assets"
 	"github.com/veandco/go-sdl2/sdl"
@@ -10,6 +11,8 @@ import (
 type RenderComponent struct {
 	polygons []*Polygon
 }
+
+func (r *RenderComponent) UpdateRenderComponent(delta time.Duration) {}
 
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
 	font := assetManager.GetFont("courier_new.ttf")

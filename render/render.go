@@ -12,6 +12,7 @@ import (
 
 type Renderable interface {
 	Render(*assets.Manager, *sdl.Renderer)
+	UpdateRenderComponent(time.Duration)
 }
 
 type RenderSystem struct {
@@ -53,7 +54,7 @@ func initFont() *ttf.Font {
 	// }
 }
 
-func NewRenderSystem(renderer *sdl.Renderer, assetManager *assets.Manager) RenderSystem {
+func NewRenderSystem(renderer *sdl.Renderer, assetManager *assets.Manager) *RenderSystem {
 	renderSystem := RenderSystem{
 		renderer:     renderer,
 		assetManager: assetManager,
@@ -61,7 +62,7 @@ func NewRenderSystem(renderer *sdl.Renderer, assetManager *assets.Manager) Rende
 
 	// initFont(renderer)
 
-	return renderSystem
+	return &renderSystem
 }
 
 func (r *RenderSystem) Register(renderable Renderable) {
@@ -72,9 +73,9 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	r.renderer.Clear()
 	r.renderer.SetDrawColor(151, 117, 170, 255)
 	r.renderer.FillRect(&sdl.Rect{0, 0, 800, 600})
-	r.renderer.Copy(r.assetManager.GetAnimation("ant", 0), nil, &sdl.Rect{500, 500, 64, 64})
 
 	for _, renderable := range r.renderables {
+		renderable.UpdateRenderComponent(delta)
 		renderable.Render(r.assetManager, r.renderer)
 	}
 

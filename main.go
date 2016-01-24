@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/entities/grass"
 	"github.com/kkevinchou/ant/entity"
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
@@ -88,6 +89,19 @@ func setupNavMesh() *pathing.NavMesh {
 	return pathing.ConstructNavMesh(polygons)
 }
 
+func setupGrass(assetManager *assets.Manager, renderSystem *render.RenderSystem) {
+	grass2 := grass.New(366, 450, assetManager)
+	grass1 := grass.New(386, 450, assetManager)
+	grass3 := grass.New(406, 450, assetManager)
+	grass4 := grass.New(406, 350, assetManager)
+	grass5 := grass.New(436, 350, assetManager)
+	renderSystem.Register(grass1)
+	renderSystem.Register(grass2)
+	renderSystem.Register(grass3)
+	renderSystem.Register(grass4)
+	renderSystem.Register(grass5)
+}
+
 func main() {
 	window := setupWindow()
 	defer window.Destroy()
@@ -112,6 +126,8 @@ func main() {
 	navMesh := setupNavMesh()
 	renderSystem.Register(entity)
 	renderSystem.Register(navMesh)
+	setupGrass(assetManager, renderSystem)
+
 	p := pathing.Planner{}
 	p.SetNavMesh(navMesh)
 
@@ -120,8 +136,6 @@ func main() {
 
 	var path []pathing.Node
 	pathIndex := 0
-
-	// entity.SetTarget(vector.Vector{0, 0})
 
 	previousTime := time.Now()
 	for gameOver != true {

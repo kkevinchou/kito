@@ -37,5 +37,4 @@ func New(assetManager *assets.Manager) *Entity {
 
 func (e *Entity) Update(delta time.Duration) {
 	e.PhysicsComponent.Update(delta)
-	e.RenderComponent.Update(delta)
 }
