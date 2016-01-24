@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/components/steering"
 	"github.com/kkevinchou/ant/physics"
 	"github.com/kkevinchou/ant/render"
-	"github.com/kkevinchou/ant/steering"
 )
 
 type Ant struct {

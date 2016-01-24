@@ -11,9 +11,9 @@ import (
 	"github.com/kkevinchou/ant/entities/grass"
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
-	"github.com/kkevinchou/ant/movement"
 	"github.com/kkevinchou/ant/pathing"
 	"github.com/kkevinchou/ant/render"
+	"github.com/kkevinchou/ant/systems/movement"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
