@@ -129,10 +129,6 @@ func main() {
 		delta := time.Since(previousTime)
 		previousTime = now
 
-		if path != nil {
-			// fmt.Println(pathIndex)
-		}
-
 		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch e := event.(type) {
 			case *sdl.QuitEvent:

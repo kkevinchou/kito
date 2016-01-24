@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/render"
@@ -20,7 +22,7 @@ type RenderComponent struct {
 
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
 	position := r.entity.Position()
-	texture := assetManager.GetAnimation(r.animationState.MetaData.Name, 0)
+	texture := assetManager.GetAnimation(r.animationState.MetaData.Name, r.animationState.GetFrame())
 	renderer.Copy(texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 32, 64, 64})
 
 	heading := r.entity.Heading().Normalize()
@@ -30,4 +32,8 @@ func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Ren
 
 	renderer.SetDrawColor(0, 255, 255, 255)
 	renderer.DrawLine(int(lineStart.X), int(lineStart.Y), int(lineEnd.X), int(lineEnd.Y))
+}
+
+func (r *RenderComponent) Update(delta time.Duration) {
+	r.animationState.Update(delta)
 }
