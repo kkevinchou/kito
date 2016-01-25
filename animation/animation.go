@@ -14,7 +14,7 @@ type AnimationState struct {
 	secondsPerFrame     float64
 }
 
-func (a *AnimationState) GetFrame() *sdl.Texture {
+func (a *AnimationState) GetCurrentFrame() *sdl.Texture {
 	return a.animationDefinition.GetFrame(a.currentFrame)
 }
 

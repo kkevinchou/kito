@@ -22,7 +22,7 @@ type RenderComponent struct {
 
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
 	position := r.entity.Position()
-	texture := r.animationState.GetFrame()
+	texture := r.animationState.GetCurrentFrame()
 	renderer.Copy(texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 32, 64, 64})
 
 	heading := r.entity.Heading().Normalize()
