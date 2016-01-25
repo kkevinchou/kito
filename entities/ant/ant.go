@@ -5,8 +5,8 @@ import (
 
 	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/components/physics"
 	"github.com/kkevinchou/ant/components/steering"
-	"github.com/kkevinchou/ant/physics"
 )
 
 type Ant struct {
