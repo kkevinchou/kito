@@ -12,8 +12,8 @@ import (
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/pathing"
-	"github.com/kkevinchou/ant/render"
 	"github.com/kkevinchou/ant/systems/movement"
+	"github.com/kkevinchou/ant/systems/render"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -118,7 +118,7 @@ func main() {
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
 
 	ant := ant.New(assetManager)
-	ant.SetPosition(vector.Vector{1, 1})
+	ant.SetPosition(vector.Vector{400, 350})
 
 	movementSystem := movement.NewMovementSystem()
 	movementSystem.Register(ant)
