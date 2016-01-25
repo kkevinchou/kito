@@ -20,7 +20,19 @@ type Animation struct {
 	numFrames       int
 	secondsPerFrame float64
 	frames          []*sdl.Texture
-	metaData        AnimationMetaData
+	fps             int
+}
+
+func (a *Animation) NumFrames() int {
+	return a.numFrames
+}
+
+func (a *Animation) Fps() int {
+	return a.fps
+}
+
+func (a *Animation) GetFrame(frame int) *sdl.Texture {
+	return a.frames[frame]
 }
 
 type Manager struct {
@@ -55,12 +67,8 @@ func (assetManager *Manager) GetFont(filename string) *ttf.Font {
 	return assetManager.fonts[filename]
 }
 
-func (assetManager *Manager) GetAnimation(animation string, frame int) *sdl.Texture {
-	return assetManager.animations[animation].frames[frame]
-}
-
-func (assetManager *Manager) GetAnimationMetaData(animation string) AnimationMetaData {
-	return assetManager.animations[animation].metaData
+func (assetManager *Manager) GetAnimation(animation string) *Animation {
+	return assetManager.animations[animation]
 }
 
 func loadAnimations(directory string, renderer *sdl.Renderer) map[string]*Animation {
@@ -119,11 +127,12 @@ func loadAnimation(directory string, renderer *sdl.Renderer) *Animation {
 		frames[frameIndex] = texture
 	}
 
-	a := Animation{}
-	a.numFrames = metaData.NumFrames
-	a.secondsPerFrame = 1 / float64(metaData.Fps)
-	a.frames = frames
-	a.metaData = metaData
+	a := Animation{
+		frames:          frames,
+		secondsPerFrame: 1 / float64(metaData.Fps),
+		numFrames:       metaData.NumFrames,
+		fps:             metaData.Fps,
+	}
 
 	return &a
 }

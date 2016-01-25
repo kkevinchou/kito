@@ -1,9 +1,9 @@
 package grass
 
 import (
+	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/lib/math/vector"
-	"github.com/kkevinchou/ant/render"
 )
 
 type Grass struct {
@@ -18,8 +18,10 @@ func New(x, y float64, assetManager *assets.Manager) *Grass {
 
 	entity.RenderComponent = &RenderComponent{
 		entity: entity,
-		animationState: render.AnimationState{
-			MetaData: assetManager.GetAnimationMetaData("grass"),
+		animationState: animation.AnimationState{
+			NumFrames: assetManager.GetAnimation("grass").NumFrames(),
+			Fps:       assetManager.GetAnimation("grass").Fps(),
+			Name:      "grass",
 		},
 	}
 

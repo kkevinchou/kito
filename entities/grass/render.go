@@ -3,9 +3,9 @@ package grass
 import (
 	"time"
 
+	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/lib/math/vector"
-	"github.com/kkevinchou/ant/render"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -15,12 +15,13 @@ type Renderable interface {
 
 type RenderComponent struct {
 	entity         Renderable
-	animationState render.AnimationState
+	animationState animation.AnimationState
 }
 
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
 	position := r.entity.Position()
-	texture := assetManager.GetAnimation(r.animationState.MetaData.Name, r.animationState.GetFrame())
+	animation := assetManager.GetAnimation(r.animationState.Name)
+	texture := animation.GetFrame(r.animationState.GetFrame())
 	renderer.Copy(texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 32, 64, 64})
 }
 

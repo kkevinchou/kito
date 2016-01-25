@@ -3,10 +3,10 @@ package ant
 import (
 	"time"
 
+	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/components/steering"
 	"github.com/kkevinchou/ant/physics"
-	"github.com/kkevinchou/ant/render"
 )
 
 type Ant struct {
@@ -27,8 +27,10 @@ func New(assetManager *assets.Manager) *Ant {
 
 	entity.RenderComponent = &RenderComponent{
 		entity: entity,
-		animationState: render.AnimationState{
-			MetaData: assetManager.GetAnimationMetaData("ant"),
+		animationState: animation.AnimationState{
+			NumFrames: assetManager.GetAnimation("ant").NumFrames(),
+			Fps:       assetManager.GetAnimation("ant").Fps(),
+			Name:      "ant",
 		},
 	}
 
