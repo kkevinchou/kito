@@ -26,12 +26,8 @@ func New(assetManager *assets.Manager) *Ant {
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
 
 	entity.RenderComponent = &RenderComponent{
-		entity: entity,
-		animationState: animation.AnimationState{
-			NumFrames: assetManager.GetAnimation("ant").NumFrames(),
-			Fps:       assetManager.GetAnimation("ant").Fps(),
-			Name:      "ant",
-		},
+		entity:         entity,
+		animationState: animation.CreateStateFromAnimationDef(assetManager.GetAnimation("ant")),
 	}
 
 	return entity

@@ -15,13 +15,12 @@ type Renderable interface {
 
 type RenderComponent struct {
 	entity         Renderable
-	animationState animation.AnimationState
+	animationState *animation.AnimationState
 }
 
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
 	position := r.entity.Position()
-	animation := assetManager.GetAnimation(r.animationState.Name)
-	texture := animation.GetFrame(r.animationState.GetFrame())
+	texture := r.animationState.GetFrame()
 	renderer.Copy(texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 32, 64, 64})
 }
 

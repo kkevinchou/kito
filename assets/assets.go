@@ -16,28 +16,10 @@ import (
 	"github.com/veandco/go-sdl2/sdl_ttf"
 )
 
-type Animation struct {
-	numFrames int
-	frames    []*sdl.Texture
-	fps       int
-}
-
-func (a *Animation) NumFrames() int {
-	return a.numFrames
-}
-
-func (a *Animation) Fps() int {
-	return a.fps
-}
-
-func (a *Animation) GetFrame(frame int) *sdl.Texture {
-	return a.frames[frame]
-}
-
 type Manager struct {
 	icons      map[string]*sdl.Texture
 	fonts      map[string]*ttf.Font
-	animations map[string]*Animation
+	animations map[string]*AnimationDefinition
 }
 
 type AnimationMetaData struct {
@@ -66,18 +48,18 @@ func (assetManager *Manager) GetFont(filename string) *ttf.Font {
 	return assetManager.fonts[filename]
 }
 
-func (assetManager *Manager) GetAnimation(animation string) *Animation {
+func (assetManager *Manager) GetAnimation(animation string) *AnimationDefinition {
 	return assetManager.animations[animation]
 }
 
-func loadAnimations(directory string, renderer *sdl.Renderer) map[string]*Animation {
+func loadAnimations(directory string, renderer *sdl.Renderer) map[string]*AnimationDefinition {
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
 
-	animations := map[string]*Animation{}
+	animations := map[string]*AnimationDefinition{}
 
 	for _, file := range files {
 		if !file.IsDir() {
@@ -90,7 +72,7 @@ func loadAnimations(directory string, renderer *sdl.Renderer) map[string]*Animat
 	return animations
 }
 
-func loadAnimation(directory string, renderer *sdl.Renderer) *Animation {
+func loadAnimation(directory string, renderer *sdl.Renderer) *AnimationDefinition {
 	metaDataFile, err := os.Open(filepath.Join(directory, "meta.json"))
 	if err != nil {
 		fmt.Println(err)
@@ -126,7 +108,7 @@ func loadAnimation(directory string, renderer *sdl.Renderer) *Animation {
 		frames[frameIndex] = texture
 	}
 
-	a := Animation{
+	a := AnimationDefinition{
 		frames:    frames,
 		numFrames: metaData.NumFrames,
 		fps:       metaData.Fps,
@@ -190,5 +172,3 @@ func loadTextures(directory string, renderer *sdl.Renderer) map[string]*sdl.Text
 
 	return m
 }
-
-// loadAssets(renderer, "assets/icons")
