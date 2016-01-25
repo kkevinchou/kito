@@ -17,10 +17,9 @@ import (
 )
 
 type Animation struct {
-	numFrames       int
-	secondsPerFrame float64
-	frames          []*sdl.Texture
-	fps             int
+	numFrames int
+	frames    []*sdl.Texture
+	fps       int
 }
 
 func (a *Animation) NumFrames() int {
@@ -128,10 +127,9 @@ func loadAnimation(directory string, renderer *sdl.Renderer) *Animation {
 	}
 
 	a := Animation{
-		frames:          frames,
-		secondsPerFrame: 1 / float64(metaData.Fps),
-		numFrames:       metaData.NumFrames,
-		fps:             metaData.Fps,
+		frames:    frames,
+		numFrames: metaData.NumFrames,
+		fps:       metaData.Fps,
 	}
 
 	return &a
