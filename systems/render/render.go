@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"log"
+	"sort"
 	"time"
 
 	"github.com/kkevinchou/ant/assets"
@@ -13,12 +14,31 @@ import (
 type Renderable interface {
 	Render(*assets.Manager, *sdl.Renderer)
 	UpdateRenderComponent(time.Duration)
+	GetRenderPriority() int
+	GetY() float64
+}
+
+type Renderables []Renderable
+
+func (r Renderables) Len() int {
+	return len(r)
+}
+
+func (r Renderables) Less(i, j int) bool {
+	if r[i].GetRenderPriority() == r[j].GetRenderPriority() {
+		return r[i].GetY() < r[j].GetY()
+	}
+	return r[i].GetRenderPriority() < r[j].GetRenderPriority()
+}
+
+func (r Renderables) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
 }
 
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	assetManager *assets.Manager
-	renderables  []Renderable
+	renderables  Renderables
 }
 
 func initFont() *ttf.Font {
@@ -73,6 +93,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	r.renderer.Clear()
 	r.renderer.SetDrawColor(151, 117, 170, 255)
 	r.renderer.FillRect(&sdl.Rect{0, 0, 800, 600})
+	sort.Stable(r.renderables)
 
 	for _, renderable := range r.renderables {
 		renderable.UpdateRenderComponent(delta)

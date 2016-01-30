@@ -56,3 +56,11 @@ func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Ren
 		renderer.DrawLines(points)
 	}
 }
+
+func (r *RenderComponent) GetRenderPriority() int {
+	return 1
+}
+
+func (r *RenderComponent) GetY() float64 {
+	return -1
+}
