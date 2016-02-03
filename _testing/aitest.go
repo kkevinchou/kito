@@ -3,10 +3,10 @@ package main
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/behavior"
+	"github.com/kkevinchou/ant/behavior/worker"
 )
 
 func main() {
-	a := behavior.Sequence{}
-	a.Tick(time.Second * 1)
+	a := worker.New(1)
+	a.Tick(1 * time.Second)
 }

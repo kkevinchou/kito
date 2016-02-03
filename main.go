@@ -12,10 +12,14 @@ import (
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/pathing"
+	"github.com/kkevinchou/ant/systems"
 	"github.com/kkevinchou/ant/systems/movement"
 	"github.com/kkevinchou/ant/systems/render"
 	"github.com/veandco/go-sdl2/sdl"
 )
+
+var window *sdl.Window
+var renderer *sdl.Renderer
 
 func init() {
 	// We want to lock the main thread to this goroutine.  Otherwise,
@@ -25,15 +29,20 @@ func init() {
 	runtime.LockOSThread()
 }
 
-func setupWindow() *sdl.Window {
+func setupDisplay() {
 	sdl.Init(sdl.INIT_EVERYTHING)
 
-	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, 800, 600, sdl.WINDOW_SHOWN)
+	var err error
+
+	window, err = sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, 800, 600, sdl.WINDOW_SHOWN)
 	if err != nil {
 		panic(err)
 	}
 
-	return window
+	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to create renderer: %s\n", err))
+	}
 }
 
 func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
@@ -89,44 +98,44 @@ func setupNavMesh() *pathing.NavMesh {
 	return pathing.ConstructNavMesh(polygons)
 }
 
-func setupGrass(assetManager *assets.Manager, renderSystem *render.RenderSystem) {
-	grass2 := grass.New(366, 450, assetManager)
-	grass1 := grass.New(386, 450, assetManager)
-	grass3 := grass.New(406, 450, assetManager)
-	grass4 := grass.New(406, 350, assetManager)
-	grass5 := grass.New(436, 350, assetManager)
-	renderSystem.Register(grass1)
-	renderSystem.Register(grass2)
-	renderSystem.Register(grass3)
-	renderSystem.Register(grass4)
-	renderSystem.Register(grass5)
+func setupGrass() {
+	grass.New(366, 450)
+	grass.New(386, 450)
+	grass.New(406, 450)
+	grass.New(406, 350)
+	grass.New(436, 350)
+}
+
+func setupSystems() *systems.Directory {
+	assetManager := assets.NewAssetManager(renderer, "assets")
+	renderSystem := render.NewRenderSystem(renderer, assetManager)
+	movementSystem := movement.NewMovementSystem()
+
+	d := systems.GetDirectory()
+	d.RegisterRenderSystem(renderSystem)
+	d.RegisterMovementSystem(movementSystem)
+	d.RegisterAssetManager(assetManager)
+
+	return d
 }
 
 func main() {
-	window := setupWindow()
-	defer window.Destroy()
-
 	rand.Seed(time.Now().Unix())
-
-	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to create renderer: %s\n", err))
-	}
+	setupDisplay()
+	defer window.Destroy()
 	defer renderer.Destroy()
 
-	assetManager := assets.NewAssetManager(renderer, "assets")
-	renderSystem := render.NewRenderSystem(renderer, assetManager)
+	directory := setupSystems()
+	renderSystem := directory.RenderSystem()
+	movementSystem := directory.MovementSystem()
 
-	ant := ant.New(assetManager)
+	ant := ant.New()
 	ant.SetPosition(vector.Vector{400, 350})
 
-	movementSystem := movement.NewMovementSystem()
-	movementSystem.Register(ant)
-
 	navMesh := setupNavMesh()
-	renderSystem.Register(ant)
 	renderSystem.Register(navMesh)
-	setupGrass(assetManager, renderSystem)
+
+	setupGrass()
 
 	p := pathing.Planner{}
 	p.SetNavMesh(navMesh)

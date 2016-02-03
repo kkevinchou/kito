@@ -7,18 +7,12 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/systems/interfaces"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_ttf"
 )
 
-type Renderable interface {
-	Render(*assets.Manager, *sdl.Renderer)
-	UpdateRenderComponent(time.Duration)
-	GetRenderPriority() int
-	GetY() float64
-}
-
-type Renderables []Renderable
+type Renderables []interfaces.Renderable
 
 func (r Renderables) Len() int {
 	return len(r)
@@ -85,7 +79,7 @@ func NewRenderSystem(renderer *sdl.Renderer, assetManager *assets.Manager) *Rend
 	return &renderSystem
 }
 
-func (r *RenderSystem) Register(renderable Renderable) {
+func (r *RenderSystem) Register(renderable interfaces.Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
 
@@ -95,6 +89,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	r.renderer.FillRect(&sdl.Rect{0, 0, 800, 600})
 	sort.Stable(r.renderables)
 
+	// TODO: have the render system know how to render as opposed to the render component
+	// the component should provide the data necessary for rendering
 	for _, renderable := range r.renderables {
 		renderable.UpdateRenderComponent(delta)
 		renderable.Render(r.assetManager, r.renderer)
@@ -102,3 +98,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	r.renderer.Present()
 }
+
+// func (r *RenderSystem) EventHandlers() []systems.EventHandler {
+// 	return []systems.EventHandler{
+// 		systems.EventHandler{
+// 			Type:    systems.EntityCreated,
+// 			Handler: r.HandleEntityCreated,
+// 		},
+// 	}
+// }
+
+// func (r *RenderSystem) HandleEntityCreated(event systems.Event) {
+// }

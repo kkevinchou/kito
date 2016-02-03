@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/animation"
-	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/components/physics"
 	"github.com/kkevinchou/ant/components/steering"
+	"github.com/kkevinchou/ant/systems"
 )
 
 type Ant struct {
@@ -16,7 +16,7 @@ type Ant struct {
 	*PositionComponent
 }
 
-func New(assetManager *assets.Manager) *Ant {
+func New() *Ant {
 	entity := &Ant{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
@@ -25,10 +25,18 @@ func New(assetManager *assets.Manager) *Ant {
 	entity.PositionComponent = &PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
 
+	assetManager := systems.GetDirectory().AssetManager()
+
 	entity.RenderComponent = &RenderComponent{
 		entity:         entity,
 		animationState: animation.CreateStateFromAnimationDef(assetManager.GetAnimation("ant")),
 	}
+
+	renderSystem := systems.GetDirectory().RenderSystem()
+	renderSystem.Register(entity)
+
+	movementSystem := systems.GetDirectory().MovementSystem()
+	movementSystem.Register(entity)
 
 	return entity
 }

@@ -22,10 +22,10 @@ func (m *MovementSystem) Register(moveable Moveable) {
 	m.moveables = append(m.moveables, moveable)
 }
 
-func NewMovementSystem() MovementSystem {
+func NewMovementSystem() *MovementSystem {
 	m := MovementSystem{}
 	m.moveables = make([]Moveable, 0)
-	return m
+	return &m
 }
 
 func (m *MovementSystem) Update(delta time.Duration) {
