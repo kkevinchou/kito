@@ -8,9 +8,11 @@ import (
 
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/entities/ant"
+	"github.com/kkevinchou/ant/entities/food"
 	"github.com/kkevinchou/ant/entities/grass"
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/ant/managers/item"
 	"github.com/kkevinchou/ant/pathing"
 	"github.com/kkevinchou/ant/systems"
 	"github.com/kkevinchou/ant/systems/movement"
@@ -107,6 +109,7 @@ func setupGrass() {
 }
 
 func setupSystems() *systems.Directory {
+	itemManager := item.NewManager()
 	assetManager := assets.NewAssetManager(renderer, "assets")
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
 	movementSystem := movement.NewMovementSystem()
@@ -115,6 +118,7 @@ func setupSystems() *systems.Directory {
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterMovementSystem(movementSystem)
 	d.RegisterAssetManager(assetManager)
+	d.RegisterItemManager(itemManager)
 
 	return d
 }
@@ -139,6 +143,8 @@ func main() {
 
 	p := pathing.Planner{}
 	p.SetNavMesh(navMesh)
+
+	food.New(200, 100)
 
 	var event sdl.Event
 	gameOver := false

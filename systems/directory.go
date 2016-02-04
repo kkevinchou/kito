@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/managers/item"
 	"github.com/kkevinchou/ant/systems/movement"
 	"github.com/kkevinchou/ant/systems/render"
 )
@@ -37,6 +38,7 @@ type Directory struct {
 	renderSystem   *render.RenderSystem
 	movementSystem *movement.MovementSystem
 	assetManager   *assets.Manager
+	itemManager    *item.Manager
 }
 
 var instance *Directory
@@ -71,6 +73,14 @@ func (d *Directory) RegisterAssetManager(manager *assets.Manager) {
 
 func (d *Directory) AssetManager() *assets.Manager {
 	return d.assetManager
+}
+
+func (d *Directory) RegisterItemManager(manager *item.Manager) {
+	d.itemManager = manager
+}
+
+func (d *Directory) ItemManager() *item.Manager {
+	return d.itemManager
 }
 
 // func (d *Directory) Publish(event Event) {
