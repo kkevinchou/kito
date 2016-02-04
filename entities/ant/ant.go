@@ -14,6 +14,8 @@ type Ant struct {
 	*steering.SeekComponent
 	*RenderComponent
 	*PositionComponent
+	*AIComponent
+	*CarrierComponent
 }
 
 func New() *Ant {
@@ -38,9 +40,13 @@ func New() *Ant {
 	movementSystem := systems.GetDirectory().MovementSystem()
 	movementSystem.Register(entity)
 
+	entity.AIComponent = NewAIComponent(entity)
+	entity.CarrierComponent = &CarrierComponent{}
+
 	return entity
 }
 
 func (e *Ant) Update(delta time.Duration) {
 	e.PhysicsComponent.Update(delta)
+	e.AIComponent.Update(delta)
 }

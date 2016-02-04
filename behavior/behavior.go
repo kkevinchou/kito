@@ -17,7 +17,7 @@ type Node interface {
 }
 
 type BehaviorTree interface {
-	Tick(AIState, time.Duration)
+	Tick(time.Duration)
 }
 
 type AIState struct {
