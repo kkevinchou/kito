@@ -1,6 +1,11 @@
 package behavior
 
-import "time"
+import (
+	"fmt"
+	"time"
+
+	"github.com/kkevinchou/ant/systems"
+)
 
 type ItemI interface {
 	AddItem(interface{})
@@ -20,14 +25,30 @@ type HaveItemCondition struct {
 	Entity ItemI
 }
 
-func (f *AddItem) Tick(state AIState, delta time.Duration) Status {
+type LocateItem struct {
+	Entity ItemI
+}
+
+func (a *AddItem) Tick(state AiState, delta time.Duration) Status {
 	return SUCCESS
 }
 
-func (f *DropItem) Tick(state AIState, delta time.Duration) Status {
+func (d *DropItem) Tick(state AiState, delta time.Duration) Status {
 	return SUCCESS
 }
 
-func (f *HaveItemCondition) Tick(state AIState, delta time.Duration) Status {
+func (h *HaveItemCondition) Tick(state AiState, delta time.Duration) Status {
+	return SUCCESS
+}
+
+// Locates a random item
+func (l *LocateItem) Tick(state AiState, delta time.Duration) Status {
+	itemManager := systems.GetDirectory().ItemManager()
+	item, err := itemManager.Locate()
+	if err != nil {
+		return FAILURE
+	}
+	position := item.Position()
+	state.BlackBoard["output"] = fmt.Sprintf("%f_%f", position.X, position.Y)
 	return SUCCESS
 }

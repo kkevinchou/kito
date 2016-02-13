@@ -23,9 +23,9 @@ func (i *Manager) Register(item ItemI) {
 	i.items[item.Id()] = item
 }
 
-func (i *Manager) Locate() (*ItemI, error) {
+func (i *Manager) Locate() (ItemI, error) {
 	for _, val := range i.items {
-		return &val, nil
+		return val, nil
 	}
 	return nil, errors.New("Could not locate item")
 }

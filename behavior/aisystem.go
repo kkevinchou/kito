@@ -6,12 +6,12 @@ package behavior
 // )
 
 // type AISystem struct {
-// 	antAIStates map[*entity.Entity]behavior.AIState
+// 	antAiStates map[*entity.Entity]behavior.AiState
 // }
 
 // func New() *AISystem {
 // 	aisystem := &AISystem{
-// 		antBehaviors: make(map[*entity.Entity]behavior.AIState),
+// 		antBehaviors: make(map[*entity.Entity]behavior.AiState),
 // 	}
 // 	return aisystem
 // }

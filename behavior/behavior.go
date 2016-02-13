@@ -1,8 +1,6 @@
 package behavior
 
-import (
-	"time"
-)
+import "time"
 
 type Status int
 
@@ -13,13 +11,21 @@ const (
 )
 
 type Node interface {
-	Tick(AIState, time.Duration) Status
+	Tick(AiState, time.Duration) Status
 }
 
 type BehaviorTree interface {
 	Tick(time.Duration)
 }
 
-type AIState struct {
+type AiState struct {
 	BlackBoard map[string]string
+}
+
+type NodeCache struct {
+	cache map[Node]Status
+}
+
+func NewNodeCache() *NodeCache {
+	return &NodeCache{cache: map[Node]Status{}}
 }

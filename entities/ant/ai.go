@@ -8,8 +8,7 @@ import (
 )
 
 type AIComponent struct {
-	entity worker.WorkerI
-	bt     behavior.BehaviorTree
+	bt behavior.BehaviorTree
 }
 
 func NewAIComponent(entity worker.WorkerI) *AIComponent {

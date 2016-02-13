@@ -5,6 +5,7 @@ import (
 
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/managers/item"
+	"github.com/kkevinchou/ant/managers/path"
 	"github.com/kkevinchou/ant/systems/movement"
 	"github.com/kkevinchou/ant/systems/render"
 )
@@ -39,6 +40,8 @@ type Directory struct {
 	movementSystem *movement.MovementSystem
 	assetManager   *assets.Manager
 	itemManager    *item.Manager
+	pathManager    *path.Manager
+	// aiManager      *ai.Manager
 }
 
 var instance *Directory
@@ -82,6 +85,22 @@ func (d *Directory) RegisterItemManager(manager *item.Manager) {
 func (d *Directory) ItemManager() *item.Manager {
 	return d.itemManager
 }
+
+func (d *Directory) RegisterPathManager(manager *path.Manager) {
+	d.pathManager = manager
+}
+
+func (d *Directory) PathManager() *path.Manager {
+	return d.pathManager
+}
+
+// func (d *Directory) RegisterAIManager(manager *ai.Manager) {
+// 	d.aiManager = manager
+// }
+
+// func (d *Directory) AIManager() *ai.Manager {
+// 	return d.aiManager
+// }
 
 // func (d *Directory) Publish(event Event) {
 // }
