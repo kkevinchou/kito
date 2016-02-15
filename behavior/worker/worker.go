@@ -44,5 +44,8 @@ type BehaviorTree struct {
 }
 
 func (b *BehaviorTree) Tick(delta time.Duration) {
-	b.root.Tick(b.state, delta)
+	tickResult := b.root.Tick(b.state, delta)
+	if tickResult == behavior.SUCCESS {
+		b.root.Reset()
+	}
 }

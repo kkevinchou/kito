@@ -4,6 +4,7 @@ import "time"
 
 type Selector struct {
 	children []Node
+	cache    NodeCache
 }
 
 func (s *Selector) Tick(state AiState, delta time.Duration) Status {
@@ -15,4 +16,10 @@ func (s *Selector) Tick(state AiState, delta time.Duration) Status {
 	}
 
 	return FAILURE
+}
+
+func (s *Selector) Reset() {
+	for _, child := range s.children {
+		child.Reset()
+	}
 }

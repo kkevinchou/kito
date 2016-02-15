@@ -18,3 +18,5 @@ func (a *AiStateModifier) Tick(state AiState, delta time.Duration) Status {
 	a.modifier(state)
 	return SUCCESS
 }
+
+func (a *AiStateModifier) Reset() {}

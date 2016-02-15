@@ -25,10 +25,6 @@ type HaveItemCondition struct {
 	Entity ItemI
 }
 
-type LocateItem struct {
-	Entity ItemI
-}
-
 func (a *AddItem) Tick(state AiState, delta time.Duration) Status {
 	return SUCCESS
 }
@@ -39,6 +35,10 @@ func (d *DropItem) Tick(state AiState, delta time.Duration) Status {
 
 func (h *HaveItemCondition) Tick(state AiState, delta time.Duration) Status {
 	return SUCCESS
+}
+
+type LocateItem struct {
+	Entity ItemI
 }
 
 // Locates a random item
@@ -52,3 +52,5 @@ func (l *LocateItem) Tick(state AiState, delta time.Duration) Status {
 	state.BlackBoard["output"] = fmt.Sprintf("%f_%f", position.X, position.Y)
 	return SUCCESS
 }
+
+func (l *LocateItem) Reset() {}

@@ -1,7 +1,6 @@
 package behavior
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -30,7 +29,6 @@ func (m *Move) Tick(state AiState, delta time.Duration) Status {
 		targetStr := strings.Split(state.BlackBoard["output"], "_")
 		targetX, _ := strconv.ParseFloat(targetStr[0], 64)
 		targetY, _ := strconv.ParseFloat(targetStr[1], 64)
-		fmt.Println(targetStr)
 
 		path := pathManager.FindPath(
 			geometry.Point{X: position.X, Y: position.Y},
@@ -45,7 +43,7 @@ func (m *Move) Tick(state AiState, delta time.Duration) Status {
 	}
 
 	if m.path == nil {
-		return SUCCESS
+		return FAILURE
 	}
 
 	if m.pathIndex == len(m.path) {
@@ -59,5 +57,14 @@ func (m *Move) Tick(state AiState, delta time.Duration) Status {
 		}
 	}
 
-	return SUCCESS
+	if m.pathIndex == len(m.path) {
+		return SUCCESS
+	} else {
+		return RUNNING
+	}
+}
+
+func (m *Move) Reset() {
+	m.path = nil
+	m.pathIndex = 0
 }
