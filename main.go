@@ -48,59 +48,6 @@ func setupDisplay() {
 	}
 }
 
-func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
-	points := []geometry.Point{
-		geometry.Point{xOffset * size, yOffset * size},
-		geometry.Point{xOffset * size, yOffset*size + size},
-		geometry.Point{xOffset*size + size, yOffset*size + size},
-		geometry.Point{xOffset*size + size, yOffset * size},
-	}
-	return geometry.NewPolygon(points)
-}
-
-func funkyShape1() *geometry.Polygon {
-	points := []geometry.Point{
-		geometry.Point{180, 360},
-		geometry.Point{180, 420},
-		geometry.Point{600, 560},
-		geometry.Point{400, 120},
-	}
-	return geometry.NewPolygon(points)
-}
-
-func funkyShape2() *geometry.Polygon {
-	points := []geometry.Point{
-		geometry.Point{500, 50},
-		geometry.Point{300, 100},
-		geometry.Point{400, 100},
-	}
-	return geometry.NewPolygon(points)
-}
-
-func setupNavMesh() *pathing.NavMesh {
-	polygons := []*geometry.Polygon{
-		sqWithOffset(60, 0, 0),
-		sqWithOffset(60, 1, 0),
-		sqWithOffset(60, 2, 0),
-		sqWithOffset(60, 2, 1),
-		sqWithOffset(60, 2, 2),
-		sqWithOffset(60, 1, 2),
-		sqWithOffset(60, 0, 2),
-		sqWithOffset(60, 0, 3),
-		sqWithOffset(60, 0, 4),
-		sqWithOffset(60, 1, 4),
-		sqWithOffset(60, 2, 4),
-		sqWithOffset(60, 2, 5),
-		sqWithOffset(60, 2, 6),
-		sqWithOffset(60, 1, 6),
-		sqWithOffset(60, 0, 6),
-		funkyShape1(),
-		funkyShape2(),
-	}
-
-	return pathing.ConstructNavMesh(polygons)
-}
-
 func setupGrass() {
 	grass.New(366, 450)
 	grass.New(386, 450)
@@ -112,7 +59,6 @@ func setupGrass() {
 func setupSystems() *systems.Directory {
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
-	// aiManager := ai.NewManager()
 	assetManager := assets.NewAssetManager(renderer, "assets")
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
 	movementSystem := movement.NewMovementSystem()
@@ -123,7 +69,8 @@ func setupSystems() *systems.Directory {
 	d.RegisterAssetManager(assetManager)
 	d.RegisterItemManager(itemManager)
 	d.RegisterPathManager(pathManager)
-	// d.RegisterAIManager(aiManager)
+
+	renderSystem.Register(pathManager.NavMesh())
 
 	return d
 }
@@ -137,17 +84,15 @@ func main() {
 	directory := setupSystems()
 	renderSystem := directory.RenderSystem()
 	movementSystem := directory.MovementSystem()
+	pathManager := directory.PathManager()
 
 	ant := ant.New()
 	ant.SetPosition(vector.Vector{400, 350})
 
-	navMesh := setupNavMesh()
-	renderSystem.Register(navMesh)
-
 	setupGrass()
 
 	p := pathing.Planner{}
-	p.SetNavMesh(navMesh)
+	p.SetNavMesh(pathManager.NavMesh())
 
 	food.New(150, 100)
 

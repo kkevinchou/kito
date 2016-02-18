@@ -60,14 +60,20 @@ func setupNavMesh() *pathing.NavMesh {
 
 type Manager struct {
 	planner pathing.Planner
+	navMesh *pathing.NavMesh
 }
 
-func (i *Manager) FindPath(start, goal geometry.Point) []pathing.Node {
-	return i.planner.FindPath(start, goal)
+func (m *Manager) FindPath(start, goal geometry.Point) []pathing.Node {
+	return m.planner.FindPath(start, goal)
+}
+
+func (m *Manager) NavMesh() *pathing.NavMesh {
+	return m.navMesh
 }
 
 func NewManager() *Manager {
 	p := pathing.Planner{}
-	p.SetNavMesh(setupNavMesh())
-	return &Manager{planner: p}
+	navMesh := setupNavMesh()
+	p.SetNavMesh(navMesh)
+	return &Manager{planner: p, navMesh: navMesh}
 }
