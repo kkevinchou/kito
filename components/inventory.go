@@ -1,9 +1,6 @@
-package inventory
+package components
 
 type InventoryI interface {
-	AddItem(interface{})
-	DropItem(interface{})
-	HasItem(interface{})
 }
 
 type NilItem struct {

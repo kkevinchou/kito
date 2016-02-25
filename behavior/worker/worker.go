@@ -9,9 +9,6 @@ import (
 
 // Embed each of the interfaces that this behavior uses
 type WorkerI interface {
-	AddItem(interface{})
-	DropItem(interface{})
-	HasItem(interface{})
 	SetTarget(vector.Vector)
 	Position() vector.Vector
 }

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/animation"
+	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/components/physics"
 	"github.com/kkevinchou/ant/components/steering"
 	"github.com/kkevinchou/ant/systems"
@@ -15,7 +16,7 @@ type Ant struct {
 	*RenderComponent
 	*PositionComponent
 	*AIComponent
-	*CarrierComponent
+	*components.InventoryComponent
 }
 
 func New() *Ant {
@@ -41,7 +42,7 @@ func New() *Ant {
 	movementSystem.Register(entity)
 
 	entity.AIComponent = NewAIComponent(entity)
-	entity.CarrierComponent = &CarrierComponent{}
+	entity.InventoryComponent = components.NewInventoryComponent()
 
 	return entity
 }

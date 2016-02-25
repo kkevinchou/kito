@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kkevinchou/ant/components/inventory"
+	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/systems"
 )
 
 type LocateItem struct {
-	Entity inventory.InventoryI
+	Entity components.InventoryI
 }
 
 // Locates a random item
