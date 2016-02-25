@@ -22,7 +22,7 @@ func NewBT(worker WorkerI) *BehaviorTree {
 
 func CreateWorkerBT(worker WorkerI) behavior.Node {
 	seq := behavior.NewSequence()
-	seq.AddChild(&behavior.LocateItem{Entity: worker})
+	seq.AddChild(&behavior.LocateItem{})
 	seq.AddChild(&behavior.Move{Entity: worker})
 
 	seq2 := behavior.NewSequence()

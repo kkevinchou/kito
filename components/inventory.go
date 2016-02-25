@@ -5,9 +5,6 @@ import (
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
-type InventoryI interface {
-}
-
 type NilItem struct {
 }
 

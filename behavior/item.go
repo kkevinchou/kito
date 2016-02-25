@@ -2,14 +2,35 @@ package behavior
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
-	"github.com/kkevinchou/ant/components"
+	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/systems"
 )
 
+type PickupItem struct {
+	Entity interfaces.InventoryI
+}
+
+func (p *PickupItem) Tick(state AiState, delta time.Duration) Status {
+	itemId64, err := strconv.ParseInt(state.BlackBoard["output"], 10, 0)
+	if err != nil {
+		return FAILURE
+	}
+	itemId := int(itemId64)
+
+	itemManager := systems.GetDirectory().ItemManager()
+	item, err := itemManager.PickUp(itemId)
+	if err != nil {
+		return FAILURE
+	}
+
+	p.Entity.Give(item)
+	return SUCCESS
+}
+
 type LocateItem struct {
-	Entity components.InventoryI
 }
 
 // Locates a random item

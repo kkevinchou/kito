@@ -23,20 +23,20 @@ func (i *Manager) Locate() (interfaces.ItemI, error) {
 	return nil, errors.New("Could not locate item")
 }
 
-func (i *Manager) PickUp(id int) (*interfaces.ItemI, error) {
+func (i *Manager) PickUp(id int) (interfaces.ItemI, error) {
 	if item, ok := i.items[id]; ok {
 		delete(i.items, id)
 		i.ownedItems[id] = item
-		return &item, nil
+		return item, nil
 	}
 	return nil, fmt.Errorf("Could not pick up item with id %d", id)
 }
 
-func (i *Manager) Drop(id int) (*interfaces.ItemI, error) {
+func (i *Manager) Drop(id int) (interfaces.ItemI, error) {
 	if item, ok := i.ownedItems[id]; ok {
 		delete(i.ownedItems, id)
 		i.items[id] = item
-		return &item, nil
+		return item, nil
 	}
 	return nil, fmt.Errorf("Could not drop item with id %d", id)
 }

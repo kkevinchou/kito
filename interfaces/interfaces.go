@@ -8,3 +8,8 @@ type ItemI interface {
 	Id() int
 	Position() vector.Vector
 }
+
+type InventoryI interface {
+	Give(ItemI)
+	Take(int) ItemI
+}
