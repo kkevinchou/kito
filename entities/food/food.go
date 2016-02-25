@@ -1,7 +1,6 @@
 package food
 
 import (
-	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/components/id"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/systems"
@@ -24,8 +23,8 @@ func New(x, y float64) *Food {
 	assetManager := systems.GetDirectory().AssetManager()
 
 	entity.RenderComponent = &RenderComponent{
-		entity:         entity,
-		animationState: animation.CreateStateFromAnimationDef(assetManager.GetAnimation("grass")),
+		entity:  entity,
+		texture: assetManager.GetTexture("F"),
 	}
 	renderSystem := systems.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)

@@ -34,7 +34,8 @@ func loadTextures(directory string, renderer *sdl.Renderer) map[string]*sdl.Text
 			continue
 		}
 
-		m[file.Name()] = texture
+		extensionLength := len(filepath.Ext(file.Name()))
+		m[file.Name()[0:len(file.Name())-extensionLength]] = texture
 	}
 
 	return m

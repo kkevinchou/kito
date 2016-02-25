@@ -3,7 +3,6 @@ package food
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
@@ -14,18 +13,16 @@ type Renderable interface {
 }
 
 type RenderComponent struct {
-	entity         Renderable
-	animationState *animation.AnimationState
+	entity  Renderable
+	texture *sdl.Texture
 }
 
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
 	position := r.entity.Position()
-	texture := r.animationState.GetCurrentFrame()
-	renderer.Copy(texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 64, 64, 64})
+	renderer.Copy(r.texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 64, 64, 64})
 }
 
 func (r *RenderComponent) UpdateRenderComponent(delta time.Duration) {
-	r.animationState.Update(delta)
 }
 
 func (r *RenderComponent) GetRenderPriority() int {

@@ -2,7 +2,7 @@ simple aesthetic like mini metro
 
 TODO
 
-Remove navmesh rendering from main.go.  Just have it register tha path manager's mesh with the rendering system.
+use observer pattern for setting messages via blackboard to/from components
 
 BUGS
 
