@@ -91,9 +91,6 @@ func main() {
 
 	setupGrass()
 
-	p := pathing.Planner{}
-	p.SetNavMesh(pathManager.NavMesh())
-
 	food.New(150, 100)
 
 	var event sdl.Event
@@ -115,7 +112,7 @@ func main() {
 			case *sdl.MouseButtonEvent:
 				if e.State == 0 { // Mouse Up
 					position := ant.Position()
-					path = p.FindPath(
+					path = pathManager.FindPath(
 						geometry.Point{X: position.X, Y: position.Y},
 						geometry.Point{X: float64(e.X), Y: float64(e.Y)},
 					)
