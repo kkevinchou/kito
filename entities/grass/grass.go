@@ -2,19 +2,20 @@ package grass
 
 import (
 	"github.com/kkevinchou/ant/animation"
+	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/systems"
 )
 
 type Grass struct {
 	*RenderComponent
-	*PositionComponent
+	*components.PositionComponent
 }
 
 func New(x, y float64) *Grass {
 	entity := &Grass{}
 
-	entity.PositionComponent = &PositionComponent{vector.Vector{X: x, Y: y}}
+	entity.PositionComponent = &components.PositionComponent{}
 
 	assetManager := systems.GetDirectory().AssetManager()
 
@@ -24,6 +25,8 @@ func New(x, y float64) *Grass {
 	}
 	renderSystem := systems.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)
+
+	entity.SetPosition(vector.Vector{X: x, Y: y})
 
 	return entity
 }

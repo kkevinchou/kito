@@ -4,16 +4,15 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/behavior"
-	"github.com/kkevinchou/ant/behavior/worker"
 )
 
 type AIComponent struct {
 	bt behavior.BehaviorTree
 }
 
-func NewAIComponent(entity worker.WorkerI) *AIComponent {
+func NewAIComponent(entity WorkerI) *AIComponent {
 	return &AIComponent{
-		bt: worker.NewBT(entity),
+		bt: NewBT(entity),
 	}
 }
 

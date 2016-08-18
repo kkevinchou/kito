@@ -14,7 +14,7 @@ type Worker struct {
 	*physics.PhysicsComponent
 	*steering.SeekComponent
 	*RenderComponent
-	*PositionComponent
+	*components.PositionComponent
 	*AIComponent
 	*components.InventoryComponent
 }
@@ -25,7 +25,7 @@ func New() *Worker {
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
 	entity.PhysicsComponent.Init(entity, 100, 10)
 
-	entity.PositionComponent = &PositionComponent{}
+	entity.PositionComponent = &components.PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
 
 	assetManager := systems.GetDirectory().AssetManager()

@@ -1,4 +1,4 @@
-package food
+package components
 
 import "github.com/kkevinchou/ant/lib/math/vector"
 
