@@ -6,18 +6,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/kkevinchou/ant/assets"
-	"github.com/kkevinchou/ant/entities/ant"
-	"github.com/kkevinchou/ant/entities/food"
-	"github.com/kkevinchou/ant/entities/grass"
-	"github.com/kkevinchou/ant/lib/geometry"
-	"github.com/kkevinchou/ant/lib/math/vector"
-	"github.com/kkevinchou/ant/managers/item"
-	"github.com/kkevinchou/ant/managers/path"
-	"github.com/kkevinchou/ant/pathing"
+	antgame "github.com/kkevinchou/ant/antz"
 	"github.com/kkevinchou/ant/systems"
-	"github.com/kkevinchou/ant/systems/movement"
-	"github.com/kkevinchou/ant/systems/render"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -48,56 +38,20 @@ func setupDisplay() {
 	}
 }
 
-func setupGrass() {
-	grass.New(366, 450)
-	grass.New(386, 450)
-	grass.New(406, 450)
-	grass.New(406, 350)
-	grass.New(436, 350)
-}
-
-func setupSystems() *systems.Directory {
-	itemManager := item.NewManager()
-	pathManager := path.NewManager()
-	assetManager := assets.NewAssetManager(renderer, "assets")
-	renderSystem := render.NewRenderSystem(renderer, assetManager)
-	movementSystem := movement.NewMovementSystem()
-
-	d := systems.GetDirectory()
-	d.RegisterRenderSystem(renderSystem)
-	d.RegisterMovementSystem(movementSystem)
-	d.RegisterAssetManager(assetManager)
-	d.RegisterItemManager(itemManager)
-	d.RegisterPathManager(pathManager)
-
-	renderSystem.Register(pathManager.NavMesh())
-
-	return d
-}
-
 func main() {
 	rand.Seed(time.Now().Unix())
 	setupDisplay()
 	defer window.Destroy()
 	defer renderer.Destroy()
 
-	directory := setupSystems()
-	renderSystem := directory.RenderSystem()
+	game := antgame.Game{}
+	game.Init(renderer)
+	directory := systems.GetDirectory()
 	movementSystem := directory.MovementSystem()
-	pathManager := directory.PathManager()
-
-	ant := ant.New()
-	ant.SetPosition(vector.Vector{400, 350})
-
-	setupGrass()
-
-	food.New(150, 100)
+	renderSystem := directory.RenderSystem()
 
 	var event sdl.Event
 	gameOver := false
-
-	var path []pathing.Node
-	pathIndex := 0
 
 	previousTime := time.Now()
 	for gameOver != true {
@@ -111,15 +65,7 @@ func main() {
 				gameOver = true
 			case *sdl.MouseButtonEvent:
 				if e.State == 0 { // Mouse Up
-					position := ant.Position()
-					path = pathManager.FindPath(
-						geometry.Point{X: position.X, Y: position.Y},
-						geometry.Point{X: float64(e.X), Y: float64(e.Y)},
-					)
-					if path != nil {
-						pathIndex = 1
-						ant.SetTarget(path[1].Vector())
-					}
+					game.MoveAnt(float64(e.X), float64(e.Y))
 				}
 			case *sdl.KeyUpEvent:
 				if e.Keysym.Sym == sdl.K_ESCAPE {
@@ -128,19 +74,7 @@ func main() {
 			}
 		}
 
-		if path != nil {
-			if ant.Position().Sub(path[pathIndex].Vector()).Length() <= 2 {
-				pathIndex += 1
-				if pathIndex == len(path) {
-					path = nil
-					ant.SetSeekActive(false)
-					ant.SetVelocity(vector.Zero())
-				} else {
-					ant.SetTarget(path[pathIndex].Vector())
-				}
-			}
-		}
-
+		game.Update()
 		movementSystem.Update(delta)
 		renderSystem.Update(delta)
 	}
