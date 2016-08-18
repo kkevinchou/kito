@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"time"
 
-	antgame "github.com/kkevinchou/ant/antz"
+	"github.com/kkevinchou/ant/antz"
 	"github.com/kkevinchou/ant/systems"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -44,7 +44,7 @@ func main() {
 	defer window.Destroy()
 	defer renderer.Destroy()
 
-	game := antgame.Game{}
+	game := ant.Game{}
 	game.Init(renderer)
 	directory := systems.GetDirectory()
 	movementSystem := directory.MovementSystem()
