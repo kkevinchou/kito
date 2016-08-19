@@ -11,7 +11,7 @@ import (
 type Manager struct {
 	icons      map[string]*sdl.Texture
 	fonts      map[string]*ttf.Font
-	animations map[string]*animation.AnimationDefinition
+	animations map[string]*lib.AnimationDefinition
 }
 
 func NewAssetManager(renderer *sdl.Renderer, directory string) *Manager {

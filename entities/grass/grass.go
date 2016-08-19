@@ -1,8 +1,8 @@
 package grass
 
 import (
-	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/components"
+	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/systems"
 )
@@ -21,7 +21,7 @@ func New(x, y float64) *Grass {
 
 	entity.RenderComponent = &RenderComponent{
 		entity:         entity,
-		animationState: animation.CreateStateFromAnimationDef(assetManager.GetAnimation("grass")),
+		animationState: lib.CreateStateFromAnimationDef(assetManager.GetAnimation("grass")),
 	}
 	renderSystem := systems.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)

@@ -3,10 +3,10 @@ package worker
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/components/physics"
 	"github.com/kkevinchou/ant/components/steering"
+	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/systems"
 )
 
@@ -32,7 +32,7 @@ func New() *Worker {
 
 	entity.RenderComponent = &RenderComponent{
 		entity:         entity,
-		animationState: animation.CreateStateFromAnimationDef(assetManager.GetAnimation("ant")),
+		animationState: lib.CreateStateFromAnimationDef(assetManager.GetAnimation("ant")),
 	}
 
 	renderSystem := systems.GetDirectory().RenderSystem()

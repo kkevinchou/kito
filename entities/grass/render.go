@@ -3,8 +3,8 @@ package grass
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/animation"
 	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -15,7 +15,7 @@ type Renderable interface {
 
 type RenderComponent struct {
 	entity         Renderable
-	animationState *animation.AnimationState
+	animationState *lib.AnimationState
 }
 
 func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
