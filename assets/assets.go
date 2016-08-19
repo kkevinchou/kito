@@ -3,7 +3,7 @@ package assets
 import (
 	"path/filepath"
 
-	"github.com/kkevinchou/ant/animation"
+	"github.com/kkevinchou/ant/lib"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_ttf"
 )
@@ -20,7 +20,7 @@ func NewAssetManager(renderer *sdl.Renderer, directory string) *Manager {
 	assetManager := Manager{
 		icons:      loadTextures(filepath.Join(directory, "icons"), renderer),
 		fonts:      loadFonts(filepath.Join(directory, "fonts")),
-		animations: animation.LoadAnimations(filepath.Join(directory, "animations"), renderer),
+		animations: lib.LoadAnimations(filepath.Join(directory, "animations"), renderer),
 	}
 
 	return &assetManager
@@ -34,6 +34,6 @@ func (assetManager *Manager) GetFont(filename string) *ttf.Font {
 	return assetManager.fonts[filename]
 }
 
-func (assetManager *Manager) GetAnimation(animation string) *animation.AnimationDefinition {
+func (assetManager *Manager) GetAnimation(animation string) *lib.AnimationDefinition {
 	return assetManager.animations[animation]
 }
