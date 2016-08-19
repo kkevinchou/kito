@@ -6,13 +6,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/lib"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_ttf"
 )
 
 type Renderable interface {
-	Render(*assets.Manager, *sdl.Renderer)
+	Render(*lib.AssetManager, *sdl.Renderer)
 	UpdateRenderComponent(time.Duration)
 	GetRenderPriority() int
 	GetY() float64
@@ -37,14 +37,14 @@ func (r Renderables) Swap(i, j int) {
 
 type RenderSystem struct {
 	renderer     *sdl.Renderer
-	assetManager *assets.Manager
+	assetManager *lib.AssetManager
 	renderables  Renderables
 }
 
 func initFont() *ttf.Font {
 	ttf.Init()
 
-	font, err := ttf.OpenFont("assets/fonts/courier_new.ttf", 30)
+	font, err := ttf.OpenFont("_assets/fonts/courier_new.ttf", 30)
 	if err != nil {
 		fmt.Println(err)
 		log.Fatal("Font not found")
@@ -74,7 +74,7 @@ func initFont() *ttf.Font {
 	// }
 }
 
-func NewRenderSystem(renderer *sdl.Renderer, assetManager *assets.Manager) *RenderSystem {
+func NewRenderSystem(renderer *sdl.Renderer, assetManager *lib.AssetManager) *RenderSystem {
 	renderSystem := RenderSystem{
 		renderer:     renderer,
 		assetManager: assetManager,

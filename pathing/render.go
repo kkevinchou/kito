@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/lib"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -14,7 +14,7 @@ type RenderComponent struct {
 
 func (r *RenderComponent) UpdateRenderComponent(delta time.Duration) {}
 
-func (r *RenderComponent) Render(assetManager *assets.Manager, renderer *sdl.Renderer) {
+func (r *RenderComponent) Render(assetManager *lib.AssetManager, renderer *sdl.Renderer) {
 	font := assetManager.GetFont("courier_new.ttf")
 	for _, poly := range r.polygons {
 		renderer.SetDrawColor(17, 72, 0, 255)

@@ -3,7 +3,7 @@ package systems
 import (
 	"sync"
 
-	"github.com/kkevinchou/ant/assets"
+	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/managers/item"
 	"github.com/kkevinchou/ant/managers/path"
 	"github.com/kkevinchou/ant/systems/movement"
@@ -38,7 +38,7 @@ import (
 type Directory struct {
 	renderSystem   *render.RenderSystem
 	movementSystem *movement.MovementSystem
-	assetManager   *assets.Manager
+	assetManager   *lib.AssetManager
 	itemManager    *item.Manager
 	pathManager    *path.Manager
 	// aiManager      *ai.Manager
@@ -70,11 +70,11 @@ func (d *Directory) MovementSystem() *movement.MovementSystem {
 	return d.movementSystem
 }
 
-func (d *Directory) RegisterAssetManager(manager *assets.Manager) {
+func (d *Directory) RegisterAssetManager(manager *lib.AssetManager) {
 	d.assetManager = manager
 }
 
-func (d *Directory) AssetManager() *assets.Manager {
+func (d *Directory) AssetManager() *lib.AssetManager {
 	return d.assetManager
 }
 

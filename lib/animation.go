@@ -14,6 +14,7 @@ import (
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_image"
+	"github.com/veandco/go-sdl2/sdl_ttf"
 )
 
 type AnimationState struct {
@@ -67,7 +68,7 @@ func (a *AnimationDefinition) GetFrame(frame int) *sdl.Texture {
 	return a.frames[frame]
 }
 
-func LoadAnimations(directory string, renderer *sdl.Renderer) map[string]*AnimationDefinition {
+func loadAnimations(directory string, renderer *sdl.Renderer) map[string]*AnimationDefinition {
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {
 		fmt.Println(err)
@@ -128,4 +129,91 @@ func loadAnimation(directory string, renderer *sdl.Renderer) *AnimationDefinitio
 	}
 
 	return &a
+}
+
+type AssetManager struct {
+	icons      map[string]*sdl.Texture
+	fonts      map[string]*ttf.Font
+	animations map[string]*AnimationDefinition
+}
+
+func NewAssetManager(renderer *sdl.Renderer, directory string) *AssetManager {
+	ttf.Init()
+
+	assetManager := AssetManager{
+		icons:      loadTextures(filepath.Join(directory, "icons"), renderer),
+		fonts:      loadFonts(filepath.Join(directory, "fonts")),
+		animations: loadAnimations(filepath.Join(directory, "animations"), renderer),
+	}
+
+	return &assetManager
+}
+
+func (assetManager *AssetManager) GetTexture(filename string) *sdl.Texture {
+	return assetManager.icons[filename]
+}
+
+func (assetManager *AssetManager) GetFont(filename string) *ttf.Font {
+	return assetManager.fonts[filename]
+}
+
+func (assetManager *AssetManager) GetAnimation(animation string) *AnimationDefinition {
+	return assetManager.animations[animation]
+}
+
+func loadFonts(directory string) map[string]*ttf.Font {
+	fonts := make(map[string]*ttf.Font)
+
+	files, err := ioutil.ReadDir(directory)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	for _, file := range files {
+		fontPath := filepath.Join(directory, file.Name())
+
+		font, err := ttf.OpenFont(fontPath, 15)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		fonts[file.Name()] = font
+	}
+
+	return fonts
+}
+
+func loadTextures(directory string, renderer *sdl.Renderer) map[string]*sdl.Texture {
+	m := make(map[string]*sdl.Texture)
+
+	files, err := ioutil.ReadDir(directory)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	for _, file := range files {
+		imagePath := filepath.Join(directory, file.Name())
+
+		image, err := img.Load(imagePath)
+		if err != nil {
+			fmt.Println("Failed to load \"%s\": %s", imagePath, err)
+			continue
+		}
+
+		texture, err := renderer.CreateTextureFromSurface(image)
+		if err != nil {
+			fmt.Println("Failed to create texture \"%s\": %s", imagePath, err)
+			continue
+		}
+
+		extensionLength := len(filepath.Ext(file.Name()))
+		m[file.Name()[0:len(file.Name())-extensionLength]] = texture
+	}
+
+	return m
 }

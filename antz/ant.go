@@ -1,10 +1,10 @@
 package ant
 
 import (
-	"github.com/kkevinchou/ant/assets"
 	"github.com/kkevinchou/ant/entities/food"
 	"github.com/kkevinchou/ant/entities/grass"
 	"github.com/kkevinchou/ant/entities/worker"
+	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/managers/item"
@@ -27,7 +27,7 @@ func setupGrass() {
 func setupSystems(renderer *sdl.Renderer) *systems.Directory {
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
-	assetManager := assets.NewAssetManager(renderer, "assets")
+	assetManager := lib.NewAssetManager(renderer, "_assets")
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
 	movementSystem := movement.NewMovementSystem()
 
