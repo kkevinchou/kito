@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/kkevinchou/ant/antz"
+	"github.com/kkevinchou/ant/ant"
 	"github.com/kkevinchou/ant/directory"
 	"github.com/veandco/go-sdl2/sdl"
 )
