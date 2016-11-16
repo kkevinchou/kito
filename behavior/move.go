@@ -8,7 +8,7 @@ import (
 	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
-	"github.com/kkevinchou/ant/pathing"
+	"github.com/kkevinchou/ant/lib/pathing"
 )
 
 type MoveI interface {

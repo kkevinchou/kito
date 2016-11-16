@@ -2,7 +2,7 @@ package path
 
 import (
 	"github.com/kkevinchou/ant/lib/geometry"
-	"github.com/kkevinchou/ant/pathing"
+	"github.com/kkevinchou/ant/lib/pathing"
 )
 
 func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
