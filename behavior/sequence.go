@@ -15,7 +15,7 @@ func NewSequence() *Sequence {
 	return &Sequence{children: []Node{}, cache: NewNodeCache()}
 }
 
-func (s *Sequence) Tick(state AiState, delta time.Duration) Status {
+func (s *Sequence) Tick(state AIState, delta time.Duration) Status {
 	for _, child := range s.children {
 		if s.cache.Contains(child) {
 			continue

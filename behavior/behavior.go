@@ -11,7 +11,7 @@ const (
 )
 
 type Node interface {
-	Tick(AiState, time.Duration) Status
+	Tick(AIState, time.Duration) Status
 	Reset()
 }
 
@@ -19,7 +19,7 @@ type BehaviorTree interface {
 	Tick(time.Duration)
 }
 
-type AiState struct {
+type AIState struct {
 	BlackBoard map[string]string
 }
 

@@ -2,7 +2,7 @@ package behavior
 
 import "time"
 
-type AiStateModifierFunction func(state AiState)
+type AiStateModifierFunction func(state AIState)
 
 type AiStateModifier struct {
 	modifier AiStateModifierFunction
@@ -14,7 +14,7 @@ func NewAiStateModifier(f AiStateModifierFunction) *AiStateModifier {
 	}
 }
 
-func (a *AiStateModifier) Tick(state AiState, delta time.Duration) Status {
+func (a *AiStateModifier) Tick(state AIState, delta time.Duration) Status {
 	a.modifier(state)
 	return SUCCESS
 }

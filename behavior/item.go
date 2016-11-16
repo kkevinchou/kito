@@ -13,7 +13,7 @@ type PickupItem struct {
 	Entity interfaces.InventoryI
 }
 
-func (p *PickupItem) Tick(state AiState, delta time.Duration) Status {
+func (p *PickupItem) Tick(state AIState, delta time.Duration) Status {
 	itemId64, err := strconv.ParseInt(state.BlackBoard["output"], 10, 0)
 	if err != nil {
 		return FAILURE
@@ -34,7 +34,7 @@ type LocateItem struct {
 }
 
 // Locates a random item
-func (l *LocateItem) Tick(state AiState, delta time.Duration) Status {
+func (l *LocateItem) Tick(state AIState, delta time.Duration) Status {
 	itemManager := directory.GetDirectory().ItemManager()
 	item, err := itemManager.Locate()
 	if err != nil {

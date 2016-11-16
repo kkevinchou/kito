@@ -16,7 +16,7 @@ type WorkerI interface {
 func NewBT(worker WorkerI) *BehaviorTree {
 	return &BehaviorTree{
 		root:  CreateWorkerBT(worker),
-		state: behavior.AiState{BlackBoard: map[string]string{}},
+		state: behavior.AIState{BlackBoard: map[string]string{}},
 	}
 }
 
@@ -26,7 +26,7 @@ func CreateWorkerBT(worker WorkerI) behavior.Node {
 	seq.AddChild(&behavior.Move{Entity: worker})
 
 	seq2 := behavior.NewSequence()
-	seq2.AddChild(behavior.NewAiStateModifier(func(s behavior.AiState) { s.BlackBoard["output"] = "406_350" }))
+	seq2.AddChild(behavior.NewAiStateModifier(func(s behavior.AIState) { s.BlackBoard["output"] = "406_350" }))
 	seq2.AddChild(&behavior.Move{Entity: worker})
 
 	final := behavior.NewSequence()
@@ -37,7 +37,7 @@ func CreateWorkerBT(worker WorkerI) behavior.Node {
 
 type BehaviorTree struct {
 	root  behavior.Node
-	state behavior.AiState
+	state behavior.AIState
 }
 
 func (b *BehaviorTree) Tick(delta time.Duration) {

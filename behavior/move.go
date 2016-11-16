@@ -22,7 +22,7 @@ type Move struct {
 	pathIndex int
 }
 
-func (m *Move) Tick(state AiState, delta time.Duration) Status {
+func (m *Move) Tick(state AIState, delta time.Duration) Status {
 	if m.path == nil {
 		pathManager := directory.GetDirectory().PathManager()
 		position := m.Entity.Position()
