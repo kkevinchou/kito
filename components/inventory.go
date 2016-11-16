@@ -1,25 +1,6 @@
 package components
 
-import (
-	"github.com/kkevinchou/ant/interfaces"
-	"github.com/kkevinchou/ant/lib/math/vector"
-)
-
-type NilItem struct {
-}
-
-func (n *NilItem) Id() int {
-	return -1
-}
-func (n *NilItem) OwnedBy() int {
-	return -1
-}
-func (n *NilItem) Owned() bool {
-	return false
-}
-func (n *NilItem) Position() vector.Vector {
-	return vector.Zero()
-}
+import "github.com/kkevinchou/ant/interfaces"
 
 type InventoryComponent struct {
 	items map[int]interfaces.ItemI
@@ -40,5 +21,5 @@ func (i *InventoryComponent) Take(id int) (interfaces.ItemI, bool) {
 		return item, true
 	}
 
-	return &NilItem{}, false
+	return nil, false
 }
