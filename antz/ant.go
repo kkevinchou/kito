@@ -1,6 +1,7 @@
 package ant
 
 import (
+	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/entities/food"
 	"github.com/kkevinchou/ant/entities/grass"
 	"github.com/kkevinchou/ant/entities/worker"
@@ -10,7 +11,6 @@ import (
 	"github.com/kkevinchou/ant/managers/item"
 	"github.com/kkevinchou/ant/managers/path"
 	"github.com/kkevinchou/ant/pathing"
-	"github.com/kkevinchou/ant/systems"
 	"github.com/kkevinchou/ant/systems/movement"
 	"github.com/kkevinchou/ant/systems/render"
 	"github.com/veandco/go-sdl2/sdl"
@@ -24,14 +24,14 @@ func setupGrass() {
 	grass.New(436, 350)
 }
 
-func setupSystems(renderer *sdl.Renderer) *systems.Directory {
+func setupSystems(renderer *sdl.Renderer) *directory.Directory {
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
 	assetManager := lib.NewAssetManager(renderer, "_assets")
 	renderSystem := render.NewRenderSystem(renderer, assetManager)
 	movementSystem := movement.NewMovementSystem()
 
-	d := systems.GetDirectory()
+	d := directory.GetDirectory()
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterMovementSystem(movementSystem)
 	d.RegisterAssetManager(assetManager)
@@ -59,7 +59,7 @@ func (g *Game) Init(renderer *sdl.Renderer) {
 
 func (g *Game) MoveAnt(x, y float64) {
 	position := g.worker.Position()
-	pathManager := systems.GetDirectory().PathManager()
+	pathManager := directory.GetDirectory().PathManager()
 	g.path = pathManager.FindPath(
 		geometry.Point{X: position.X, Y: position.Y},
 		geometry.Point{X: x, Y: y},

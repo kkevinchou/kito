@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/interfaces"
-	"github.com/kkevinchou/ant/systems"
 )
 
 type PickupItem struct {
@@ -20,7 +20,7 @@ func (p *PickupItem) Tick(state AiState, delta time.Duration) Status {
 	}
 	itemId := int(itemId64)
 
-	itemManager := systems.GetDirectory().ItemManager()
+	itemManager := directory.GetDirectory().ItemManager()
 	item, err := itemManager.PickUp(itemId)
 	if err != nil {
 		return FAILURE
@@ -35,7 +35,7 @@ type LocateItem struct {
 
 // Locates a random item
 func (l *LocateItem) Tick(state AiState, delta time.Duration) Status {
-	itemManager := systems.GetDirectory().ItemManager()
+	itemManager := directory.GetDirectory().ItemManager()
 	item, err := itemManager.Locate()
 	if err != nil {
 		return FAILURE

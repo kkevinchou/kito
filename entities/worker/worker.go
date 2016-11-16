@@ -6,8 +6,8 @@ import (
 	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/components/physics"
 	"github.com/kkevinchou/ant/components/steering"
+	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/lib"
-	"github.com/kkevinchou/ant/systems"
 )
 
 type Worker struct {
@@ -28,17 +28,17 @@ func New() *Worker {
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
 
-	assetManager := systems.GetDirectory().AssetManager()
+	assetManager := directory.GetDirectory().AssetManager()
 
 	entity.RenderComponent = &RenderComponent{
 		entity:         entity,
 		animationState: lib.CreateStateFromAnimationDef(assetManager.GetAnimation("ant")),
 	}
 
-	renderSystem := systems.GetDirectory().RenderSystem()
+	renderSystem := directory.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)
 
-	movementSystem := systems.GetDirectory().MovementSystem()
+	movementSystem := directory.GetDirectory().MovementSystem()
 	movementSystem.Register(entity)
 
 	entity.AIComponent = NewAIComponent(entity)

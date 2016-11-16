@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/pathing"
-	"github.com/kkevinchou/ant/systems"
 )
 
 type MoveI interface {
@@ -24,7 +24,7 @@ type Move struct {
 
 func (m *Move) Tick(state AiState, delta time.Duration) Status {
 	if m.path == nil {
-		pathManager := systems.GetDirectory().PathManager()
+		pathManager := directory.GetDirectory().PathManager()
 		position := m.Entity.Position()
 		targetStr := strings.Split(state.BlackBoard["output"], "_")
 		targetX, _ := strconv.ParseFloat(targetStr[0], 64)

@@ -3,8 +3,8 @@ package food
 import (
 	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/components/id"
+	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/lib/math/vector"
-	"github.com/kkevinchou/ant/systems"
 )
 
 type Food struct {
@@ -21,16 +21,16 @@ func New(x, y float64) *Food {
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.ItemComponent = &ItemComponent{}
 
-	assetManager := systems.GetDirectory().AssetManager()
+	assetManager := directory.GetDirectory().AssetManager()
 
 	entity.RenderComponent = &RenderComponent{
 		entity:  entity,
 		texture: assetManager.GetTexture("F"),
 	}
-	renderSystem := systems.GetDirectory().RenderSystem()
+	renderSystem := directory.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)
 
-	itemManager := systems.GetDirectory().ItemManager()
+	itemManager := directory.GetDirectory().ItemManager()
 	itemManager.Register(entity)
 
 	entity.SetPosition(vector.Vector{X: x, Y: y})

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/antz"
-	"github.com/kkevinchou/ant/systems"
+	"github.com/kkevinchou/ant/directory"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -46,7 +46,7 @@ func main() {
 
 	game := ant.Game{}
 	game.Init(renderer)
-	directory := systems.GetDirectory()
+	directory := directory.GetDirectory()
 	movementSystem := directory.MovementSystem()
 	renderSystem := directory.RenderSystem()
 
