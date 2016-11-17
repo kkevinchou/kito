@@ -7,15 +7,17 @@ type Selector struct {
 	cache    NodeCache
 }
 
-func (s *Selector) Tick(state AIState, delta time.Duration) Status {
+func (s *Selector) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+	var status Status
+
 	for _, child := range s.children {
-		status := child.Tick(state, delta)
+		input, status = child.Tick(input, state, delta)
 		if status == SUCCESS {
-			return SUCCESS
+			return nil, SUCCESS
 		}
 	}
 
-	return FAILURE
+	return nil, FAILURE
 }
 
 func (s *Selector) Reset() {

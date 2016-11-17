@@ -15,23 +15,25 @@ func NewSequence() *Sequence {
 	return &Sequence{children: []Node{}, cache: NewNodeCache()}
 }
 
-func (s *Sequence) Tick(state AIState, delta time.Duration) Status {
+func (s *Sequence) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+	var status Status
+
 	for _, child := range s.children {
 		if s.cache.Contains(child) {
 			continue
 		}
 
-		status := child.Tick(state, delta)
+		input, status = child.Tick(input, state, delta)
 		if status == SUCCESS || status == FAILURE {
 			s.cache.Add(child, status)
 		}
 
 		if status != SUCCESS {
-			return status
+			return nil, status
 		}
 	}
 
-	return SUCCESS
+	return nil, SUCCESS
 }
 
 func (s *Sequence) Reset() {

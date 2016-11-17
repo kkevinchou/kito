@@ -11,7 +11,7 @@ const (
 )
 
 type Node interface {
-	Tick(AIState, time.Duration) Status
+	Tick(input interface{}, aiState AIState, delta time.Duration) (interface{}, Status)
 	Reset()
 }
 

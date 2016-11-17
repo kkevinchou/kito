@@ -22,7 +22,7 @@ type Move struct {
 	pathIndex int
 }
 
-func (m *Move) Tick(state AIState, delta time.Duration) Status {
+func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
 	if m.path == nil {
 		pathManager := directory.GetDirectory().PathManager()
 		position := m.Entity.Position()
@@ -43,11 +43,11 @@ func (m *Move) Tick(state AIState, delta time.Duration) Status {
 	}
 
 	if m.path == nil {
-		return FAILURE
+		return nil, FAILURE
 	}
 
 	if m.pathIndex == len(m.path) {
-		return SUCCESS
+		return nil, SUCCESS
 	}
 
 	if m.Entity.Position().Sub(m.path[m.pathIndex].Vector()).Length() <= 2 {
@@ -58,9 +58,9 @@ func (m *Move) Tick(state AIState, delta time.Duration) Status {
 	}
 
 	if m.pathIndex == len(m.path) {
-		return SUCCESS
+		return nil, SUCCESS
 	} else {
-		return RUNNING
+		return nil, RUNNING
 	}
 }
 

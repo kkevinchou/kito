@@ -14,9 +14,9 @@ func NewAiStateModifier(f AiStateModifierFunction) *AiStateModifier {
 	}
 }
 
-func (a *AiStateModifier) Tick(state AIState, delta time.Duration) Status {
+func (a *AiStateModifier) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
 	a.modifier(state)
-	return SUCCESS
+	return nil, SUCCESS
 }
 
 func (a *AiStateModifier) Reset() {}
