@@ -174,7 +174,7 @@ func loadFonts(directory string) map[string]*ttf.Font {
 	for _, file := range files {
 		fontPath := filepath.Join(directory, file.Name())
 
-		font, err := ttf.OpenFont(fontPath, 15)
+		font, err := ttf.OpenFont(fontPath, 24)
 		if err != nil {
 			fmt.Println(err)
 			continue

@@ -30,6 +30,10 @@ func (m *Memory) Get(key string) *Get {
 	}
 }
 
+func (m *Memory) Reset() {
+	m.data = map[string]interface{}{}
+}
+
 type Set struct {
 	memory *Memory
 	key    string
@@ -40,7 +44,9 @@ func (s *Set) Tick(input interface{}, state behavior.AIState, delta time.Duratio
 	return input, behavior.SUCCESS
 }
 
-func (v *Set) Reset() {}
+func (s *Set) Reset() {
+	s.memory.Reset()
+}
 
 type Get struct {
 	memory *Memory
@@ -54,4 +60,6 @@ func (g *Get) Tick(input interface{}, state behavior.AIState, delta time.Duratio
 	return nil, behavior.FAILURE
 }
 
-func (v *Get) Reset() {}
+func (g *Get) Reset() {
+	g.memory.Reset()
+}

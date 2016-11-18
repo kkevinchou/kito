@@ -65,7 +65,8 @@ func main() {
 				gameOver = true
 			case *sdl.MouseButtonEvent:
 				if e.State == 0 { // Mouse Up
-					game.MoveAnt(float64(e.X), float64(e.Y))
+					// game.MoveAnt(float64(e.X), float64(e.Y))
+					game.PlaceFood(float64(e.X), float64(e.Y))
 				}
 			case *sdl.KeyUpEvent:
 				if e.Keysym.Sym == sdl.K_ESCAPE {

@@ -52,9 +52,9 @@ type Game struct {
 func (g *Game) Init(renderer *sdl.Renderer) {
 	setupSystems(renderer)
 	setupGrass()
-	food.New(150, 100)
-	food.New(150, 150)
-	food.New(300, 450)
+	// food.New(150, 100)
+	// food.New(150, 150)
+	// food.New(300, 450)
 	g.worker = worker.New()
 	g.worker.SetPosition(vector.Vector{400, 350})
 }
@@ -70,6 +70,10 @@ func (g *Game) MoveAnt(x, y float64) {
 		g.pathIndex = 1
 		g.worker.SetTarget(g.path[1].Vector())
 	}
+}
+
+func (g *Game) PlaceFood(x, y float64) {
+	food.New(x, y)
 }
 
 func (g *Game) Update() {
