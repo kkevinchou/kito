@@ -8,14 +8,8 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type Renderable interface {
-	Position() vector.Vector
-	Velocity() vector.Vector
-	Heading() vector.Vector
-}
-
 type RenderComponent struct {
-	entity         Renderable
+	entity         Worker
 	animationState *lib.AnimationState
 }
 

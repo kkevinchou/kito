@@ -7,15 +7,19 @@ import (
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
-type Food struct {
+type Food interface {
+	Position() vector.Vector
+}
+
+type FoodImpl struct {
 	*RenderComponent
 	*components.PositionComponent
 	*id.IdComponent
 	*ItemComponent
 }
 
-func New(x, y float64) *Food {
-	entity := &Food{}
+func New(x, y float64) *FoodImpl {
+	entity := &FoodImpl{}
 
 	entity.IdComponent = id.NewIdComponent()
 	entity.PositionComponent = &components.PositionComponent{}

@@ -45,7 +45,7 @@ func setupSystems(renderer *sdl.Renderer) *directory.Directory {
 
 type Game struct {
 	path      []pathing.Node
-	worker    *worker.Worker
+	worker    *worker.WorkerImpl
 	pathIndex int
 }
 

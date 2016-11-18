@@ -8,9 +8,17 @@ import (
 	"github.com/kkevinchou/ant/components/steering"
 	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/lib"
+	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
-type Worker struct {
+type Worker interface {
+	SetTarget(vector.Vector)
+	Position() vector.Vector
+	Velocity() vector.Vector
+	Heading() vector.Vector
+}
+
+type WorkerImpl struct {
 	*physics.PhysicsComponent
 	*steering.SeekComponent
 	*RenderComponent
@@ -19,8 +27,8 @@ type Worker struct {
 	*components.InventoryComponent
 }
 
-func New() *Worker {
-	entity := &Worker{}
+func New() *WorkerImpl {
+	entity := &WorkerImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
 	entity.PhysicsComponent.Init(entity, 100, 10)
@@ -47,7 +55,7 @@ func New() *Worker {
 	return entity
 }
 
-func (e *Worker) Update(delta time.Duration) {
+func (e *WorkerImpl) Update(delta time.Duration) {
 	e.PhysicsComponent.Update(delta)
 	e.AIComponent.Update(delta)
 }

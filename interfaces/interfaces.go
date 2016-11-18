@@ -2,7 +2,7 @@ package interfaces
 
 import "github.com/kkevinchou/ant/lib/math/vector"
 
-type ItemI interface {
+type Item interface {
 	OwnedBy() int
 	Owned() bool
 	Id() int
@@ -10,6 +10,19 @@ type ItemI interface {
 }
 
 type InventoryI interface {
-	Give(ItemI)
-	Take(int) ItemI
+	Give(Item)
+	Take(int) Item
+}
+
+type ItemReceiver interface {
+	Give(item Item)
+}
+
+type ItemGiver interface {
+	Take(item Item)
+}
+
+type ItemGiverReceiver interface {
+	ItemGiver
+	ItemReceiver
 }

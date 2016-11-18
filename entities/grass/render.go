@@ -4,16 +4,11 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/lib"
-	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type Renderable interface {
-	Position() vector.Vector
-}
-
 type RenderComponent struct {
-	entity         Renderable
+	entity         Grass
 	animationState *lib.AnimationState
 }
 

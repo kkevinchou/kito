@@ -10,7 +10,7 @@ type AIComponent struct {
 	bt behavior.BehaviorTree
 }
 
-func NewAIComponent(entity WorkerI) *AIComponent {
+func NewAIComponent(entity Worker) *AIComponent {
 	return &AIComponent{
 		bt: NewBT(entity),
 	}

@@ -3,7 +3,7 @@ package components
 import "github.com/kkevinchou/ant/interfaces"
 
 type InventoryComponent struct {
-	items map[int]interfaces.ItemI
+	items map[int]interfaces.Item
 }
 
 func NewInventoryComponent() *InventoryComponent {
@@ -11,11 +11,11 @@ func NewInventoryComponent() *InventoryComponent {
 	return &component
 }
 
-func (i *InventoryComponent) Give(item interfaces.ItemI) {
+func (i *InventoryComponent) Give(item interfaces.Item) {
 	i.items[item.Id()] = item
 }
 
-func (i *InventoryComponent) Take(id int) (interfaces.ItemI, bool) {
+func (i *InventoryComponent) Take(id int) (interfaces.Item, bool) {
 	if item, ok := i.items[id]; ok {
 		delete(i.items, id)
 		return item, true
