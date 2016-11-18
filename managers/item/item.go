@@ -16,29 +16,30 @@ func (i *Manager) Register(item interfaces.Item) {
 	i.items[item.Id()] = item
 }
 
-func (i *Manager) Locate() (interfaces.Item, error) {
+func (i *Manager) Random() (interfaces.Item, error) {
 	for _, val := range i.items {
 		return val, nil
 	}
-	return nil, errors.New("Could not locate item")
+	return nil, errors.New("Could not get random item")
 }
 
-func (i *Manager) PickUp(id int) (interfaces.Item, error) {
-	if item, ok := i.items[id]; ok {
-		delete(i.items, id)
-		i.ownedItems[id] = item
-		return item, nil
+func (i *Manager) PickUp(item interfaces.Item) error {
+	if item, ok := i.items[item.Id()]; ok {
+		delete(i.items, item.Id())
+		i.ownedItems[item.Id()] = item
+		return nil
 	}
-	return nil, fmt.Errorf("Could not pick up item with id %d", id)
+
+	return fmt.Errorf("Could not pick up item with id %d", item.Id())
 }
 
-func (i *Manager) Drop(id int) (interfaces.Item, error) {
-	if item, ok := i.ownedItems[id]; ok {
-		delete(i.ownedItems, id)
-		i.items[id] = item
-		return item, nil
+func (i *Manager) Drop(item interfaces.Item) error {
+	if item, ok := i.ownedItems[item.Id()]; ok {
+		delete(i.ownedItems, item.Id())
+		i.items[item.Id()] = item
+		return nil
 	}
-	return nil, fmt.Errorf("Could not drop item with id %d", id)
+	return fmt.Errorf("Could not drop item with id %d", item.Id())
 }
 
 func NewManager() *Manager {

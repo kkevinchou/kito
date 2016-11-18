@@ -1,25 +1,35 @@
 package components
 
-import "github.com/kkevinchou/ant/interfaces"
+import (
+	"fmt"
+
+	"github.com/kkevinchou/ant/interfaces"
+)
 
 type InventoryComponent struct {
 	items map[int]interfaces.Item
 }
 
 func NewInventoryComponent() *InventoryComponent {
-	component := InventoryComponent{}
+	component := InventoryComponent{
+		items: map[int]interfaces.Item{},
+	}
 	return &component
 }
 
-func (i *InventoryComponent) Give(item interfaces.Item) {
+func (i *InventoryComponent) Give(item interfaces.Item) error {
+	if _, ok := i.items[item.Id()]; ok {
+		return fmt.Errorf("Item %d already owned by entity", item.Id())
+	}
 	i.items[item.Id()] = item
+	return nil
 }
 
-func (i *InventoryComponent) Take(id int) (interfaces.Item, bool) {
-	if item, ok := i.items[id]; ok {
-		delete(i.items, id)
-		return item, true
+func (i *InventoryComponent) Take(item interfaces.Item) error {
+	if item, ok := i.items[item.Id()]; ok {
+		delete(i.items, item.Id())
+		return nil
 	}
 
-	return nil, false
+	return fmt.Errorf("item %d not found", item.Id())
 }

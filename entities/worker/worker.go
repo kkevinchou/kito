@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/ant/components/physics"
 	"github.com/kkevinchou/ant/components/steering"
 	"github.com/kkevinchou/ant/directory"
+	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
@@ -16,6 +17,8 @@ type Worker interface {
 	Position() vector.Vector
 	Velocity() vector.Vector
 	Heading() vector.Vector
+	Give(item interfaces.Item) error
+	Take(item interfaces.Item) error
 }
 
 type WorkerImpl struct {

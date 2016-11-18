@@ -53,6 +53,8 @@ func (g *Game) Init(renderer *sdl.Renderer) {
 	setupSystems(renderer)
 	setupGrass()
 	food.New(150, 100)
+	food.New(150, 150)
+	food.New(300, 450)
 	g.worker = worker.New()
 	g.worker.SetPosition(vector.Vector{400, 350})
 }

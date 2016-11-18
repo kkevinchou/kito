@@ -1,7 +1,6 @@
 package behavior
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/kkevinchou/ant/directory"
@@ -9,18 +8,19 @@ import (
 )
 
 type PickupItem struct {
-	Entity interfaces.InventoryI
+	Entity interfaces.ItemGiverReceiver
 }
 
 func (p *PickupItem) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
-	itemId64, err := strconv.ParseInt(state.BlackBoard["output"], 10, 0)
-	if err != nil {
+	var item interfaces.Item
+	var ok bool
+
+	if item, ok = input.(interfaces.Item); !ok {
 		return nil, FAILURE
 	}
-	itemId := int(itemId64)
 
 	itemManager := directory.GetDirectory().ItemManager()
-	item, err := itemManager.PickUp(itemId)
+	err := itemManager.PickUp(item)
 	if err != nil {
 		return nil, FAILURE
 	}
@@ -29,17 +29,17 @@ func (p *PickupItem) Tick(input interface{}, state AIState, delta time.Duration)
 	return nil, SUCCESS
 }
 
-type LocateItem struct {
-}
+func (p *PickupItem) Reset() {}
 
-// Locates a random item
-func (l *LocateItem) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+type RandomItem struct{}
+
+func (r *RandomItem) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
 	itemManager := directory.GetDirectory().ItemManager()
-	item, err := itemManager.Locate()
+	item, err := itemManager.Random()
 	if err != nil {
 		return nil, FAILURE
 	}
-	return item.Position(), SUCCESS
+	return item, SUCCESS
 }
 
-func (l *LocateItem) Reset() {}
+func (r *RandomItem) Reset() {}

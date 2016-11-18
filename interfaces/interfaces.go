@@ -9,17 +9,12 @@ type Item interface {
 	Position() vector.Vector
 }
 
-type InventoryI interface {
-	Give(Item)
-	Take(int) Item
-}
-
 type ItemReceiver interface {
-	Give(item Item)
+	Give(item Item) error
 }
 
 type ItemGiver interface {
-	Take(item Item)
+	Take(item Item) error
 }
 
 type ItemGiverReceiver interface {

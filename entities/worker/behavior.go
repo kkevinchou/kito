@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/behavior"
+	"github.com/kkevinchou/ant/behavior/connectors"
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
@@ -15,10 +16,15 @@ func NewBT(worker Worker) *BehaviorTree {
 }
 
 func CreateWorkerBT(worker Worker) behavior.Node {
+	memory := connectors.NewMemory()
 	seq := behavior.NewSequence()
-	seq.AddChild(&behavior.LocateItem{})
+
+	seq.AddChild(&behavior.RandomItem{})
+	seq.AddChild(memory.Set("item"))
+	seq.AddChild(&connectors.Position{})
 	seq.AddChild(&behavior.Move{Entity: worker})
-	// seq.AddChild(&behavior.PickupItem{Entity: worker})
+	seq.AddChild(memory.Get("item"))
+	seq.AddChild(&behavior.PickupItem{Entity: worker})
 
 	seq2 := behavior.NewSequence()
 	seq2.AddChild(&behavior.Value{Value: vector.Vector{X: 406, Y: 350}})
