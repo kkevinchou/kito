@@ -1,7 +1,6 @@
 package behavior
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -40,9 +39,7 @@ func (l *LocateItem) Tick(input interface{}, state AIState, delta time.Duration)
 	if err != nil {
 		return nil, FAILURE
 	}
-	position := item.Position()
-	state.BlackBoard["output"] = fmt.Sprintf("%f_%f", position.X, position.Y)
-	return nil, SUCCESS
+	return item.Position(), SUCCESS
 }
 
 func (l *LocateItem) Reset() {}

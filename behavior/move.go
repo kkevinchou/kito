@@ -1,8 +1,6 @@
 package behavior
 
 import (
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/kkevinchou/ant/directory"
@@ -11,13 +9,13 @@ import (
 	"github.com/kkevinchou/ant/lib/pathing"
 )
 
-type MoveI interface {
+type Mover interface {
 	Position() vector.Vector
 	SetTarget(target vector.Vector)
 }
 
 type Move struct {
-	Entity    MoveI
+	Entity    Mover
 	path      []pathing.Node
 	pathIndex int
 }
@@ -26,13 +24,17 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 	if m.path == nil {
 		pathManager := directory.GetDirectory().PathManager()
 		position := m.Entity.Position()
-		targetStr := strings.Split(state.BlackBoard["output"], "_")
-		targetX, _ := strconv.ParseFloat(targetStr[0], 64)
-		targetY, _ := strconv.ParseFloat(targetStr[1], 64)
+
+		var target vector.Vector
+		var ok bool
+
+		if target, ok = input.(vector.Vector); !ok {
+			return nil, FAILURE
+		}
 
 		path := pathManager.FindPath(
 			geometry.Point{X: position.X, Y: position.Y},
-			geometry.Point{X: targetX, Y: targetY},
+			geometry.Point{X: target.X, Y: target.Y},
 		)
 
 		if path != nil {

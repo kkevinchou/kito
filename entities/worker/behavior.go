@@ -26,7 +26,7 @@ func CreateWorkerBT(worker WorkerI) behavior.Node {
 	seq.AddChild(&behavior.Move{Entity: worker})
 
 	seq2 := behavior.NewSequence()
-	seq2.AddChild(behavior.NewAiStateModifier(func(s behavior.AIState) { s.BlackBoard["output"] = "406_350" }))
+	seq2.AddChild(&behavior.Value{Value: vector.Vector{X: 406, Y: 350}})
 	seq2.AddChild(&behavior.Move{Entity: worker})
 
 	final := behavior.NewSequence()
