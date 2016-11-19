@@ -3,23 +3,19 @@ package physics
 import (
 	"time"
 
+	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
-
-type Positionable interface {
-	Position() vector.Vector
-	SetPosition(vector.Vector)
-}
 
 type PhysicsComponent struct {
 	velocity vector.Vector
 	mass     float64
 	maxSpeed float64
-	entity   Positionable
+	entity   interfaces.Positionable
 	heading  vector.Vector
 }
 
-func (c *PhysicsComponent) Init(entity Positionable, maxSpeed, mass float64) {
+func (c *PhysicsComponent) Init(entity interfaces.Positionable, maxSpeed, mass float64) {
 	c.entity = entity
 	c.maxSpeed = maxSpeed
 	c.mass = mass

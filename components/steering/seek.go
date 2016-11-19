@@ -1,9 +1,12 @@
 package steering
 
-import "github.com/kkevinchou/ant/lib/math/vector"
+import (
+	"github.com/kkevinchou/ant/interfaces"
+	"github.com/kkevinchou/ant/lib/math/vector"
+)
 
 type Seekable interface {
-	Position() vector.Vector
+	interfaces.Positionable
 	Velocity() vector.Vector
 	Mass() float64
 	MaxSpeed() float64

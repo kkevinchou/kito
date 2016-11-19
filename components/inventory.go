@@ -22,14 +22,12 @@ func (i *InventoryComponent) Give(item interfaces.Item) error {
 		return fmt.Errorf("Item %d already owned by entity", item.ID())
 	}
 	i.items[item.ID()] = item
-	fmt.Println(len(i.items))
 	return nil
 }
 
 func (i *InventoryComponent) Take(item interfaces.Item) error {
 	if item, ok := i.items[item.ID()]; ok {
 		delete(i.items, item.ID())
-		fmt.Println(len(i.items))
 		return nil
 	}
 
