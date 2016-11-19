@@ -3,11 +3,11 @@ package interfaces
 import "github.com/kkevinchou/ant/lib/math/vector"
 
 type Item interface {
+	Positionable
+	IDable
 	SetOwner(owner ItemReceiver)
 	OwnedBy() ItemReceiver
 	Owned() bool
-	Position() vector.Vector
-	Id() int
 }
 
 type ItemReceiver interface {
@@ -15,10 +15,20 @@ type ItemReceiver interface {
 }
 
 type ItemGiver interface {
+	Positionable
 	Take(item Item) error
 }
 
 type ItemGiverReceiver interface {
 	ItemGiver
 	ItemReceiver
+}
+
+type Positionable interface {
+	Position() vector.Vector
+	SetPosition(position vector.Vector)
+}
+
+type IDable interface {
+	ID() int
 }

@@ -24,27 +24,28 @@ func (i *Manager) Random() (interfaces.Item, error) {
 
 func (i *Manager) PickUp(owner interfaces.ItemReceiver, item interfaces.Item) error {
 	if _, ok := i.items[item]; ok {
-		item.SetOwner(owner)
 		if err := owner.Give(item); err != nil {
 			return err
 		}
+		item.SetOwner(owner)
 		delete(i.items, item)
 		return nil
 	}
 
-	return fmt.Errorf("Could not pick up item with id %d", item.Id())
+	return fmt.Errorf("Could not pick up item with id %d", item.ID())
 }
 
 func (i *Manager) Drop(owner interfaces.ItemGiver, item interfaces.Item) error {
 	if _, ok := i.items[item]; !ok {
-		item.SetOwner(nil)
 		if err := owner.Take(item); err != nil {
 			return err
 		}
+		item.SetOwner(nil)
+		item.SetPosition(owner.Position())
 		i.items[item] = nil
 		return nil
 	}
-	return fmt.Errorf("Could not drop item with id %d", item.Id())
+	return fmt.Errorf("Could not drop item with id %d", item.ID())
 }
 
 func NewManager() *Manager {

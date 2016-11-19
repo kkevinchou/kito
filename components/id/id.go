@@ -12,6 +12,6 @@ func NewIdComponent() *IdComponent {
 	return &component
 }
 
-func (i *IdComponent) Id() int {
+func (i *IdComponent) ID() int {
 	return i.id
 }

@@ -13,12 +13,10 @@ import (
 )
 
 type Worker interface {
+	interfaces.ItemGiverReceiver
 	SetTarget(vector.Vector)
-	Position() vector.Vector
 	Velocity() vector.Vector
 	Heading() vector.Vector
-	Give(item interfaces.Item) error
-	Take(item interfaces.Item) error
 }
 
 type WorkerImpl struct {

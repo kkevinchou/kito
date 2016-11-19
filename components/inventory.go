@@ -18,18 +18,20 @@ func NewInventoryComponent() *InventoryComponent {
 }
 
 func (i *InventoryComponent) Give(item interfaces.Item) error {
-	if _, ok := i.items[item.Id()]; ok {
-		return fmt.Errorf("Item %d already owned by entity", item.Id())
+	if _, ok := i.items[item.ID()]; ok {
+		return fmt.Errorf("Item %d already owned by entity", item.ID())
 	}
-	i.items[item.Id()] = item
+	i.items[item.ID()] = item
+	fmt.Println(len(i.items))
 	return nil
 }
 
 func (i *InventoryComponent) Take(item interfaces.Item) error {
-	if item, ok := i.items[item.Id()]; ok {
-		delete(i.items, item.Id())
+	if item, ok := i.items[item.ID()]; ok {
+		delete(i.items, item.ID())
+		fmt.Println(len(i.items))
 		return nil
 	}
 
-	return fmt.Errorf("item %d not found", item.Id())
+	return fmt.Errorf("item %d not found", item.ID())
 }
