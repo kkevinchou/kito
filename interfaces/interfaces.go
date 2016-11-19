@@ -5,9 +5,7 @@ import "github.com/kkevinchou/ant/lib/math/vector"
 type Item interface {
 	Positionable
 	IDable
-	SetOwner(owner ItemReceiver)
-	OwnedBy() ItemReceiver
-	Owned() bool
+	Ownable
 }
 
 type ItemReceiver interface {
@@ -31,4 +29,10 @@ type Positionable interface {
 
 type IDable interface {
 	ID() int
+}
+
+type Ownable interface {
+	SetOwner(owner ItemReceiver)
+	OwnedBy() ItemReceiver
+	Owned() bool
 }
