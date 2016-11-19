@@ -19,6 +19,10 @@ const (
 )
 
 func (r *RenderComponent) Render(assetManager *lib.AssetManager, renderer *sdl.Renderer) {
+	if r.entity.Owned() {
+		return
+	}
+
 	position := r.entity.Position()
 	// renderer.Copy(r.texture, nil, &sdl.Rect{int32(position.X) - 32, int32(position.Y) - 64, 64, 64})
 

@@ -16,7 +16,7 @@ type FoodImpl struct {
 	*RenderComponent
 	*components.PositionComponent
 	*id.IdComponent
-	*ItemComponent
+	*components.ItemComponent
 }
 
 func New(x, y float64) *FoodImpl {
@@ -24,7 +24,7 @@ func New(x, y float64) *FoodImpl {
 
 	entity.IdComponent = id.NewIdComponent()
 	entity.PositionComponent = &components.PositionComponent{}
-	entity.ItemComponent = &ItemComponent{}
+	entity.ItemComponent = &components.ItemComponent{}
 
 	assetManager := directory.GetDirectory().AssetManager()
 

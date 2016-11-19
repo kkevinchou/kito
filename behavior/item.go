@@ -20,7 +20,7 @@ func (p *PickupItem) Tick(input interface{}, state AIState, delta time.Duration)
 	}
 
 	itemManager := directory.GetDirectory().ItemManager()
-	err := itemManager.PickUp(item)
+	err := itemManager.PickUp(p.Entity, item)
 	if err != nil {
 		return nil, FAILURE
 	}

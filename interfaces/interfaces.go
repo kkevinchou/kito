@@ -3,10 +3,11 @@ package interfaces
 import "github.com/kkevinchou/ant/lib/math/vector"
 
 type Item interface {
-	OwnedBy() int
+	SetOwner(owner ItemReceiver)
+	OwnedBy() ItemReceiver
 	Owned() bool
-	Id() int
 	Position() vector.Vector
+	Id() int
 }
 
 type ItemReceiver interface {
