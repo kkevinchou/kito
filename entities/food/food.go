@@ -4,11 +4,12 @@ import (
 	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/components/id"
 	"github.com/kkevinchou/ant/directory"
+	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
 type Food interface {
-	Position() vector.Vector
+	interfaces.Item
 }
 
 type FoodImpl struct {

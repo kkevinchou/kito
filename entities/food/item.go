@@ -1,12 +1,14 @@
 package food
 
 type ItemComponent struct {
+	owned   bool
+	ownedBy int
 }
 
-func (f *ItemComponent) OwnedBy() int {
-	return 0
+func (i *ItemComponent) OwnedBy() int {
+	return i.ownedBy
 }
 
-func (f *ItemComponent) Owned() bool {
-	return true
+func (i *ItemComponent) Owned() bool {
+	return i.owned
 }
