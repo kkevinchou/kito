@@ -6,7 +6,7 @@ import (
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
-type Moveable interface {
+type Mover interface {
 	Update(time.Duration)
 	Velocity() vector.Vector
 	SetVelocity(vector.Vector)
@@ -15,23 +15,23 @@ type Moveable interface {
 }
 
 type MovementSystem struct {
-	moveables []Moveable
+	movers []Mover
 }
 
-func (m *MovementSystem) Register(moveable Moveable) {
-	m.moveables = append(m.moveables, moveable)
+func (m *MovementSystem) Register(mover Mover) {
+	m.movers = append(m.movers, mover)
 }
 
 func NewMovementSystem() *MovementSystem {
 	m := MovementSystem{}
-	m.moveables = make([]Moveable, 0)
+	m.movers = make([]Mover, 0)
 	return &m
 }
 
 func (m *MovementSystem) Update(delta time.Duration) {
-	for _, moveable := range m.moveables {
-		steeringVelocity := moveable.CalculateSteeringVelocity()
-		moveable.SetVelocity(moveable.Velocity().Add(steeringVelocity).Clamp(moveable.MaxSpeed()))
-		moveable.Update(delta)
+	for _, mover := range m.movers {
+		steeringVelocity := mover.CalculateSteeringVelocity()
+		mover.SetVelocity(mover.Velocity().Add(steeringVelocity).Clamp(mover.MaxSpeed()))
+		mover.Update(delta)
 	}
 }

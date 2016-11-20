@@ -10,6 +10,12 @@ type Vector struct {
 	Y float64
 }
 
+type Vector3 struct {
+	X float64
+	Y float64
+	Z float64
+}
+
 func Zero() Vector {
 	return Vector{X: 0, Y: 0}
 }
@@ -59,4 +65,12 @@ func (v Vector) Clamp(max float64) Vector {
 
 func (v Vector) Cross(v2 Vector) float64 {
 	return (v.X * v2.Y) - (v.Y * v2.X)
+}
+
+func (v Vector3) Cross(other Vector3) Vector3 {
+	return Vector3{
+		X: v.Y*other.Z - other.Y*v.Z,
+		Y: -(v.X*other.Z - other.X*v.Z),
+		Z: v.X*other.Y - other.X*v.Y,
+	}
 }

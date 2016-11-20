@@ -5,7 +5,7 @@ import (
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
-type Seekable interface {
+type Seeker interface {
 	interfaces.Positionable
 	Velocity() vector.Vector
 	Mass() float64
@@ -13,7 +13,7 @@ type Seekable interface {
 }
 
 type SeekComponent struct {
-	Entity Seekable
+	Entity Seeker
 	target vector.Vector
 	active bool
 }
