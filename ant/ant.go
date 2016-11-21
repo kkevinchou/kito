@@ -17,11 +17,11 @@ import (
 )
 
 func setupGrass() {
-	grass.New(366, 450)
-	grass.New(386, 450)
-	grass.New(406, 450)
-	grass.New(406, 350)
-	grass.New(436, 350)
+	grass.New(5, 4)
+	grass.New(1, 2)
+	grass.New(6, 1)
+	grass.New(6, 7)
+	grass.New(4, 2)
 }
 
 func setupSystems(window *sdl.Window) *directory.Directory {
@@ -38,7 +38,7 @@ func setupSystems(window *sdl.Window) *directory.Directory {
 	d.RegisterItemManager(itemManager)
 	d.RegisterPathManager(pathManager)
 
-	renderSystem.Register(pathManager.NavMesh())
+	// renderSystem.Register(pathManager.NavMesh())
 
 	return d
 }
