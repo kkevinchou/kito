@@ -53,10 +53,8 @@ func (g *Game) Init(window *sdl.Window) {
 	setupSystems(window)
 	setupGrass()
 	food.New(-5, -10)
-	// food.New(150, 150)
-	// food.New(300, 450)
-	// g.worker = worker.New()
-	// g.worker.SetPosition(vector.Vector{400, 350})
+	g.worker = worker.New()
+	g.worker.SetPosition(vector.Vector{0, 0})
 }
 
 func (g *Game) MoveAnt(x, y float64) {

@@ -8,7 +8,6 @@ import (
 	"github.com/kkevinchou/ant/components/steering"
 	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/interfaces"
-	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
@@ -32,16 +31,13 @@ func New() *WorkerImpl {
 	entity := &WorkerImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
-	entity.PhysicsComponent.Init(entity, 100, 10)
+	entity.PhysicsComponent.Init(entity, 1, 10)
 
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
 
-	assetManager := directory.GetDirectory().AssetManager()
-
 	entity.RenderComponent = &RenderComponent{
-		entity:         entity,
-		animationState: lib.CreateStateFromAnimationDef(assetManager.GetAnimation("ant")),
+		entity: entity,
 	}
 
 	renderSystem := directory.GetDirectory().RenderSystem()

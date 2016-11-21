@@ -60,7 +60,7 @@ func main() {
 	game.Init(window)
 
 	directory := directory.GetDirectory()
-	// movementSystem := directory.MovementSystem()
+	movementSystem := directory.MovementSystem()
 	renderSystem := directory.RenderSystem()
 
 	var event sdl.Event
@@ -88,8 +88,8 @@ func main() {
 			}
 		}
 
-		// game.Update()
-		// movementSystem.Update(delta)
+		game.Update()
+		movementSystem.Update(delta)
 		renderSystem.Update(delta)
 	}
 	sdl.Quit()
