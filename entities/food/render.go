@@ -13,5 +13,5 @@ const (
 )
 
 func (r *RenderComponent) Texture() string {
-	return "fewd"
+	return "mushroom-gills"
 }

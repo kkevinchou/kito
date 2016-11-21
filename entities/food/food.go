@@ -26,11 +26,8 @@ func New(x, y float64) *FoodImpl {
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.ItemComponent = &components.ItemComponent{}
 
-	assetManager := directory.GetDirectory().AssetManager()
-
 	entity.RenderComponent = &RenderComponent{
-		entity:  entity,
-		texture: assetManager.GetTexture("F"),
+		entity: entity,
 	}
 	renderSystem := directory.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)

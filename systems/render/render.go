@@ -89,9 +89,11 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 	gl.LoadIdentity()
 
 	_ = initFont()
-	grassTexture := newTexture("_assets/icons/high-grass.png")
+	highGrassTexture := newTexture("_assets/icons/high-grass.png")
+	mushroomGilsTexture := newTexture("_assets/icons/mushroom-gills.png")
 	renderSystem.textureMap = map[string]uint32{
-		"high-grass": grassTexture,
+		"high-grass":     highGrassTexture,
+		"mushroom-gills": mushroomGilsTexture,
 	}
 
 	return &renderSystem

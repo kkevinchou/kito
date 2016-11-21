@@ -52,7 +52,7 @@ type Game struct {
 func (g *Game) Init(window *sdl.Window) {
 	setupSystems(window)
 	setupGrass()
-	// food.New(150, 100)
+	food.New(-5, -10)
 	// food.New(150, 150)
 	// food.New(300, 450)
 	// g.worker = worker.New()
