@@ -4,14 +4,15 @@ import (
 	"time"
 
 	"github.com/kkevinchou/ant/directory"
+	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/lib/pathing"
 )
 
 type Mover interface {
-	Position() vector.Vector
-	SetTarget(target vector.Vector)
+	interfaces.Positionable
+	SetTarget(target vector.Vector3)
 }
 
 type Move struct {
@@ -22,10 +23,10 @@ type Move struct {
 
 func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
 	if m.path == nil {
-		var target vector.Vector
+		var target vector.Vector3
 		var ok bool
 
-		if target, ok = input.(vector.Vector); !ok {
+		if target, ok = input.(vector.Vector3); !ok {
 			return nil, FAILURE
 		}
 
@@ -33,14 +34,14 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 		position := m.Entity.Position()
 
 		path := pathManager.FindPath(
-			geometry.Point{X: position.X, Y: position.Y},
-			geometry.Point{X: target.X, Y: target.Y},
+			geometry.Point{X: position.X, Y: position.Z},
+			geometry.Point{X: target.X, Y: target.Z},
 		)
 
 		if path != nil {
 			m.path = path
 			m.pathIndex = 1
-			m.Entity.SetTarget(m.path[m.pathIndex].Vector())
+			m.Entity.SetTarget(m.path[m.pathIndex].Vector3())
 		}
 	}
 
@@ -52,10 +53,10 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 		return nil, SUCCESS
 	}
 
-	if m.Entity.Position().Sub(m.path[m.pathIndex].Vector()).Length() <= 2 {
+	if m.Entity.Position().Sub(m.path[m.pathIndex].Vector3()).Length() <= 2 {
 		m.pathIndex++
 		if m.pathIndex < len(m.path) {
-			m.Entity.SetTarget(m.path[m.pathIndex].Vector())
+			m.Entity.SetTarget(m.path[m.pathIndex].Vector3())
 		}
 	}
 

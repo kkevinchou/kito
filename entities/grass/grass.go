@@ -3,11 +3,12 @@ package grass
 import (
 	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/directory"
+	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
 type Grass interface {
-	Position() vector.Vector
+	interfaces.Positionable
 }
 
 type GrassImpl struct {
@@ -15,7 +16,7 @@ type GrassImpl struct {
 	*components.PositionComponent
 }
 
-func New(x, y float64) *GrassImpl {
+func New(x, y, z float64) *GrassImpl {
 	entity := &GrassImpl{}
 
 	entity.PositionComponent = &components.PositionComponent{}
@@ -26,7 +27,7 @@ func New(x, y float64) *GrassImpl {
 	renderSystem := directory.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)
 
-	entity.SetPosition(vector.Vector{X: x, Y: y})
+	entity.SetPosition(vector.Vector3{X: x, Y: y, Z: z})
 
 	return entity
 }

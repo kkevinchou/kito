@@ -17,11 +17,12 @@ import (
 )
 
 func setupGrass() {
-	grass.New(5, 4)
-	grass.New(1, 2)
-	grass.New(6, 1)
-	grass.New(6, 7)
-	grass.New(4, 2)
+	grass.New(5, 0, 4)
+	grass.New(2, 0, 2)
+	grass.New(6, 0, 1)
+	grass.New(6, 0, 7)
+	grass.New(4, 0, 2)
+	grass.New(0, 0, 0)
 }
 
 func setupSystems(window *sdl.Window) *directory.Directory {
@@ -52,9 +53,9 @@ type Game struct {
 func (g *Game) Init(window *sdl.Window) {
 	setupSystems(window)
 	setupGrass()
-	food.New(-5, -10)
+	food.New(-5, 0, -10)
 	g.worker = worker.New()
-	g.worker.SetPosition(vector.Vector{0, 0})
+	g.worker.SetPosition(vector.Vector3{})
 }
 
 func (g *Game) MoveAnt(x, y float64) {
@@ -66,24 +67,24 @@ func (g *Game) MoveAnt(x, y float64) {
 	)
 	if g.path != nil {
 		g.pathIndex = 1
-		g.worker.SetTarget(g.path[1].Vector())
+		g.worker.SetTarget(g.path[1].Vector3())
 	}
 }
 
 func (g *Game) PlaceFood(x, y float64) {
-	food.New(x, y)
+	food.New(x, 0, y)
 }
 
 func (g *Game) Update() {
 	if g.path != nil {
-		if g.worker.Position().Sub(g.path[g.pathIndex].Vector()).Length() <= 2 {
+		if g.worker.Position().Sub(g.path[g.pathIndex].Vector3()).Length() <= 2 {
 			g.pathIndex += 1
 			if g.pathIndex == len(g.path) {
 				g.path = nil
 				g.worker.SetSeekActive(false)
-				g.worker.SetVelocity(vector.Zero())
+				g.worker.SetVelocity(vector.Vector3{})
 			} else {
-				g.worker.SetTarget(g.path[g.pathIndex].Vector())
+				g.worker.SetTarget(g.path[g.pathIndex].Vector3())
 			}
 		}
 	}

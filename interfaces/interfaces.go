@@ -23,8 +23,8 @@ type ItemGiverReceiver interface {
 }
 
 type Positionable interface {
-	Position() vector.Vector
-	SetPosition(position vector.Vector)
+	Position() vector.Vector3
+	SetPosition(position vector.Vector3)
 }
 
 type IDable interface {

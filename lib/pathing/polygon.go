@@ -30,6 +30,10 @@ func (n Node) Vector() vector.Vector {
 	return vector.Vector{n.X, n.Y}
 }
 
+func (n Node) Vector3() vector.Vector3 {
+	return vector.Vector3{n.X, 0, n.Y}
+}
+
 func (n Node) Less(other Node) bool {
 	if n.X < other.X {
 		return true

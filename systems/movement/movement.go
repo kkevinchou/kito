@@ -8,10 +8,10 @@ import (
 
 type Mover interface {
 	Update(time.Duration)
-	Velocity() vector.Vector
-	SetVelocity(vector.Vector)
+	Velocity() vector.Vector3
+	SetVelocity(vector.Vector3)
 	MaxSpeed() float64
-	CalculateSteeringVelocity() vector.Vector
+	CalculateSteeringVelocity() vector.Vector3
 }
 
 type MovementSystem struct {

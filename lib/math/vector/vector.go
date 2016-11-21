@@ -74,3 +74,45 @@ func (v Vector3) Cross(other Vector3) Vector3 {
 		Z: v.X*other.Y - other.X*v.Y,
 	}
 }
+
+func (v Vector3) Sub(other Vector3) Vector3 {
+	return Vector3{
+		X: v.X - other.X,
+		Y: v.Y - other.Y,
+		Z: v.Z - other.Z,
+	}
+}
+
+func (v Vector3) Length() float64 {
+	return math.Sqrt(math.Pow(v.X, 2) + math.Pow(v.Y, 2) + math.Pow(v.Z, 2))
+}
+
+func (v Vector3) Normalize() Vector3 {
+	return v.Scale(1.0 / v.Length())
+}
+
+func (v Vector3) Scale(s float64) Vector3 {
+	return Vector3{
+		X: v.X * s,
+		Y: v.Y * s,
+		Z: v.Z * s,
+	}
+}
+
+func (v Vector3) Add(other Vector3) Vector3 {
+	return Vector3{
+		X: v.X + other.X,
+		Y: v.Y + other.Y,
+		Z: v.Z + other.Z,
+	}
+}
+
+func (v Vector3) Clamp(max float64) Vector3 {
+	length := v.Length()
+
+	if length > max {
+		return v.Scale(max / length)
+	} else {
+		return v
+	}
+}

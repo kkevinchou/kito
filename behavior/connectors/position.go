@@ -10,7 +10,7 @@ import (
 type Position struct{}
 
 type Positionable interface {
-	Position() vector.Vector
+	Position() vector.Vector3
 }
 
 func (p *Position) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {

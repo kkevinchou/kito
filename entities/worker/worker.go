@@ -13,9 +13,9 @@ import (
 
 type Worker interface {
 	interfaces.ItemGiverReceiver
-	SetTarget(vector.Vector)
-	Velocity() vector.Vector
-	Heading() vector.Vector
+	SetTarget(vector.Vector3)
+	Velocity() vector.Vector3
+	Heading() vector.Vector3
 }
 
 type WorkerImpl struct {
@@ -31,7 +31,7 @@ func New() *WorkerImpl {
 	entity := &WorkerImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
-	entity.PhysicsComponent.Init(entity, 1, 10)
+	entity.PhysicsComponent.Init(entity, 2, 10)
 
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}

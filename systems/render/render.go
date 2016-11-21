@@ -20,10 +20,10 @@ var (
 	textureMap map[string]uint32
 
 	cameraX         float32 = 0
-	cameraY         float32 = 10
-	cameraZ         float32 = 8
+	cameraY         float32 = 30
+	cameraZ         float32 = 0
 	cameraRotationY float32 = 0
-	cameraRotationX float32 = 45
+	cameraRotationX float32 = 90
 )
 
 type Renderable interface {
@@ -115,7 +115,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	for _, renderable := range r.renderables {
 		position := renderable.Position()
 		texture := r.textureMap[renderable.Texture()]
-		drawQuad(texture, float32(position.X), 0, float32(position.Y))
+		drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
 	}
 	drawFloor()
 

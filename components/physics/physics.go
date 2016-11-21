@@ -8,25 +8,25 @@ import (
 )
 
 type PhysicsComponent struct {
-	velocity vector.Vector
+	velocity vector.Vector3
 	mass     float64
 	maxSpeed float64
 	entity   interfaces.Positionable
-	heading  vector.Vector
+	heading  vector.Vector3
 }
 
 func (c *PhysicsComponent) Init(entity interfaces.Positionable, maxSpeed, mass float64) {
 	c.entity = entity
 	c.maxSpeed = maxSpeed
 	c.mass = mass
-	c.heading = vector.Vector{X: 1, Y: 0}
+	c.heading = vector.Vector3{X: 0, Y: 0, Z: -1}
 }
 
-func (c *PhysicsComponent) Velocity() vector.Vector {
+func (c *PhysicsComponent) Velocity() vector.Vector3 {
 	return c.velocity
 }
 
-func (c *PhysicsComponent) SetVelocity(v vector.Vector) {
+func (c *PhysicsComponent) SetVelocity(v vector.Vector3) {
 	c.velocity = v
 }
 
@@ -47,13 +47,14 @@ func (c *PhysicsComponent) SetMaxSpeed(maxSpeed float64) {
 }
 
 func (c *PhysicsComponent) Update(delta time.Duration) {
-	if c.velocity != vector.Zero() {
+	zero := vector.Vector3{}
+	if c.velocity != zero {
 		c.heading = c.velocity
 	}
 
 	c.entity.SetPosition(c.entity.Position().Add(c.velocity.Scale(float64(delta.Seconds()))))
 }
 
-func (c *PhysicsComponent) Heading() vector.Vector {
+func (c *PhysicsComponent) Heading() vector.Vector3 {
 	return c.heading
 }

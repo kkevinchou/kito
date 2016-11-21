@@ -27,7 +27,7 @@ func CreateWorkerBT(worker Worker) behavior.Node {
 	seq.AddChild(&behavior.PickupItem{Entity: worker})
 
 	seq2 := behavior.NewSequence()
-	seq2.AddChild(&behavior.Value{Value: vector.Vector{X: 406, Y: 350}})
+	seq2.AddChild(&behavior.Value{Value: vector.Vector3{X: 406, Y: 0, Z: 350}})
 	seq2.AddChild(&behavior.Move{Entity: worker})
 	seq2.AddChild(memory.Get("item"))
 	seq2.AddChild(&behavior.DropItem{Entity: worker})
