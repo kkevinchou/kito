@@ -35,24 +35,35 @@ func funkyShape2() *geometry.Polygon {
 }
 
 func setupNavMesh() *pathing.NavMesh {
+	// polygons := []*geometry.Polygon{
+	// 	sqWithOffset(60, 0, 0),
+	// 	sqWithOffset(60, 1, 0),
+	// 	sqWithOffset(60, 2, 0),
+	// 	sqWithOffset(60, 2, 1),
+	// 	sqWithOffset(60, 2, 2),
+	// 	sqWithOffset(60, 1, 2),
+	// 	sqWithOffset(60, 0, 2),
+	// 	sqWithOffset(60, 0, 3),
+	// 	sqWithOffset(60, 0, 4),
+	// 	sqWithOffset(60, 1, 4),
+	// 	sqWithOffset(60, 2, 4),
+	// 	sqWithOffset(60, 2, 5),
+	// 	sqWithOffset(60, 2, 6),
+	// 	sqWithOffset(60, 1, 6),
+	// 	sqWithOffset(60, 0, 6),
+	// 	funkyShape1(),
+	// 	funkyShape2(),
+	// }
+
+	points := []geometry.Point{
+		geometry.Point{X: -10, Y: -10},
+		geometry.Point{X: -10, Y: 10},
+		geometry.Point{X: 10, Y: 10},
+		geometry.Point{X: 10, Y: -10},
+	}
+
 	polygons := []*geometry.Polygon{
-		sqWithOffset(60, 0, 0),
-		sqWithOffset(60, 1, 0),
-		sqWithOffset(60, 2, 0),
-		sqWithOffset(60, 2, 1),
-		sqWithOffset(60, 2, 2),
-		sqWithOffset(60, 1, 2),
-		sqWithOffset(60, 0, 2),
-		sqWithOffset(60, 0, 3),
-		sqWithOffset(60, 0, 4),
-		sqWithOffset(60, 1, 4),
-		sqWithOffset(60, 2, 4),
-		sqWithOffset(60, 2, 5),
-		sqWithOffset(60, 2, 6),
-		sqWithOffset(60, 1, 6),
-		sqWithOffset(60, 0, 6),
-		funkyShape1(),
-		funkyShape2(),
+		geometry.NewPolygon(points),
 	}
 
 	return pathing.ConstructNavMesh(polygons)

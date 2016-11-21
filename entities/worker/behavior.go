@@ -27,15 +27,41 @@ func CreateWorkerBT(worker Worker) behavior.Node {
 	seq.AddChild(&behavior.PickupItem{Entity: worker})
 
 	seq2 := behavior.NewSequence()
-	seq2.AddChild(&behavior.Value{Value: vector.Vector3{X: 406, Y: 0, Z: 350}})
+	seq2.AddChild(&behavior.Value{Value: vector.Vector3{X: 0, Y: 0, Z: 0}})
 	seq2.AddChild(&behavior.Move{Entity: worker})
 	seq2.AddChild(memory.Get("item"))
 	seq2.AddChild(&behavior.DropItem{Entity: worker})
 
-	final := behavior.NewSequence()
-	final.AddChild(seq)
-	final.AddChild(seq2)
-	return final
+	seq3 := behavior.NewSequence()
+	seq3.AddChild(&behavior.Value{Value: vector.Vector3{X: -5, Y: 0, Z: -10}})
+	seq3.AddChild(&behavior.Move{Entity: worker})
+	seq3.AddChild(&behavior.RandomItem{})
+	seq3.AddChild(&connectors.Position{})
+	seq3.AddChild(&behavior.Move{Entity: worker})
+	seq3.AddChild(memory.Get("item"))
+	seq3.AddChild(&behavior.PickupItem{Entity: worker})
+
+	seq4 := behavior.NewSequence()
+	seq4.AddChild(&behavior.Value{Value: vector.Vector3{X: -5, Y: 0, Z: -10}})
+	seq4.AddChild(&behavior.Move{Entity: worker})
+	seq4.AddChild(memory.Get("item"))
+	seq4.AddChild(&behavior.DropItem{Entity: worker})
+
+	seq5 := behavior.NewSequence()
+	seq5.AddChild(&behavior.Value{Value: vector.Vector3{X: 0, Y: 0, Z: 0}})
+	seq5.AddChild(&behavior.Move{Entity: worker})
+
+	findFood := behavior.NewSequence()
+	findFood.AddChild(seq)
+	findFood.AddChild(seq2)
+	findFood.AddChild(seq3)
+	findFood.AddChild(seq4)
+	findFood.AddChild(seq5)
+
+	// final := behavior.NewSelector()
+	// final.AddChild(findFood)
+	// final.AddChild(seq4)
+	return findFood
 }
 
 type BehaviorTree struct {

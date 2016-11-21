@@ -29,6 +29,7 @@ var (
 type Renderable interface {
 	interfaces.Positionable
 	Texture() string
+	Visible() bool
 }
 
 type Renderables []Renderable
@@ -113,6 +114,9 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
 	for _, renderable := range r.renderables {
+		if !renderable.Visible() {
+			continue
+		}
 		position := renderable.Position()
 		texture := r.textureMap[renderable.Texture()]
 		drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))

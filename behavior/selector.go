@@ -25,3 +25,11 @@ func (s *Selector) Reset() {
 		child.Reset()
 	}
 }
+
+func NewSelector() *Selector {
+	return &Selector{children: []Node{}}
+}
+
+func (s *Selector) AddChild(node Node) {
+	s.children = append(s.children, node)
+}

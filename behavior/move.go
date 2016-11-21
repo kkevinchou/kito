@@ -53,7 +53,7 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 		return nil, SUCCESS
 	}
 
-	if m.Entity.Position().Sub(m.path[m.pathIndex].Vector3()).Length() <= 2 {
+	if m.Entity.Position().Sub(m.path[m.pathIndex].Vector3()).Length() <= 0.1 {
 		m.pathIndex++
 		if m.pathIndex < len(m.path) {
 			m.Entity.SetTarget(m.path[m.pathIndex].Vector3())

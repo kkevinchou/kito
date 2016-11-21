@@ -49,9 +49,6 @@ func (d *DropItem) Tick(input interface{}, state AIState, delta time.Duration) (
 		return nil, FAILURE
 	}
 
-	if err := d.Entity.Take(item); err != nil {
-		return nil, FAILURE
-	}
 	return nil, SUCCESS
 }
 

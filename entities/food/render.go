@@ -15,3 +15,7 @@ const (
 func (r *RenderComponent) Texture() string {
 	return "mushroom-gills"
 }
+
+func (r *RenderComponent) Visible() bool {
+	return !r.entity.Owned()
+}

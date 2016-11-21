@@ -31,7 +31,7 @@ func New() *WorkerImpl {
 	entity := &WorkerImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
-	entity.PhysicsComponent.Init(entity, 2, 10)
+	entity.PhysicsComponent.Init(entity, 5, 10)
 
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
