@@ -3,7 +3,6 @@ package grass
 import (
 	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/directory"
-	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
@@ -21,12 +20,12 @@ func New(x, y float64) *GrassImpl {
 
 	entity.PositionComponent = &components.PositionComponent{}
 
-	assetManager := directory.GetDirectory().AssetManager()
+	// assetManager := directory.GetDirectory().AssetManager()
 
-	entity.RenderComponent = &RenderComponent{
-		entity:         entity,
-		animationState: lib.CreateStateFromAnimationDef(assetManager.GetAnimation("grass")),
-	}
+	// entity.RenderComponent = &RenderComponent{
+	// 	entity:         entity,
+	// 	animationState: lib.CreateStateFromAnimationDef(assetManager.GetAnimation("grass")),
+	// }
 	renderSystem := directory.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)
 

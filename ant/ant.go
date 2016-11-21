@@ -24,11 +24,11 @@ func setupGrass() {
 	grass.New(436, 350)
 }
 
-func setupSystems(renderer *sdl.Renderer) *directory.Directory {
+func setupSystems(window *sdl.Window) *directory.Directory {
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
-	assetManager := lib.NewAssetManager(renderer, "_assets")
-	renderSystem := render.NewRenderSystem(renderer, assetManager)
+	assetManager := lib.NewAssetManager(nil, "_assets")
+	renderSystem := render.NewRenderSystem(window, assetManager)
 	movementSystem := movement.NewMovementSystem()
 
 	d := directory.GetDirectory()
@@ -49,14 +49,14 @@ type Game struct {
 	pathIndex int
 }
 
-func (g *Game) Init(renderer *sdl.Renderer) {
-	setupSystems(renderer)
+func (g *Game) Init(window *sdl.Window) {
+	setupSystems(window)
 	setupGrass()
 	// food.New(150, 100)
 	// food.New(150, 150)
 	// food.New(300, 450)
-	g.worker = worker.New()
-	g.worker.SetPosition(vector.Vector{400, 350})
+	// g.worker = worker.New()
+	// g.worker.SetPosition(vector.Vector{400, 350})
 }
 
 func (g *Game) MoveAnt(x, y float64) {

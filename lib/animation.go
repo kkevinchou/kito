@@ -138,15 +138,16 @@ type AssetManager struct {
 }
 
 func NewAssetManager(renderer *sdl.Renderer, directory string) *AssetManager {
-	ttf.Init()
+	return nil
+	// ttf.Init()
 
-	assetManager := AssetManager{
-		icons:      loadTextures(filepath.Join(directory, "icons"), renderer),
-		fonts:      loadFonts(filepath.Join(directory, "fonts")),
-		animations: loadAnimations(filepath.Join(directory, "animations"), renderer),
-	}
+	// assetManager := AssetManager{
+	// 	icons:      loadTextures(filepath.Join(directory, "icons"), renderer),
+	// 	fonts:      loadFonts(filepath.Join(directory, "fonts")),
+	// 	animations: loadAnimations(filepath.Join(directory, "animations"), renderer),
+	// }
 
-	return &assetManager
+	// return &assetManager
 }
 
 func (assetManager *AssetManager) GetTexture(filename string) *sdl.Texture {
