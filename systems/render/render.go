@@ -19,10 +19,10 @@ var (
 	texture uint32
 
 	cameraX         float32 = 0
-	cameraY         float32 = 0
-	cameraZ         float32 = 8
+	cameraY         float32 = 30
+	cameraZ         float32 = 0
 	cameraRotationY float32 = 0
-	cameraRotationX float32 = 0
+	cameraRotationX float32 = 90
 )
 
 type Renderable interface {
@@ -75,14 +75,17 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 	}
 
 	gl.Enable(gl.DEPTH_TEST)
+	gl.ColorMaterial(gl.FRONT_AND_BACK, gl.AMBIENT_AND_DIFFUSE)
+	gl.Enable(gl.COLOR_MATERIAL)
+
 	gl.Enable(gl.LIGHTING)
 
-	gl.ClearColor(0.5, 0.5, 0.5, 0.0)
+	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
 	gl.DepthFunc(gl.LEQUAL)
 
 	ambient := []float32{0.5, 0.5, 0.5, 1}
-	diffuse := []float32{1, 1, 1, 1}
+	diffuse := []float32{0.5, 0.5, 0.5, 1}
 	lightPosition := []float32{-5, 5, 10, 0}
 	gl.Lightfv(gl.LIGHT0, gl.AMBIENT, &ambient[0])
 	gl.Lightfv(gl.LIGHT0, gl.DIFFUSE, &diffuse[0])
@@ -97,7 +100,6 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 	gl.LoadIdentity()
 
 	_ = initFont()
-
 	texture = newTexture("_assets/icons/F.png")
 
 	return &renderSystem
@@ -118,35 +120,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	lightPosition := []float32{-5, 5, 10, 0}
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
+	// drawQuad()
+	drawFloorPanel(0, 0, true)
+	drawFloorPanel(2, 0, false)
+	drawFloorPanel(4, 0, true)
+	drawFloorPanel(6, 0, false)
 	drawQuad()
 
 	sdl.GL_SwapWindow(r.window)
-	// r.renderer.Clear()
-	// r.renderer.SetDrawColor(151, 117, 170, 255)
-	// r.renderer.FillRect(&sdl.Rect{0, 0, 800, 600})
-	// sort.Stable(r.renderables)
-
-	// // TODO: have the render system know how to render as opposed to the render component
-	// // the component should provide the data necessary for rendering
-	// for _, renderable := range r.renderables {
-	// 	renderable.UpdateRenderComponent(delta)
-	// 	renderable.Render(r.assetManager, r.renderer)
-	// }
-
-	// r.renderer.Present()
 }
-
-// func (r *RenderSystem) EventHandlers() []systems.EventHandler {
-// 	return []systems.EventHandler{
-// 		systems.EventHandler{
-// 			Type:    systems.EntityCreated,
-// 			Handler: r.HandleEntityCreated,
-// 		},
-// 	}
-// }
-
-// func (r *RenderSystem) HandleEntityCreated(event systems.Event) {
-// }
 
 func newTexture(file string) uint32 {
 	imgFile, err := os.Open(file)
@@ -184,6 +166,34 @@ func newTexture(file string) uint32 {
 		gl.Ptr(rgba.Pix))
 
 	return texture
+}
+
+func drawFloorPanel(x, z float32, black bool) {
+	color := make([]float32, 3)
+	if black {
+		color[0] = 0
+		color[1] = 0
+		color[2] = 0
+	} else {
+		color[0] = 1
+		color[1] = 1
+		color[2] = 1
+	}
+
+	gl.Begin(gl.QUADS)
+
+	// // FRONT
+	gl.Normal3f(0, 0, 1)
+	gl.Color3f(color[0], color[1], color[2])
+	gl.Vertex3f(-1+x, 0, -1+z)
+	gl.Color3f(color[0], color[1], color[2])
+	gl.Vertex3f(1+x, 0, -1+z)
+	gl.Color3f(color[0], color[1], color[2])
+	gl.Vertex3f(1+x, 0, 1+z)
+	gl.Color3f(color[0], color[1], color[2])
+	gl.Vertex3f(-1+x, 0, 1+z)
+
+	gl.End()
 }
 
 func drawQuad() {

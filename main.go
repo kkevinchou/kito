@@ -16,8 +16,6 @@ const (
 	height = 600
 )
 
-var window *sdl.Window
-
 func init() {
 	// We want to lock the main thread to this goroutine.  Otherwise,
 	// SDL rendering will randomly panic
@@ -26,35 +24,43 @@ func init() {
 	runtime.LockOSThread()
 }
 
-func setupDisplay() {
+func setupDisplay() (*sdl.Window, error) {
+	var err error
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	if err := gl.Init(); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	_, err = sdl.GL_CreateContext(window)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+
+	return window, nil
 }
 
 func main() {
-	rand.Seed(time.Now().Unix())
-	setupDisplay()
+	window, err := setupDisplay()
+	if err != nil {
+		panic(err)
+	}
 	defer window.Destroy()
+
+	rand.Seed(time.Now().Unix())
 
 	game := ant.Game{}
 	game.Init(window)
+
 	directory := directory.GetDirectory()
-	movementSystem := directory.MovementSystem()
+	// movementSystem := directory.MovementSystem()
 	renderSystem := directory.RenderSystem()
 
 	var event sdl.Event
@@ -82,8 +88,8 @@ func main() {
 			}
 		}
 
-		game.Update()
-		movementSystem.Update(delta)
+		// game.Update()
+		// movementSystem.Update(delta)
 		renderSystem.Update(delta)
 	}
 	sdl.Quit()
