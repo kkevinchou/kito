@@ -17,45 +17,32 @@ import (
 )
 
 var (
-	texture uint32
+	textureMap map[string]uint32
 
 	cameraX         float32 = 0
-	cameraY         float32 = 50
-	cameraZ         float32 = 0
+	cameraY         float32 = 10
+	cameraZ         float32 = 10
 	cameraRotationY float32 = 0
-	cameraRotationX float32 = 90
+	cameraRotationX float32 = 45
 )
 
 type Renderable interface {
 	interfaces.Positionable
-	Render(*lib.AssetManager, *sdl.Renderer)
-	UpdateRenderComponent(time.Duration)
-	GetRenderPriority() int
-	GetY() float64
+	// Render(*lib.AssetManager, *sdl.Renderer)
+	// UpdateRenderComponent(time.Duration)
+	// GetRenderPriority() int
+	// GetY() float64
+	Texture() string
 }
 
 type Renderables []Renderable
-
-func (r Renderables) Len() int {
-	return len(r)
-}
-
-func (r Renderables) Less(i, j int) bool {
-	if r[i].GetRenderPriority() == r[j].GetRenderPriority() {
-		return r[i].GetY() < r[j].GetY()
-	}
-	return r[i].GetRenderPriority() < r[j].GetRenderPriority()
-}
-
-func (r Renderables) Swap(i, j int) {
-	r[i], r[j] = r[j], r[i]
-}
 
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	window       *sdl.Window
 	assetManager *lib.AssetManager
 	renderables  Renderables
+	textureMap   map[string]uint32
 }
 
 func initFont() *ttf.Font {
@@ -102,7 +89,10 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 	gl.LoadIdentity()
 
 	_ = initFont()
-	texture = newTexture("_assets/icons/F.png")
+	grassTexture := newTexture("_assets/icons/high-grass.png")
+	renderSystem.textureMap = map[string]uint32{
+		"high-grass": grassTexture,
+	}
 
 	return &renderSystem
 }
@@ -121,12 +111,13 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Translatef(-cameraX, -cameraY, -cameraZ)
 	lightPosition := []float32{-5, 5, 10, 0}
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
-	drawFloor()
 
 	for _, renderable := range r.renderables {
 		position := renderable.Position()
+		texture := r.textureMap[renderable.Texture()]
 		drawQuad(texture, float32(position.X), 0, float32(position.Y))
 	}
+	drawFloor()
 
 	sdl.GL_SwapWindow(r.window)
 }
@@ -207,6 +198,7 @@ func drawFloorPanel(x, z float32, black bool) {
 }
 
 func drawQuad(texture uint32, x, y, z float32) {
+	gl.Enable(gl.TEXTURE_2D)
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
 	gl.Color4f(1, 1, 1, 1)
@@ -280,4 +272,6 @@ func drawQuad(texture uint32, x, y, z float32) {
 	// gl.Vertex3f(-1, 1, -1)
 
 	gl.End()
+	gl.Disable(gl.TEXTURE_2D)
+
 }
