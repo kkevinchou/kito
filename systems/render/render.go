@@ -21,17 +21,13 @@ var (
 
 	cameraX         float32 = 0
 	cameraY         float32 = 10
-	cameraZ         float32 = 10
+	cameraZ         float32 = 8
 	cameraRotationY float32 = 0
 	cameraRotationX float32 = 45
 )
 
 type Renderable interface {
 	interfaces.Positionable
-	// Render(*lib.AssetManager, *sdl.Renderer)
-	// UpdateRenderComponent(time.Duration)
-	// GetRenderPriority() int
-	// GetY() float64
 	Texture() string
 }
 
@@ -91,9 +87,11 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 	_ = initFont()
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
 	mushroomGilsTexture := newTexture("_assets/icons/mushroom-gills.png")
+	workerTexture := newTexture("_assets/icons/worker.png")
 	renderSystem.textureMap = map[string]uint32{
 		"high-grass":     highGrassTexture,
 		"mushroom-gills": mushroomGilsTexture,
+		"worker":         workerTexture,
 	}
 
 	return &renderSystem
@@ -218,60 +216,60 @@ func drawQuad(texture uint32, x, y, z float32) {
 	gl.TexCoord2f(1, 0)
 	gl.Vertex3f(x+0.5, y+1, z+0.5)
 
-	// // BACK
-	// gl.Normal3f(0, 0, -1)
-	// gl.TexCoord2f(0, 0)
-	// gl.Vertex3f(-1, 1, -1)
-	// gl.TexCoord2f(0, 1)
-	// gl.Vertex3f(-1, -1, -1)
-	// gl.TexCoord2f(1, 1)
-	// gl.Vertex3f(1, -1, -1)
-	// gl.TexCoord2f(1, 1)
-	// gl.Vertex3f(1, 0, -1)
+	// BACK
+	gl.Normal3f(0, 0, -1)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+0.5, y+1, z+-0.5)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+0.5, y+0, z+-0.5)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+-0.5, y+0, z+-0.5)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+-0.5, y+1, z+-0.5)
 
 	// TOP
 	gl.Normal3f(0, 1, 0)
 	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-0.5, y+1, z+-0.5) // A
+	gl.Vertex3f(x+-0.5, y+1, z+-0.5)
 	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-0.5, y+1, z+0.5) // C
+	gl.Vertex3f(x+-0.5, y+1, z+0.5)
 	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+0.5, y+1, z+0.5) // D
+	gl.Vertex3f(x+0.5, y+1, z+0.5)
 	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+0.5, y+1, z+-0.5) // B
+	gl.Vertex3f(x+0.5, y+1, z+-0.5)
 
-	// // BOTTOM
-	// gl.Normal3f(0, -1, 0)
-	// gl.TexCoord2f(0, 1)
-	// gl.Vertex3f(-1, -1, -1)
-	// gl.TexCoord2f(1, 1)
-	// gl.Vertex3f(1, -1, -1)
-	// gl.TexCoord2f(1, 0)
-	// gl.Vertex3f(1, -1, 1)
-	// gl.TexCoord2f(0, 0)
-	// gl.Vertex3f(-1, -1, 1)
+	// BOTTOM
+	gl.Normal3f(0, -1, 0)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+-0.5, y+0, z+0.5)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+-0.5, y+0, z+-0.5)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+0.5, y+0, z+-0.5)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+0.5, y+0, z+0.5)
 
-	// // RIGHT
-	// gl.Normal3f(1, 0, 0)
-	// gl.TexCoord2f(1, 1)
-	// gl.Vertex3f(1, -1, -1)
-	// gl.TexCoord2f(1, 0)
-	// gl.Vertex3f(1, 1, -1)
-	// gl.TexCoord2f(0, 0)
-	// gl.Vertex3f(1, 1, 1)
-	// gl.TexCoord2f(0, 1)
-	// gl.Vertex3f(1, -1, 1)
+	// RIGHT
+	gl.Normal3f(1, 0, 0)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+0.5, y+1, z+0.5)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+0.5, y+0, z+0.5)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+0.5, y+0, z-0.5)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+0.5, y+1, z-0.5)
 
-	// // LEFT
-	// gl.Normal3f(-1, 0, 0)
-	// gl.TexCoord2f(0, 1)
-	// gl.Vertex3f(-1, -1, -1)
-	// gl.TexCoord2f(1, 1)
-	// gl.Vertex3f(-1, -1, 1)
-	// gl.TexCoord2f(1, 0)
-	// gl.Vertex3f(-1, 1, 1)
-	// gl.TexCoord2f(0, 0)
-	// gl.Vertex3f(-1, 1, -1)
+	// LEFT
+	gl.Normal3f(-1, 0, 0)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+-0.5, y+1, z+-0.5)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+-0.5, y+0, z+-0.5)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+-0.5, y+0, z+0.5)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+-0.5, y+1, z+0.5)
 
 	gl.End()
 	gl.Disable(gl.TEXTURE_2D)
