@@ -114,10 +114,6 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) CameraView(x, y int) {
-	// normalizedX := (float64(x) - (float64(width) / 2)) / width
-	// normalizedY := (float64(y) - (float64(height) / 2)) / height
-	// cameraRotationY += normalizedX * 180
-	// cameraRotationX += normalizedY * 180
 	cameraRotationY += float64(x) * sensitivity
 	cameraRotationX += float64(y) * sensitivity
 
