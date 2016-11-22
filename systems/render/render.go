@@ -27,7 +27,7 @@ var (
 	textureMap map[string]uint32
 
 	cameraX         float64 = 0
-	cameraY         float64 = 2
+	cameraY         float64 = 1
 	cameraZ         float64 = 8
 	cameraRotationY float64 = 0
 	cameraRotationX float64 = 0
@@ -66,6 +66,8 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 		assetManager: assetManager,
 		window:       window,
 	}
+
+	// sdl.ShowCursor(sdl.DISABLE)
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.ColorMaterial(gl.FRONT_AND_BACK, gl.AMBIENT_AND_DIFFUSE)
@@ -118,22 +120,19 @@ func (r *RenderSystem) CameraView(x, y int) {
 
 func (r *RenderSystem) MoveCamera(v vector.Vector3) {
 	forwardX, forwardY, forwardZ := forward()
-	if v.Z == 1 {
-		forwardX *= -1
-		forwardY *= -1
-		forwardZ *= -1
-	}
+	// Moving backwards
+	forwardX *= -v.Z
+	forwardY *= -v.Z
+	forwardZ *= -v.Z
 
-	leftX, leftY, leftZ := left()
-	if v.Z == 1 {
-		leftX *= -1
-		leftY *= -1
-		leftZ *= -1
-	}
+	rightX, rightY, rightZ := right()
+	rightX *= -v.X
+	rightY *= -v.X
+	rightZ *= -v.X
 
-	cameraX += forwardX + leftX
-	cameraY += forwardY + leftY
-	cameraZ += forwardZ + leftZ
+	cameraX += forwardX + rightX
+	cameraY += forwardY + rightY
+	cameraZ += forwardZ + rightZ
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
@@ -181,7 +180,7 @@ func forward() (float64, float64, float64) {
 	return x, y, z
 }
 
-func left() (float64, float64, float64) {
+func right() (float64, float64, float64) {
 	xRadianAngle := -toRadians(cameraRotationX)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
@@ -200,6 +199,7 @@ func left() (float64, float64, float64) {
 	if v3.X == 0 && v3.Y == 0 && v3.Z == 0 {
 		v3 = vector.Vector3{v2.Z, 0, -v2.X}
 	}
+
 	return v3.X, v3.Y, v3.Z
 }
 
