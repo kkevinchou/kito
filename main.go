@@ -108,6 +108,10 @@ func main() {
 					cameraMovement.X += 1
 				}
 
+				if e.Keysym.Sym == sdl.K_SPACE {
+					cameraMovement.Y += 1
+				}
+
 				game.MoveCamera(cameraMovement)
 
 			}
