@@ -19,8 +19,9 @@ import (
 )
 
 const (
-	width  = 800
-	height = 600
+	width               = 800
+	height              = 600
+	sensitivity float64 = 0.3
 )
 
 var (
@@ -68,6 +69,7 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 	}
 
 	// sdl.ShowCursor(sdl.DISABLE)
+	sdl.SetRelativeMouseMode(true)
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.ColorMaterial(gl.FRONT_AND_BACK, gl.AMBIENT_AND_DIFFUSE)
@@ -112,10 +114,12 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) CameraView(x, y int) {
-	normalizedX := (float64(x) - (float64(width) / 2)) / width
-	normalizedY := (float64(y) - (float64(height) / 2)) / height
-	cameraRotationY = normalizedX * 180
-	cameraRotationX = normalizedY * 180
+	// normalizedX := (float64(x) - (float64(width) / 2)) / width
+	// normalizedY := (float64(y) - (float64(height) / 2)) / height
+	// cameraRotationY += normalizedX * 180
+	// cameraRotationX += normalizedY * 180
+	cameraRotationY += float64(x) * sensitivity
+	cameraRotationX += float64(y) * sensitivity
 }
 
 func (r *RenderSystem) MoveCamera(v vector.Vector3) {
