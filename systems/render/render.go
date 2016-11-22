@@ -19,9 +19,10 @@ import (
 )
 
 const (
-	width               = 800
-	height              = 600
-	sensitivity float64 = 0.3
+	width                       = 800
+	height                      = 600
+	floorPanelDimension         = 1
+	sensitivity         float64 = 0.3
 )
 
 var (
@@ -68,7 +69,6 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 		window:       window,
 	}
 
-	// sdl.ShowCursor(sdl.DISABLE)
 	sdl.SetRelativeMouseMode(true)
 
 	gl.Enable(gl.DEPTH_TEST)
@@ -204,15 +204,19 @@ func right() (float64, float64, float64) {
 		v3 = vector.Vector3{v2.Z, 0, -v2.X}
 	}
 
+	v3 = v3.Normalize()
+
 	return v3.X, v3.Y, v3.Z
 }
 
 func drawFloor() {
-	width := 11
-	height := 11
+	width := 21
+	height := 21
 	for i := 0; i < width; i++ {
 		for j := 0; j < height; j++ {
-			drawFloorPanel(float32(i)*2-float32(width)+1, float32(j)*2-float32(height)+1, (i+j)%2 == 0)
+			x := (i - int(math.Floor(float64(width)/2))) * floorPanelDimension
+			y := (j - int(math.Floor(float64(height)/2))) * floorPanelDimension
+			drawFloorPanel(float32(x), float32(y), (i+j)%2 == 0)
 		}
 	}
 }
@@ -269,15 +273,16 @@ func drawFloorPanel(x, z float32, black bool) {
 
 	gl.Begin(gl.QUADS)
 
-	gl.Normal3f(0, 0, 1)
+	halfDimension := float32(floorPanelDimension) / 2
+	gl.Normal3f(0, 1, 0)
 	gl.Color3f(color[0], color[1], color[2])
-	gl.Vertex3f(-1+x, 0, -1+z)
+	gl.Vertex3f(x-halfDimension, 0, z-halfDimension)
 	gl.Color3f(color[0], color[1], color[2])
-	gl.Vertex3f(1+x, 0, -1+z)
+	gl.Vertex3f(x-halfDimension, 0, z+halfDimension)
 	gl.Color3f(color[0], color[1], color[2])
-	gl.Vertex3f(1+x, 0, 1+z)
+	gl.Vertex3f(x+halfDimension, 0, z+halfDimension)
 	gl.Color3f(color[0], color[1], color[2])
-	gl.Vertex3f(-1+x, 0, 1+z)
+	gl.Vertex3f(x+halfDimension, 0, z-halfDimension)
 
 	gl.End()
 }
