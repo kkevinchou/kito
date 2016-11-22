@@ -8,6 +8,7 @@ import (
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/kkevinchou/ant/ant"
 	"github.com/kkevinchou/ant/directory"
+	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -81,10 +82,32 @@ func main() {
 					// game.MoveAnt(float64(e.X), float64(e.Y))
 					game.PlaceFood(float64(e.X), float64(e.Y))
 				}
+			case *sdl.MouseMotionEvent:
+				game.CameraView(int(e.X), int(e.Y))
 			case *sdl.KeyUpEvent:
 				if e.Keysym.Sym == sdl.K_ESCAPE {
 					gameOver = true
 				}
+			case *sdl.KeyDownEvent:
+				cameraMovement := vector.Vector3{}
+				if e.Keysym.Sym == sdl.K_w {
+					cameraMovement.Z -= 1
+				}
+
+				if e.Keysym.Sym == sdl.K_s {
+					cameraMovement.Z += 1
+				}
+
+				if e.Keysym.Sym == sdl.K_a {
+					cameraMovement.X -= 1
+				}
+
+				if e.Keysym.Sym == sdl.K_d {
+					cameraMovement.X += 1
+				}
+
+				game.MoveCamera(cameraMovement)
+
 			}
 		}
 

@@ -75,6 +75,16 @@ func (g *Game) PlaceFood(x, y float64) {
 	food.New(x, 0, y)
 }
 
+func (g *Game) CameraView(x, y int) {
+	renderSystem := directory.GetDirectory().RenderSystem()
+	renderSystem.CameraView(x, y)
+}
+
+func (g *Game) MoveCamera(v vector.Vector3) {
+	renderSystem := directory.GetDirectory().RenderSystem()
+	renderSystem.MoveCamera(v)
+}
+
 func (g *Game) Update() {
 	if g.path != nil {
 		if g.worker.Position().Sub(g.path[g.pathIndex].Vector3()).Length() <= 2 {

@@ -6,24 +6,31 @@ import (
 	"image/draw"
 	_ "image/png"
 	"log"
+	"math"
 	"os"
 	"time"
 
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib"
+	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_ttf"
+)
+
+const (
+	width  = 800
+	height = 600
 )
 
 var (
 	textureMap map[string]uint32
 
-	cameraX         float32 = 0
-	cameraY         float32 = 30
-	cameraZ         float32 = 0
-	cameraRotationY float32 = 0
-	cameraRotationX float32 = 90
+	cameraX         float64 = 0
+	cameraY         float64 = 2
+	cameraZ         float64 = 8
+	cameraRotationY float64 = 0
+	cameraRotationX float64 = 0
 )
 
 type Renderable interface {
@@ -102,14 +109,41 @@ func (r *RenderSystem) Register(renderable Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
 
+func (r *RenderSystem) CameraView(x, y int) {
+	normalizedX := (float64(x) - (float64(width) / 2)) / width
+	normalizedY := (float64(y) - (float64(height) / 2)) / height
+	cameraRotationY = normalizedX * 180
+	cameraRotationX = normalizedY * 180
+}
+
+func (r *RenderSystem) MoveCamera(v vector.Vector3) {
+	forwardX, forwardY, forwardZ := forward()
+	if v.Z == 1 {
+		forwardX *= -1
+		forwardY *= -1
+		forwardZ *= -1
+	}
+
+	leftX, leftY, leftZ := left()
+	if v.Z == 1 {
+		leftX *= -1
+		leftY *= -1
+		leftZ *= -1
+	}
+
+	cameraX += forwardX + leftX
+	cameraY += forwardY + leftY
+	cameraZ += forwardZ + leftZ
+}
+
 func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
-	gl.Rotatef(cameraRotationX, 1, 0, 0)
-	gl.Rotatef(cameraRotationY, 0, 1, 0)
-	gl.Translatef(-cameraX, -cameraY, -cameraZ)
+	gl.Rotatef(float32(cameraRotationX), 1, 0, 0)
+	gl.Rotatef(float32(cameraRotationY), 0, 1, 0)
+	gl.Translatef(float32(-cameraX), float32(-cameraY), float32(-cameraZ))
 	lightPosition := []float32{-5, 5, 10, 0}
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
@@ -124,6 +158,49 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	drawFloor()
 
 	sdl.GL_SwapWindow(r.window)
+}
+
+func toRadians(degrees float64) float64 {
+	return degrees / 180 * math.Pi
+}
+
+func forward() (float64, float64, float64) {
+	xRadianAngle := -toRadians(cameraRotationX)
+	if xRadianAngle < 0 {
+		xRadianAngle += 2 * math.Pi
+	}
+	yRadianAngle := -(toRadians(cameraRotationY) - (math.Pi / 2))
+	if yRadianAngle < 0 {
+		yRadianAngle += 2 * math.Pi
+	}
+
+	x := math.Cos(yRadianAngle) * math.Cos(xRadianAngle)
+	y := math.Sin(xRadianAngle)
+	z := -math.Sin(yRadianAngle) * math.Cos(xRadianAngle)
+
+	return x, y, z
+}
+
+func left() (float64, float64, float64) {
+	xRadianAngle := -toRadians(cameraRotationX)
+	if xRadianAngle < 0 {
+		xRadianAngle += 2 * math.Pi
+	}
+	yRadianAngle := -(toRadians(cameraRotationY) - (math.Pi / 2))
+	if yRadianAngle < 0 {
+		yRadianAngle += 2 * math.Pi
+	}
+
+	x, y, z := math.Cos(yRadianAngle), math.Sin(xRadianAngle), -math.Sin(yRadianAngle)
+
+	v1 := vector.Vector3{x, math.Abs(y), z}
+	v2 := vector.Vector3{x, 0, z}
+	v3 := v1.Cross(v2)
+
+	if v3.X == 0 && v3.Y == 0 && v3.Z == 0 {
+		v3 = vector.Vector3{v2.Z, 0, -v2.X}
+	}
+	return v3.X, v3.Y, v3.Z
 }
 
 func drawFloor() {
