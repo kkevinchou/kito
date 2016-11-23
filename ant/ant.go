@@ -39,7 +39,7 @@ func setupSystems(window *sdl.Window) *directory.Directory {
 	d.RegisterItemManager(itemManager)
 	d.RegisterPathManager(pathManager)
 
-	// renderSystem.Register(pathManager.NavMesh())
+	renderSystem.Register(pathManager.NavMesh())
 
 	return d
 }
@@ -53,7 +53,7 @@ type Game struct {
 func (g *Game) Init(window *sdl.Window) {
 	setupSystems(window)
 	setupGrass()
-	food.New(-5, 0, -10)
+	food.New(9, 0, 0)
 	g.worker = worker.New()
 	g.worker.SetPosition(vector.Vector3{})
 }

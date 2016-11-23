@@ -7,10 +7,10 @@ import (
 
 func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: xOffset * size, Y: 0, Z: yOffset * size},
-		geometry.Point{X: xOffset * size, Y: 0, Z: yOffset*size + size},
-		geometry.Point{X: xOffset*size + size, Y: 0, Z: yOffset*size + size},
-		geometry.Point{X: xOffset*size + size, Y: 0, Z: yOffset * size},
+		geometry.Point{X: xOffset*size - (size / 2), Y: 0, Z: yOffset*size - (size / 2)},
+		geometry.Point{X: xOffset*size - (size / 2), Y: 0, Z: yOffset*size + (size / 2)},
+		geometry.Point{X: xOffset*size + (size / 2), Y: 0, Z: yOffset*size + (size / 2)},
+		geometry.Point{X: xOffset*size + (size / 2), Y: 0, Z: yOffset*size - (size / 2)},
 	}
 	return geometry.NewPolygon(points)
 }
@@ -55,15 +55,30 @@ func setupNavMesh() *pathing.NavMesh {
 	// 	funkyShape2(),
 	// }
 
-	points := []geometry.Point{
-		geometry.Point{X: -10, Y: 0, Z: -10},
-		geometry.Point{X: -10, Y: 0, Z: 10},
-		geometry.Point{X: 10, Y: 0, Z: 10},
-		geometry.Point{X: 10, Y: 0, Z: -10},
-	}
+	// points1 := []geometry.Point{
+	// 	geometry.Point{X: -4, Y: 0, Z: -4},
+	// 	geometry.Point{X: -4, Y: 0, Z: 4},
+	// 	geometry.Point{X: 4, Y: 0, Z: 4},
+	// 	geometry.Point{X: 4, Y: 0, Z: -4},
+	// }
+
+	// points1 := []geometry.Point{
+	// 	geometry.Point{X: -4, Y: 0, Z: -4},
+	// 	geometry.Point{X: -4, Y: 0, Z: 4},
+	// 	geometry.Point{X: 4, Y: 0, Z: 4},
+	// 	geometry.Point{X: 4, Y: 0, Z: -4},
+	// }
 
 	polygons := []*geometry.Polygon{
-		geometry.NewPolygon(points),
+		sqWithOffset(5, 0, 0),
+		sqWithOffset(5, -1, 0),
+		sqWithOffset(5, -1, -1),
+		sqWithOffset(5, -1, -2),
+		sqWithOffset(5, 0, -2),
+		sqWithOffset(5, 1, -2),
+		sqWithOffset(5, 2, -2),
+		sqWithOffset(5, 2, -1),
+		sqWithOffset(5, 2, 0),
 	}
 
 	return pathing.ConstructNavMesh(polygons)

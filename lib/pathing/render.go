@@ -2,9 +2,9 @@ package pathing
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/kkevinchou/ant/lib"
+	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -12,7 +12,20 @@ type RenderComponent struct {
 	polygons []*Polygon
 }
 
-func (r *RenderComponent) UpdateRenderComponent(delta time.Duration) {}
+func (r *RenderComponent) Texture() string {
+	return "tile"
+}
+
+func (r *RenderComponent) Position() vector.Vector3 {
+	return vector.Vector3{}
+}
+
+func (r *RenderComponent) SetPosition(v vector.Vector3) {
+}
+
+func (r *RenderComponent) Visible() bool {
+	return true
+}
 
 func (r *RenderComponent) Render(assetManager *lib.AssetManager, renderer *sdl.Renderer) {
 	font := assetManager.GetFont("courier_new.ttf")
@@ -55,12 +68,4 @@ func (r *RenderComponent) Render(assetManager *lib.AssetManager, renderer *sdl.R
 		points = append(points, points[0])
 		renderer.DrawLines(points)
 	}
-}
-
-func (r *RenderComponent) GetRenderPriority() int {
-	return 1
-}
-
-func (r *RenderComponent) GetY() float64 {
-	return -1
 }
