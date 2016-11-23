@@ -63,8 +63,12 @@ func (v Vector) Clamp(max float64) Vector {
 	}
 }
 
-func (v Vector) Cross(v2 Vector) float64 {
+func (v Vector) cross(v2 Vector) float64 {
 	return (v.X * v2.Y) - (v.Y * v2.X)
+}
+
+func (v Vector3) Cross2D(other Vector3) float64 {
+	return Vector{X: v.X, Y: v.Z}.cross(Vector{X: other.X, Y: other.Z})
 }
 
 func (v Vector3) Cross(other Vector3) Vector3 {
@@ -73,6 +77,10 @@ func (v Vector3) Cross(other Vector3) Vector3 {
 		Y: -(v.X*other.Z - other.X*v.Z),
 		Z: v.X*other.Y - other.X*v.Y,
 	}
+}
+
+func (v Vector3) Dot(other Vector3) float64 {
+	return v.X*other.X + v.Y*other.Y + v.Z*other.Z
 }
 
 func (v Vector3) Sub(other Vector3) Vector3 {

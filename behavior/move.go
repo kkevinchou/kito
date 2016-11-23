@@ -34,8 +34,8 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 		position := m.Entity.Position()
 
 		path := pathManager.FindPath(
-			geometry.Point{X: position.X, Y: position.Z},
-			geometry.Point{X: target.X, Y: target.Z},
+			geometry.Point{X: position.X, Y: position.Y, Z: position.Z},
+			geometry.Point{X: target.X, Y: target.Y, Z: target.Z},
 		)
 
 		if path != nil {

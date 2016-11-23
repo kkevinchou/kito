@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/kkevinchou/ant/lib/geometry"
-	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
 // Portals are edges that have a deterministic ordering of nodes
@@ -64,42 +63,46 @@ func (nm *NavMesh) AddPolygon(geoPolygon *geometry.Polygon) {
 
 	nm.polygons = append(nm.polygons, polygon)
 	for _, point1 := range polygon.Points() {
-		node1 := Node{X: point1.X, Y: point1.Y, Polygon: polygon}
+		node1 := Node{X: point1.X, Y: point1.Y, Z: point1.Z, Polygon: polygon}
 		for _, point2 := range polygon.Points() {
-			node2 := Node{X: point2.X, Y: point2.Y, Polygon: polygon}
-			if node1 != node2 {
-				nm.addEdge(node1, node2)
+			node2 := Node{X: point2.X, Y: point2.Y, Z: point2.Z, Polygon: polygon}
+			if node1 == node2 {
+				continue
+			}
 
-				orderedEdge := CreatePortal(node1, node2)
-				// Setting up and detecting nm.portals could probably be done more efficiently
-				if len(nm.portals[orderedEdge]) == 1 {
-					if nm.portals[orderedEdge][0] != polygon {
-						polygon.neighbors[nm.portals[orderedEdge][0]] = orderedEdge
-						nm.portals[orderedEdge][0].neighbors[polygon] = orderedEdge
-						// We've found a portal that connects two pathPolygons, attach the nodes as neighbors
-						nm.addEdge(
-							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: nm.portals[orderedEdge][0]},
-							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: polygon},
-						)
+			nm.addEdge(node1, node2)
 
-						nm.addEdge(
-							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: polygon},
-							Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Polygon: nm.portals[orderedEdge][0]},
-						)
+			orderedEdge := CreatePortal(node1, node2)
+			// Setting up and detecting nm.portals could probably be done more efficiently
+			if len(nm.portals[orderedEdge]) == 1 {
+				if nm.portals[orderedEdge][0] != polygon {
+					// Set up the neighbors
+					polygon.neighbors[nm.portals[orderedEdge][0]] = orderedEdge
+					nm.portals[orderedEdge][0].neighbors[polygon] = orderedEdge
 
-						nm.addEdge(
-							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: nm.portals[orderedEdge][0]},
-							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: polygon},
-						)
+					// We've found a portal that connects two pathPolygons, attach the nodes as neighbors
+					nm.addEdge(
+						Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Z: orderedEdge.Node1.Z, Polygon: nm.portals[orderedEdge][0]},
+						Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Z: orderedEdge.Node1.Z, Polygon: polygon},
+					)
 
-						nm.addEdge(
-							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: polygon},
-							Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Polygon: nm.portals[orderedEdge][0]},
-						)
-					}
-				} else {
-					nm.portals[orderedEdge] = append(nm.portals[orderedEdge], polygon)
+					nm.addEdge(
+						Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Z: orderedEdge.Node1.Z, Polygon: polygon},
+						Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Z: orderedEdge.Node1.Z, Polygon: nm.portals[orderedEdge][0]},
+					)
+
+					nm.addEdge(
+						Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Z: orderedEdge.Node2.Z, Polygon: nm.portals[orderedEdge][0]},
+						Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Z: orderedEdge.Node2.Z, Polygon: polygon},
+					)
+
+					nm.addEdge(
+						Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Z: orderedEdge.Node2.Z, Polygon: polygon},
+						Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Z: orderedEdge.Node2.Z, Polygon: nm.portals[orderedEdge][0]},
+					)
 				}
+			} else {
+				nm.portals[orderedEdge] = append(nm.portals[orderedEdge], polygon)
 			}
 		}
 	}
@@ -112,11 +115,13 @@ func (nm *NavMesh) addEdge(from, to Node) {
 	}
 
 	if _, ok := nm.costs[from][to]; !ok {
-		v1 := vector.Vector{X: from.X, Y: from.Y}
-		v2 := vector.Vector{X: to.X, Y: to.Y}
+		v1 := from.Vector3()
+		v2 := to.Vector3()
 
 		var length float64
-		if (v1.X == v2.X) && (v1.Y == v2.Y) {
+		// TODO: do i need to do this equality check? seems like .Length
+		// will already return 0
+		if (v1.X == v2.X) && (v1.Y == v2.Y) && (v1.Z == v2.Z) {
 			length = 0
 		} else {
 			length = v1.Sub(v2).Length()
@@ -127,6 +132,7 @@ func (nm *NavMesh) addEdge(from, to Node) {
 	}
 }
 
+// TODO: is this function needed?
 func (nm *NavMesh) Neighbors(node Node) []Node {
 	if neighbors, ok := nm.neighbors[node]; ok {
 		return neighbors
@@ -139,8 +145,8 @@ func (nm *NavMesh) Cost(from, to Node) float64 {
 }
 
 func (nm *NavMesh) HeuristicCost(from, to Node) float64 {
-	v1 := vector.Vector{X: from.X, Y: from.Y}
-	v2 := vector.Vector{X: to.X, Y: to.Y}
+	v1 := from.Vector3()
+	v2 := to.Vector3()
 
 	return v1.Sub(v2).Length()
 }

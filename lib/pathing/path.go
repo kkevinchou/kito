@@ -24,7 +24,8 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 		return nil
 	}
 
-	startNode, goalNode := Node{X: start.X, Y: start.Y}, Node{X: goal.X, Y: goal.Y}
+	startNode := Node{X: start.X, Y: start.Y, Z: start.Z}
+	goalNode := Node{X: goal.X, Y: goal.Y, Z: goal.Z}
 	portals := findPortals(startNode, goalNode, roughPath)
 
 	smoothedPath := smoothPath(portals)
@@ -49,7 +50,7 @@ func findPortals(start Node, goal Node, nodes []Node) []Portal {
 }
 
 func (p *Planner) findNodePath(start geometry.Point, goal geometry.Point) []Node {
-	startNode, goalNode := Node{X: start.X, Y: start.Y}, Node{X: goal.X, Y: goal.Y}
+	startNode, goalNode := Node{X: start.X, Y: start.Y, Z: start.Z}, Node{X: goal.X, Y: goal.Y, Z: goal.Z}
 
 	// Initialize
 	frontier := priorityqueue.New()
@@ -61,9 +62,9 @@ func (p *Planner) findNodePath(start geometry.Point, goal geometry.Point) []Node
 	for _, polygon := range p.navmesh.Polygons() {
 		if polygon.ContainsPoint(start) {
 			for _, point := range polygon.Points() {
-				node := Node{X: point.X, Y: point.Y, Polygon: polygon}
+				node := Node{X: point.X, Y: point.Y, Z: point.Z, Polygon: polygon}
 
-				cost := point.Vector().Sub(start.Vector()).Length()
+				cost := point.Vector3().Sub(start.Vector3()).Length()
 				startNode.Polygon = polygon
 				cameFrom[node] = startNode
 				costSoFar[node] = cost
@@ -105,7 +106,7 @@ func (p *Planner) findNodePath(start geometry.Point, goal geometry.Point) []Node
 	// polygon
 	goalNeighbors := map[Node]bool{}
 	for _, point := range goalPolygon.Points() {
-		node := Node{X: point.X, Y: point.Y, Polygon: goalPolygon}
+		node := Node{X: point.X, Y: point.Y, Z: point.Z, Polygon: goalPolygon}
 		goalNeighbors[node] = true
 	}
 
@@ -171,10 +172,11 @@ func orderPortalNodes(portals []Portal) []Node {
 		nextLeft := portals[i].Node1
 		nextRight := portals[i].Node2
 
-		leftVec := nextLeft.Vector().Sub(prevLeft.Vector())
-		rightVec := nextRight.Vector().Sub(prevRight.Vector())
+		leftVec := nextLeft.Vector3().Sub(prevLeft.Vector3())
+		rightVec := nextRight.Vector3().Sub(prevRight.Vector3())
 
-		if rightVec.Cross(leftVec) > 0 {
+		// TODO: handle Cross
+		if rightVec.Cross2D(leftVec) > 0 {
 			nextLeft, nextRight = nextRight, nextLeft
 		}
 		// TODO: handle where they're == 0
@@ -189,14 +191,14 @@ func orderPortalNodes(portals []Portal) []Node {
 }
 
 // Returns true if v is to left of reference
-func vecOnLeft(reference, v vector.Vector) bool {
-	return reference.Cross(v) < floatEpsilon
+func vecOnLeft(reference, v vector.Vector3) bool {
+	return reference.Cross2D(v) < floatEpsilon
 	// return reference.Cross(v) < 0
 }
 
 // Returns true if v is to the right of reference
-func vecOnRight(reference, v vector.Vector) bool {
-	return reference.Cross(v) > -1*floatEpsilon
+func vecOnRight(reference, v vector.Vector3) bool {
+	return reference.Cross2D(v) > -1*floatEpsilon
 	// return reference.Cross(v) > 0
 }
 
@@ -223,10 +225,10 @@ func smoothPath(unorderedPortals []Portal) []Node {
 		leftNode := portalNodes[i]
 		rightNode := portalNodes[i+1]
 
-		leftVec := leftNode.Vector().Sub(apex.Vector())
-		rightVec := rightNode.Vector().Sub(apex.Vector())
-		lastValidLeftVec := portalLeft.Vector().Sub(apex.Vector())
-		lastValidRightVec := portalRight.Vector().Sub(apex.Vector())
+		leftVec := leftNode.Vector3().Sub(apex.Vector3())
+		rightVec := rightNode.Vector3().Sub(apex.Vector3())
+		lastValidLeftVec := portalLeft.Vector3().Sub(apex.Vector3())
+		lastValidRightVec := portalRight.Vector3().Sub(apex.Vector3())
 
 		// Left side of funnel
 		// The leftVec is to the right of lastValidLeftVec, so we

@@ -7,29 +7,29 @@ import (
 
 func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{xOffset * size, yOffset * size},
-		geometry.Point{xOffset * size, yOffset*size + size},
-		geometry.Point{xOffset*size + size, yOffset*size + size},
-		geometry.Point{xOffset*size + size, yOffset * size},
+		geometry.Point{X: xOffset * size, Y: 0, Z: yOffset * size},
+		geometry.Point{X: xOffset * size, Y: 0, Z: yOffset*size + size},
+		geometry.Point{X: xOffset*size + size, Y: 0, Z: yOffset*size + size},
+		geometry.Point{X: xOffset*size + size, Y: 0, Z: yOffset * size},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func funkyShape1() *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{180, 360},
-		geometry.Point{180, 420},
-		geometry.Point{600, 560},
-		geometry.Point{400, 120},
+		geometry.Point{X: 180, Y: 0, Z: 360},
+		geometry.Point{X: 180, Y: 0, Z: 420},
+		geometry.Point{X: 600, Y: 0, Z: 560},
+		geometry.Point{X: 400, Y: 0, Z: 120},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func funkyShape2() *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{500, 50},
-		geometry.Point{300, 100},
-		geometry.Point{400, 100},
+		geometry.Point{X: 500, Y: 0, Z: 50},
+		geometry.Point{X: 300, Y: 0, Z: 100},
+		geometry.Point{X: 400, Y: 0, Z: 100},
 	}
 	return geometry.NewPolygon(points)
 }
@@ -56,10 +56,10 @@ func setupNavMesh() *pathing.NavMesh {
 	// }
 
 	points := []geometry.Point{
-		geometry.Point{X: -10, Y: -10},
-		geometry.Point{X: -10, Y: 10},
-		geometry.Point{X: 10, Y: 10},
-		geometry.Point{X: 10, Y: -10},
+		geometry.Point{X: -10, Y: 0, Z: -10},
+		geometry.Point{X: -10, Y: 0, Z: 10},
+		geometry.Point{X: 10, Y: 0, Z: 10},
+		geometry.Point{X: 10, Y: 0, Z: -10},
 	}
 
 	polygons := []*geometry.Polygon{

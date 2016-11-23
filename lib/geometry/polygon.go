@@ -6,10 +6,10 @@ import "github.com/kkevinchou/ant/lib/math/vector"
 // Counter clock-wise winding order of vertices
 // Polygons are convex (in the future we will ensure this by splitting nonconvex polygons)
 
-type Point vector.Vector
+type Point vector.Vector3
 
-func (p Point) Vector() vector.Vector {
-	return vector.Vector{p.X, p.Y}
+func (p Point) Vector3() vector.Vector3 {
+	return vector.Vector3{X: p.X, Y: p.Y, Z: p.Z}
 }
 
 type Edge struct {
@@ -41,23 +41,30 @@ func (p *Polygon) Edges() []Edge {
 	return edges
 }
 
+// TODO: this doesn't currently do high calculations to see if the point is actually on the polygon
 // We consider the borders to be inclusive, may be subject to change in the future
 func (p *Polygon) ContainsPoint(point Point) bool {
 	n := len(p.points)
 
 	for i, polygonPoint := range p.points {
 		nextPoint := p.points[((i + 1) % n)]
-		vector := polygonPoint.Vector()
+		vector := polygonPoint.Vector3()
 
-		affineSegment := nextPoint.Vector().Sub(vector)
-		affinePoint := point.Vector().Sub(vector)
+		affineSegment := nextPoint.Vector3().Sub(vector)
+		affinePoint := point.Vector3().Sub(vector)
 
-		if affineSegment.Cross(affinePoint) > 0 {
+		if affineSegment.Cross2D(affinePoint) > 0 {
 			return false
 		}
 	}
 	return true
 }
+
+// func (p *Polygon) containsPoint2D
+
+// func coplanar(v1, v2, v3 vector.Vector3) bool {
+// 	return v1.Dot(v2.Cross(v3)) == 0
+// }
 
 func NewPolygon(p []Point) *Polygon {
 	return &Polygon{p}
