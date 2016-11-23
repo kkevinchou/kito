@@ -5,7 +5,6 @@ import (
 
 	"github.com/kkevinchou/ant/behavior"
 	"github.com/kkevinchou/ant/behavior/connectors"
-	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
 func NewBT(worker Worker) *BehaviorTree {
@@ -19,6 +18,10 @@ func CreateWorkerBT(worker Worker) behavior.Node {
 	memory := connectors.NewMemory()
 	seq := behavior.NewSequence()
 
+	// SWH: bug when adding first three nodes
+	seq.AddChild(&behavior.Value{Value: worker})
+	seq.AddChild(&connectors.Position{})
+	seq.AddChild(memory.Set("entity_position"))
 	seq.AddChild(&behavior.RandomItem{})
 	seq.AddChild(memory.Set("item"))
 	seq.AddChild(&connectors.Position{})
@@ -28,7 +31,7 @@ func CreateWorkerBT(worker Worker) behavior.Node {
 	seq.AddChild(&behavior.PickupItem{Entity: worker})
 
 	seq2 := behavior.NewSequence()
-	seq2.AddChild(&behavior.Value{Value: vector.Vector3{X: 0, Y: 0, Z: 0}})
+	seq2.AddChild(memory.Get("entity_position"))
 	seq2.AddChild(&behavior.Move{Entity: worker})
 	seq2.AddChild(memory.Get("item"))
 	seq2.AddChild(&behavior.DropItem{Entity: worker})
@@ -51,7 +54,7 @@ func CreateWorkerBT(worker Worker) behavior.Node {
 	seq5.AddChild(&behavior.DropItem{Entity: worker})
 
 	seq6 := behavior.NewSequence()
-	seq6.AddChild(&behavior.Value{Value: vector.Vector3{X: 0, Y: 0, Z: 0}})
+	seq6.AddChild(memory.Get("entity_position"))
 	seq6.AddChild(&behavior.Move{Entity: worker})
 
 	findFood := behavior.NewSequence()
@@ -62,9 +65,9 @@ func CreateWorkerBT(worker Worker) behavior.Node {
 	findFood.AddChild(seq5)
 	findFood.AddChild(seq6)
 
-	// final := behavior.NewSelector()
-	// final.AddChild(findFood)
-	// final.AddChild(seq4)
+	final := behavior.NewSelector()
+	final.AddChild(findFood)
+	final.AddChild(seq4)
 	return findFood
 }
 

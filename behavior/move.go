@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/ant/lib/geometry"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/lib/pathing"
+	"github.com/kkevinchou/ant/logger"
 )
 
 type Mover interface {
@@ -22,11 +23,14 @@ type Move struct {
 }
 
 func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+	logger.Debug("Move - ENTER")
+
 	if m.path == nil {
 		var target vector.Vector3
 		var ok bool
 
 		if target, ok = input.(vector.Vector3); !ok {
+			logger.Debug("Move - FAIL")
 			return nil, FAILURE
 		}
 
@@ -46,10 +50,12 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 	}
 
 	if m.path == nil {
+		logger.Debug("Move - FAIL")
 		return nil, FAILURE
 	}
 
 	if m.pathIndex == len(m.path) {
+		logger.Debug("Move - SUCCESS")
 		return nil, SUCCESS
 	}
 
@@ -61,8 +67,11 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 	}
 
 	if m.pathIndex == len(m.path) {
+		logger.Debug("Move - SUCCESS")
 		return nil, SUCCESS
 	}
+
+	logger.Debug("Move - RUNNING")
 	return nil, RUNNING
 }
 

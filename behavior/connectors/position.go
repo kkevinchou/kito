@@ -7,7 +7,9 @@ import (
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
-type Position struct{}
+type Position struct {
+	filler bool // empty structs share the same pointer address, this field prevents the node cache from accidentally caching
+}
 
 type Positionable interface {
 	Position() vector.Vector3
