@@ -29,11 +29,12 @@ const (
 var (
 	textureMap map[string]uint32
 
-	cameraX         float64 = -20
-	cameraY         float64 = 15
-	cameraZ         float64 = -5
-	cameraRotationY float64 = 90
-	cameraRotationX float64 = 20
+	cameraX            float64 = -20
+	cameraY            float64 = 15
+	cameraZ            float64 = -5
+	cameraRotationY    float64 = 90
+	cameraRotationX    float64 = 20
+	cameraRotationXMax float64 = 60
 )
 
 type Renderable interface {
@@ -118,12 +119,12 @@ func (r *RenderSystem) CameraView(x, y int) {
 	cameraRotationY += float64(x) * sensitivity
 	cameraRotationX += float64(y) * sensitivity
 
-	if cameraRotationX < -45 {
-		cameraRotationX = -45
+	if cameraRotationX < -cameraRotationXMax {
+		cameraRotationX = -cameraRotationXMax
 	}
 
-	if cameraRotationX > 45 {
-		cameraRotationX = 45
+	if cameraRotationX > cameraRotationXMax {
+		cameraRotationX = cameraRotationXMax
 	}
 }
 
@@ -162,15 +163,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 		if navmesh, ok := renderable.(*pathing.NavMesh); ok {
 			polygons := navmesh.Polygons()
-			for _, polygon := range polygons {
+			for i, polygon := range polygons {
 				color := make([]float32, 3)
 				gl.Begin(gl.POLYGON)
 				gl.Normal3f(0, 1, 0)
-				for i, point := range polygon.Points() {
+				for _, point := range polygon.Points() {
 					if i%2 == 0 {
-						color[0], color[1], color[2] = 0.5, 0, 1
+						color[0], color[1], color[2] = 0, 0, 0
 					} else {
-						color[0], color[1], color[2] = 1, 0, 0.5
+						color[0], color[1], color[2] = 1, 1, 1
 					}
 					gl.Color3f(color[0], color[1], color[2])
 					gl.Vertex3f(float32(point.X), float32(point.Y), float32(point.Z))

@@ -1,6 +1,9 @@
 package ant
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/entities/food"
 	"github.com/kkevinchou/ant/entities/grass"
@@ -51,6 +54,7 @@ type Game struct {
 }
 
 func (g *Game) Init(window *sdl.Window) {
+	rand.Seed(int64(time.Now().Nanosecond()))
 	setupSystems(window)
 	setupGrass()
 	food.New(0, 0, 0)
