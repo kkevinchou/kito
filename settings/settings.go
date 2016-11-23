@@ -1,5 +1,5 @@
 package settings
 
 const (
-	LoggingLevel = 0
+	LoggingLevel = 1
 )
