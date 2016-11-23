@@ -5,12 +5,22 @@ import (
 	"github.com/kkevinchou/ant/lib/pathing"
 )
 
-func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
+func sqWithOffset(size, xOffset, yOffset, zOffset float64) *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: xOffset*size - (size / 2), Y: 0, Z: yOffset*size - (size / 2)},
-		geometry.Point{X: xOffset*size - (size / 2), Y: 0, Z: yOffset*size + (size / 2)},
-		geometry.Point{X: xOffset*size + (size / 2), Y: 0, Z: yOffset*size + (size / 2)},
-		geometry.Point{X: xOffset*size + (size / 2), Y: 0, Z: yOffset*size - (size / 2)},
+		geometry.Point{X: xOffset*size - (size / 2), Y: yOffset, Z: zOffset*size - (size / 2)},
+		geometry.Point{X: xOffset*size - (size / 2), Y: yOffset, Z: zOffset*size + (size / 2)},
+		geometry.Point{X: xOffset*size + (size / 2), Y: yOffset, Z: zOffset*size + (size / 2)},
+		geometry.Point{X: xOffset*size + (size / 2), Y: yOffset, Z: zOffset*size - (size / 2)},
+	}
+	return geometry.NewPolygon(points)
+}
+
+func southRampUpWithOffset(size, elevation, xOffset, yOffset, zOffset float64) *geometry.Polygon {
+	points := []geometry.Point{
+		geometry.Point{X: xOffset*size - (size / 2), Y: yOffset, Z: zOffset*size - (size / 2)},
+		geometry.Point{X: xOffset*size - (size / 2), Y: yOffset + elevation, Z: zOffset*size + (size / 2)},
+		geometry.Point{X: xOffset*size + (size / 2), Y: yOffset + elevation, Z: zOffset*size + (size / 2)},
+		geometry.Point{X: xOffset*size + (size / 2), Y: yOffset, Z: zOffset*size - (size / 2)},
 	}
 	return geometry.NewPolygon(points)
 }
@@ -62,23 +72,20 @@ func setupNavMesh() *pathing.NavMesh {
 	// 	geometry.Point{X: 4, Y: 0, Z: -4},
 	// }
 
-	// points1 := []geometry.Point{
-	// 	geometry.Point{X: -4, Y: 0, Z: -4},
-	// 	geometry.Point{X: -4, Y: 0, Z: 4},
-	// 	geometry.Point{X: 4, Y: 0, Z: 4},
-	// 	geometry.Point{X: 4, Y: 0, Z: -4},
-	// }
-
 	polygons := []*geometry.Polygon{
-		sqWithOffset(5, 0, 0),
-		sqWithOffset(5, -1, 0),
-		sqWithOffset(5, -1, -1),
-		sqWithOffset(5, -1, -2),
-		sqWithOffset(5, 0, -2),
-		sqWithOffset(5, 1, -2),
-		sqWithOffset(5, 2, -2),
-		sqWithOffset(5, 2, -1),
-		sqWithOffset(5, 2, 0),
+		sqWithOffset(5, 0, 0, 0),
+		sqWithOffset(5, -1, 0, 0),
+		sqWithOffset(5, -1, 0, -1),
+		sqWithOffset(5, -1, 0, -2),
+		sqWithOffset(5, 0, 0, -2),
+		sqWithOffset(5, 1, 0, -2),
+		sqWithOffset(5, 2, 0, -2),
+		southRampUpWithOffset(5, 4, 2, 0, -1),
+		sqWithOffset(5, 2, 4, 0),
+		sqWithOffset(5, 3, 4, 0),
+		sqWithOffset(5, 4, 4, 0),
+		sqWithOffset(5, 4, 4, -1),
+		sqWithOffset(5, 4, 4, -2),
 	}
 
 	return pathing.ConstructNavMesh(polygons)

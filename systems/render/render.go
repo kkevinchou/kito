@@ -29,11 +29,11 @@ const (
 var (
 	textureMap map[string]uint32
 
-	cameraX         float64 = 0
-	cameraY         float64 = 10
-	cameraZ         float64 = 8
-	cameraRotationY float64 = 0
-	cameraRotationX float64 = 45
+	cameraX         float64 = -20
+	cameraY         float64 = 12
+	cameraZ         float64 = -5
+	cameraRotationY float64 = 90
+	cameraRotationX float64 = 20
 )
 
 type Renderable interface {
