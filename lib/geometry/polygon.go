@@ -1,6 +1,14 @@
 package geometry
 
-import "github.com/kkevinchou/ant/lib/math/vector"
+import (
+	"math"
+
+	"github.com/kkevinchou/ant/lib/math/vector"
+)
+
+const (
+	epsilon float64 = 0.1
+)
 
 // Assumptions:
 // Counter clock-wise winding order of vertices
@@ -46,6 +54,7 @@ func (p *Polygon) Edges() []Edge {
 func (p *Polygon) ContainsPoint(point Point) bool {
 	n := len(p.points)
 
+	// check that the point is within the polygon (ignoring the Y value)
 	for i, polygonPoint := range p.points {
 		nextPoint := p.points[((i + 1) % n)]
 		vector := polygonPoint.Vector3()
@@ -57,14 +66,17 @@ func (p *Polygon) ContainsPoint(point Point) bool {
 			return false
 		}
 	}
-	return true
+
+	return p.coplanar(point)
 }
 
-// func (p *Polygon) containsPoint2D
+func (p *Polygon) coplanar(point Point) bool {
+	vec1 := p.points[1].Vector3().Sub(p.points[0].Vector3())
+	vec2 := p.points[2].Vector3().Sub(p.points[1].Vector3())
+	vec3 := point.Vector3().Sub(p.points[2].Vector3())
 
-// func coplanar(v1, v2, v3 vector.Vector3) bool {
-// 	return v1.Dot(v2.Cross(v3)) == 0
-// }
+	return math.Abs(vec1.Cross(vec2).Dot(vec3)) < epsilon
+}
 
 func NewPolygon(p []Point) *Polygon {
 	return &Polygon{p}

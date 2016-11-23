@@ -83,8 +83,6 @@ func main() {
 					game.PlaceFood(float64(e.X), float64(e.Y))
 				}
 			case *sdl.MouseMotionEvent:
-				// fmt.Println("relative movement", e.XRel, e.YRel)
-				// game.CameraView(int(e.X), int(e.Y))
 				game.CameraView(int(e.XRel), int(e.YRel))
 			case *sdl.KeyUpEvent:
 				if e.Keysym.Sym == sdl.K_ESCAPE {

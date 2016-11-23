@@ -30,7 +30,7 @@ var (
 	textureMap map[string]uint32
 
 	cameraX         float64 = -20
-	cameraY         float64 = 12
+	cameraY         float64 = 15
 	cameraZ         float64 = -5
 	cameraRotationY float64 = 90
 	cameraRotationX float64 = 20

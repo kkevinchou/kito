@@ -53,9 +53,9 @@ type Game struct {
 func (g *Game) Init(window *sdl.Window) {
 	setupSystems(window)
 	setupGrass()
-	food.New(19, 4, -10)
+	food.New(0, 0, 0)
 	g.worker = worker.New()
-	g.worker.SetPosition(vector.Vector3{})
+	g.worker.SetPosition(vector.Vector3{19, 4, -10})
 }
 
 func (g *Game) MoveAnt(x, y float64) {

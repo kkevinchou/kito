@@ -26,8 +26,13 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 
 	startNode := Node{X: start.X, Y: start.Y, Z: start.Z}
 	goalNode := Node{X: goal.X, Y: goal.Y, Z: goal.Z}
-	portals := findPortals(startNode, goalNode, roughPath)
 
+	// TODO: is this the best way to handle start == goal?
+	if startNode == goalNode {
+		return []Node{startNode, goalNode}
+	}
+
+	portals := findPortals(startNode, goalNode, roughPath)
 	smoothedPath := smoothPath(portals)
 
 	return smoothedPath
