@@ -15,6 +15,7 @@ import (
 	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/ant/lib/models"
 	"github.com/kkevinchou/ant/lib/pathing"
 	"github.com/kkevinchou/ant/logger"
 	"github.com/veandco/go-sdl2/sdl"
@@ -52,6 +53,7 @@ type RenderSystem struct {
 	assetManager *lib.AssetManager
 	renderables  Renderables
 	textureMap   map[string]uint32
+	modelMap     map[string]*models.Model
 }
 
 func initFont() *ttf.Font {
@@ -107,6 +109,14 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 		"high-grass":     highGrassTexture,
 		"mushroom-gills": mushroomGilsTexture,
 		"worker":         workerTexture,
+	}
+
+	oak, err := models.NewModel("_assets/obj/Oak_Green_01.obj")
+	if err != nil {
+		panic("Failed to load oak model")
+	}
+	renderSystem.modelMap = map[string]*models.Model{
+		"oak": oak,
 	}
 
 	return &renderSystem
