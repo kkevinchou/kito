@@ -21,7 +21,7 @@ type Worker interface {
 type WorkerImpl struct {
 	*physics.PhysicsComponent
 	*steering.SeekComponent
-	*RenderComponent
+	*components.RenderComponent
 	*components.PositionComponent
 	*AIComponent
 	*components.InventoryComponent
@@ -36,8 +36,13 @@ func New() *WorkerImpl {
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.SeekComponent = &steering.SeekComponent{Entity: entity}
 
-	entity.RenderComponent = &RenderComponent{
-		entity: entity,
+	renderData := &components.TextureRenderData{
+		Visible: true,
+		ID:      "worker",
+	}
+
+	entity.RenderComponent = &components.RenderComponent{
+		RenderData: renderData,
 	}
 
 	renderSystem := directory.GetDirectory().RenderSystem()

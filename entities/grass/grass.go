@@ -12,7 +12,7 @@ type Grass interface {
 }
 
 type GrassImpl struct {
-	*RenderComponent
+	*components.RenderComponent
 	*components.PositionComponent
 }
 
@@ -21,9 +21,15 @@ func New(x, y, z float64) *GrassImpl {
 
 	entity.PositionComponent = &components.PositionComponent{}
 
-	entity.RenderComponent = &RenderComponent{
-		entity: entity,
+	renderData := &components.TextureRenderData{
+		Visible: true,
+		ID:      "high-grass",
 	}
+
+	entity.RenderComponent = &components.RenderComponent{
+		RenderData: renderData,
+	}
+
 	renderSystem := directory.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)
 

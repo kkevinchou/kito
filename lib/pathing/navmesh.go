@@ -49,7 +49,12 @@ func ConstructNavMesh(polygons []*geometry.Polygon) *NavMesh {
 		navmesh.AddPolygon(polygon)
 	}
 
-	navmesh.RenderComponent = &RenderComponent{navmesh.polygons}
+	navmesh.RenderComponent = &RenderComponent{
+		RenderData: &NavMeshRenderData{
+			ID:      "tile",
+			Visible: true,
+		},
+	}
 
 	return navmesh
 }

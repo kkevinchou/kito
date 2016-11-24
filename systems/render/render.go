@@ -11,10 +11,12 @@ import (
 	"time"
 
 	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/lib/pathing"
+	"github.com/kkevinchou/ant/logger"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_ttf"
 )
@@ -39,8 +41,7 @@ var (
 
 type Renderable interface {
 	interfaces.Positionable
-	Texture() string
-	Visible() bool
+	GetRenderData() components.RenderData
 }
 
 type Renderables []Renderable
@@ -83,8 +84,8 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 	gl.ClearDepth(1)
 	gl.DepthFunc(gl.LEQUAL)
 
-	ambient := []float32{0.5, 0.5, 0.5, 1}
-	diffuse := []float32{0.5, 0.5, 0.5, 1}
+	ambient := []float32{0.1, 0.1, 0.1, 1}
+	diffuse := []float32{1, 1, 1, 1}
 	lightPosition := []float32{-5, 5, 10, 0}
 	gl.Lightfv(gl.LIGHT0, gl.AMBIENT, &ambient[0])
 	gl.Lightfv(gl.LIGHT0, gl.DIFFUSE, &diffuse[0])
@@ -157,11 +158,25 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
 	for _, renderable := range r.renderables {
-		if !renderable.Visible() {
+		renderData := renderable.GetRenderData()
+		if !renderData.IsVisible() {
 			continue
 		}
+		if rData, ok := renderData.(*components.TextureRenderData); ok {
+			position := renderable.Position()
+			texture := r.textureMap[rData.ID]
+			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
+		} else if _, ok := renderData.(*components.ModelRenderData); ok {
+			position := renderable.Position()
+			fmt.Println(position)
+		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
+			var ok bool
+			var navmesh *pathing.NavMesh
+			if navmesh, ok = renderable.(*pathing.NavMesh); !ok {
+				logger.Debug("FAILED TO CAST NAVMESH")
+				continue
+			}
 
-		if navmesh, ok := renderable.(*pathing.NavMesh); ok {
 			polygons := navmesh.Polygons()
 			for i, polygon := range polygons {
 				color := make([]float32, 3)
@@ -178,13 +193,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 				}
 				gl.End()
 			}
-		} else {
-			position := renderable.Position()
-			texture := r.textureMap[renderable.Texture()]
-			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
 		}
 	}
-	// drawFloor()
 
 	sdl.GL_SwapWindow(r.window)
 }

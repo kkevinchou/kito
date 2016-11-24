@@ -13,7 +13,7 @@ type Food interface {
 }
 
 type FoodImpl struct {
-	*RenderComponent
+	*components.RenderComponent
 	*components.PositionComponent
 	*id.IdComponent
 	*components.ItemComponent
@@ -26,8 +26,13 @@ func New(x, y, z float64) *FoodImpl {
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.ItemComponent = &components.ItemComponent{}
 
-	entity.RenderComponent = &RenderComponent{
-		entity: entity,
+	renderData := &components.TextureRenderData{
+		Visible: true,
+		ID:      "mushroom-gills",
+	}
+
+	entity.RenderComponent = &components.RenderComponent{
+		RenderData: renderData,
 	}
 	renderSystem := directory.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)
