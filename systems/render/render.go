@@ -74,8 +74,8 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 	sdl.SetRelativeMouseMode(true)
 
 	gl.Enable(gl.DEPTH_TEST)
-	gl.ColorMaterial(gl.FRONT_AND_BACK, gl.AMBIENT_AND_DIFFUSE)
 	gl.Enable(gl.COLOR_MATERIAL)
+	gl.ColorMaterial(gl.FRONT_AND_BACK, gl.AMBIENT_AND_DIFFUSE)
 
 	gl.Enable(gl.LIGHTING)
 
