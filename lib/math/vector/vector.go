@@ -21,7 +21,7 @@ func Zero() Vector {
 }
 
 func (v Vector) String() string {
-	return fmt.Sprintf("<Vector %.2f, %.2f>", v.X, v.Y)
+	return fmt.Sprintf("<Vector %f, %f>", v.X, v.Y)
 }
 
 func (v1 Vector) Add(v2 Vector) Vector {
@@ -123,4 +123,8 @@ func (v Vector3) Clamp(max float64) Vector3 {
 	} else {
 		return v
 	}
+}
+
+func (v Vector3) String() string {
+	return fmt.Sprintf("<Vector3 %f, %f>", v.X, v.Y)
 }
