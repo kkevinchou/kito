@@ -147,12 +147,12 @@ func (g *Game) Start(commandPoller CommandPoller) {
 		accumulator += delta
 		renderAccumulator += delta
 
-		for accumulator > gameUpdateDelta {
+		for accumulator >= gameUpdateDelta {
 			g.update(delta)
 			accumulator -= gameUpdateDelta
 		}
 
-		if renderAccumulator > msPerFrame {
+		if renderAccumulator >= msPerFrame {
 			renderSystem.Update(delta)
 		}
 
