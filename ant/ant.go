@@ -1,6 +1,7 @@
 package ant
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -127,12 +128,15 @@ func (g *Game) Start(commandPoller CommandPoller) {
 	rand.Seed(time.Now().Unix())
 
 	previousTime := time.Now()
-	var accumulator time.Duration
-	var renderAccumulator time.Duration
+	// var accumulator time.Duration
+	// var renderAccumulator time.Duration
 
-	msPerFrame := time.Duration(1000.0/fps) * time.Millisecond
+	// msPerFrame := time.Duration(1000.0/fps) * time.Millisecond
 	directory := directory.GetDirectory()
 	renderSystem := directory.RenderSystem()
+
+	var fpsAccumulator time.Duration
+	frameCount := 0
 
 	for g.gameOver != true {
 		now := time.Now()
@@ -142,23 +146,41 @@ func (g *Game) Start(commandPoller CommandPoller) {
 		}
 		previousTime = now
 
+		fpsAccumulator += delta
+		numWholeSeconds := 0
+		for fpsAccumulator > time.Second {
+			numWholeSeconds++
+			fpsAccumulator -= time.Second
+		}
+		if numWholeSeconds > 0 {
+			fmt.Println(frameCount)
+			frameCount = 0
+		}
+
 		commandPoller(g)
 
-		accumulator += delta
-		renderAccumulator += delta
+		g.update(delta)
+		renderSystem.Update(delta)
 
-		for accumulator >= gameUpdateDelta {
-			g.update(delta)
-			accumulator -= gameUpdateDelta
-		}
+		// accumulator += delta
+		// renderAccumulator += delta
 
-		if renderAccumulator >= msPerFrame {
-			renderSystem.Update(delta)
-		}
+		// for accumulator >= gameUpdateDelta {
+		// 	fmt.Println("UPDATE")
+		// 	g.update(delta)
+		// 	accumulator -= gameUpdateDelta
+		// }
 
-		for renderAccumulator > msPerFrame {
-			renderAccumulator -= msPerFrame
-		}
+		// if renderAccumulator >= msPerFrame {
+		// 	fmt.Println("RENDER")
+		// 	renderSystem.Update(delta)
+		// }
+
+		// for renderAccumulator > msPerFrame {
+		// 	renderAccumulator -= msPerFrame
+		// }
+
+		frameCount++
 	}
 }
 
