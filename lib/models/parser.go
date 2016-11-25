@@ -2,7 +2,7 @@ package models
 
 import (
 	"bufio"
-	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +15,7 @@ import (
 
 type Face struct {
 	Verticies []*FaceVertex
-	Material  string
+	Material  *Material
 }
 
 type FaceVertex struct {
@@ -31,6 +31,11 @@ type Model struct {
 	Faces     []*Face
 }
 
+type InternalVertex struct {
+	Material *Material
+	Value    *vector.Vector3
+}
+
 // NewModel reads an OBJ model file and creates a Model from its contents
 func NewModel(file string) (*Model, error) {
 	objFile, err := os.Open(file)
@@ -39,20 +44,18 @@ func NewModel(file string) (*Model, error) {
 	}
 	defer objFile.Close()
 
+	materials, err := parseMaterials(strings.Replace(file, ".obj", ".mtl", 1))
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(materials)
+	var currentMaterial *Material
 	model := Model{}
 
 	scanner := bufio.NewScanner(objFile)
 	for scanner.Scan() {
 		line := scanner.Text()
 		line = strings.TrimSpace(line)
-
-		if len(line) == 0 {
-			continue
-		}
-
-		if len(line) == 1 {
-			return nil, errors.New("line of length 1 unexpected")
-		}
 
 		if strings.HasPrefix(line, "vt") {
 			var err error
@@ -82,7 +85,9 @@ func NewModel(file string) (*Model, error) {
 				return nil, err
 			}
 			model.verticies = append(model.verticies, v)
-
+		} else if strings.HasPrefix(line, "usemtl") {
+			split := strings.Split(line, " ")
+			currentMaterial = materials[split[1]]
 		} else if strings.HasPrefix(line, "f") {
 			split := strings.Split(line[2:], " ")
 
@@ -118,6 +123,7 @@ func NewModel(file string) (*Model, error) {
 
 				face.Verticies = append(face.Verticies, faceVertex)
 			}
+			face.Material = currentMaterial
 			model.Faces = append(model.Faces, face)
 		}
 	}

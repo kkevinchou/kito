@@ -113,7 +113,7 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 
 	oak, err := models.NewModel("_assets/obj/Oak_Green_01.obj")
 	if err != nil {
-		panic("Failed to load oak model")
+		panic(fmt.Sprintf("Failed to load oak model %s", err))
 	}
 	renderSystem.modelMap = map[string]*models.Model{
 		"oak": oak,
