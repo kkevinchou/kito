@@ -43,7 +43,6 @@ func NewModel(file string) (*Model, error) {
 
 	scanner := bufio.NewScanner(objFile)
 	for scanner.Scan() {
-		var lineType string
 		line := scanner.Text()
 
 		if len(line) == 0 {
@@ -54,39 +53,7 @@ func NewModel(file string) (*Model, error) {
 			return nil, errors.New("line of length 1 unexpected")
 		}
 
-		if line[0] == 'v' {
-			lineType = "v"
-			if line[1] == 'n' {
-				lineType = "vn"
-			} else if line[1] == 't' {
-				lineType = "vt"
-			}
-		} else if line[0] == 'f' {
-			lineType = "f"
-		}
-
-		if lineType == "" {
-			continue
-		}
-
-		switch lineType {
-		case "v": // VERTICES
-			var err error
-			var x, y, z float64
-
-			if x, y, z, err = parseThreeFloats(strings.TrimSpace(line[2:])); err != nil {
-				return nil, err
-			}
-			model.verticies = append(model.verticies, &vector.Vector3{X: x, Y: y, Z: z})
-		case "vn": // NORMALS
-			var err error
-			var x, y, z float64
-
-			if x, y, z, err = parseThreeFloats(strings.TrimSpace(line[3:])); err != nil {
-				return nil, err
-			}
-			model.normals = append(model.normals, &vector.Vector3{X: x, Y: y, Z: z})
-		case "vt": // TEXTURE VERTICES
+		if strings.HasPrefix(line, "vt") {
 			var err error
 			var x, y float64
 
@@ -98,7 +65,24 @@ func NewModel(file string) (*Model, error) {
 				return nil, err
 			}
 			model.textures = append(model.textures, &vector.Vector{X: x, Y: y})
-		case "f": // INDICES
+		} else if strings.HasPrefix(line, "vn") {
+			var err error
+			var x, y, z float64
+
+			if x, y, z, err = parseThreeFloats(strings.TrimSpace(line[3:])); err != nil {
+				return nil, err
+			}
+			model.normals = append(model.normals, &vector.Vector3{X: x, Y: y, Z: z})
+		} else if strings.HasPrefix(line, "v") {
+			var err error
+			var x, y, z float64
+
+			if x, y, z, err = parseThreeFloats(strings.TrimSpace(line[2:])); err != nil {
+				return nil, err
+			}
+			model.verticies = append(model.verticies, &vector.Vector3{X: x, Y: y, Z: z})
+
+		} else if strings.HasPrefix(line, "f") {
 			split := strings.Split(strings.TrimSpace(line[2:]), " ")
 
 			face := &Face{}
@@ -150,4 +134,23 @@ func (model *Model) getVertexNormal(i int) *vector.Vector3 {
 
 func (model *Model) getVertexTextures(i int) *vector.Vector {
 	return model.textures[i-1]
+}
+
+// Parse 3 space separated floats from a string
+func parseThreeFloats(str string) (float64, float64, float64, error) {
+	var err error
+	var x, y, z float64
+
+	split := strings.Split(str, " ")
+	if x, err = strconv.ParseFloat(split[0], 64); err != nil {
+		return 0, 0, 0, err
+	}
+	if y, err = strconv.ParseFloat(split[1], 64); err != nil {
+		return 0, 0, 0, err
+	}
+	if z, err = strconv.ParseFloat(split[2], 64); err != nil {
+		return 0, 0, 0, err
+	}
+
+	return x, y, z, nil
 }
