@@ -72,7 +72,25 @@ func initFont() *ttf.Font {
 	return font
 }
 
-func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *RenderSystem {
+func NewRenderSystem(assetManager *lib.AssetManager) *RenderSystem {
+	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
+		panic("Failed to init SDL")
+	}
+
+	if err := gl.Init(); err != nil {
+		panic("Failed to init OpenGL")
+	}
+
+	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
+	if err != nil {
+		panic("Failed to create window")
+	}
+
+	_, err = sdl.GL_CreateContext(window)
+	if err != nil {
+		panic("Failed to create context")
+	}
+
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,

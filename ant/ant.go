@@ -16,7 +16,6 @@ import (
 	"github.com/kkevinchou/ant/managers/path"
 	"github.com/kkevinchou/ant/systems/movement"
 	"github.com/kkevinchou/ant/systems/render"
-	"github.com/veandco/go-sdl2/sdl"
 )
 
 func setupGrass() {
@@ -28,11 +27,11 @@ func setupGrass() {
 	grass.New(0, 0, 0)
 }
 
-func setupSystems(window *sdl.Window) *directory.Directory {
+func setupSystems() *directory.Directory {
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
 	assetManager := lib.NewAssetManager(nil, "_assets")
-	renderSystem := render.NewRenderSystem(window, assetManager)
+	renderSystem := render.NewRenderSystem(assetManager)
 	movementSystem := movement.NewMovementSystem()
 
 	d := directory.GetDirectory()
@@ -53,13 +52,16 @@ type Game struct {
 	pathIndex int
 }
 
-func (g *Game) Init(window *sdl.Window) {
+func NewGame() *Game {
+	g := &Game{}
 	rand.Seed(int64(time.Now().Nanosecond()))
-	setupSystems(window)
+	setupSystems()
 	setupGrass()
 	food.New(0, 0, 0)
 	g.worker = worker.New()
 	g.worker.SetPosition(vector.Vector3{19, 12, -10})
+
+	return g
 }
 
 func (g *Game) MoveAnt(x, y float64) {
@@ -79,9 +81,9 @@ func (g *Game) PlaceFood(x, y float64) {
 	food.New(x, 0, y)
 }
 
-func (g *Game) CameraView(x, y int) {
+func (g *Game) CameraViewChange(x, y int) {
 	renderSystem := directory.GetDirectory().RenderSystem()
-	renderSystem.CameraView(x, y)
+	renderSystem.CameraViewChange(x, y)
 }
 
 func (g *Game) MoveCamera(v vector.Vector3) {
@@ -89,7 +91,7 @@ func (g *Game) MoveCamera(v vector.Vector3) {
 	renderSystem.MoveCamera(v)
 }
 
-func (g *Game) Update() {
+func (g *Game) Update(delta time.Duration) {
 	if g.path != nil {
 		if g.worker.Position().Sub(g.path[g.pathIndex].Vector3()).Length() <= 2 {
 			g.pathIndex += 1
@@ -102,4 +104,10 @@ func (g *Game) Update() {
 			}
 		}
 	}
+
+	directory := directory.GetDirectory()
+	movementSystem := directory.MovementSystem()
+	renderSystem := directory.RenderSystem()
+	movementSystem.Update(delta)
+	renderSystem.Update(delta)
 }

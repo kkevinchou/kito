@@ -6,7 +6,7 @@ import (
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
-func (r *RenderSystem) CameraView(x, y int) {
+func (r *RenderSystem) CameraViewChange(x, y int) {
 	cameraRotationY += float64(x) * sensitivity
 	cameraRotationX += float64(y) * sensitivity
 

@@ -5,16 +5,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/kkevinchou/ant/ant"
-	"github.com/kkevinchou/ant/directory"
 	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
-)
-
-const (
-	width  = 800
-	height = 600
 )
 
 func init() {
@@ -25,44 +18,9 @@ func init() {
 	runtime.LockOSThread()
 }
 
-func setupDisplay() (*sdl.Window, error) {
-	var err error
-	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		return nil, err
-	}
-
-	if err := gl.Init(); err != nil {
-		return nil, err
-	}
-
-	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = sdl.GL_CreateContext(window)
-	if err != nil {
-		return nil, err
-	}
-
-	return window, nil
-}
-
 func main() {
-	window, err := setupDisplay()
-	if err != nil {
-		panic(err)
-	}
-	defer window.Destroy()
-
 	rand.Seed(time.Now().Unix())
-
-	game := ant.Game{}
-	game.Init(window)
-
-	directory := directory.GetDirectory()
-	movementSystem := directory.MovementSystem()
-	renderSystem := directory.RenderSystem()
+	game := ant.NewGame()
 
 	var event sdl.Event
 	gameOver := false
@@ -83,7 +41,7 @@ func main() {
 					game.PlaceFood(float64(e.X), float64(e.Y))
 				}
 			case *sdl.MouseMotionEvent:
-				game.CameraView(int(e.XRel), int(e.YRel))
+				game.CameraViewChange(int(e.XRel), int(e.YRel))
 			case *sdl.KeyUpEvent:
 				if e.Keysym.Sym == sdl.K_ESCAPE {
 					gameOver = true
@@ -115,9 +73,7 @@ func main() {
 			}
 		}
 
-		game.Update()
-		movementSystem.Update(delta)
-		renderSystem.Update(delta)
+		game.Update(delta)
 	}
 	sdl.Quit()
 }
