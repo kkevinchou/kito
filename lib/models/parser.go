@@ -44,6 +44,7 @@ func NewModel(file string) (*Model, error) {
 	scanner := bufio.NewScanner(objFile)
 	for scanner.Scan() {
 		line := scanner.Text()
+		line = strings.TrimSpace(line)
 
 		if len(line) == 0 {
 			continue
@@ -57,11 +58,11 @@ func NewModel(file string) (*Model, error) {
 			var err error
 			var x, y float64
 
-			split := strings.Split(strings.TrimSpace(line[3:]), " ")
-			if x, err = strconv.ParseFloat(split[0], 64); err != nil {
+			split := strings.Split(line, " ")
+			if x, err = strconv.ParseFloat(split[1], 64); err != nil {
 				return nil, err
 			}
-			if y, err = strconv.ParseFloat(split[1], 64); err != nil {
+			if y, err = strconv.ParseFloat(split[2], 64); err != nil {
 				return nil, err
 			}
 			model.textures = append(model.textures, &vector.Vector{X: x, Y: y})
@@ -69,7 +70,7 @@ func NewModel(file string) (*Model, error) {
 			var err error
 			var x, y, z float64
 
-			if x, y, z, err = parseThreeFloats(strings.TrimSpace(line[3:])); err != nil {
+			if x, y, z, err = parseThreeFloats(line[3:]); err != nil {
 				return nil, err
 			}
 			model.normals = append(model.normals, &vector.Vector3{X: x, Y: y, Z: z})
@@ -77,13 +78,13 @@ func NewModel(file string) (*Model, error) {
 			var err error
 			var x, y, z float64
 
-			if x, y, z, err = parseThreeFloats(strings.TrimSpace(line[2:])); err != nil {
+			if x, y, z, err = parseThreeFloats(line[2:]); err != nil {
 				return nil, err
 			}
 			model.verticies = append(model.verticies, &vector.Vector3{X: x, Y: y, Z: z})
 
 		} else if strings.HasPrefix(line, "f") {
-			split := strings.Split(strings.TrimSpace(line[2:]), " ")
+			split := strings.Split(line[2:], " ")
 
 			face := &Face{}
 
