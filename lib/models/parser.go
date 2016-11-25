@@ -15,6 +15,7 @@ import (
 
 type Face struct {
 	Verticies []*FaceVertex
+	Material  string
 }
 
 type FaceVertex struct {
@@ -62,7 +63,9 @@ func NewModel(file string) (*Model, error) {
 			}
 		} else if line[0] == 'f' {
 			lineType = "f"
-		} else {
+		}
+
+		if lineType == "" {
 			continue
 		}
 
@@ -71,14 +74,7 @@ func NewModel(file string) (*Model, error) {
 			var err error
 			var x, y, z float64
 
-			split := strings.Split(strings.TrimSpace(line[2:]), " ")
-			if x, err = strconv.ParseFloat(split[0], 64); err != nil {
-				return nil, err
-			}
-			if y, err = strconv.ParseFloat(split[1], 64); err != nil {
-				return nil, err
-			}
-			if z, err = strconv.ParseFloat(split[2], 64); err != nil {
+			if x, y, z, err = parseThreeFloats(strings.TrimSpace(line[2:])); err != nil {
 				return nil, err
 			}
 			model.verticies = append(model.verticies, &vector.Vector3{X: x, Y: y, Z: z})
@@ -86,14 +82,7 @@ func NewModel(file string) (*Model, error) {
 			var err error
 			var x, y, z float64
 
-			split := strings.Split(strings.TrimSpace(line[3:]), " ")
-			if x, err = strconv.ParseFloat(split[0], 64); err != nil {
-				return nil, err
-			}
-			if y, err = strconv.ParseFloat(split[1], 64); err != nil {
-				return nil, err
-			}
-			if z, err = strconv.ParseFloat(split[2], 64); err != nil {
+			if x, y, z, err = parseThreeFloats(strings.TrimSpace(line[3:])); err != nil {
 				return nil, err
 			}
 			model.normals = append(model.normals, &vector.Vector3{X: x, Y: y, Z: z})

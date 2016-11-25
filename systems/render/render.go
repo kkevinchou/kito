@@ -96,7 +96,7 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
-	gl.Frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 100.0)
+	gl.Frustum(-0.5, 0.5, -0.375, 0.375, 1.0, 100.0)
 	gl.PushMatrix()
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
@@ -206,6 +206,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		}
 	}
 
+	r.renderModel(r.modelMap["oak"])
 	sdl.GL_SwapWindow(r.window)
 }
 
