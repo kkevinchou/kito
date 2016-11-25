@@ -68,20 +68,20 @@ func NewModel(file string) (*Model, error) {
 			model.textures = append(model.textures, &vector.Vector{X: x, Y: y})
 		} else if strings.HasPrefix(line, "vn") {
 			var err error
-			var x, y, z float64
+			var v *vector.Vector3
 
-			if x, y, z, err = parseThreeFloats(line[3:]); err != nil {
+			if v, err = parseThreeFloats(line[3:]); err != nil {
 				return nil, err
 			}
-			model.normals = append(model.normals, &vector.Vector3{X: x, Y: y, Z: z})
+			model.normals = append(model.normals, v)
 		} else if strings.HasPrefix(line, "v") {
 			var err error
-			var x, y, z float64
+			var v *vector.Vector3
 
-			if x, y, z, err = parseThreeFloats(line[2:]); err != nil {
+			if v, err = parseThreeFloats(line[2:]); err != nil {
 				return nil, err
 			}
-			model.verticies = append(model.verticies, &vector.Vector3{X: x, Y: y, Z: z})
+			model.verticies = append(model.verticies, v)
 
 		} else if strings.HasPrefix(line, "f") {
 			split := strings.Split(line[2:], " ")
@@ -138,20 +138,20 @@ func (model *Model) getVertexTextures(i int) *vector.Vector {
 }
 
 // Parse 3 space separated floats from a string
-func parseThreeFloats(str string) (float64, float64, float64, error) {
+func parseThreeFloats(str string) (*vector.Vector3, error) {
 	var err error
 	var x, y, z float64
 
 	split := strings.Split(str, " ")
 	if x, err = strconv.ParseFloat(split[0], 64); err != nil {
-		return 0, 0, 0, err
+		return nil, err
 	}
 	if y, err = strconv.ParseFloat(split[1], 64); err != nil {
-		return 0, 0, 0, err
+		return nil, err
 	}
 	if z, err = strconv.ParseFloat(split[2], 64); err != nil {
-		return 0, 0, 0, err
+		return nil, err
 	}
 
-	return x, y, z, nil
+	return &vector.Vector3{X: x, Y: y, Z: z}, nil
 }
