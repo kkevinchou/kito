@@ -18,6 +18,14 @@ import (
 	"github.com/kkevinchou/ant/systems/render"
 )
 
+const (
+	gameUpdateDelta = 10 * time.Millisecond
+)
+
+var (
+	FPS = 60.0
+)
+
 func setupGrass() {
 	grass.New(5, 0, 4)
 	grass.New(2, 0, 2)
@@ -50,6 +58,7 @@ type Game struct {
 	path      []pathing.Node
 	worker    *worker.WorkerImpl
 	pathIndex int
+	gameOver  bool
 }
 
 func NewGame() *Game {
@@ -91,6 +100,10 @@ func (g *Game) MoveCamera(v vector.Vector3) {
 	renderSystem.MoveCamera(v)
 }
 
+func (g *Game) GameOver() {
+	g.gameOver = true
+}
+
 func (g *Game) Update(delta time.Duration) {
 	if g.path != nil {
 		if g.worker.Position().Sub(g.path[g.pathIndex].Vector3()).Length() <= 2 {
@@ -107,7 +120,46 @@ func (g *Game) Update(delta time.Duration) {
 
 	directory := directory.GetDirectory()
 	movementSystem := directory.MovementSystem()
-	renderSystem := directory.RenderSystem()
 	movementSystem.Update(delta)
-	renderSystem.Update(delta)
 }
+
+func (g *Game) Start(commandPoller CommandPoller) {
+	rand.Seed(time.Now().Unix())
+
+	previousTime := time.Now()
+	var accumulator time.Duration
+	var renderAccumulator time.Duration
+
+	msPerFrame := time.Duration(1000.0/FPS) * time.Millisecond
+	directory := directory.GetDirectory()
+	renderSystem := directory.RenderSystem()
+
+	for g.gameOver != true {
+		now := time.Now()
+		delta := time.Since(previousTime)
+		if delta > 250*time.Millisecond {
+			delta = 250 * time.Millisecond
+		}
+		previousTime = now
+
+		commandPoller(g)
+
+		accumulator += delta
+		renderAccumulator += delta
+
+		for accumulator > gameUpdateDelta {
+			g.Update(delta)
+			accumulator -= gameUpdateDelta
+		}
+
+		if renderAccumulator > msPerFrame {
+			renderSystem.Update(delta)
+		}
+
+		for renderAccumulator > msPerFrame {
+			renderAccumulator -= msPerFrame
+		}
+	}
+}
+
+type CommandPoller func(game *Game)
