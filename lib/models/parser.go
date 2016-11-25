@@ -70,7 +70,7 @@ func NewModel(file string) (*Model, error) {
 			var err error
 			var v *vector.Vector3
 
-			if v, err = parseThreeFloats(line[3:]); err != nil {
+			if v, err = parseVector(line[3:]); err != nil {
 				return nil, err
 			}
 			model.normals = append(model.normals, v)
@@ -78,7 +78,7 @@ func NewModel(file string) (*Model, error) {
 			var err error
 			var v *vector.Vector3
 
-			if v, err = parseThreeFloats(line[2:]); err != nil {
+			if v, err = parseVector(line[2:]); err != nil {
 				return nil, err
 			}
 			model.verticies = append(model.verticies, v)
@@ -137,8 +137,8 @@ func (model *Model) getVertexTextures(i int) *vector.Vector {
 	return model.textures[i-1]
 }
 
-// Parse 3 space separated floats from a string
-func parseThreeFloats(str string) (*vector.Vector3, error) {
+// Parse a vector (space separated floats) from a string
+func parseVector(str string) (*vector.Vector3, error) {
 	var err error
 	var x, y, z float64
 
