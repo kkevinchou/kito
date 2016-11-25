@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	FPS = 60.0
+	fps = 60.0
 )
 
 func setupGrass() {
@@ -68,7 +68,7 @@ func NewGame() *Game {
 	setupGrass()
 	food.New(0, 0, 0)
 	g.worker = worker.New()
-	g.worker.SetPosition(vector.Vector3{19, 12, -10})
+	g.worker.SetPosition(vector.Vector3{X: 19, Y: 12, Z: -10})
 
 	return g
 }
@@ -104,10 +104,10 @@ func (g *Game) GameOver() {
 	g.gameOver = true
 }
 
-func (g *Game) Update(delta time.Duration) {
+func (g *Game) update(delta time.Duration) {
 	if g.path != nil {
 		if g.worker.Position().Sub(g.path[g.pathIndex].Vector3()).Length() <= 2 {
-			g.pathIndex += 1
+			g.pathIndex++
 			if g.pathIndex == len(g.path) {
 				g.path = nil
 				g.worker.SetSeekActive(false)
@@ -130,7 +130,7 @@ func (g *Game) Start(commandPoller CommandPoller) {
 	var accumulator time.Duration
 	var renderAccumulator time.Duration
 
-	msPerFrame := time.Duration(1000.0/FPS) * time.Millisecond
+	msPerFrame := time.Duration(1000.0/fps) * time.Millisecond
 	directory := directory.GetDirectory()
 	renderSystem := directory.RenderSystem()
 
@@ -148,7 +148,7 @@ func (g *Game) Start(commandPoller CommandPoller) {
 		renderAccumulator += delta
 
 		for accumulator > gameUpdateDelta {
-			g.Update(delta)
+			g.update(delta)
 			accumulator -= gameUpdateDelta
 		}
 
