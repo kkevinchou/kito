@@ -14,7 +14,6 @@ import (
 	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib"
-	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/lib/models"
 	"github.com/kkevinchou/ant/lib/pathing"
 	"github.com/kkevinchou/ant/logger"
@@ -32,12 +31,17 @@ const (
 var (
 	textureMap map[string]uint32
 
-	cameraX            float64 = -20
-	cameraY            float64 = 15
-	cameraZ            float64 = -5
-	cameraRotationY    float64 = 90
-	cameraRotationX    float64 = 20
-	cameraRotationXMax float64 = 60
+	cameraX            float64 = 0
+	cameraY            float64 = 1
+	cameraZ            float64 = 10
+	cameraRotationY    float64 = 0
+	cameraRotationX    float64 = 0
+	cameraRotationXMax float64 = 80
+
+	lightPosition = []float32{0, 20, 1, 1}
+	ambient       = []float32{0.1, 0.1, 0.1, 1}
+	diffuse       = []float32{1, 1, 1, 1}
+	specular      = []float32{1, 1, 1, 1}
 )
 
 type Renderable interface {
@@ -76,22 +80,18 @@ func NewRenderSystem(window *sdl.Window, assetManager *lib.AssetManager) *Render
 
 	sdl.SetRelativeMouseMode(true)
 
+	gl.Enable(gl.LIGHTING)
 	gl.Enable(gl.DEPTH_TEST)
 	gl.Enable(gl.COLOR_MATERIAL)
-	gl.ColorMaterial(gl.FRONT_AND_BACK, gl.AMBIENT_AND_DIFFUSE)
-
-	gl.Enable(gl.LIGHTING)
+	gl.ColorMaterial(gl.FRONT, gl.AMBIENT_AND_DIFFUSE)
 
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
 	gl.DepthFunc(gl.LEQUAL)
 
-	ambient := []float32{0.1, 0.1, 0.1, 1}
-	diffuse := []float32{1, 1, 1, 1}
-	lightPosition := []float32{-5, 5, 10, 0}
 	gl.Lightfv(gl.LIGHT0, gl.AMBIENT, &ambient[0])
 	gl.Lightfv(gl.LIGHT0, gl.DIFFUSE, &diffuse[0])
-	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
+	gl.Lightfv(gl.LIGHT0, gl.SPECULAR, &specular[0])
 	gl.Enable(gl.LIGHT0)
 
 	gl.MatrixMode(gl.PROJECTION)
@@ -126,36 +126,6 @@ func (r *RenderSystem) Register(renderable Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
 
-func (r *RenderSystem) CameraView(x, y int) {
-	cameraRotationY += float64(x) * sensitivity
-	cameraRotationX += float64(y) * sensitivity
-
-	if cameraRotationX < -cameraRotationXMax {
-		cameraRotationX = -cameraRotationXMax
-	}
-
-	if cameraRotationX > cameraRotationXMax {
-		cameraRotationX = cameraRotationXMax
-	}
-}
-
-func (r *RenderSystem) MoveCamera(v vector.Vector3) {
-	forwardX, forwardY, forwardZ := forward()
-	// Moving backwards
-	forwardX *= -v.Z
-	forwardY *= -v.Z
-	forwardZ *= -v.Z
-
-	rightX, rightY, rightZ := right()
-	rightX *= -v.X
-	rightY *= -v.X
-	rightZ *= -v.X
-
-	cameraX += forwardX + rightX
-	cameraY += forwardY + rightY + v.Y
-	cameraZ += forwardZ + rightZ
-}
-
 func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -164,7 +134,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Rotatef(float32(cameraRotationX), 1, 0, 0)
 	gl.Rotatef(float32(cameraRotationY), 0, 1, 0)
 	gl.Translatef(float32(-cameraX), float32(-cameraY), float32(-cameraZ))
-	lightPosition := []float32{-5, 5, 10, 0}
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
 	for _, renderable := range r.renderables {
@@ -177,8 +146,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			texture := r.textureMap[rData.ID]
 			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
 		} else if _, ok := renderData.(*components.ModelRenderData); ok {
-			position := renderable.Position()
-			fmt.Println(position)
 		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
 			var ok bool
 			var navmesh *pathing.NavMesh
@@ -206,54 +173,11 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		}
 	}
 
+	// TODO: For some reason I need to bind a texture before rendering a model or else the lighting looks off...
+	gl.BindTexture(gl.TEXTURE_2D, r.textureMap["mushroom-gills"])
+	// drawFloor()
 	r.renderModel(r.modelMap["oak"])
 	sdl.GL_SwapWindow(r.window)
-}
-
-func toRadians(degrees float64) float64 {
-	return degrees / 180 * math.Pi
-}
-
-func forward() (float64, float64, float64) {
-	xRadianAngle := -toRadians(cameraRotationX)
-	if xRadianAngle < 0 {
-		xRadianAngle += 2 * math.Pi
-	}
-	yRadianAngle := -(toRadians(cameraRotationY) - (math.Pi / 2))
-	if yRadianAngle < 0 {
-		yRadianAngle += 2 * math.Pi
-	}
-
-	x := math.Cos(yRadianAngle) * math.Cos(xRadianAngle)
-	y := math.Sin(xRadianAngle)
-	z := -math.Sin(yRadianAngle) * math.Cos(xRadianAngle)
-
-	return x, y, z
-}
-
-func right() (float64, float64, float64) {
-	xRadianAngle := -toRadians(cameraRotationX)
-	if xRadianAngle < 0 {
-		xRadianAngle += 2 * math.Pi
-	}
-	yRadianAngle := -(toRadians(cameraRotationY) - (math.Pi / 2))
-	if yRadianAngle < 0 {
-		yRadianAngle += 2 * math.Pi
-	}
-
-	x, y, z := math.Cos(yRadianAngle), math.Sin(xRadianAngle), -math.Sin(yRadianAngle)
-
-	v1 := vector.Vector3{x, math.Abs(y), z}
-	v2 := vector.Vector3{x, 0, z}
-	v3 := v1.Cross(v2)
-
-	if v3.X == 0 && v3.Y == 0 && v3.Z == 0 {
-		v3 = vector.Vector3{v2.Z, 0, -v2.X}
-	}
-
-	v3 = v3.Normalize()
-
-	return v3.X, v3.Y, v3.Z
 }
 
 func drawFloor() {

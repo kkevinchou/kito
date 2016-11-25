@@ -2,7 +2,6 @@ package models
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -48,7 +47,6 @@ func NewModel(file string) (*Model, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(materials)
 	var currentMaterial *Material
 	model := Model{}
 
