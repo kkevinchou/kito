@@ -15,7 +15,7 @@ type SetCameraSpeed struct {
 }
 
 func (c *SetCameraSpeed) Execute(game *Game) {
-	game.MoveCamera(vector.Vector3{X: c.X, Y: c.Y, Z: c.Z})
+	game.SetCameraCommandHeading(vector.Vector3{X: c.X, Y: c.Y, Z: c.Z})
 }
 
 type QuitCommand struct {

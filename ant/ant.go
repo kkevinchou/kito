@@ -189,6 +189,6 @@ func (g *Game) CameraViewChange(v vector.Vector) {
 	g.camera.ChangeView(v)
 }
 
-func (g *Game) MoveCamera(v vector.Vector3) {
-	g.camera.SetSpeedInDirection(v)
+func (g *Game) SetCameraCommandHeading(v vector.Vector3) {
+	g.camera.SetCommandHeading(v)
 }

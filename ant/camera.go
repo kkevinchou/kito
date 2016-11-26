@@ -41,26 +41,8 @@ func (c *Camera) ChangeView(v vector.Vector) {
 	}
 }
 
-func (c *Camera) SetSpeedInDirection(v vector.Vector3) {
-	c.commandHeading = c.commandHeading.Add(v)
-
-	if c.commandHeading.X > 1 {
-		c.commandHeading.X = 1
-	} else if c.commandHeading.X < -1 {
-		c.commandHeading.X = -1
-	}
-
-	if c.commandHeading.Y > 1 {
-		c.commandHeading.Y = 1
-	} else if c.commandHeading.Y < -1 {
-		c.commandHeading.Y = -1
-	}
-
-	if c.commandHeading.Z > 1 {
-		c.commandHeading.Z = 1
-	} else if c.commandHeading.Z < -1 {
-		c.commandHeading.Z = -1
-	}
+func (c *Camera) SetCommandHeading(v vector.Vector3) {
+	c.commandHeading = v
 
 	forwardVector := c.backward()
 	forwardVector = forwardVector.Scale(-c.commandHeading.Z)
