@@ -39,6 +39,10 @@ func (c *Camera) ChangeView(v vector.Vector) {
 	if c.view.X < -cameraRotationXMax {
 		c.view.X = -cameraRotationXMax
 	}
+
+	if c.view.X > cameraRotationXMax {
+		c.view.X = cameraRotationXMax
+	}
 }
 
 func (c *Camera) SetCommandHeading(v vector.Vector3) {
