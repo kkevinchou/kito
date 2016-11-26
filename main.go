@@ -15,46 +15,66 @@ func init() {
 	runtime.LockOSThread()
 }
 
+type InputHandler struct {
+	KeyState []uint8
+}
+
+func NewInputHandler() *InputHandler {
+	return &InputHandler{KeyState: sdl.GetKeyboardState()}
+}
+
 // TODO: event polling will return no events even though the key is being held down
-func CommandPoller(game *ant.Game) {
+func (i *InputHandler) CommandPoller(game *ant.Game) []ant.Command {
+	sdl.PumpEvents()
+
+	commands := []ant.Command{}
+
+	var x, y, z float64
+	if i.KeyState[sdl.SCANCODE_W] > 0 {
+		z--
+	}
+	if i.KeyState[sdl.SCANCODE_S] > 0 {
+		z++
+	}
+	if i.KeyState[sdl.SCANCODE_A] > 0 {
+		x--
+	}
+	if i.KeyState[sdl.SCANCODE_D] > 0 {
+		x++
+	}
+	if i.KeyState[sdl.SCANCODE_SPACE] > 0 {
+		y++
+	}
+
+	if x != 0 || y != 0 || z != 0 {
+		commands = append(commands, &ant.SetCameraSpeed{X: x, Y: y, Z: z})
+	}
+
+	if i.KeyState[sdl.SCANCODE_ESCAPE] > 0 {
+		commands = append(commands, &ant.QuitCommand{})
+	}
+
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
 		case *sdl.QuitEvent:
-			game.GameOver()
+			commands = append(commands, &ant.QuitCommand{})
 		case *sdl.MouseButtonEvent:
 			if e.State == 0 { // Mouse Up
 				// game.MoveAnt(float64(e.X), float64(e.Y))
 				game.PlaceFood(float64(e.X), float64(e.Y))
 			}
 		case *sdl.MouseMotionEvent:
-			game.CameraViewChange(float64(e.XRel), float64(e.YRel))
-		case *sdl.KeyUpEvent:
-			if e.Keysym.Sym == sdl.K_ESCAPE {
-				game.GameOver()
-			}
-		case *sdl.KeyDownEvent:
-			var x, y, z float64
-
-			if e.Keysym.Sym == sdl.K_w {
-				z--
-			} else if e.Keysym.Sym == sdl.K_s {
-				z++
-			} else if e.Keysym.Sym == sdl.K_a {
-				x--
-			} else if e.Keysym.Sym == sdl.K_d {
-				x++
-			} else if e.Keysym.Sym == sdl.K_SPACE {
-				y++
-			}
-
-			game.MoveCamera(x, y, z)
+			commands = append(commands, &ant.CameraViewCommand{X: float64(e.XRel), Y: float64(e.YRel)})
 		}
 	}
+
+	return commands
 }
 
 func main() {
 	game := ant.NewGame()
-	game.Start(CommandPoller)
+	inputHandler := NewInputHandler()
+	game.Start(inputHandler.CommandPoller)
 	sdl.Quit()
 }

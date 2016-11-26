@@ -23,7 +23,9 @@ const (
 )
 
 var (
-	fps = 60.0
+	fps                 = 60.0
+	cameraStartPosition = vector.Vector3{X: 0, Y: 1, Z: 10}
+	cameraStartView     = vector.Vector{X: 0, Y: 0}
 )
 
 func setupGrass() {
@@ -35,11 +37,11 @@ func setupGrass() {
 	grass.New(0, 0, 0)
 }
 
-func setupSystems() *directory.Directory {
+func setupSystems(camera *Camera) *directory.Directory {
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
 	assetManager := lib.NewAssetManager(nil, "_assets")
-	renderSystem := render.NewRenderSystem(assetManager)
+	renderSystem := render.NewRenderSystem(assetManager, camera)
 	movementSystem := movement.NewMovementSystem()
 
 	d := directory.GetDirectory()
@@ -59,12 +61,16 @@ type Game struct {
 	worker    *worker.WorkerImpl
 	pathIndex int
 	gameOver  bool
+	camera    *Camera
 }
 
 func NewGame() *Game {
-	g := &Game{}
 	rand.Seed(int64(time.Now().Nanosecond()))
-	setupSystems()
+
+	g := &Game{
+		camera: NewCamera(cameraStartPosition, cameraStartView),
+	}
+	setupSystems(g.camera)
 	setupGrass()
 	food.New(0, 0, 0)
 	g.worker = worker.New()
@@ -90,16 +96,6 @@ func (g *Game) PlaceFood(x, y float64) {
 	food.New(x, 0, y)
 }
 
-func (g *Game) CameraViewChange(x, y float64) {
-	renderSystem := directory.GetDirectory().RenderSystem()
-	renderSystem.CameraViewChange(vector.Vector{X: x, Y: y})
-}
-
-func (g *Game) MoveCamera(x, y, z float64) {
-	renderSystem := directory.GetDirectory().RenderSystem()
-	renderSystem.MoveCamera(vector.Vector3{X: x, Y: y, Z: z})
-}
-
 func (g *Game) GameOver() {
 	g.gameOver = true
 }
@@ -119,6 +115,7 @@ func (g *Game) update(delta time.Duration) {
 	}
 
 	directory := directory.GetDirectory()
+	g.camera.Update(delta)
 	movementSystem := directory.MovementSystem()
 	movementSystem.Update(delta)
 }
@@ -159,7 +156,10 @@ func (g *Game) Start(commandPoller CommandPoller) {
 			pollCount = 0
 		}
 
-		commandPoller(g)
+		commands := commandPoller(g)
+		for _, command := range commands {
+			command.Execute(g)
+		}
 		pollCount++
 
 		accumulator += delta
@@ -176,7 +176,7 @@ func (g *Game) Start(commandPoller CommandPoller) {
 
 		if renderAccumulator >= msPerFrame {
 			frameCount++
-			renderSystem.Update(delta)
+			renderSystem.Update(msPerFrame)
 		}
 
 		for renderAccumulator > msPerFrame {
@@ -185,4 +185,10 @@ func (g *Game) Start(commandPoller CommandPoller) {
 	}
 }
 
-type CommandPoller func(game *Game)
+func (g *Game) CameraViewChange(v vector.Vector) {
+	g.camera.ChangeView(v)
+}
+
+func (g *Game) MoveCamera(v vector.Vector3) {
+	g.camera.SetSpeedInDirection(v)
+}

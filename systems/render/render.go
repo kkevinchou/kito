@@ -22,17 +22,19 @@ import (
 	"github.com/veandco/go-sdl2/sdl_ttf"
 )
 
+type Camera interface {
+	Position() vector.Vector3
+	View() vector.Vector
+}
+
 const (
-	width                       = 800
-	height                      = 600
-	floorPanelDimension         = 1
-	sensitivity         float64 = 0.3
+	width               = 800
+	height              = 600
+	floorPanelDimension = 1
 )
 
 var (
-	textureMap          map[string]uint32
-	cameraStartPosition = vector.Vector3{0, 1, 10}
-	cameraStartView     = vector.Vector{0, 0}
+	textureMap map[string]uint32
 
 	lightPosition = []float32{0, 20, 1, 1}
 	ambient       = []float32{0.1, 0.1, 0.1, 1}
@@ -50,7 +52,7 @@ type Renderables []Renderable
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	window       *sdl.Window
-	camera       *Camera
+	camera       Camera
 	assetManager *lib.AssetManager
 	renderables  Renderables
 	textureMap   map[string]uint32
@@ -69,7 +71,7 @@ func initFont() *ttf.Font {
 	return font
 }
 
-func NewRenderSystem(assetManager *lib.AssetManager) *RenderSystem {
+func NewRenderSystem(assetManager *lib.AssetManager, camera Camera) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic("Failed to init SDL")
 	}
@@ -91,7 +93,7 @@ func NewRenderSystem(assetManager *lib.AssetManager) *RenderSystem {
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,
-		camera:       NewCamera(cameraStartPosition, cameraStartView, 1),
+		camera:       camera,
 	}
 
 	sdl.SetRelativeMouseMode(true)
@@ -144,13 +146,15 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
+	cameraPosition := r.camera.Position()
+	cameraView := r.camera.View()
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
-	gl.Rotatef(float32(r.camera.View.X), 1, 0, 0)
-	gl.Rotatef(float32(r.camera.View.Y), 0, 1, 0)
-	gl.Translatef(float32(-r.camera.Position.X), float32(-r.camera.Position.Y), float32(-r.camera.Position.Z))
+	gl.Rotatef(float32(cameraView.X), 1, 0, 0)
+	gl.Rotatef(float32(cameraView.Y), 0, 1, 0)
+	gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
 	for _, renderable := range r.renderables {
@@ -352,12 +356,4 @@ func drawQuad(texture uint32, x, y, z float32) {
 	gl.End()
 	gl.Disable(gl.TEXTURE_2D)
 
-}
-
-func (r *RenderSystem) CameraViewChange(v vector.Vector) {
-	r.camera.ChangeView(v)
-}
-
-func (r *RenderSystem) MoveCamera(v vector.Vector3) {
-	r.camera.Move(v)
 }

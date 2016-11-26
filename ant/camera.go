@@ -1,47 +1,47 @@
-package render
+package ant
 
 import (
-	"fmt"
 	"math"
+	"time"
 
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
 const (
-	cameraRotationXMax float64 = 80
+	cameraRotationXMax = 80
+	cameraSpeedScalar  = 10
+	sensitivity        = 0.3
 )
 
 type Camera struct {
-	Position vector.Vector3
-	View     vector.Vector
-	speed    float64
+	position vector.Vector3
+	view     vector.Vector
+	speed    vector.Vector3
 }
 
-func NewCamera(position vector.Vector3, view vector.Vector, speed float64) *Camera {
+func NewCamera(position vector.Vector3, view vector.Vector) *Camera {
 	return &Camera{
-		Position: position,
-		View:     view,
-		speed:    speed,
+		position: position,
+		view:     view,
 	}
 }
 
 func (c *Camera) ChangeView(v vector.Vector) {
-	c.View.X += float64(v.Y) * sensitivity
-	c.View.Y += float64(v.X) * sensitivity
+	c.view.X += float64(v.Y) * sensitivity
+	c.view.Y += float64(v.X) * sensitivity
 
-	if c.View.X < -cameraRotationXMax {
-		c.View.X = -cameraRotationXMax
+	if c.view.X < -cameraRotationXMax {
+		c.view.X = -cameraRotationXMax
 	}
 }
 
-func (c *Camera) Move(v vector.Vector3) {
+func (c *Camera) SetSpeedInDirection(v vector.Vector3) {
 	forwardVector := c.backward()
 	forwardVector = forwardVector.Scale(-v.Z)
 
 	rightVector := c.right()
 	rightVector = rightVector.Scale(-v.X)
-
-	c.Position = c.Position.Add(forwardVector).Add(rightVector).Add(vector.Vector3{X: 0, Y: v.Y, Z: 0})
+	c.speed = forwardVector.Add(rightVector).Add(vector.Vector3{X: 0, Y: v.Y, Z: 0})
 }
 
 func toRadians(degrees float64) float64 {
@@ -49,11 +49,11 @@ func toRadians(degrees float64) float64 {
 }
 
 func (c *Camera) backward() vector.Vector3 {
-	xRadianAngle := -toRadians(c.View.X)
+	xRadianAngle := -toRadians(c.view.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
-	yRadianAngle := -(toRadians(c.View.Y) - (math.Pi / 2))
+	yRadianAngle := -(toRadians(c.view.Y) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
 	}
@@ -66,11 +66,11 @@ func (c *Camera) backward() vector.Vector3 {
 }
 
 func (c *Camera) right() vector.Vector3 {
-	xRadianAngle := -toRadians(c.View.X)
+	xRadianAngle := -toRadians(c.view.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
-	yRadianAngle := -(toRadians(c.View.Y) - (math.Pi / 2))
+	yRadianAngle := -(toRadians(c.view.Y) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
 	}
@@ -85,7 +85,17 @@ func (c *Camera) right() vector.Vector3 {
 		v3 = vector.Vector3{X: v2.Z, Y: 0, Z: -v2.X}
 	}
 
-	fmt.Println(v1, v2, v3)
-
 	return v3.Normalize()
+}
+
+func (c *Camera) Update(delta time.Duration) {
+	c.position = c.position.Add(c.speed.Scale(cameraSpeedScalar * delta.Seconds()))
+}
+
+func (c *Camera) Position() vector.Vector3 {
+	return c.position
+}
+
+func (c *Camera) View() vector.Vector {
+	return c.view
 }
