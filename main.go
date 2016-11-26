@@ -74,6 +74,9 @@ func (i *InputHandler) CommandPoller(game *ant.Game) []ant.Command {
 			if e.Keysym.Sym == sdl.K_SPACE {
 				y--
 			}
+			if e.Keysym.Sym == sdl.K_ESCAPE {
+				commands = append(commands, &ant.QuitCommand{})
+			}
 		}
 	}
 
