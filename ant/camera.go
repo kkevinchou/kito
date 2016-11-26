@@ -97,7 +97,7 @@ func (c *Camera) right() vector.Vector3 {
 }
 
 func (c *Camera) Update(delta time.Duration) {
-	c.position = c.position.Add(c.speed.Scale(cameraSpeedScalar * delta.Seconds()))
+	c.position = c.position.Add(c.speed.Normalize().Scale(cameraSpeedScalar * delta.Seconds()))
 }
 
 func (c *Camera) Position() vector.Vector3 {
