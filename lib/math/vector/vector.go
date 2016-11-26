@@ -131,3 +131,7 @@ func (v Vector3) Clamp(max float64) Vector3 {
 func (v Vector3) String() string {
 	return fmt.Sprintf("<Vector3 %f, %f, %f>", v.X, v.Y, v.Z)
 }
+
+func Zero3() Vector3 {
+	return Vector3{}
+}
