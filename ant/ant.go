@@ -133,7 +133,6 @@ func (g *Game) Start(commandPoller CommandPoller) {
 
 	var fpsAccumulator time.Duration
 	frameCount := 0
-	pollCount := 0
 
 	for g.gameOver != true {
 		now := time.Now()
@@ -150,17 +149,13 @@ func (g *Game) Start(commandPoller CommandPoller) {
 			fpsAccumulator -= time.Second
 		}
 		if numWholeSeconds > 0 {
-			// fmt.Println("Frame Count:", frameCount/numWholeSeconds)
-			// fmt.Println("Poll Count:", pollCount/numWholeSeconds)
 			frameCount = 0
-			pollCount = 0
 		}
 
 		commands := commandPoller(g)
 		for _, command := range commands {
 			command.Execute(g)
 		}
-		pollCount++
 
 		accumulator += delta
 		renderAccumulator += delta
