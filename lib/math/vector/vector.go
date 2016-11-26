@@ -96,6 +96,9 @@ func (v Vector3) Length() float64 {
 }
 
 func (v Vector3) Normalize() Vector3 {
+	if v.Length() == 0 {
+		panic("Divison by zero")
+	}
 	return v.Scale(1.0 / v.Length())
 }
 
@@ -126,5 +129,5 @@ func (v Vector3) Clamp(max float64) Vector3 {
 }
 
 func (v Vector3) String() string {
-	return fmt.Sprintf("<Vector3 %f, %f>", v.X, v.Y)
+	return fmt.Sprintf("<Vector3 %f, %f, %f>", v.X, v.Y, v.Z)
 }

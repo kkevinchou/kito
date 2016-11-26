@@ -4,7 +4,6 @@ import (
 	"runtime"
 
 	"github.com/kkevinchou/ant/ant"
-	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -16,6 +15,7 @@ func init() {
 	runtime.LockOSThread()
 }
 
+// TODO: event polling will return no events even though the key is being held down
 func CommandPoller(game *ant.Game) {
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -28,34 +28,27 @@ func CommandPoller(game *ant.Game) {
 				game.PlaceFood(float64(e.X), float64(e.Y))
 			}
 		case *sdl.MouseMotionEvent:
-			game.CameraViewChange(int(e.XRel), int(e.YRel))
+			game.CameraViewChange(float64(e.XRel), float64(e.YRel))
 		case *sdl.KeyUpEvent:
 			if e.Keysym.Sym == sdl.K_ESCAPE {
 				game.GameOver()
 			}
 		case *sdl.KeyDownEvent:
-			cameraMovement := vector.Vector3{}
+			var x, y, z float64
+
 			if e.Keysym.Sym == sdl.K_w {
-				cameraMovement.Z -= 1
+				z--
+			} else if e.Keysym.Sym == sdl.K_s {
+				z++
+			} else if e.Keysym.Sym == sdl.K_a {
+				x--
+			} else if e.Keysym.Sym == sdl.K_d {
+				x++
+			} else if e.Keysym.Sym == sdl.K_SPACE {
+				y++
 			}
 
-			if e.Keysym.Sym == sdl.K_s {
-				cameraMovement.Z += 1
-			}
-
-			if e.Keysym.Sym == sdl.K_a {
-				cameraMovement.X -= 1
-			}
-
-			if e.Keysym.Sym == sdl.K_d {
-				cameraMovement.X += 1
-			}
-
-			if e.Keysym.Sym == sdl.K_SPACE {
-				cameraMovement.Y += 1
-			}
-
-			game.MoveCamera(cameraMovement)
+			game.MoveCamera(x, y, z)
 		}
 	}
 }

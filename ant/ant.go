@@ -1,7 +1,6 @@
 package ant
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -91,14 +90,14 @@ func (g *Game) PlaceFood(x, y float64) {
 	food.New(x, 0, y)
 }
 
-func (g *Game) CameraViewChange(x, y int) {
+func (g *Game) CameraViewChange(x, y float64) {
 	renderSystem := directory.GetDirectory().RenderSystem()
-	renderSystem.CameraViewChange(x, y)
+	renderSystem.CameraViewChange(vector.Vector{X: x, Y: y})
 }
 
-func (g *Game) MoveCamera(v vector.Vector3) {
+func (g *Game) MoveCamera(x, y, z float64) {
 	renderSystem := directory.GetDirectory().RenderSystem()
-	renderSystem.MoveCamera(v)
+	renderSystem.MoveCamera(vector.Vector3{X: x, Y: y, Z: z})
 }
 
 func (g *Game) GameOver() {
@@ -128,15 +127,16 @@ func (g *Game) Start(commandPoller CommandPoller) {
 	rand.Seed(time.Now().Unix())
 
 	previousTime := time.Now()
-	// var accumulator time.Duration
-	// var renderAccumulator time.Duration
+	var accumulator time.Duration
+	var renderAccumulator time.Duration
 
-	// msPerFrame := time.Duration(1000.0/fps) * time.Millisecond
+	msPerFrame := time.Duration(1000000.0/fps) * time.Microsecond
 	directory := directory.GetDirectory()
 	renderSystem := directory.RenderSystem()
 
 	var fpsAccumulator time.Duration
 	frameCount := 0
+	pollCount := 0
 
 	for g.gameOver != true {
 		now := time.Now()
@@ -153,34 +153,35 @@ func (g *Game) Start(commandPoller CommandPoller) {
 			fpsAccumulator -= time.Second
 		}
 		if numWholeSeconds > 0 {
-			fmt.Println(frameCount)
+			// fmt.Println("Frame Count:", frameCount/numWholeSeconds)
+			// fmt.Println("Poll Count:", pollCount/numWholeSeconds)
 			frameCount = 0
+			pollCount = 0
 		}
 
 		commandPoller(g)
+		pollCount++
 
-		g.update(delta)
-		renderSystem.Update(delta)
+		accumulator += delta
+		renderAccumulator += delta
 
-		// accumulator += delta
-		// renderAccumulator += delta
+		for accumulator >= gameUpdateDelta {
+			g.update(gameUpdateDelta)
+			accumulator -= gameUpdateDelta
+		}
+		if accumulator > 0 { // Temporary update to not lose physics time
+			g.update(accumulator)
+			accumulator = 0
+		}
 
-		// for accumulator >= gameUpdateDelta {
-		// 	fmt.Println("UPDATE")
-		// 	g.update(delta)
-		// 	accumulator -= gameUpdateDelta
-		// }
+		if renderAccumulator >= msPerFrame {
+			frameCount++
+			renderSystem.Update(delta)
+		}
 
-		// if renderAccumulator >= msPerFrame {
-		// 	fmt.Println("RENDER")
-		// 	renderSystem.Update(delta)
-		// }
-
-		// for renderAccumulator > msPerFrame {
-		// 	renderAccumulator -= msPerFrame
-		// }
-
-		frameCount++
+		for renderAccumulator > msPerFrame {
+			renderAccumulator -= msPerFrame
+		}
 	}
 }
 

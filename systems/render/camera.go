@@ -1,51 +1,59 @@
 package render
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/kkevinchou/ant/lib/math/vector"
 )
 
-func (r *RenderSystem) CameraViewChange(x, y int) {
-	cameraRotationY += float64(x) * sensitivity
-	cameraRotationX += float64(y) * sensitivity
+const (
+	cameraRotationXMax float64 = 80
+)
 
-	if cameraRotationX < -cameraRotationXMax {
-		cameraRotationX = -cameraRotationXMax
-	}
+type Camera struct {
+	Position vector.Vector3
+	View     vector.Vector
+	speed    float64
+}
 
-	if cameraRotationX > cameraRotationXMax {
-		cameraRotationX = cameraRotationXMax
+func NewCamera(position vector.Vector3, view vector.Vector, speed float64) *Camera {
+	return &Camera{
+		Position: position,
+		View:     view,
+		speed:    speed,
 	}
 }
 
-func (r *RenderSystem) MoveCamera(v vector.Vector3) {
-	forwardX, forwardY, forwardZ := forward()
-	// Moving backwards
-	forwardX *= -v.Z
-	forwardY *= -v.Z
-	forwardZ *= -v.Z
+func (c *Camera) ChangeView(v vector.Vector) {
+	c.View.X += float64(v.Y) * sensitivity
+	c.View.Y += float64(v.X) * sensitivity
 
-	rightX, rightY, rightZ := right()
-	rightX *= -v.X
-	rightY *= -v.X
-	rightZ *= -v.X
+	if c.View.X < -cameraRotationXMax {
+		c.View.X = -cameraRotationXMax
+	}
+}
 
-	cameraX += forwardX + rightX
-	cameraY += forwardY + rightY + v.Y
-	cameraZ += forwardZ + rightZ
+func (c *Camera) Move(v vector.Vector3) {
+	forwardVector := c.backward()
+	forwardVector = forwardVector.Scale(-v.Z)
+
+	rightVector := c.right()
+	rightVector = rightVector.Scale(-v.X)
+
+	c.Position = c.Position.Add(forwardVector).Add(rightVector).Add(vector.Vector3{X: 0, Y: v.Y, Z: 0})
 }
 
 func toRadians(degrees float64) float64 {
 	return degrees / 180 * math.Pi
 }
 
-func forward() (float64, float64, float64) {
-	xRadianAngle := -toRadians(cameraRotationX)
+func (c *Camera) backward() vector.Vector3 {
+	xRadianAngle := -toRadians(c.View.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
-	yRadianAngle := -(toRadians(cameraRotationY) - (math.Pi / 2))
+	yRadianAngle := -(toRadians(c.View.Y) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
 	}
@@ -54,30 +62,30 @@ func forward() (float64, float64, float64) {
 	y := math.Sin(xRadianAngle)
 	z := -math.Sin(yRadianAngle) * math.Cos(xRadianAngle)
 
-	return x, y, z
+	return vector.Vector3{X: x, Y: y, Z: z}
 }
 
-func right() (float64, float64, float64) {
-	xRadianAngle := -toRadians(cameraRotationX)
+func (c *Camera) right() vector.Vector3 {
+	xRadianAngle := -toRadians(c.View.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
-	yRadianAngle := -(toRadians(cameraRotationY) - (math.Pi / 2))
+	yRadianAngle := -(toRadians(c.View.Y) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
 	}
 
 	x, y, z := math.Cos(yRadianAngle), math.Sin(xRadianAngle), -math.Sin(yRadianAngle)
 
-	v1 := vector.Vector3{x, math.Abs(y), z}
-	v2 := vector.Vector3{x, 0, z}
+	v1 := vector.Vector3{X: x, Y: math.Abs(y), Z: z}
+	v2 := vector.Vector3{X: x, Y: 0, Z: z}
 	v3 := v1.Cross(v2)
 
 	if v3.X == 0 && v3.Y == 0 && v3.Z == 0 {
-		v3 = vector.Vector3{v2.Z, 0, -v2.X}
+		v3 = vector.Vector3{X: v2.Z, Y: 0, Z: -v2.X}
 	}
 
-	v3 = v3.Normalize()
+	fmt.Println(v1, v2, v3)
 
-	return v3.X, v3.Y, v3.Z
+	return v3.Normalize()
 }

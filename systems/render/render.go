@@ -14,6 +14,7 @@ import (
 	"github.com/kkevinchou/ant/components"
 	"github.com/kkevinchou/ant/interfaces"
 	"github.com/kkevinchou/ant/lib"
+	"github.com/kkevinchou/ant/lib/math/vector"
 	"github.com/kkevinchou/ant/lib/models"
 	"github.com/kkevinchou/ant/lib/pathing"
 	"github.com/kkevinchou/ant/logger"
@@ -29,14 +30,9 @@ const (
 )
 
 var (
-	textureMap map[string]uint32
-
-	cameraX            float64 = 0
-	cameraY            float64 = 1
-	cameraZ            float64 = 10
-	cameraRotationY    float64 = 0
-	cameraRotationX    float64 = 0
-	cameraRotationXMax float64 = 80
+	textureMap          map[string]uint32
+	cameraStartPosition = vector.Vector3{0, 1, 10}
+	cameraStartView     = vector.Vector{0, 0}
 
 	lightPosition = []float32{0, 20, 1, 1}
 	ambient       = []float32{0.1, 0.1, 0.1, 1}
@@ -54,6 +50,7 @@ type Renderables []Renderable
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	window       *sdl.Window
+	camera       *Camera
 	assetManager *lib.AssetManager
 	renderables  Renderables
 	textureMap   map[string]uint32
@@ -94,6 +91,7 @@ func NewRenderSystem(assetManager *lib.AssetManager) *RenderSystem {
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,
+		camera:       NewCamera(cameraStartPosition, cameraStartView, 1),
 	}
 
 	sdl.SetRelativeMouseMode(true)
@@ -150,9 +148,9 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
-	gl.Rotatef(float32(cameraRotationX), 1, 0, 0)
-	gl.Rotatef(float32(cameraRotationY), 0, 1, 0)
-	gl.Translatef(float32(-cameraX), float32(-cameraY), float32(-cameraZ))
+	gl.Rotatef(float32(r.camera.View.X), 1, 0, 0)
+	gl.Rotatef(float32(r.camera.View.Y), 0, 1, 0)
+	gl.Translatef(float32(-r.camera.Position.X), float32(-r.camera.Position.Y), float32(-r.camera.Position.Z))
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
 	for _, renderable := range r.renderables {
@@ -354,4 +352,12 @@ func drawQuad(texture uint32, x, y, z float32) {
 	gl.End()
 	gl.Disable(gl.TEXTURE_2D)
 
+}
+
+func (r *RenderSystem) CameraViewChange(v vector.Vector) {
+	r.camera.ChangeView(v)
+}
+
+func (r *RenderSystem) MoveCamera(v vector.Vector3) {
+	r.camera.Move(v)
 }
