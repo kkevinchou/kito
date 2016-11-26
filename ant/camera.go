@@ -17,6 +17,12 @@ type Camera struct {
 	position vector.Vector3
 	view     vector.Vector
 	speed    vector.Vector3
+
+	// vector indicating what the camera is being commanded to do.
+	// Forward, Backward, Left, Right, Up
+	// Encoded as a directional vector.
+	// This could potentially be an enum as we only have 5 valid states
+	commandHeading vector.Vector3
 }
 
 func NewCamera(position vector.Vector3, view vector.Vector) *Camera {
@@ -36,12 +42,32 @@ func (c *Camera) ChangeView(v vector.Vector) {
 }
 
 func (c *Camera) SetSpeedInDirection(v vector.Vector3) {
+	c.commandHeading = c.commandHeading.Add(v)
+
+	if c.commandHeading.X > 1 {
+		c.commandHeading.X = 1
+	} else if c.commandHeading.X < -1 {
+		c.commandHeading.X = -1
+	}
+
+	if c.commandHeading.Y > 1 {
+		c.commandHeading.Y = 1
+	} else if c.commandHeading.Y < -1 {
+		c.commandHeading.Y = -1
+	}
+
+	if c.commandHeading.Z > 1 {
+		c.commandHeading.Z = 1
+	} else if c.commandHeading.Z < -1 {
+		c.commandHeading.Z = -1
+	}
+
 	forwardVector := c.backward()
-	forwardVector = forwardVector.Scale(-v.Z)
+	forwardVector = forwardVector.Scale(-c.commandHeading.Z)
 
 	rightVector := c.right()
-	rightVector = rightVector.Scale(-v.X)
-	c.speed = forwardVector.Add(rightVector).Add(vector.Vector3{X: 0, Y: v.Y, Z: 0})
+	rightVector = rightVector.Scale(-c.commandHeading.X)
+	c.speed = forwardVector.Add(rightVector).Add(vector.Vector3{X: 0, Y: c.commandHeading.Y, Z: 0})
 }
 
 func toRadians(degrees float64) float64 {

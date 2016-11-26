@@ -30,30 +30,6 @@ func (i *InputHandler) CommandPoller(game *ant.Game) []ant.Command {
 	commands := []ant.Command{}
 
 	var x, y, z float64
-	if i.KeyState[sdl.SCANCODE_W] > 0 {
-		z--
-	}
-	if i.KeyState[sdl.SCANCODE_S] > 0 {
-		z++
-	}
-	if i.KeyState[sdl.SCANCODE_A] > 0 {
-		x--
-	}
-	if i.KeyState[sdl.SCANCODE_D] > 0 {
-		x++
-	}
-	if i.KeyState[sdl.SCANCODE_SPACE] > 0 {
-		y++
-	}
-
-	if x != 0 || y != 0 || z != 0 {
-		commands = append(commands, &ant.SetCameraSpeed{X: x, Y: y, Z: z})
-	}
-
-	if i.KeyState[sdl.SCANCODE_ESCAPE] > 0 {
-		commands = append(commands, &ant.QuitCommand{})
-	}
-
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
@@ -66,7 +42,43 @@ func (i *InputHandler) CommandPoller(game *ant.Game) []ant.Command {
 			}
 		case *sdl.MouseMotionEvent:
 			commands = append(commands, &ant.CameraViewCommand{X: float64(e.XRel), Y: float64(e.YRel)})
+		case *sdl.KeyDownEvent:
+			if e.Keysym.Sym == sdl.K_w {
+				z--
+			}
+			if e.Keysym.Sym == sdl.K_s {
+				z++
+			}
+			if e.Keysym.Sym == sdl.K_a {
+				x--
+			}
+			if e.Keysym.Sym == sdl.K_d {
+				x++
+			}
+			if e.Keysym.Sym == sdl.K_SPACE {
+				y++
+			}
+		case *sdl.KeyUpEvent:
+			if e.Keysym.Sym == sdl.K_w {
+				z++
+			}
+			if e.Keysym.Sym == sdl.K_s {
+				z--
+			}
+			if e.Keysym.Sym == sdl.K_a {
+				x++
+			}
+			if e.Keysym.Sym == sdl.K_d {
+				x--
+			}
+			if e.Keysym.Sym == sdl.K_SPACE {
+				y--
+			}
 		}
+	}
+
+	if x != 0 || y != 0 || z != 0 {
+		commands = append(commands, &ant.SetCameraSpeed{X: x, Y: y, Z: z})
 	}
 
 	return commands
