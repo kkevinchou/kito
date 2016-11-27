@@ -166,6 +166,10 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			position := renderable.Position()
 			texture := r.textureMap[rData.ID]
 			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
+		} else if rData, ok := renderData.(*components.ItemRenderData); ok {
+			position := renderable.Position()
+			texture := r.textureMap[rData.ID]
+			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
 		} else if _, ok := renderData.(*components.ModelRenderData); ok {
 		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
 			var ok bool

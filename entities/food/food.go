@@ -26,9 +26,9 @@ func New(x, y, z float64) *FoodImpl {
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.ItemComponent = &components.ItemComponent{}
 
-	renderData := &components.TextureRenderData{
-		Visible: true,
-		ID:      "mushroom-gills",
+	renderData := &components.ItemRenderData{
+		ID:     "mushroom-gills",
+		Entity: entity,
 	}
 
 	entity.RenderComponent = &components.RenderComponent{

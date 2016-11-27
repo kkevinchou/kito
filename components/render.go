@@ -1,5 +1,7 @@
 package components
 
+import "github.com/kkevinchou/ant/interfaces"
+
 type RenderData interface {
 	IsVisible() bool
 }
@@ -20,6 +22,15 @@ type ModelRenderData struct {
 
 func (m *ModelRenderData) IsVisible() bool {
 	return m.Visible
+}
+
+type ItemRenderData struct {
+	ID     string
+	Entity interfaces.Ownable
+}
+
+func (t *ItemRenderData) IsVisible() bool {
+	return !t.Entity.Owned()
 }
 
 type RenderComponent struct {
