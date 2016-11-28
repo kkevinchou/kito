@@ -1,11 +1,7 @@
-simple aesthetic like mini metro
-
 TODO
 
-use observer pattern for setting messages via blackboard to/from components
-Decide whether moving along a single vertex is allowed
 
-Hide Food if picked up
+Decide whether moving along a single vertex is allowed
 
 BUGS
 
