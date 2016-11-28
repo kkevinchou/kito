@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/behavior/worker"
+	"github.com/kkevinchou/kito/behavior/worker"
 )
 
 func main() {

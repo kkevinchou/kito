@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-const baseDirectory = "/Users/kevinchou/go/src/github.com/kkevinchou/ant/assets/animations"
+const baseDirectory = "/Users/kevinchou/go/src/github.com/kkevinchou/kito/assets/animations"
 
 func main() {
 	directory := filepath.Join(baseDirectory, "grass")

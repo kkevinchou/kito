@@ -1,6 +1,6 @@
 package components
 
-import "github.com/kkevinchou/ant/interfaces"
+import "github.com/kkevinchou/kito/interfaces"
 
 type ItemComponent struct {
 	owner interfaces.ItemReceiver

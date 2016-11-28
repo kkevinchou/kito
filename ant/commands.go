@@ -1,6 +1,6 @@
 package ant
 
-import "github.com/kkevinchou/ant/lib/math/vector"
+import "github.com/kkevinchou/kito/lib/math/vector"
 
 type CommandPoller func(game *Game) []Command
 

@@ -3,7 +3,7 @@ package main
 import (
 	"runtime"
 
-	"github.com/kkevinchou/ant/ant"
+	"github.com/kkevinchou/kito/ant"
 	"github.com/veandco/go-sdl2/sdl"
 )
 

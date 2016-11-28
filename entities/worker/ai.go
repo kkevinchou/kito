@@ -3,7 +3,7 @@ package worker
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/behavior"
+	"github.com/kkevinchou/kito/behavior"
 )
 
 type AIComponent struct {

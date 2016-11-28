@@ -3,8 +3,8 @@ package connectors
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/behavior"
-	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/kito/behavior"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type Position struct {

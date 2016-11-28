@@ -3,7 +3,7 @@ package components
 import (
 	"fmt"
 
-	"github.com/kkevinchou/ant/interfaces"
+	"github.com/kkevinchou/kito/interfaces"
 )
 
 type InventoryComponent struct {

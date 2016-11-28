@@ -4,7 +4,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 const (

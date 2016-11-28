@@ -3,7 +3,7 @@ package geometry
 import (
 	"testing"
 
-	"github.com/kkevinchou/ant/lib/geometry"
+	"github.com/kkevinchou/kito/lib/geometry"
 )
 
 func defaultPolygon() *geometry.Polygon {

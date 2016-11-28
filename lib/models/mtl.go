@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type Material struct {

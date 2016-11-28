@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 // Source: https://gist.github.com/davemackintosh/67959fa9dfd9018d79a4

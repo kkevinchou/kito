@@ -3,7 +3,7 @@ package logger
 import (
 	"fmt"
 
-	"github.com/kkevinchou/ant/settings"
+	"github.com/kkevinchou/kito/settings"
 )
 
 func Debug(message string) {

@@ -1,6 +1,6 @@
 package interfaces
 
-import "github.com/kkevinchou/ant/lib/math/vector"
+import "github.com/kkevinchou/kito/lib/math/vector"
 
 type Item interface {
 	Positionable

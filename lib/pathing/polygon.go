@@ -3,8 +3,8 @@ package pathing
 import (
 	"fmt"
 
-	"github.com/kkevinchou/ant/lib/geometry"
-	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/kito/lib/geometry"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 // Assumptions for pathfinding

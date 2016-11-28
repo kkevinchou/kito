@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kkevinchou/ant/animation"
+	"github.com/kkevinchou/kito/animation"
 )
 
 func TestBlah(t *testing.T) {

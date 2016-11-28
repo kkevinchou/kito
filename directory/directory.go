@@ -3,11 +3,11 @@ package directory
 import (
 	"sync"
 
-	"github.com/kkevinchou/ant/lib"
-	"github.com/kkevinchou/ant/managers/item"
-	"github.com/kkevinchou/ant/managers/path"
-	"github.com/kkevinchou/ant/systems/movement"
-	"github.com/kkevinchou/ant/systems/render"
+	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/managers/item"
+	"github.com/kkevinchou/kito/managers/path"
+	"github.com/kkevinchou/kito/systems/movement"
+	"github.com/kkevinchou/kito/systems/render"
 )
 
 // type EventType int

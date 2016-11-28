@@ -3,9 +3,9 @@ package behavior
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/directory"
-	"github.com/kkevinchou/ant/interfaces"
-	"github.com/kkevinchou/ant/logger"
+	"github.com/kkevinchou/kito/directory"
+	"github.com/kkevinchou/kito/interfaces"
+	"github.com/kkevinchou/kito/logger"
 )
 
 type PickupItem struct {

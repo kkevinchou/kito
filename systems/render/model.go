@@ -2,7 +2,7 @@ package render
 
 import (
 	"github.com/go-gl/gl/v2.1/gl"
-	"github.com/kkevinchou/ant/lib/models"
+	"github.com/kkevinchou/kito/lib/models"
 )
 
 func (r *RenderSystem) renderModel(model *models.Model) {

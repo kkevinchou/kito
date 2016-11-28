@@ -1,8 +1,8 @@
 package pathing
 
 import (
-	"github.com/kkevinchou/ant/components"
-	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type NavMeshRenderData struct {

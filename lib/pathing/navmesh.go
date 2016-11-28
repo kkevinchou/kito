@@ -3,7 +3,7 @@ package pathing
 import (
 	"fmt"
 
-	"github.com/kkevinchou/ant/lib/geometry"
+	"github.com/kkevinchou/kito/lib/geometry"
 )
 
 // Portals are edges that have a deterministic ordering of nodes

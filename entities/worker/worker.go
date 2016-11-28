@@ -3,12 +3,12 @@ package worker
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/components"
-	"github.com/kkevinchou/ant/components/physics"
-	"github.com/kkevinchou/ant/components/steering"
-	"github.com/kkevinchou/ant/directory"
-	"github.com/kkevinchou/ant/interfaces"
-	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/components/physics"
+	"github.com/kkevinchou/kito/components/steering"
+	"github.com/kkevinchou/kito/directory"
+	"github.com/kkevinchou/kito/interfaces"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type Worker interface {

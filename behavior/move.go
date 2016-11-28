@@ -3,12 +3,12 @@ package behavior
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/directory"
-	"github.com/kkevinchou/ant/interfaces"
-	"github.com/kkevinchou/ant/lib/geometry"
-	"github.com/kkevinchou/ant/lib/math/vector"
-	"github.com/kkevinchou/ant/lib/pathing"
-	"github.com/kkevinchou/ant/logger"
+	"github.com/kkevinchou/kito/directory"
+	"github.com/kkevinchou/kito/interfaces"
+	"github.com/kkevinchou/kito/lib/geometry"
+	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/lib/pathing"
+	"github.com/kkevinchou/kito/logger"
 )
 
 type Mover interface {

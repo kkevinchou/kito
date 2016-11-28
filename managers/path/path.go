@@ -1,8 +1,8 @@
 package path
 
 import (
-	"github.com/kkevinchou/ant/lib/geometry"
-	"github.com/kkevinchou/ant/lib/pathing"
+	"github.com/kkevinchou/kito/lib/geometry"
+	"github.com/kkevinchou/kito/lib/pathing"
 )
 
 func sqWithOffset(size, xOffset, yOffset, zOffset float64) *geometry.Polygon {

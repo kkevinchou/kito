@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/kkevinchou/ant/interfaces"
+	"github.com/kkevinchou/kito/interfaces"
 )
 
 type Manager struct {

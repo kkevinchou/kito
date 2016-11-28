@@ -3,8 +3,8 @@ package physics
 import (
 	"time"
 
-	"github.com/kkevinchou/ant/interfaces"
-	"github.com/kkevinchou/ant/lib/math/vector"
+	"github.com/kkevinchou/kito/interfaces"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type PhysicsComponent struct {
