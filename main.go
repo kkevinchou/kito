@@ -3,12 +3,12 @@ package main
 import (
 	"runtime"
 
-	"github.com/kkevinchou/kito/ant"
+	"github.com/kkevinchou/kito/kito"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 func init() {
-	// We want to lock the main thread to this goroutine.  Otherwise,
+	// We wkito to lock the main thread to this goroutine.  Otherwise,
 	// SDL rendering will randomly panic
 	//
 	// For more details: https://github.com/golang/go/wiki/LockOSThread
@@ -24,7 +24,7 @@ func NewInputHandler() *InputHandler {
 }
 
 // TODO: event polling will return no events even though the key is being held down
-func (i *InputHandler) CommandPoller(game *ant.Game) []ant.Command {
+func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 	sdl.PumpEvents()
 	var x, y, z float64
 
@@ -44,34 +44,34 @@ func (i *InputHandler) CommandPoller(game *ant.Game) []ant.Command {
 		y++
 	}
 
-	commands := []ant.Command{}
+	commands := []kito.Command{}
 
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
 		case *sdl.QuitEvent:
-			commands = append(commands, &ant.QuitCommand{})
+			commands = append(commands, &kito.QuitCommand{})
 		case *sdl.MouseButtonEvent:
 			if e.State == 0 { // Mouse Up
-				// game.MoveAnt(float64(e.X), float64(e.Y))
+				// game.Movekito(float64(e.X), float64(e.Y))
 				game.PlaceFood(float64(e.X), float64(e.Y))
 			}
 		case *sdl.MouseMotionEvent:
-			commands = append(commands, &ant.CameraViewCommand{X: float64(e.XRel), Y: float64(e.YRel)})
+			commands = append(commands, &kito.CameraViewCommand{X: float64(e.XRel), Y: float64(e.YRel)})
 		case *sdl.KeyUpEvent:
 			if e.Keysym.Sym == sdl.K_ESCAPE {
-				commands = append(commands, &ant.QuitCommand{})
+				commands = append(commands, &kito.QuitCommand{})
 			}
 		}
 	}
 
-	commands = append(commands, &ant.SetCameraSpeed{X: x, Y: y, Z: z})
+	commands = append(commands, &kito.SetCameraSpeed{X: x, Y: y, Z: z})
 
 	return commands
 }
 
 func main() {
-	game := ant.NewGame()
+	game := kito.NewGame()
 	inputHandler := NewInputHandler()
 	game.Start(inputHandler.CommandPoller)
 	sdl.Quit()

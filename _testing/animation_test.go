@@ -8,7 +8,7 @@ import (
 )
 
 func TestBlah(t *testing.T) {
-	a := animation.Load("../assets/animations/ant")
+	a := animation.Load("../assets/animations/kito")
 	a.Update(time.Second * 1)
 	t.Fail()
 }

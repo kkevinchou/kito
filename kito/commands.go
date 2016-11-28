@@ -1,4 +1,4 @@
-package ant
+package kito
 
 import "github.com/kkevinchou/kito/lib/math/vector"
 
