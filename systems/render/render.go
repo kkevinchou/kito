@@ -11,13 +11,14 @@ import (
 	"time"
 
 	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/lib/math/matrix"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/pathing"
-	"github.com/kkevinchou/kito/logger"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_ttf"
 )
@@ -25,6 +26,7 @@ import (
 type Camera interface {
 	Position() vector.Vector3
 	View() vector.Vector
+	SetModelViewMatrix(mgl32.Mat4)
 }
 
 const (
@@ -40,6 +42,7 @@ var (
 	ambient       = []float32{0.1, 0.1, 0.1, 1}
 	diffuse       = []float32{1, 1, 1, 1}
 	specular      = []float32{1, 1, 1, 1}
+	point         vector.Vector
 )
 
 type Renderable interface {
@@ -58,6 +61,9 @@ type RenderSystem struct {
 	textureMap   map[string]uint32
 	modelMap     map[string]*models.Model
 }
+
+var lineStart vector.Vector3
+var lineEnd vector.Vector3
 
 func initFont() *ttf.Font {
 	ttf.Init()
@@ -96,7 +102,7 @@ func NewRenderSystem(assetManager *lib.AssetManager, camera Camera) *RenderSyste
 		camera:       camera,
 	}
 
-	sdl.SetRelativeMouseMode(true)
+	sdl.SetRelativeMouseMode(false)
 	sdl.GL_SetSwapInterval(0)
 
 	gl.Enable(gl.LIGHTING)
@@ -155,6 +161,13 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Rotatef(float32(cameraView.X), 1, 0, 0)
 	gl.Rotatef(float32(cameraView.Y), 0, 1, 0)
 	gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
+
+	// Get the model view matrix
+	mvMatrixValues := make([]float32, 16)
+	gl.GetFloatv(gl.MODELVIEW_MATRIX, &mvMatrixValues[0])
+	mvMatrix := matrix.Mat4FromValues(mvMatrixValues)
+	r.camera.SetModelViewMatrix(mvMatrix)
+
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
 	for _, renderable := range r.renderables {
@@ -175,8 +188,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			var ok bool
 			var navmesh *pathing.NavMesh
 			if navmesh, ok = renderable.(*pathing.NavMesh); !ok {
-				logger.Debug("FAILED TO CAST NAVMESH")
-				continue
+				panic("FAILED TO CAST NAVMESH")
 			}
 
 			polygons := navmesh.Polygons()
@@ -198,11 +210,22 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		}
 	}
 
+	drawLine(lineStart, lineEnd)
+
 	// TODO: For some reason I need to bind a texture before rendering a model or else the lighting looks off...
 	gl.BindTexture(gl.TEXTURE_2D, r.textureMap["mushroom-gills"])
 	// drawFloor()
 	r.renderModel(r.modelMap["oak"])
 	sdl.GL_SwapWindow(r.window)
+}
+
+func drawLine(start, end vector.Vector3) {
+	gl.LineWidth(2.5)
+	gl.Color3f(1.0, 0.0, 0.0)
+	gl.Begin(gl.LINES)
+	gl.Vertex3f(float32(start.X), float32(start.Y), float32(start.Z))
+	gl.Vertex3f(float32(end.X), float32(end.Y), float32(end.Z))
+	gl.End()
 }
 
 func drawFloor() {
@@ -359,5 +382,4 @@ func drawQuad(texture uint32, x, y, z float32) {
 
 	gl.End()
 	gl.Disable(gl.TEXTURE_2D)
-
 }

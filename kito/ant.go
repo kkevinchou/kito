@@ -24,7 +24,7 @@ const (
 
 var (
 	fps                 = 60.0
-	cameraStartPosition = vector.Vector3{X: 0, Y: 1, Z: 10}
+	cameraStartPosition = vector.Vector3{X: 0, Y: 0, Z: 5}
 	cameraStartView     = vector.Vector{X: 0, Y: 0}
 )
 

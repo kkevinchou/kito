@@ -43,6 +43,9 @@ func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 	if i.KeyState[sdl.SCANCODE_SPACE] > 0 {
 		y++
 	}
+	if i.KeyState[sdl.SCANCODE_LSHIFT] > 0 {
+		y--
+	}
 
 	commands := []kito.Command{}
 
@@ -52,9 +55,16 @@ func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 		case *sdl.QuitEvent:
 			commands = append(commands, &kito.QuitCommand{})
 		case *sdl.MouseButtonEvent:
-			if e.State == 0 { // Mouse Up
-				// game.Movekito(float64(e.X), float64(e.Y))
-				game.PlaceFood(float64(e.X), float64(e.Y))
+			if e.State == sdl.RELEASED { // Mouse Up
+				if e.Button == sdl.BUTTON_LEFT {
+					commands = append(commands, &kito.CameraRaycastCommand{X: float64(e.X), Y: float64(e.Y)})
+				} else if e.Button == sdl.BUTTON_RIGHT {
+					commands = append(commands, &kito.SetCameraControlCommand{Value: false})
+				}
+			} else if e.State == sdl.PRESSED {
+				if e.Button == sdl.BUTTON_RIGHT {
+					commands = append(commands, &kito.SetCameraControlCommand{Value: true})
+				}
 			}
 		case *sdl.MouseMotionEvent:
 			commands = append(commands, &kito.CameraViewCommand{X: float64(e.XRel), Y: float64(e.YRel)})
