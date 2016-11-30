@@ -18,6 +18,7 @@ func (p *Planner) SetNavMesh(navmesh *NavMesh) {
 	p.navmesh = navmesh
 }
 
+// FindPath finds a path from start to goal. The path returned does not include the start node.
 func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 	roughPath := p.findNodePath(start, goal)
 	if roughPath == nil {
@@ -27,9 +28,8 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []Node {
 	startNode := Node{X: start.X, Y: start.Y, Z: start.Z}
 	goalNode := Node{X: goal.X, Y: goal.Y, Z: goal.Z}
 
-	// TODO: is this the best way to handle start == goal?
 	if startNode == goalNode {
-		return []Node{startNode, goalNode}
+		return []Node{goalNode}
 	}
 
 	portals := findPortals(startNode, goalNode, roughPath)

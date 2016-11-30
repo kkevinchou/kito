@@ -49,7 +49,6 @@ func (p *Polygon) Edges() []Edge {
 	return edges
 }
 
-// TODO: this doesn't currently do high calculations to see if the point is actually on the polygon
 // We consider the borders to be inclusive, may be subject to change in the future
 func (p *Polygon) ContainsPoint(point Point) bool {
 	n := len(p.points)
