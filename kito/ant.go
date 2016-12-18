@@ -9,7 +9,6 @@ import (
 	"github.com/kkevinchou/kito/entities/grass"
 	"github.com/kkevinchou/kito/entities/worker"
 	"github.com/kkevinchou/kito/lib"
-	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/pathing"
 	"github.com/kkevinchou/kito/managers/item"
@@ -79,18 +78,18 @@ func NewGame() *Game {
 	return g
 }
 
-func (g *Game) MoveAnt(x, y float64) {
-	position := g.worker.Position()
-	pathManager := directory.GetDirectory().PathManager()
-	g.path = pathManager.FindPath(
-		geometry.Point{X: position.X, Y: position.Y},
-		geometry.Point{X: x, Y: y},
-	)
-	if g.path != nil {
-		g.pathIndex = 1
-		g.worker.SetTarget(g.path[1].Vector3())
-	}
-}
+// func (g *Game) MoveAnt(x, y float64) {
+// 	position := g.worker.Position()
+// 	pathManager := directory.GetDirectory().PathManager()
+// 	g.path = pathManager.FindPath(
+// 		geometry.Point{X: position.X, Y: position.Y},
+// 		geometry.Point{X: x, Y: y},
+// 	)
+// 	if g.path != nil {
+// 		g.pathIndex = 1
+// 		g.worker.SetTarget(g.path[1].Vector3())
+// 	}
+// }
 
 func (g *Game) PlaceFood(x, y float64) {
 	food.New(x, 0, y)

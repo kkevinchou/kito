@@ -55,7 +55,7 @@ func TestWithNewApex(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 13, Y: 0, Z: 7}, geometry.Point{X: 18, Y: 0, Z: 5})
-	expectedPath := []Node{Node{X: 13, Y: 0, Z: 7}, Node{X: 17, Y: 0, Z: 8}, Node{X: 18, Y: 0, Z: 5}}
+	expectedPath := []geometry.Point{geometry.Point{X: 13, Y: 0, Z: 7}, geometry.Point{X: 17, Y: 0, Z: 8}, geometry.Point{X: 18, Y: 0, Z: 5}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -72,10 +72,13 @@ func TestSmoothing(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 1, Y: 0, Z: 1}, geometry.Point{X: 17, Y: 0, Z: 5})
-	expectedPath := []Node{Node{X: 1, Y: 0, Z: 1}, Node{X: 17, Y: 0, Z: 5}}
+	expectedPath := []geometry.Point{geometry.Point{X: 1, Y: 0, Z: 1}, geometry.Point{X: 17, Y: 0, Z: 5}}
 	assertPathEq(t, expectedPath, path)
 }
 
+// X X X
+//     X
+//     X X
 func TestTwoApexes(t *testing.T) {
 	polygons := []*geometry.Polygon{
 		sqWithOffset(30, 0, 0),
@@ -91,7 +94,7 @@ func TestTwoApexes(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 110, Y: 0, Z: 69})
-	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 60, Y: 0, Z: 30}, Node{X: 90, Y: 0, Z: 60}, Node{X: 110, Y: 0, Z: 69}}
+	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0}, geometry.Point{X: 60, Y: 0, Z: 30}, geometry.Point{X: 90, Y: 0, Z: 60}, geometry.Point{X: 110, Y: 0, Z: 69}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -106,7 +109,7 @@ func TestStartNodeOverlapsNode(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 50, Y: 0, Z: 20})
-	expectedPath := []Node{Node{X: 0, Y: 0, Z: 0}, Node{X: 50, Y: 0, Z: 20}}
+	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 50, Y: 0, Z: 20}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -121,7 +124,7 @@ func TestGoalNodeOverlapsNode(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 1, Y: 0, Z: 1}, geometry.Point{X: 30, Y: 0, Z: 30})
-	expectedPath := []Node{Node{X: 1, Y: 0, Z: 1}, Node{X: 30, Y: 0, Z: 30}}
+	expectedPath := []geometry.Point{geometry.Point{X: 1, Y: 0, Z: 1}, geometry.Point{X: 30, Y: 0, Z: 30}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -137,7 +140,7 @@ func TestStartAndGoalNodeOverlapsNode(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 30, Y: 0, Z: 60})
-	expectedPath := []Node{Node{X: 0, Y: 0, Z: 0}, Node{X: 30, Y: 0, Z: 30}, Node{X: 30, Y: 0, Z: 60}}
+	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 30, Y: 0, Z: 30}, geometry.Point{X: 30, Y: 0, Z: 60}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -155,7 +158,7 @@ func TestReverseC(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 20, Y: 0, Z: 140})
-	expectedPath := []Node{Node{X: 0, Y: 0}, Node{X: 60, Y: 0, Z: 60}, Node{X: 60, Y: 0, Z: 120}, Node{X: 20, Y: 0, Z: 140}}
+	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0}, geometry.Point{X: 60, Y: 0, Z: 60}, geometry.Point{X: 60, Y: 0, Z: 120}, geometry.Point{X: 20, Y: 0, Z: 140}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -173,7 +176,7 @@ func TestC(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 80, Y: 0, Z: 20}, geometry.Point{X: 80, Y: 0, Z: 140})
-	expectedPath := []Node{Node{X: 80, Y: 0, Z: 20}, Node{X: 60, Y: 0, Z: 60}, Node{X: 60, Y: 0, Z: 120}, Node{X: 80, Y: 0, Z: 140}}
+	expectedPath := []geometry.Point{geometry.Point{X: 80, Y: 0, Z: 20}, geometry.Point{X: 60, Y: 0, Z: 60}, geometry.Point{X: 60, Y: 0, Z: 120}, geometry.Point{X: 80, Y: 0, Z: 140}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -189,7 +192,7 @@ func TestOnEdgeToApex(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: -20, Y: 0, Z: 60})
-	expectedPath := []Node{Node{X: 0, Y: 0, Z: 30}, Node{X: 0, Y: 0, Z: 60}, Node{X: -20, Y: 0, Z: 60}}
+	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: 0, Y: 0, Z: 60}, geometry.Point{X: -20, Y: 0, Z: 60}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -217,7 +220,7 @@ func TestStartEqualsGoal(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: 0, Y: 0, Z: 30})
-	expectedPath := []Node{Node{X: 0, Y: 0, Z: 30}}
+	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 30}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -241,14 +244,14 @@ func sqWithXOffset(offset float64) *geometry.Polygon {
 	return geometry.NewPolygon(points)
 }
 
-func assertPathEq(t *testing.T, expected, actual []Node) {
+func assertPathEq(t *testing.T, expected, actual []geometry.Point) {
 	if len(actual) != len(expected) {
-		t.Fatalf("Expected: %s Actual: %s", expected, actual)
+		t.Fatalf("Expected: %v Actual: %v", expected, actual)
 	}
 
-	for i, node := range actual {
-		if node != expected[i] {
-			t.Fatalf("Expected: %s Actual: %s", expected, actual)
+	for i, point := range actual {
+		if point != expected[i] {
+			t.Fatalf("Expected: %v Actual: %v", expected, actual)
 		}
 	}
 }

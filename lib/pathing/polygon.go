@@ -13,19 +13,13 @@ import (
 
 type Polygon struct {
 	*geometry.Polygon
-	neighbors map[*Polygon]Portal
 }
 
 // TODO: just store x,y,z in a vector??
 type Node struct {
-	X       float64
-	Y       float64
-	Z       float64
-	Polygon *Polygon
-}
-
-func (n Node) PositionEquals(other Node) bool {
-	return (n.X == other.X) && (n.Y == other.Y) && (n.Z == other.Z)
+	X float64
+	Y float64
+	Z float64
 }
 
 func (n Node) Vector3() vector.Vector3 {

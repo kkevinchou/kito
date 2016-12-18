@@ -6,43 +6,48 @@ import (
 	"github.com/kkevinchou/kito/lib/geometry"
 )
 
+type NavNode struct {
+	Point   geometry.Point
+	Polygon *geometry.Polygon
+}
+
 // Portals are edges that have a deterministic ordering of nodes
 // for predictable map lookups.
 // TODO: maybe define another node type that doesn't have a polygon pointer?
 // chance of bugs occuring where two ordered edges don't equal due to the
 // polygon pointer
 type Portal struct {
-	Node1 Node
-	Node2 Node
+	Point1 geometry.Point
+	Point2 geometry.Point
 }
 
 func (p Portal) String() string {
-	return fmt.Sprintf("P{%s, %s}", p.Node1, p.Node2)
+	return fmt.Sprintf("P{%v, %v}", p.Point1, p.Point2)
 }
 
-func CreatePortal(node1, node2 Node) Portal {
-	node1.Polygon = nil
-	node2.Polygon = nil
-	if node1.Less(node2) {
-		return Portal{Node1: node1, Node2: node2}
-	} else {
-		return Portal{Node1: node2, Node2: node1}
-	}
+func CreatePortal(point1, point2 geometry.Point) Portal {
+	return Portal{Point1: point1, Point2: point2}
 }
 
 type NavMesh struct {
-	neighbors map[Node][]Node
-	costs     map[Node]map[Node]float64
-	polygons  []*Polygon
-	portals   map[Portal][]*Polygon
+	neighbors        map[NavNode][]NavNode
+	costs            map[NavNode]map[NavNode]float64
+	polygons         []*geometry.Polygon
+	portalToPolygons map[Portal][]*geometry.Polygon
+
+	polyPairToPortal map[*geometry.Polygon]map[*geometry.Polygon]Portal
+	pointToPolygons  map[geometry.Point][]*geometry.Polygon
+
 	*RenderComponent
 }
 
 func ConstructNavMesh(polygons []*geometry.Polygon) *NavMesh {
 	navmesh := &NavMesh{
-		neighbors: map[Node][]Node{},
-		costs:     map[Node]map[Node]float64{},
-		portals:   map[Portal][]*Polygon{},
+		neighbors:        map[NavNode][]NavNode{},
+		costs:            map[NavNode]map[NavNode]float64{},
+		portalToPolygons: map[Portal][]*geometry.Polygon{},
+		polyPairToPortal: map[*geometry.Polygon]map[*geometry.Polygon]Portal{},
+		pointToPolygons:  map[geometry.Point][]*geometry.Polygon{},
 	}
 
 	for _, polygon := range polygons {
@@ -58,100 +63,116 @@ func ConstructNavMesh(polygons []*geometry.Polygon) *NavMesh {
 
 	return navmesh
 }
-func (nm *NavMesh) Polygons() []*Polygon {
+func (nm *NavMesh) Polygons() []*geometry.Polygon {
 	return nm.polygons
 }
 
-func (nm *NavMesh) AddPolygon(geoPolygon *geometry.Polygon) {
-	polygon := &Polygon{Polygon: geoPolygon}
-	polygon.neighbors = map[*Polygon]Portal{}
-
+func (nm *NavMesh) AddPolygon(polygon *geometry.Polygon) {
 	nm.polygons = append(nm.polygons, polygon)
 	for _, point1 := range polygon.Points() {
-		node1 := Node{X: point1.X, Y: point1.Y, Z: point1.Z, Polygon: polygon}
+		nm.pointToPolygons[point1] = append(nm.pointToPolygons[point1], polygon)
+
 		for _, point2 := range polygon.Points() {
-			node2 := Node{X: point2.X, Y: point2.Y, Z: point2.Z, Polygon: polygon}
-			if node1 == node2 {
+			if point1 == point2 {
 				continue
 			}
 
-			nm.addEdge(node1, node2)
+			navNode1 := NavNode{Point: point1, Polygon: polygon}
+			navNode2 := NavNode{Point: point2, Polygon: polygon}
 
-			orderedEdge := CreatePortal(node1, node2)
-			// Setting up and detecting nm.portals could probably be done more efficiently
-			if len(nm.portals[orderedEdge]) == 1 {
-				if nm.portals[orderedEdge][0] != polygon {
+			// TODO: handle duplicate edges being added
+			nm.addEdge(navNode1, navNode2)
+			nm.addEdge(navNode2, navNode1)
+
+			portal := Portal{Point1: point1, Point2: point2}
+
+			// TODO: Setting up and detecting nm.portalToPolygons could probably be done more efficiently
+
+			// Found one half of the portal, complete the other half
+			if len(nm.portalToPolygons[portal]) == 1 {
+				polyWithSharedPortal := nm.portalToPolygons[portal][0]
+				if polyWithSharedPortal != polygon {
 					// Set up the neighbors
-					polygon.neighbors[nm.portals[orderedEdge][0]] = orderedEdge
-					nm.portals[orderedEdge][0].neighbors[polygon] = orderedEdge
+					if _, ok := nm.polyPairToPortal[polygon]; !ok {
+						nm.polyPairToPortal[polygon] = map[*geometry.Polygon]Portal{}
+					}
+					if _, ok := nm.polyPairToPortal[polyWithSharedPortal]; !ok {
+						nm.polyPairToPortal[polyWithSharedPortal] = map[*geometry.Polygon]Portal{}
+					}
 
-					// We've found a portal that connects two pathPolygons, attach the nodes as neighbors
-					nm.addEdge(
-						Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Z: orderedEdge.Node1.Z, Polygon: nm.portals[orderedEdge][0]},
-						Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Z: orderedEdge.Node1.Z, Polygon: polygon},
+					nm.polyPairToPortal[polygon][polyWithSharedPortal] = portal
+					nm.polyPairToPortal[polyWithSharedPortal][polygon] = portal
+
+					// Set points that lie on the same portal to be neighbors to one another
+
+					navNode1 := NavNode{Point: point1, Polygon: polygon}
+					otherNavNode1 := NavNode{Point: point1, Polygon: polyWithSharedPortal}
+
+					nm.neighbors[navNode1] = append(
+						nm.neighbors[navNode1],
+						otherNavNode1,
 					)
 
-					nm.addEdge(
-						Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Z: orderedEdge.Node1.Z, Polygon: polygon},
-						Node{X: orderedEdge.Node1.X, Y: orderedEdge.Node1.Y, Z: orderedEdge.Node1.Z, Polygon: nm.portals[orderedEdge][0]},
+					nm.neighbors[otherNavNode1] = append(
+						nm.neighbors[otherNavNode1],
+						navNode1,
 					)
 
-					nm.addEdge(
-						Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Z: orderedEdge.Node2.Z, Polygon: nm.portals[orderedEdge][0]},
-						Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Z: orderedEdge.Node2.Z, Polygon: polygon},
+					navNode2 := NavNode{Point: point2, Polygon: polygon}
+					otherNavNode2 := NavNode{Point: point2, Polygon: polyWithSharedPortal}
+
+					nm.neighbors[navNode2] = append(
+						nm.neighbors[navNode2],
+						otherNavNode2,
 					)
 
-					nm.addEdge(
-						Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Z: orderedEdge.Node2.Z, Polygon: polygon},
-						Node{X: orderedEdge.Node2.X, Y: orderedEdge.Node2.Y, Z: orderedEdge.Node2.Z, Polygon: nm.portals[orderedEdge][0]},
+					nm.neighbors[otherNavNode2] = append(
+						nm.neighbors[otherNavNode2],
+						navNode2,
 					)
 				}
-			} else {
-				nm.portals[orderedEdge] = append(nm.portals[orderedEdge], polygon)
 			}
+			nm.portalToPolygons[portal] = append(nm.portalToPolygons[portal], polygon)
 		}
 	}
 }
 
-func (nm *NavMesh) addEdge(from, to Node) {
+func (nm *NavMesh) GetPortalFromPolyPair(poly1, poly2 *geometry.Polygon) Portal {
+	return Portal{}
+}
+
+// TODO: seems weird that we need to update costs here,
+// an edge will always have the shortest cost between the two points right?
+func (nm *NavMesh) addEdge(from, to NavNode) {
 	if _, ok := nm.neighbors[from]; !ok {
-		nm.neighbors[from] = []Node{}
-		nm.costs[from] = map[Node]float64{}
+		nm.neighbors[from] = []NavNode{}
 	}
-
-	if _, ok := nm.costs[from][to]; !ok {
-		v1 := from.Vector3()
-		v2 := to.Vector3()
-
-		var length float64
-		// TODO: do i need to do this equality check? seems like .Length
-		// will already return 0
-		if (v1.X == v2.X) && (v1.Y == v2.Y) && (v1.Z == v2.Z) {
-			length = 0
-		} else {
-			length = v1.Sub(v2).Length()
-		}
-
-		nm.costs[from][to] = length
-		nm.neighbors[from] = append(nm.neighbors[from], to)
-	}
+	nm.neighbors[from] = append(nm.neighbors[from], to)
 }
 
-// TODO: is this function needed?
-func (nm *NavMesh) Neighbors(node Node) []Node {
-	if neighbors, ok := nm.neighbors[node]; ok {
-		return neighbors
+func (nm *NavMesh) Neighbors(point NavNode) []NavNode {
+	if neighbors, ok := nm.neighbors[point]; ok {
+		return copyPointList(neighbors)
 	}
-	return []Node{}
+	return []NavNode{}
 }
 
-func (nm *NavMesh) Cost(from, to Node) float64 {
-	return nm.costs[from][to]
-}
-
-func (nm *NavMesh) HeuristicCost(from, to Node) float64 {
+func (nm *NavMesh) Cost(from, to geometry.Point) float64 {
 	v1 := from.Vector3()
 	v2 := to.Vector3()
 
-	return v1.Sub(v2).Length()
+	var length float64
+	// TODO: do i need to do this equality check? seems like .Length
+	// will already return 0
+	if (v1.X == v2.X) && (v1.Y == v2.Y) && (v1.Z == v2.Z) {
+		length = 0
+	} else {
+		length = v1.Sub(v2).Length()
+	}
+
+	return length
+}
+
+func copyPointList(points []NavNode) []NavNode {
+	return append([]NavNode{}, points...)
 }
