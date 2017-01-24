@@ -114,16 +114,8 @@ type Manager struct {
 	navMesh *pathing.NavMesh
 }
 
-func (m *Manager) FindPath(start, goal geometry.Point) []pathing.Node {
-	points := m.planner.FindPath(start, goal)
-	result := []pathing.Node{}
-	if points == nil {
-		return nil
-	}
-	for _, p := range points {
-		result = append(result, pathing.Node{X: p.X, Y: p.Y, Z: p.Z})
-	}
-	return result
+func (m *Manager) FindPath(start, goal geometry.Point) []geometry.Point {
+	return m.planner.FindPath(start, goal)
 }
 
 func (m *Manager) NavMesh() *pathing.NavMesh {

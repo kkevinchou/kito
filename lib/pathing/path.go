@@ -29,7 +29,7 @@ func (p *Planner) SetNavMesh(navmesh *NavMesh) {
 // FindPath finds a path from start to goal. The path returned does not include the start node.
 func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []geometry.Point {
 	if start == goal {
-		return []geometry.Point{goal}
+		return []geometry.Point{start, goal}
 	}
 
 	roughPath := p.findPath(start, goal)

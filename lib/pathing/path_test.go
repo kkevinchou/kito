@@ -220,7 +220,7 @@ func TestStartEqualsGoal(t *testing.T) {
 	p.SetNavMesh(navmesh)
 
 	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: 0, Y: 0, Z: 30})
-	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 30}}
+	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: 0, Y: 0, Z: 30}}
 	assertPathEq(t, expectedPath, path)
 }
 

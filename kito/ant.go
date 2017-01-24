@@ -9,8 +9,8 @@ import (
 	"github.com/kkevinchou/kito/entities/grass"
 	"github.com/kkevinchou/kito/entities/worker"
 	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/lib/math/vector"
-	"github.com/kkevinchou/kito/lib/pathing"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
 	"github.com/kkevinchou/kito/systems/movement"
@@ -56,7 +56,7 @@ func setupSystems(camera *Camera) *directory.Directory {
 }
 
 type Game struct {
-	path      []pathing.Node
+	path      []geometry.Point
 	worker    *worker.WorkerImpl
 	pathIndex int
 	gameOver  bool

@@ -7,7 +7,6 @@ import (
 	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/lib/math/vector"
-	"github.com/kkevinchou/kito/lib/pathing"
 	"github.com/kkevinchou/kito/logger"
 )
 
@@ -18,7 +17,7 @@ type Mover interface {
 
 type Move struct {
 	Entity    Mover
-	path      []pathing.Node
+	path      []geometry.Point
 	pathIndex int
 }
 
