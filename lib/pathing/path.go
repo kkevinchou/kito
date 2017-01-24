@@ -51,7 +51,7 @@ func (p *Planner) findPortals(path []NavNode) []Portal {
 		return nil
 	}
 
-	portals := []Portal{CreatePortal(path[0].Point, path[0].Point)}
+	portals := []Portal{Portal{Point1: path[0].Point, Point2: path[0].Point}}
 	prevPolygon := path[0].Polygon
 
 	for _, node := range path {
@@ -62,7 +62,7 @@ func (p *Planner) findPortals(path []NavNode) []Portal {
 	}
 
 	finalPoint := path[len(path)-1].Point
-	portals = append(portals, CreatePortal(finalPoint, finalPoint))
+	portals = append(portals, Portal{Point1: finalPoint, Point2: finalPoint})
 
 	return portals
 }

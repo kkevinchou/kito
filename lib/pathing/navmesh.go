@@ -11,11 +11,7 @@ type NavNode struct {
 	Polygon *geometry.Polygon
 }
 
-// Portals are edges that have a deterministic ordering of nodes
-// for predictable map lookups.
-// TODO: maybe define another node type that doesn't have a polygon pointer?
-// chance of bugs occuring where two ordered edges don't equal due to the
-// polygon pointer
+// Portals are edges that join two polygons
 type Portal struct {
 	Point1 geometry.Point
 	Point2 geometry.Point
@@ -25,18 +21,12 @@ func (p Portal) String() string {
 	return fmt.Sprintf("P{%v, %v}", p.Point1, p.Point2)
 }
 
-func CreatePortal(point1, point2 geometry.Point) Portal {
-	return Portal{Point1: point1, Point2: point2}
-}
-
 type NavMesh struct {
 	neighbors        map[NavNode][]NavNode
 	costs            map[NavNode]map[NavNode]float64
 	polygons         []*geometry.Polygon
 	portalToPolygons map[Portal][]*geometry.Polygon
-
 	polyPairToPortal map[*geometry.Polygon]map[*geometry.Polygon]Portal
-	pointToPolygons  map[geometry.Point][]*geometry.Polygon
 
 	*RenderComponent
 }
@@ -47,7 +37,6 @@ func ConstructNavMesh(polygons []*geometry.Polygon) *NavMesh {
 		costs:            map[NavNode]map[NavNode]float64{},
 		portalToPolygons: map[Portal][]*geometry.Polygon{},
 		polyPairToPortal: map[*geometry.Polygon]map[*geometry.Polygon]Portal{},
-		pointToPolygons:  map[geometry.Point][]*geometry.Polygon{},
 	}
 
 	for _, polygon := range polygons {
@@ -69,11 +58,10 @@ func (nm *NavMesh) Polygons() []*geometry.Polygon {
 
 func (nm *NavMesh) AddPolygon(polygon *geometry.Polygon) {
 	nm.polygons = append(nm.polygons, polygon)
-	for _, point1 := range polygon.Points() {
-		nm.pointToPolygons[point1] = append(nm.pointToPolygons[point1], polygon)
-
-		for _, point2 := range polygon.Points() {
-			if point1 == point2 {
+	for i, point1 := range polygon.Points() {
+		for j, point2 := range polygon.Points() {
+			// Avoid processing the same two pairs of indicies
+			if i >= j {
 				continue
 			}
 
@@ -84,9 +72,27 @@ func (nm *NavMesh) AddPolygon(polygon *geometry.Polygon) {
 			nm.addEdge(navNode1, navNode2)
 			nm.addEdge(navNode2, navNode1)
 
+			// Make a deterministically ordered Portal for consistent lookups
 			portal := Portal{Point1: point1, Point2: point2}
-
-			// TODO: Setting up and detecting nm.portalToPolygons could probably be done more efficiently
+			if point1.X != point2.X {
+				if point1.X > point2.X {
+					portal = Portal{Point1: point1, Point2: point2}
+				} else {
+					portal = Portal{Point1: point2, Point2: point1}
+				}
+			} else if point1.Y != point2.Y {
+				if point1.Y > point2.Y {
+					portal = Portal{Point1: point1, Point2: point2}
+				} else {
+					portal = Portal{Point1: point2, Point2: point1}
+				}
+			} else if point1.Z != point2.Z {
+				if point1.Z > point2.Z {
+					portal = Portal{Point1: point1, Point2: point2}
+				} else {
+					portal = Portal{Point1: point2, Point2: point1}
+				}
+			}
 
 			// Found one half of the portal, complete the other half
 			if len(nm.portalToPolygons[portal]) == 1 {
@@ -137,12 +143,6 @@ func (nm *NavMesh) AddPolygon(polygon *geometry.Polygon) {
 	}
 }
 
-func (nm *NavMesh) GetPortalFromPolyPair(poly1, poly2 *geometry.Polygon) Portal {
-	return Portal{}
-}
-
-// TODO: seems weird that we need to update costs here,
-// an edge will always have the shortest cost between the two points right?
 func (nm *NavMesh) addEdge(from, to NavNode) {
 	if _, ok := nm.neighbors[from]; !ok {
 		nm.neighbors[from] = []NavNode{}
