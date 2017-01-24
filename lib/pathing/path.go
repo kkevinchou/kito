@@ -37,7 +37,6 @@ func (p *Planner) FindPath(start geometry.Point, goal geometry.Point) []geometry
 		return nil
 	}
 
-	// TODO: return early if start poly == goal poly ?
 	if len(roughPath) >= 3 {
 		portals := p.findPortals(roughPath)
 		return smoothPath(portals)
