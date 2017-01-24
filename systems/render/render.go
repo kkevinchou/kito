@@ -103,7 +103,7 @@ func NewRenderSystem(assetManager *lib.AssetManager, camera Camera) *RenderSyste
 	}
 
 	sdl.SetRelativeMouseMode(false)
-	sdl.GL_SetSwapInterval(0)
+	sdl.GL_SetSwapInterval(1)
 
 	gl.Enable(gl.LIGHTING)
 	gl.Enable(gl.DEPTH_TEST)

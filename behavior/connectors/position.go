@@ -8,6 +8,7 @@ import (
 )
 
 type Position struct {
+	// TODO: write a test for this
 	filler bool // empty structs share the same pointer address, this field prevents the node cache from accidentally caching
 }
 
