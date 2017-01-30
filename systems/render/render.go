@@ -15,7 +15,6 @@ import (
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib"
-	"github.com/kkevinchou/kito/lib/math/matrix"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/pathing"
@@ -163,12 +162,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Rotatef(float32(cameraView.X), 1, 0, 0)
 	gl.Rotatef(float32(cameraView.Y), 0, 1, 0)
 	gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
-
-	// Get the model view matrix
-	mvMatrixValues := make([]float32, 16)
-	gl.GetFloatv(gl.MODELVIEW_MATRIX, &mvMatrixValues[0])
-	mvMatrix := matrix.Mat4FromValues(mvMatrixValues)
-	r.camera.SetModelViewMatrix(mvMatrix)
 
 	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
 
