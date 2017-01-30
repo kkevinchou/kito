@@ -1,3 +1,8 @@
+CONTEXT
+
+cleaning up camera perspective rendering code and ray casting.  looks like i don't need
+to store the MV matrix in the camera each rendering frame FacePalm
+
 TODO
 
 

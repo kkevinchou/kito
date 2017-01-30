@@ -122,7 +122,7 @@ func (c *Camera) View() vector.Vector {
 }
 
 func (c *Camera) SetModelViewMatrix(m mgl32.Mat4) {
-	c.modelViewMatrix = m
+	// c.modelViewMatrix = m
 }
 
 func (c *Camera) GetRayDirection(x, y float64) vector.Vector3 {
@@ -130,7 +130,10 @@ func (c *Camera) GetRayDirection(x, y float64) vector.Vector3 {
 	pMatrixValues := make([]float32, 16)
 	gl.GetFloatv(gl.PROJECTION_MATRIX, &pMatrixValues[0])
 
-	mvMatrix := c.modelViewMatrix
+	mvMatrixValues := make([]float32, 16)
+	gl.GetFloatv(gl.MODELVIEW, &mvMatrixValues[0])
+
+	mvMatrix := matrix.Mat4FromValues(mvMatrixValues)
 	pMatrix := matrix.Mat4FromValues(pMatrixValues)
 
 	// Convert the screen coordinate to normalised device coordinates

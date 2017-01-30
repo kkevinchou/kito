@@ -62,8 +62,8 @@ type RenderSystem struct {
 	modelMap     map[string]*models.Model
 }
 
-var lineStart vector.Vector3
-var lineEnd vector.Vector3
+var LineStart vector.Vector3
+var LineEnd vector.Vector3
 
 func initFont() *ttf.Font {
 	ttf.Init()
@@ -156,6 +156,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	cameraView := r.camera.View()
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
+	// Set up the Model View matrix.  Based on how much the camera has moved,
+	// translate the entire world
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
 	gl.Rotatef(float32(cameraView.X), 1, 0, 0)
@@ -210,7 +212,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		}
 	}
 
-	drawLine(lineStart, lineEnd)
+	drawLine(LineStart, LineEnd)
 
 	// TODO: For some reason I need to bind a texture before rendering a model or else the lighting looks off...
 	gl.BindTexture(gl.TEXTURE_2D, r.textureMap["mushroom-gills"])

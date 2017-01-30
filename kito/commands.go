@@ -2,6 +2,7 @@ package kito
 
 import (
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/systems/render"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -47,7 +48,8 @@ type CameraRaycastCommand struct {
 
 func (c *CameraRaycastCommand) Execute(game *Game) {
 	dir := game.camera.GetRayDirection(c.X, c.Y)
-	_ = dir
+	render.LineStart = game.camera.Position()
+	render.LineEnd = game.camera.Position().Add(dir.Scale(50))
 }
 
 type SetCameraControlCommand struct {
