@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	// We wkito to lock the main thread to this goroutine.  Otherwise,
+	// We want to lock the main thread to this goroutine.  Otherwise,
 	// SDL rendering will randomly panic
 	//
 	// For more details: https://github.com/golang/go/wiki/LockOSThread
