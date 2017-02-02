@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/go-gl/gl/v2.1/gl"
-	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib"
@@ -25,7 +24,6 @@ import (
 type Camera interface {
 	Position() vector.Vector3
 	View() vector.Vector
-	SetModelViewMatrix(mgl32.Mat4)
 }
 
 const (

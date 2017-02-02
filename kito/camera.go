@@ -27,8 +27,7 @@ type Camera struct {
 	// This could potentially be an enum as we only have 5 valid states
 	commandHeading vector.Vector3
 
-	modelViewMatrix mgl32.Mat4
-	controlled      bool
+	controlled bool
 }
 
 func NewCamera(position vector.Vector3, view vector.Vector) *Camera {
@@ -121,10 +120,6 @@ func (c *Camera) View() vector.Vector {
 	return c.view
 }
 
-func (c *Camera) SetModelViewMatrix(m mgl32.Mat4) {
-	// c.modelViewMatrix = m
-}
-
 func (c *Camera) GetRayDirection(x, y float64) vector.Vector3 {
 	// Get the projection matrix
 	pMatrixValues := make([]float32, 16)
@@ -138,13 +133,11 @@ func (c *Camera) GetRayDirection(x, y float64) vector.Vector3 {
 
 	// Convert the screen coordinate to normalised device coordinates
 	NDCPoint := mgl32.Vec4{(2.0*float32(x))/800 - 1, 1 - (2.0*float32(y))/600, -1, 1}
-	// Convert to model view coordinates
-	viewPoint := pMatrix.Inv().Mul4x1(NDCPoint)
-	// Convert to world coordinates
-	worldPoint := mvMatrix.Inv().Mul4x1(viewPoint)
+	worldPoint := pMatrix.Mul4(mvMatrix).Inv().Mul4x1(NDCPoint)
 
 	// Normalize on W
 	worldPoint = mgl32.Vec4{worldPoint[0] / worldPoint[3], worldPoint[1] / worldPoint[3], worldPoint[2] / worldPoint[3], 1}
+
 	// Extract the 3D vector
 	worldPointVector := vector.Vector3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
 	return worldPointVector.Sub(c.Position()).Normalize()
