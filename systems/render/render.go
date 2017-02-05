@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/kkevinchou/kito/common/enums"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib"
@@ -42,6 +43,10 @@ var (
 	point         vector.Vector
 )
 
+type Game interface {
+	GetGameMode() enums.GameMode
+}
+
 type Renderable interface {
 	interfaces.Positionable
 	GetRenderData() components.RenderData
@@ -57,6 +62,7 @@ type RenderSystem struct {
 	renderables  Renderables
 	textureMap   map[string]uint32
 	modelMap     map[string]*models.Model
+	game         Game
 }
 
 var LineStart vector.Vector3
@@ -74,7 +80,7 @@ func initFont() *ttf.Font {
 	return font
 }
 
-func NewRenderSystem(assetManager *lib.AssetManager, camera Camera) *RenderSystem {
+func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic("Failed to init SDL")
 	}
@@ -97,6 +103,7 @@ func NewRenderSystem(assetManager *lib.AssetManager, camera Camera) *RenderSyste
 		assetManager: assetManager,
 		window:       window,
 		camera:       camera,
+		game:         game,
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -149,65 +156,69 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
-	cameraPosition := r.camera.Position()
-	cameraView := r.camera.View()
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	// Set up the Model View matrix.  Based on how much the camera has moved,
-	// translate the entire world
-	gl.MatrixMode(gl.MODELVIEW)
-	gl.LoadIdentity()
-	gl.Rotatef(float32(cameraView.X), 1, 0, 0)
-	gl.Rotatef(float32(cameraView.Y), 0, 1, 0)
-	gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
+	if r.game.GetGameMode() == enums.GameModePlaying {
+		cameraPosition := r.camera.Position()
+		cameraView := r.camera.View()
 
-	gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
+		// Set up the Model View matrix.  Based on how much the camera has moved,
+		// translate the entire world
+		gl.MatrixMode(gl.MODELVIEW)
+		gl.LoadIdentity()
+		gl.Rotatef(float32(cameraView.X), 1, 0, 0)
+		gl.Rotatef(float32(cameraView.Y), 0, 1, 0)
+		gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
 
-	for _, renderable := range r.renderables {
-		renderData := renderable.GetRenderData()
-		if !renderData.IsVisible() {
-			continue
-		}
-		if rData, ok := renderData.(*components.TextureRenderData); ok {
-			position := renderable.Position()
-			texture := r.textureMap[rData.ID]
-			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
-		} else if rData, ok := renderData.(*components.ItemRenderData); ok {
-			position := renderable.Position()
-			texture := r.textureMap[rData.ID]
-			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
-		} else if _, ok := renderData.(*components.ModelRenderData); ok {
-		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
-			var ok bool
-			var navmesh *pathing.NavMesh
-			if navmesh, ok = renderable.(*pathing.NavMesh); !ok {
-				panic("FAILED TO CAST NAVMESH")
+		gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
+
+		for _, renderable := range r.renderables {
+			renderData := renderable.GetRenderData()
+			if !renderData.IsVisible() {
+				continue
 			}
-
-			polygons := navmesh.Polygons()
-			for i, polygon := range polygons {
-				color := make([]float32, 3)
-				gl.Begin(gl.POLYGON)
-				gl.Normal3f(0, 1, 0)
-				for _, point := range polygon.Points() {
-					if i%2 == 0 {
-						color[0], color[1], color[2] = 0, 0, 0
-					} else {
-						color[0], color[1], color[2] = 1, 1, 1
-					}
-					gl.Color3f(color[0], color[1], color[2])
-					gl.Vertex3f(float32(point.X), float32(point.Y), float32(point.Z))
+			if rData, ok := renderData.(*components.TextureRenderData); ok {
+				position := renderable.Position()
+				texture := r.textureMap[rData.ID]
+				drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
+			} else if rData, ok := renderData.(*components.ItemRenderData); ok {
+				position := renderable.Position()
+				texture := r.textureMap[rData.ID]
+				drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
+			} else if _, ok := renderData.(*components.ModelRenderData); ok {
+			} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
+				var ok bool
+				var navmesh *pathing.NavMesh
+				if navmesh, ok = renderable.(*pathing.NavMesh); !ok {
+					panic("FAILED TO CAST NAVMESH")
 				}
-				gl.End()
+
+				polygons := navmesh.Polygons()
+				for i, polygon := range polygons {
+					color := make([]float32, 3)
+					gl.Begin(gl.POLYGON)
+					gl.Normal3f(0, 1, 0)
+					for _, point := range polygon.Points() {
+						if i%2 == 0 {
+							color[0], color[1], color[2] = 0, 0, 0
+						} else {
+							color[0], color[1], color[2] = 1, 1, 1
+						}
+						gl.Color3f(color[0], color[1], color[2])
+						gl.Vertex3f(float32(point.X), float32(point.Y), float32(point.Z))
+					}
+					gl.End()
+				}
 			}
 		}
+		drawLine(LineStart, LineEnd)
+	} else {
+		fmt.Println("Editor Mode")
 	}
-
-	drawLine(LineStart, LineEnd)
 
 	// TODO: For some reason I need to bind a texture before rendering a model or else the lighting looks off...
 	gl.BindTexture(gl.TEXTURE_2D, r.textureMap["mushroom-gills"])
-	// drawFloor()
+
 	r.renderModel(r.modelMap["oak"])
 	sdl.GL_SwapWindow(r.window)
 }

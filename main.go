@@ -25,6 +25,8 @@ func NewInputHandler() *InputHandler {
 
 // TODO: event polling will return no events even though the key is being held down
 func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
+	commands := []kito.Command{}
+
 	sdl.PumpEvents()
 	var x, y, z float64
 
@@ -46,8 +48,9 @@ func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 	if i.KeyState[sdl.SCANCODE_LSHIFT] > 0 {
 		y--
 	}
-
-	commands := []kito.Command{}
+	if i.KeyState[sdl.SCANCODE_ESCAPE] > 0 {
+		commands = append(commands, &kito.QuitCommand{})
+	}
 
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -68,10 +71,6 @@ func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 			}
 		case *sdl.MouseMotionEvent:
 			commands = append(commands, &kito.CameraViewCommand{X: float64(e.XRel), Y: float64(e.YRel)})
-		case *sdl.KeyUpEvent:
-			if e.Keysym.Sym == sdl.K_ESCAPE {
-				commands = append(commands, &kito.QuitCommand{})
-			}
 		}
 	}
 

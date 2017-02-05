@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kkevinchou/kito/common/enums"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities/food"
 	"github.com/kkevinchou/kito/entities/grass"
@@ -36,11 +37,11 @@ func setupGrass() {
 	grass.New(0, 0, 0)
 }
 
-func setupSystems(camera *Camera) *directory.Directory {
+func (g *Game) setupSystems() *directory.Directory {
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
 	assetManager := lib.NewAssetManager(nil, "_assets")
-	renderSystem := render.NewRenderSystem(assetManager, camera)
+	renderSystem := render.NewRenderSystem(g, assetManager, g.camera)
 	movementSystem := movement.NewMovementSystem()
 
 	d := directory.GetDirectory()
@@ -61,19 +62,23 @@ type Game struct {
 	pathIndex int
 	gameOver  bool
 	camera    *Camera
+	gameMode  enums.GameMode
 }
 
 func NewGame() *Game {
 	rand.Seed(int64(time.Now().Nanosecond()))
 
 	g := &Game{
-		camera: NewCamera(cameraStartPosition, cameraStartView),
+		camera:   NewCamera(cameraStartPosition, cameraStartView),
+		gameMode: enums.GameModePlaying,
 	}
-	setupSystems(g.camera)
+
+	g.setupSystems()
 	setupGrass()
 	food.New(0, 0, 0)
 	g.worker = worker.New()
 	g.worker.SetPosition(vector.Vector3{X: 19, Y: 12, Z: -10})
+	g.camera.Follow(g.worker)
 
 	return g
 }
@@ -185,4 +190,8 @@ func (g *Game) CameraViewChange(v vector.Vector) {
 
 func (g *Game) SetCameraCommandHeading(v vector.Vector3) {
 	g.camera.SetCommandHeading(v)
+}
+
+func (g *Game) GetGameMode() enums.GameMode {
+	return g.gameMode
 }

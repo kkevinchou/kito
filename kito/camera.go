@@ -16,10 +16,15 @@ const (
 	sensitivity        = 0.3
 )
 
+type Followable interface {
+	Position() vector.Vector3
+}
+
 type Camera struct {
-	position vector.Vector3
-	view     vector.Vector
-	speed    vector.Vector3
+	position     vector.Vector3
+	view         vector.Vector
+	speed        vector.Vector3
+	followTarget Followable
 
 	// vector indicating what the camera is being commanded to do.
 	// Forward, Backward, Left, Right, Up
@@ -106,6 +111,13 @@ func (c *Camera) right() vector.Vector3 {
 }
 
 func (c *Camera) Update(delta time.Duration) {
+	if c.followTarget != nil {
+		c.position = c.followTarget.Position()
+		c.position.Y += 5
+		c.position.Z += 5
+		return
+	}
+
 	if c.speed == vector.Zero3() {
 		return
 	}
@@ -141,4 +153,8 @@ func (c *Camera) GetRayDirection(x, y float64) vector.Vector3 {
 	// Extract the 3D vector
 	worldPointVector := vector.Vector3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
 	return worldPointVector.Sub(c.Position()).Normalize()
+}
+
+func (c *Camera) Follow(entity Followable) {
+	c.followTarget = entity
 }

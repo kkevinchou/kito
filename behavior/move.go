@@ -5,6 +5,7 @@ import (
 
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/interfaces"
+	libbehavior "github.com/kkevinchou/kito/lib/behavior"
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/logger"
@@ -21,7 +22,7 @@ type Move struct {
 	pathIndex int
 }
 
-func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+func (m *Move) Tick(input interface{}, state libbehavior.AIState, delta time.Duration) (interface{}, libbehavior.Status) {
 	logger.Debug("Move - ENTER")
 
 	if m.path == nil {
@@ -30,7 +31,7 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 
 		if target, ok = input.(vector.Vector3); !ok {
 			logger.Debug("Move - FAIL")
-			return nil, FAILURE
+			return nil, libbehavior.FAILURE
 		}
 
 		pathManager := directory.GetDirectory().PathManager()
@@ -50,12 +51,12 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 
 	if m.path == nil {
 		logger.Debug("Move - FAIL")
-		return nil, FAILURE
+		return nil, libbehavior.FAILURE
 	}
 
 	if m.pathIndex == len(m.path) {
 		logger.Debug("Move - SUCCESS")
-		return nil, SUCCESS
+		return nil, libbehavior.SUCCESS
 	}
 
 	if m.Entity.Position().Sub(m.path[m.pathIndex].Vector3()).Length() <= 0.1 {
@@ -67,11 +68,11 @@ func (m *Move) Tick(input interface{}, state AIState, delta time.Duration) (inte
 
 	if m.pathIndex == len(m.path) {
 		logger.Debug("Move - SUCCESS")
-		return nil, SUCCESS
+		return nil, libbehavior.SUCCESS
 	}
 
 	logger.Debug("Move - RUNNING")
-	return nil, RUNNING
+	return nil, libbehavior.RUNNING
 }
 
 func (m *Move) Reset() {

@@ -23,7 +23,7 @@ type WorkerImpl struct {
 	*steering.SeekComponent
 	*components.RenderComponent
 	*components.PositionComponent
-	*AIComponent
+	*components.AIComponent
 	*components.InventoryComponent
 }
 
@@ -51,7 +51,7 @@ func New() *WorkerImpl {
 	movementSystem := directory.GetDirectory().MovementSystem()
 	movementSystem.Register(entity)
 
-	entity.AIComponent = NewAIComponent(entity)
+	entity.AIComponent = components.NewAIComponent(NewBT(entity))
 	entity.InventoryComponent = components.NewInventoryComponent()
 
 	return entity
