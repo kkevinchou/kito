@@ -20,11 +20,11 @@ func CreateWorkerBT(worker Worker) libbehavior.Node {
 
 	// SWH: bug when adding first three nodes
 	seq.AddChild(&libbehavior.Value{Value: worker})
-	seq.AddChild(&libbehavior.Position{})
+	seq.AddChild(&behavior.Position{})
 	seq.AddChild(memory.Set("entity_position"))
 	seq.AddChild(&behavior.RandomItem{})
 	seq.AddChild(memory.Set("item"))
-	seq.AddChild(&libbehavior.Position{})
+	seq.AddChild(&behavior.Position{})
 	seq.AddChild(memory.Set("item_position"))
 	seq.AddChild(&behavior.Move{Entity: worker})
 	seq.AddChild(memory.Get("item"))
@@ -42,7 +42,7 @@ func CreateWorkerBT(worker Worker) libbehavior.Node {
 
 	seq4 := libbehavior.NewSequence()
 	seq4.AddChild(memory.Get("item"))
-	seq4.AddChild(&libbehavior.Position{})
+	seq4.AddChild(&behavior.Position{})
 	seq4.AddChild(&behavior.Move{Entity: worker})
 	seq4.AddChild(memory.Get("item"))
 	seq4.AddChild(&behavior.PickupItem{Entity: worker})

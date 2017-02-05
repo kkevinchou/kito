@@ -1,10 +1,6 @@
 package behavior
 
-import (
-	"time"
-
-	"github.com/kkevinchou/kito/lib/math/vector"
-)
+import "time"
 
 type Memory struct {
 	data map[string]interface{}
@@ -63,21 +59,3 @@ func (g *Get) Tick(input interface{}, state AIState, delta time.Duration) (inter
 func (g *Get) Reset() {
 	g.memory.Reset()
 }
-
-type Position struct {
-	// TODO: write a test for this
-	filler bool // empty structs share the same pointer address, this field prevents the node cache from accidentally caching
-}
-
-type Positionable interface {
-	Position() vector.Vector3
-}
-
-func (p *Position) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
-	if positionable, ok := input.(Positionable); ok {
-		return positionable.Position(), SUCCESS
-	}
-	return nil, FAILURE
-}
-
-func (v *Position) Reset() {}
