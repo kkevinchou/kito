@@ -78,7 +78,7 @@ func NewGame() *Game {
 	food.New(0, 0, 0)
 	g.worker = worker.New()
 	g.worker.SetPosition(vector.Vector3{X: 19, Y: 12, Z: -10})
-	g.camera.Follow(g.worker)
+	// g.camera.Follow(g.worker)
 
 	return g
 }

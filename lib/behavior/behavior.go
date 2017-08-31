@@ -28,7 +28,15 @@ type NodeCache struct {
 }
 
 func (n *NodeCache) Add(node Node, status Status) {
-	n.cache[node] = status
+	// only cache success or failure, not running.  We want running
+	// to be re-evaluated
+	if status == SUCCESS || status == FAILURE {
+		n.cache[node] = status
+	}
+}
+
+func (n *NodeCache) Get(node Node) Status {
+	return n.cache[node]
 }
 
 func (n *NodeCache) Contains(node Node) bool {

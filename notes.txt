@@ -18,3 +18,17 @@ ANIMATIONS
  - Idle
  - Move
  - Loop
+
+
+High Level Behavior Schema
+- Sequence
+- Selector
+- "move_to": {thing} # translates this as {thing.position}
+- "position": {thing}
+- "pickup": {thing}
+- "drop": {thing
+- "random_item"
+
+
+
+ 

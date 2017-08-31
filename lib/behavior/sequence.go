@@ -20,11 +20,9 @@ func (s *Sequence) Tick(input interface{}, state AIState, delta time.Duration) (
 
 	for _, child := range s.children {
 		if s.cache.Contains(child) {
-			continue
-		}
-
-		input, status = child.Tick(input, state, delta)
-		if status == SUCCESS || status == FAILURE {
+			status = s.cache.Get(child)
+		} else {
+			input, status = child.Tick(input, state, delta)
 			s.cache.Add(child, status)
 		}
 
