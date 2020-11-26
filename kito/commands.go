@@ -1,6 +1,9 @@
 package kito
 
 import (
+	"fmt"
+
+	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/systems/render"
 )
@@ -46,9 +49,13 @@ type CameraRaycastCommand struct {
 }
 
 func (c *CameraRaycastCommand) Execute(game *Game) {
-	dir := game.camera.GetRayDirection(c.X, c.Y)
+	renderSystem := directory.GetDirectory().RenderSystem()
+	worldPoint := renderSystem.GetWorldPoint(c.X, c.Y)
+	dir := worldPoint.Sub(game.camera.Position()).Normalize()
 	render.LineStart = game.camera.Position()
-	render.LineEnd = game.camera.Position().Add(dir.Scale(50))
+	render.LineEnd = game.camera.Position().Add(dir.Scale(3))
+	fmt.Println(worldPoint)
+	fmt.Println("Camera position:", game.camera.Position(), "Direction:", dir)
 }
 
 type SetCameraControlCommand struct {

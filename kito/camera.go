@@ -4,9 +4,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/go-gl/gl/v2.1/gl"
-	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/math/matrix"
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
@@ -130,29 +127,6 @@ func (c *Camera) Position() vector.Vector3 {
 
 func (c *Camera) View() vector.Vector {
 	return c.view
-}
-
-func (c *Camera) GetRayDirection(x, y float64) vector.Vector3 {
-	// Get the projection matrix
-	pMatrixValues := make([]float32, 16)
-	gl.GetFloatv(gl.PROJECTION_MATRIX, &pMatrixValues[0])
-
-	mvMatrixValues := make([]float32, 16)
-	gl.GetFloatv(gl.MODELVIEW, &mvMatrixValues[0])
-
-	mvMatrix := matrix.Mat4FromValues(mvMatrixValues)
-	pMatrix := matrix.Mat4FromValues(pMatrixValues)
-
-	// Convert the screen coordinate to normalised device coordinates
-	NDCPoint := mgl32.Vec4{(2.0*float32(x))/800 - 1, 1 - (2.0*float32(y))/600, -1, 1}
-	worldPoint := pMatrix.Mul4(mvMatrix).Inv().Mul4x1(NDCPoint)
-
-	// Normalize on W
-	worldPoint = mgl32.Vec4{worldPoint[0] / worldPoint[3], worldPoint[1] / worldPoint[3], worldPoint[2] / worldPoint[3], 1}
-
-	// Extract the 3D vector
-	worldPointVector := vector.Vector3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
-	return worldPointVector.Sub(c.Position()).Normalize()
 }
 
 func (c *Camera) Follow(entity Followable) {

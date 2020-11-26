@@ -11,10 +11,12 @@ import (
 	"time"
 
 	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/common/enums"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/lib/math/matrix"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/pathing"
@@ -131,6 +133,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	gl.LoadIdentity()
 
 	_ = initFont()
+	skyboxTexture := newTexture("_assets/images/clouds.png")
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
 	mushroomGilsTexture := newTexture("_assets/icons/mushroom-gills.png")
 	workerTexture := newTexture("_assets/icons/worker.png")
@@ -138,6 +141,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 		"high-grass":     highGrassTexture,
 		"mushroom-gills": mushroomGilsTexture,
 		"worker":         workerTexture,
+		"skybox":         skyboxTexture,
 	}
 
 	oak, err := models.NewModel("_assets/obj/Oak_Green_01.obj")
@@ -171,6 +175,10 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
 
 		gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
+
+		texture := r.textureMap["skybox"]
+		skyboxSize := 50
+		drawQuad2(texture, float32(0), float32(-skyboxSize), float32(0), 50)
 
 		for _, renderable := range r.renderables {
 			renderData := renderable.GetRenderData()
@@ -223,6 +231,31 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	r.window.GLSwap()
 }
 
+// x, y represents the x,y coordinate on the window. The output is a 3d position in world coordinates
+func (r *RenderSystem) GetWorldPoint(x, y float64) vector.Vector3 {
+	// Get the projection matrix
+	pMatrixValues := make([]float32, 16)
+	gl.GetFloatv(gl.PROJECTION_MATRIX, &pMatrixValues[0])
+
+	// Get the model view matrix
+	mvMatrixValues := make([]float32, 16)
+	gl.GetFloatv(gl.MODELVIEW, &mvMatrixValues[0])
+
+	mvMatrix := matrix.Mat4FromValues(mvMatrixValues)
+	pMatrix := matrix.Mat4FromValues(pMatrixValues)
+
+	// Convert the screen coordinate to normalised device coordinates
+	NDCPoint := mgl32.Vec4{(2.0*float32(x))/800 - 1, 1 - (2.0*float32(y))/600, -1, 1}
+	worldPoint := pMatrix.Mul4(mvMatrix).Inv().Mul4x1(NDCPoint)
+
+	// Normalize on W
+	worldPoint = mgl32.Vec4{worldPoint[0] / worldPoint[3], worldPoint[1] / worldPoint[3], worldPoint[2] / worldPoint[3], 1}
+
+	// Extract the 3D vector
+	worldPointVector := vector.Vector3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
+
+	return worldPointVector
+}
 func drawLine(start, end vector.Vector3) {
 	gl.LineWidth(2.5)
 	gl.Color3f(1.0, 0.0, 0.0)
@@ -383,6 +416,84 @@ func drawQuad(texture uint32, x, y, z float32) {
 	gl.Vertex3f(x+-0.5, y+0, z+0.5)
 	gl.TexCoord2f(1, 0)
 	gl.Vertex3f(x+-0.5, y+1, z+0.5)
+
+	gl.End()
+	gl.Disable(gl.TEXTURE_2D)
+}
+
+func drawQuad2(texture uint32, x, y, z, size float32) {
+	gl.Enable(gl.TEXTURE_2D)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+
+	gl.Color4f(1, 1, 1, 1)
+
+	gl.Begin(gl.QUADS)
+
+	// // FRONT
+	gl.Normal3f(0, 0, 1)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+-size, y+(size*2), z+size)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+-size, y+0, z+size)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+size, y+0, z+size)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+size, y+(size*2), z+size)
+
+	// BACK
+	gl.Normal3f(0, 0, -1)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+size, y+(size*2), z+-size)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+size, y+0, z+-size)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+-size, y+0, z+-size)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+-size, y+(size*2), z+-size)
+
+	// TOP
+	gl.Normal3f(0, 1, 0)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+-size, y+(size*2), z+-size)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+-size, y+(size*2), z+size)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+size, y+(size*2), z+size)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+size, y+(size*2), z+-size)
+
+	// BOTTOM
+	gl.Normal3f(0, -1, 0)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+-size, y+0, z+size)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+-size, y+0, z+-size)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+size, y+0, z+-size)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+size, y+0, z+size)
+
+	// RIGHT
+	gl.Normal3f(1, 0, 0)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+size, y+(size*2), z+size)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+size, y+0, z+size)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+size, y+0, z-size)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+size, y+(size*2), z-size)
+
+	// LEFT
+	gl.Normal3f(-1, 0, 0)
+	gl.TexCoord2f(0, 0)
+	gl.Vertex3f(x+-size, y+(size*2), z+-size)
+	gl.TexCoord2f(0, 1)
+	gl.Vertex3f(x+-size, y+0, z+-size)
+	gl.TexCoord2f(1, 1)
+	gl.Vertex3f(x+-size, y+0, z+size)
+	gl.TexCoord2f(1, 0)
+	gl.Vertex3f(x+-size, y+(size*2), z+size)
 
 	gl.End()
 	gl.Disable(gl.TEXTURE_2D)

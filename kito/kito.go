@@ -1,6 +1,7 @@
 package kito
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -66,12 +67,19 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	rand.Seed(int64(time.Now().Nanosecond()))
+	seed := int64(time.Now().Nanosecond())
+	fmt.Println(fmt.Sprintf("Game Initializing with seed %d ...", seed))
+	rand.Seed(seed)
+
+	camera := NewCamera(cameraStartPosition, cameraStartView)
+	fmt.Println("Camera initialized at position", camera.Position(), "and view", camera.View())
 
 	g := &Game{
-		camera:   NewCamera(cameraStartPosition, cameraStartView),
+		camera:   camera,
 		gameMode: enums.GameModePlaying,
 	}
+
+	g.camera.Position()
 
 	g.setupSystems()
 	setupGrass()
