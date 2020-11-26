@@ -5,7 +5,7 @@ to store the MV matrix in the camera each rendering frame FacePalm
 
 TODO
 
-
+Move all opengl related calls to a single package
 Decide whether moving along a single vertex is allowed
 
 BUGS

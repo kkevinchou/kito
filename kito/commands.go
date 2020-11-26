@@ -3,7 +3,6 @@ package kito
 import (
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/systems/render"
-	"github.com/veandco/go-sdl2/sdl"
 )
 
 type CommandPoller func(game *Game) []Command
@@ -58,5 +57,5 @@ type SetCameraControlCommand struct {
 
 func (c *SetCameraControlCommand) Execute(game *Game) {
 	game.camera.controlled = c.Value
-	sdl.SetRelativeMouseMode(c.Value)
+	// sdl.SetRelativeMouseMode(c.Value)
 }

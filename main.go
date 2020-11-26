@@ -60,12 +60,13 @@ func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 		case *sdl.MouseButtonEvent:
 			if e.State == sdl.RELEASED { // Mouse Up
 				if e.Button == sdl.BUTTON_LEFT {
-					commands = append(commands, &kito.CameraRaycastCommand{X: float64(e.X), Y: float64(e.Y)})
+					commands = append(commands, &kito.SetCameraControlCommand{Value: false})
+					// commands = append(commands, &kito.CameraRaycastCommand{X: float64(e.X), Y: float64(e.Y)})
 				} else if e.Button == sdl.BUTTON_RIGHT {
 					commands = append(commands, &kito.SetCameraControlCommand{Value: false})
 				}
 			} else if e.State == sdl.PRESSED {
-				if e.Button == sdl.BUTTON_RIGHT {
+				if e.Button == sdl.BUTTON_LEFT {
 					commands = append(commands, &kito.SetCameraControlCommand{Value: true})
 				}
 			}

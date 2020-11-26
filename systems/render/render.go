@@ -19,7 +19,7 @@ import (
 	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/pathing"
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/veandco/go-sdl2/sdl_ttf"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
 type Camera interface {
@@ -82,21 +82,21 @@ func initFont() *ttf.Font {
 
 func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		panic("Failed to init SDL")
-	}
-
-	if err := gl.Init(); err != nil {
-		panic("Failed to init OpenGL")
+		panic(fmt.Sprintf("Failed to init SDL", err))
 	}
 
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
 	if err != nil {
-		panic("Failed to create window")
+		panic(fmt.Sprintf("Failed to create window", err))
 	}
 
-	_, err = sdl.GL_CreateContext(window)
+	_, err = window.GLCreateContext()
 	if err != nil {
-		panic("Failed to create context")
+		panic(fmt.Sprintf("Failed to create context", err))
+	}
+
+	if err := gl.Init(); err != nil {
+		panic(fmt.Sprintf("Failed to init OpenGL %s", err))
 	}
 
 	renderSystem := RenderSystem{
@@ -107,7 +107,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	}
 
 	sdl.SetRelativeMouseMode(false)
-	sdl.GL_SetSwapInterval(1)
+	sdl.GLSetSwapInterval(1)
 
 	gl.Enable(gl.LIGHTING)
 	gl.Enable(gl.DEPTH_TEST)
@@ -217,10 +217,10 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	}
 
 	// TODO: For some reason I need to bind a texture before rendering a model or else the lighting looks off...
-	gl.BindTexture(gl.TEXTURE_2D, r.textureMap["mushroom-gills"])
+	// gl.BindTexture(gl.TEXTURE_2D, r.textureMap["mushroom-gills"])
 
 	r.renderModel(r.modelMap["oak"])
-	sdl.GL_SwapWindow(r.window)
+	r.window.GLSwap()
 }
 
 func drawLine(start, end vector.Vector3) {
