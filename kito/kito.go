@@ -25,7 +25,7 @@ const (
 
 var (
 	fps                 = 60.0
-	cameraStartPosition = vector.Vector3{X: 0, Y: 0, Z: 5}
+	cameraStartPosition = vector.Vector3{X: 0, Y: 5, Z: 5}
 	cameraStartView     = vector.Vector{X: 0, Y: 0}
 )
 
@@ -35,7 +35,7 @@ func setupGrass() {
 	grass.New(6, 0, 1)
 	grass.New(6, 0, 7)
 	grass.New(4, 0, 2)
-	grass.New(0, 0, 0)
+	// grass.New(0, 0, 0)
 }
 
 func (g *Game) setupSystems() *directory.Directory {

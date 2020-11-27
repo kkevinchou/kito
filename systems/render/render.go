@@ -133,17 +133,29 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	gl.LoadIdentity()
 
 	_ = initFont()
-	skyboxTexture := newTexture("_assets/images/skybox.png")
+	// skyboxTexture := newCubeMap("_assets/images/skybox.png")
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
 	mushroomGilsTexture := newTexture("_assets/icons/mushroom-gills.png")
 	workerTexture := newTexture("_assets/icons/worker.png")
 	lightTexture := newTexture("_assets/icons/light.png")
+	leftTexture := newTexture("_assets/images/left.png")
+	rightTexture := newTexture("_assets/images/right.png")
+	frontTexture := newTexture("_assets/images/front.png")
+	backTexture := newTexture("_assets/images/back.png")
+	topTexture := newTexture("_assets/images/top.png")
+	bottomTexture := newTexture("_assets/images/bottom.png")
 	renderSystem.textureMap = map[string]uint32{
 		"high-grass":     highGrassTexture,
 		"mushroom-gills": mushroomGilsTexture,
 		"worker":         workerTexture,
 		"light":          lightTexture,
-		"skybox":         skyboxTexture,
+		// "skybox":         skyboxTexture,
+		"left":   leftTexture,
+		"right":  rightTexture,
+		"front":  frontTexture,
+		"back":   backTexture,
+		"top":    topTexture,
+		"bottom": bottomTexture,
 	}
 
 	oak, err := models.NewModel("_assets/obj/Oak_Green_01.obj")
@@ -174,11 +186,12 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		gl.LoadIdentity()
 		gl.Rotatef(float32(cameraView.X), 1, 0, 0)
 		gl.Rotatef(float32(cameraView.Y), 0, 1, 0)
-		gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
 
-		texture := r.textureMap["skybox"]
+		// draw skybox without consideration for camera translation
 		skyboxSize := 50
-		drawCube(texture, float32(0), float32(-skyboxSize), float32(0), 100, false)
+		drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize), float32(0), 100, false)
+
+		gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
 
 		for _, light := range r.lights {
 			light.Update(delta)
