@@ -2,12 +2,8 @@ package render
 
 import (
 	"fmt"
-	"image"
-	"image/draw"
 	_ "image/png"
 	"log"
-	"math"
-	"os"
 	"time"
 
 	"github.com/go-gl/gl/v2.1/gl"
@@ -30,19 +26,14 @@ type Camera interface {
 }
 
 const (
-	width               = 800
-	height              = 600
+	width               = 1280
+	height              = 1024
 	floorPanelDimension = 1
+	renderDistance      = 300.0
 )
 
 var (
 	textureMap map[string]uint32
-
-	lightPosition = []float32{0, 20, 1, 1}
-	ambient       = []float32{0.1, 0.1, 0.1, 1}
-	diffuse       = []float32{1, 1, 1, 1}
-	specular      = []float32{1, 1, 1, 1}
-	point         vector.Vector
 )
 
 type Game interface {
@@ -65,6 +56,7 @@ type RenderSystem struct {
 	textureMap   map[string]uint32
 	modelMap     map[string]*models.Model
 	game         Game
+	lights       []*Light
 }
 
 var LineStart vector.Vector3
@@ -120,14 +112,22 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	gl.ClearDepth(1)
 	gl.DepthFunc(gl.LEQUAL)
 
-	gl.Lightfv(gl.LIGHT0, gl.AMBIENT, &ambient[0])
-	gl.Lightfv(gl.LIGHT0, gl.DIFFUSE, &diffuse[0])
-	gl.Lightfv(gl.LIGHT0, gl.SPECULAR, &specular[0])
-	gl.Enable(gl.LIGHT0)
+	light0 := NewLight(gl.LIGHT0)
+	// light1 := NewLight(gl.LIGHT1)
+	// light2 := NewLight(gl.LIGHT2)
+	// light3 := NewLight(gl.LIGHT3)
+	// light4 := NewLight(gl.LIGHT4)
+	// light5 := NewLight(gl.LIGHT5)
+	renderSystem.lights = append(renderSystem.lights, light0)
+	// renderSystem.lights = append(renderSystem.lights, light1)
+	// renderSystem.lights = append(renderSystem.lights, light2)
+	// renderSystem.lights = append(renderSystem.lights, light3)
+	// renderSystem.lights = append(renderSystem.lights, light4)
+	// renderSystem.lights = append(renderSystem.lights, light5)
 
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
-	gl.Frustum(-0.5, 0.5, -0.375, 0.375, 1.0, 100.0)
+	gl.Frustum(-0.5, 0.5, -0.375, 0.375, 1.0, renderDistance)
 	gl.PushMatrix()
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
@@ -137,10 +137,12 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
 	mushroomGilsTexture := newTexture("_assets/icons/mushroom-gills.png")
 	workerTexture := newTexture("_assets/icons/worker.png")
+	lightTexture := newTexture("_assets/icons/light.png")
 	renderSystem.textureMap = map[string]uint32{
 		"high-grass":     highGrassTexture,
 		"mushroom-gills": mushroomGilsTexture,
 		"worker":         workerTexture,
+		"light":          lightTexture,
 		"skybox":         skyboxTexture,
 	}
 
@@ -174,11 +176,16 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		gl.Rotatef(float32(cameraView.Y), 0, 1, 0)
 		gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
 
-		gl.Lightfv(gl.LIGHT0, gl.POSITION, &lightPosition[0])
-
 		texture := r.textureMap["skybox"]
 		skyboxSize := 50
 		drawQuad2(texture, float32(0), float32(-skyboxSize), float32(0), 50)
+
+		for _, light := range r.lights {
+			light.Update(delta)
+			texture := r.textureMap["light"]
+			position := light.Position()
+			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
+		}
 
 		for _, renderable := range r.renderables {
 			renderData := renderable.GetRenderData()
@@ -245,7 +252,7 @@ func (r *RenderSystem) GetWorldPoint(x, y float64) vector.Vector3 {
 	pMatrix := matrix.Mat4FromValues(pMatrixValues)
 
 	// Convert the screen coordinate to normalised device coordinates
-	NDCPoint := mgl32.Vec4{(2.0*float32(x))/800 - 1, 1 - (2.0*float32(y))/600, -1, 1}
+	NDCPoint := mgl32.Vec4{(2.0*float32(x))/width - 1, 1 - (2.0*float32(y))/height, -1, 1}
 	worldPoint := pMatrix.Mul4(mvMatrix).Inv().Mul4x1(NDCPoint)
 
 	// Normalize on W
@@ -255,246 +262,4 @@ func (r *RenderSystem) GetWorldPoint(x, y float64) vector.Vector3 {
 	worldPointVector := vector.Vector3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
 
 	return worldPointVector
-}
-func drawLine(start, end vector.Vector3) {
-	gl.LineWidth(2.5)
-	gl.Color3f(1.0, 0.0, 0.0)
-	gl.Begin(gl.LINES)
-	gl.Vertex3f(float32(start.X), float32(start.Y), float32(start.Z))
-	gl.Vertex3f(float32(end.X), float32(end.Y), float32(end.Z))
-	gl.End()
-}
-
-func drawFloor() {
-	width := 21
-	height := 21
-	for i := 0; i < width; i++ {
-		for j := 0; j < height; j++ {
-			x := (i - int(math.Floor(float64(width)/2))) * floorPanelDimension
-			y := (j - int(math.Floor(float64(height)/2))) * floorPanelDimension
-			drawFloorPanel(float32(x), float32(y), (i+j)%2 == 0)
-		}
-	}
-}
-
-func newTexture(file string) uint32 {
-	imgFile, err := os.Open(file)
-	if err != nil {
-		log.Fatalf("texture %q not found on disk: %v\n", file, err)
-	}
-	img, _, err := image.Decode(imgFile)
-	if err != nil {
-		panic(err)
-	}
-
-	rgba := image.NewRGBA(img.Bounds())
-	if rgba.Stride != rgba.Rect.Size().X*4 {
-		panic("unsupported stride")
-	}
-	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
-
-	var texture uint32
-	gl.Enable(gl.TEXTURE_2D)
-	gl.GenTextures(1, &texture)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	gl.TexImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		int32(rgba.Rect.Size().X),
-		int32(rgba.Rect.Size().Y),
-		0,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		gl.Ptr(rgba.Pix))
-
-	return texture
-}
-
-func drawFloorPanel(x, z float32, black bool) {
-	color := make([]float32, 3)
-	if black {
-		color[0] = 0
-		color[1] = 0
-		color[2] = 0
-	} else {
-		color[0] = 1
-		color[1] = 1
-		color[2] = 1
-	}
-
-	gl.Begin(gl.QUADS)
-
-	halfDimension := float32(floorPanelDimension) / 2
-	gl.Normal3f(0, 1, 0)
-	gl.Color3f(color[0], color[1], color[2])
-	gl.Vertex3f(x-halfDimension, 0, z-halfDimension)
-	gl.Color3f(color[0], color[1], color[2])
-	gl.Vertex3f(x-halfDimension, 0, z+halfDimension)
-	gl.Color3f(color[0], color[1], color[2])
-	gl.Vertex3f(x+halfDimension, 0, z+halfDimension)
-	gl.Color3f(color[0], color[1], color[2])
-	gl.Vertex3f(x+halfDimension, 0, z-halfDimension)
-
-	gl.End()
-}
-
-func drawQuad(texture uint32, x, y, z float32) {
-	gl.Enable(gl.TEXTURE_2D)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
-
-	gl.Color4f(1, 1, 1, 1)
-
-	gl.Begin(gl.QUADS)
-
-	// // FRONT
-	gl.Normal3f(0, 0, 1)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-0.5, y+1, z+0.5)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-0.5, y+0, z+0.5)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+0.5, y+0, z+0.5)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+0.5, y+1, z+0.5)
-
-	// BACK
-	gl.Normal3f(0, 0, -1)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+0.5, y+1, z+-0.5)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+0.5, y+0, z+-0.5)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+-0.5, y+0, z+-0.5)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+-0.5, y+1, z+-0.5)
-
-	// TOP
-	gl.Normal3f(0, 1, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-0.5, y+1, z+-0.5)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-0.5, y+1, z+0.5)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+0.5, y+1, z+0.5)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+0.5, y+1, z+-0.5)
-
-	// BOTTOM
-	gl.Normal3f(0, -1, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-0.5, y+0, z+0.5)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-0.5, y+0, z+-0.5)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+0.5, y+0, z+-0.5)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+0.5, y+0, z+0.5)
-
-	// RIGHT
-	gl.Normal3f(1, 0, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+0.5, y+1, z+0.5)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+0.5, y+0, z+0.5)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+0.5, y+0, z-0.5)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+0.5, y+1, z-0.5)
-
-	// LEFT
-	gl.Normal3f(-1, 0, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-0.5, y+1, z+-0.5)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-0.5, y+0, z+-0.5)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+-0.5, y+0, z+0.5)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+-0.5, y+1, z+0.5)
-
-	gl.End()
-	gl.Disable(gl.TEXTURE_2D)
-}
-
-func drawQuad2(texture uint32, x, y, z, size float32) {
-	gl.Enable(gl.TEXTURE_2D)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
-
-	gl.Color4f(1, 1, 1, 1)
-
-	gl.Begin(gl.QUADS)
-
-	// // FRONT
-	gl.Normal3f(0, 0, 1)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+size)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-size, y+0, z+size)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+size, y+0, z+size)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+size, y+(size*2), z+size)
-
-	// BACK
-	gl.Normal3f(0, 0, -1)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+size, y+(size*2), z+-size)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+size, y+0, z+-size)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+-size, y+0, z+-size)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+-size)
-
-	// TOP
-	gl.Normal3f(0, 1, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+-size)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-size, y+(size*2), z+size)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+size, y+(size*2), z+size)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+size, y+(size*2), z+-size)
-
-	// BOTTOM
-	gl.Normal3f(0, -1, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-size, y+0, z+size)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-size, y+0, z+-size)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+size, y+0, z+-size)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+size, y+0, z+size)
-
-	// RIGHT
-	gl.Normal3f(1, 0, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+size, y+(size*2), z+size)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+size, y+0, z+size)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+size, y+0, z-size)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+size, y+(size*2), z-size)
-
-	// LEFT
-	gl.Normal3f(-1, 0, 0)
-	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+-size)
-	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-size, y+0, z+-size)
-	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+-size, y+0, z+size)
-	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+size)
-
-	gl.End()
-	gl.Disable(gl.TEXTURE_2D)
 }
