@@ -133,7 +133,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	gl.LoadIdentity()
 
 	_ = initFont()
-	skyboxTexture := newTexture("_assets/images/clouds.png")
+	skyboxTexture := newTexture("_assets/images/skybox.png")
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
 	mushroomGilsTexture := newTexture("_assets/icons/mushroom-gills.png")
 	workerTexture := newTexture("_assets/icons/worker.png")
@@ -178,13 +178,13 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 		texture := r.textureMap["skybox"]
 		skyboxSize := 50
-		drawQuad2(texture, float32(0), float32(-skyboxSize), float32(0), 50)
+		drawCube(texture, float32(0), float32(-skyboxSize), float32(0), 100, false)
 
 		for _, light := range r.lights {
 			light.Update(delta)
 			texture := r.textureMap["light"]
 			position := light.Position()
-			drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
+			drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, false)
 		}
 
 		for _, renderable := range r.renderables {
@@ -195,11 +195,11 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			if rData, ok := renderData.(*components.TextureRenderData); ok {
 				position := renderable.Position()
 				texture := r.textureMap[rData.ID]
-				drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
+				drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
 			} else if rData, ok := renderData.(*components.ItemRenderData); ok {
 				position := renderable.Position()
 				texture := r.textureMap[rData.ID]
-				drawQuad(texture, float32(position.X), float32(position.Y), float32(position.Z))
+				drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
 			} else if _, ok := renderData.(*components.ModelRenderData); ok {
 			} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
 				var ok bool

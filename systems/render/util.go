@@ -174,9 +174,13 @@ func drawQuad(texture uint32, x, y, z float32) {
 
 	gl.End()
 	gl.Disable(gl.TEXTURE_2D)
+
 }
 
-func drawQuad2(texture uint32, x, y, z, size float32) {
+func drawCube(texture uint32, x, y, z, edgeLength float32, lightningEnabled bool) {
+	if !lightningEnabled {
+		gl.Disable(gl.LIGHTING)
+	}
 	gl.Enable(gl.TEXTURE_2D)
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
@@ -187,69 +191,72 @@ func drawQuad2(texture uint32, x, y, z, size float32) {
 	// // FRONT
 	gl.Normal3f(0, 0, 1)
 	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+size)
+	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z+(edgeLength/2))
 	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-size, y+0, z+size)
+	gl.Vertex3f(x-(edgeLength/2), y+0, z+(edgeLength/2))
 	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+size, y+0, z+size)
+	gl.Vertex3f(x+(edgeLength/2), y+0, z+(edgeLength/2))
 	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+size, y+(size*2), z+size)
+	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z+(edgeLength/2))
 
 	// BACK
 	gl.Normal3f(0, 0, -1)
 	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+size, y+(size*2), z+-size)
+	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z-(edgeLength/2))
 	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+size, y+0, z+-size)
+	gl.Vertex3f(x+(edgeLength/2), y+0, z-(edgeLength/2))
 	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+-size, y+0, z+-size)
+	gl.Vertex3f(x-(edgeLength/2), y+0, z-(edgeLength/2))
 	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+-size)
+	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z-(edgeLength/2))
 
 	// TOP
 	gl.Normal3f(0, 1, 0)
 	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+-size)
+	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z-(edgeLength/2))
 	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-size, y+(size*2), z+size)
+	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z+(edgeLength/2))
 	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+size, y+(size*2), z+size)
+	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z+(edgeLength/2))
 	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+size, y+(size*2), z+-size)
+	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z-(edgeLength/2))
 
 	// BOTTOM
 	gl.Normal3f(0, -1, 0)
 	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-size, y+0, z+size)
+	gl.Vertex3f(x-(edgeLength/2), y+0, z+(edgeLength/2))
 	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-size, y+0, z+-size)
+	gl.Vertex3f(x-(edgeLength/2), y+0, z-(edgeLength/2))
 	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+size, y+0, z+-size)
+	gl.Vertex3f(x+(edgeLength/2), y+0, z-(edgeLength/2))
 	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+size, y+0, z+size)
+	gl.Vertex3f(x+(edgeLength/2), y+0, z+(edgeLength/2))
 
 	// RIGHT
 	gl.Normal3f(1, 0, 0)
 	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+size, y+(size*2), z+size)
+	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z+(edgeLength/2))
 	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+size, y+0, z+size)
+	gl.Vertex3f(x+(edgeLength/2), y+0, z+(edgeLength/2))
 	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+size, y+0, z-size)
+	gl.Vertex3f(x+(edgeLength/2), y+0, z-(edgeLength/2))
 	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+size, y+(size*2), z-size)
+	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z-(edgeLength/2))
 
 	// LEFT
 	gl.Normal3f(-1, 0, 0)
 	gl.TexCoord2f(0, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+-size)
+	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z-(edgeLength/2))
 	gl.TexCoord2f(0, 1)
-	gl.Vertex3f(x+-size, y+0, z+-size)
+	gl.Vertex3f(x-(edgeLength/2), y+0, z-(edgeLength/2))
 	gl.TexCoord2f(1, 1)
-	gl.Vertex3f(x+-size, y+0, z+size)
+	gl.Vertex3f(x-(edgeLength/2), y+0, z+(edgeLength/2))
 	gl.TexCoord2f(1, 0)
-	gl.Vertex3f(x+-size, y+(size*2), z+size)
+	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z+(edgeLength/2))
 
 	gl.End()
 	gl.Disable(gl.TEXTURE_2D)
+	if !lightningEnabled {
+		gl.Enable(gl.LIGHTING)
+	}
 }
