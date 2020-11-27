@@ -143,9 +143,6 @@ func (g *Game) Start(commandPoller CommandPoller) {
 	directory := directory.GetDirectory()
 	renderSystem := directory.RenderSystem()
 
-	var fpsAccumulator time.Duration
-	frameCount := 0
-
 	for g.gameOver != true {
 		now := time.Now()
 		delta := time.Since(previousTime)
@@ -154,23 +151,13 @@ func (g *Game) Start(commandPoller CommandPoller) {
 		}
 		previousTime = now
 
-		fpsAccumulator += delta
-		numWholeSeconds := 0
-		for fpsAccumulator > time.Second {
-			numWholeSeconds++
-			fpsAccumulator -= time.Second
-		}
-		if numWholeSeconds > 0 {
-			frameCount = 0
-		}
+		accumulator += delta
+		renderAccumulator += delta
 
 		commands := commandPoller(g)
 		for _, command := range commands {
 			command.Execute(g)
 		}
-
-		accumulator += delta
-		renderAccumulator += delta
 
 		for accumulator >= gameUpdateDelta {
 			g.update(gameUpdateDelta)
@@ -182,10 +169,8 @@ func (g *Game) Start(commandPoller CommandPoller) {
 		}
 
 		if renderAccumulator >= msPerFrame {
-			frameCount++
 			renderSystem.Update(msPerFrame)
 		}
-
 		for renderAccumulator > msPerFrame {
 			renderAccumulator -= msPerFrame
 		}

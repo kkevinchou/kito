@@ -64,5 +64,4 @@ type SetCameraControlCommand struct {
 
 func (c *SetCameraControlCommand) Execute(game *Game) {
 	game.camera.controlled = c.Value
-	// sdl.SetRelativeMouseMode(c.Value)
 }

@@ -58,22 +58,26 @@ func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 		case *sdl.QuitEvent:
 			commands = append(commands, &kito.QuitCommand{})
 		case *sdl.MouseButtonEvent:
+			cameraControlled := false
 			if e.State == sdl.RELEASED { // Mouse Up
 				if e.Button == sdl.BUTTON_LEFT {
-					commands = append(commands, &kito.SetCameraControlCommand{Value: false})
 				} else if e.Button == sdl.BUTTON_RIGHT {
-					commands = append(commands, &kito.SetCameraControlCommand{Value: false})
 				} else if e.Button == sdl.BUTTON_MIDDLE {
-					commands = append(commands, &kito.SetCameraControlCommand{Value: false})
 					commands = append(commands, &kito.CameraRaycastCommand{X: float64(e.X), Y: float64(e.Y)})
 				}
 			} else if e.State == sdl.PRESSED {
 				if e.Button == sdl.BUTTON_LEFT {
-					commands = append(commands, &kito.SetCameraControlCommand{Value: true})
+					cameraControlled = true
 				}
 			}
+
+			commands = append(commands, &kito.SetCameraControlCommand{Value: cameraControlled})
+
 		case *sdl.MouseMotionEvent:
-			commands = append(commands, &kito.CameraViewCommand{X: float64(e.XRel), Y: float64(e.YRel)})
+			x := float64(e.XRel)
+			y := float64(e.YRel)
+
+			commands = append(commands, &kito.CameraViewCommand{X: x, Y: y})
 		}
 	}
 

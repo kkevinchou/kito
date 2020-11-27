@@ -10,7 +10,8 @@ import (
 const (
 	cameraRotationXMax = 80
 	cameraSpeedScalar  = 10
-	sensitivity        = 0.3
+	xSensitivity       = float64(0.1)
+	ySensitivity       = float64(0.1)
 )
 
 type Followable interface {
@@ -40,14 +41,12 @@ func NewCamera(position vector.Vector3, view vector.Vector) *Camera {
 }
 
 func (c *Camera) ChangeView(v vector.Vector) {
-	c.view.X += float64(v.Y) * sensitivity
-	c.view.Y += float64(v.X) * sensitivity
+	c.view.X += v.Y * ySensitivity
+	c.view.Y += v.X * xSensitivity
 
 	if c.view.X < -cameraRotationXMax {
 		c.view.X = -cameraRotationXMax
-	}
-
-	if c.view.X > cameraRotationXMax {
+	} else if c.view.X > cameraRotationXMax {
 		c.view.X = cameraRotationXMax
 	}
 }
