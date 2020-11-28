@@ -45,33 +45,6 @@ func funkyShape2() *geometry.Polygon {
 }
 
 func setupNavMesh() *pathing.NavMesh {
-	// polygons := []*geometry.Polygon{
-	// 	sqWithOffset(60, 0, 0),
-	// 	sqWithOffset(60, 1, 0),
-	// 	sqWithOffset(60, 2, 0),
-	// 	sqWithOffset(60, 2, 1),
-	// 	sqWithOffset(60, 2, 2),
-	// 	sqWithOffset(60, 1, 2),
-	// 	sqWithOffset(60, 0, 2),
-	// 	sqWithOffset(60, 0, 3),
-	// 	sqWithOffset(60, 0, 4),
-	// 	sqWithOffset(60, 1, 4),
-	// 	sqWithOffset(60, 2, 4),
-	// 	sqWithOffset(60, 2, 5),
-	// 	sqWithOffset(60, 2, 6),
-	// 	sqWithOffset(60, 1, 6),
-	// 	sqWithOffset(60, 0, 6),
-	// 	funkyShape1(),
-	// 	funkyShape2(),
-	// }
-
-	// points1 := []geometry.Point{
-	// 	geometry.Point{X: -4, Y: 0, Z: -4},
-	// 	geometry.Point{X: -4, Y: 0, Z: 4},
-	// 	geometry.Point{X: 4, Y: 0, Z: 4},
-	// 	geometry.Point{X: 4, Y: 0, Z: -4},
-	// }
-
 	polygons := []*geometry.Polygon{
 		sqWithOffset(5, 0, 0, 0),
 		sqWithOffset(5, -1, 0, 0),
