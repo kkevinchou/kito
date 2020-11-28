@@ -202,27 +202,10 @@ func (r *RenderSystem) Update(delta time.Duration) {
 				drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
 			} else if _, ok := renderData.(*components.ModelRenderData); ok {
 			} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
-				var ok bool
-				var navmesh *pathing.NavMesh
-				if navmesh, ok = renderable.(*pathing.NavMesh); !ok {
+				if navMesh, ok := renderable.(*pathing.NavMesh); !ok {
+					RenderNavMesh(navMesh)
+				} else {
 					panic("FAILED TO CAST NAVMESH")
-				}
-
-				polygons := navmesh.Polygons()
-				for i, polygon := range polygons {
-					color := make([]float32, 3)
-					gl.Begin(gl.POLYGON)
-					gl.Normal3f(0, 1, 0)
-					for _, point := range polygon.Points() {
-						if i%2 == 0 {
-							color[0], color[1], color[2] = 0, 0, 0
-						} else {
-							color[0], color[1], color[2] = 1, 1, 1
-						}
-						gl.Color3f(color[0], color[1], color[2])
-						gl.Vertex3f(float32(point.X), float32(point.Y), float32(point.Z))
-					}
-					gl.End()
 				}
 			}
 		}
@@ -232,6 +215,25 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	r.renderModel(r.modelMap["oak"])
 	r.window.GLSwap()
+}
+
+func RenderNavMesh(navMesh *pathing.NavMesh) {
+	polygons := navMesh.Polygons()
+	for i, polygon := range polygons {
+		color := make([]float32, 3)
+		gl.Begin(gl.POLYGON)
+		gl.Normal3f(0, 1, 0)
+		for _, point := range polygon.Points() {
+			if i%2 == 0 {
+				color[0], color[1], color[2] = 0, 0, 0
+			} else {
+				color[0], color[1], color[2] = 1, 1, 1
+			}
+			gl.Color3f(color[0], color[1], color[2])
+			gl.Vertex3f(float32(point.X), float32(point.Y), float32(point.Z))
+		}
+		gl.End()
+	}
 }
 
 // x, y represents the x,y coordinate on the window. The output is a 3d position in world coordinates
