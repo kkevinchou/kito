@@ -202,7 +202,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 				drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
 			} else if _, ok := renderData.(*components.ModelRenderData); ok {
 			} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
-				if navMesh, ok := renderable.(*pathing.NavMesh); !ok {
+				if navMesh, ok := renderable.(*pathing.NavMesh); ok {
 					RenderNavMesh(navMesh)
 				} else {
 					panic("FAILED TO CAST NAVMESH")
@@ -213,7 +213,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		fmt.Println("Editor Mode")
 	}
 
-	// r.renderModel(r.modelMap["oak"])
+	r.renderModel(r.modelMap["oak"])
 	r.window.GLSwap()
 }
 
