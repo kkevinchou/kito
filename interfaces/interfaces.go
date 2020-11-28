@@ -45,6 +45,7 @@ type Controllable interface {
 	Forward() vector.Vector3
 	Right() vector.Vector3
 	SetVelocity(vector vector.Vector3)
+	SetVelocityDirection(vector vector.Vector3)
 	MaxSpeed() float64
 }
 
@@ -56,6 +57,8 @@ type Worker interface {
 }
 
 type Viewer interface {
+	Controllable
+
 	Position() vector.Vector3
 	View() vector.Vector
 

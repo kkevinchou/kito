@@ -78,7 +78,7 @@ func NewGame() *Game {
 	rand.Seed(seed)
 
 	viewer := viewer.New(viewerStartPosition, viewerStartView)
-	fmt.Println("Camera initialized at position", viewer.Position(), "and view", viewer.View())
+	fmt.Println("Viewer initialized at position", viewer.Position(), "and view", viewer.View())
 
 	g := &Game{
 		viewer:   viewer,
