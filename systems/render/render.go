@@ -30,6 +30,7 @@ const (
 	height              = 1024
 	floorPanelDimension = 1
 	renderDistance      = 300.0
+	skyboxSize          = 100
 )
 
 var (
@@ -175,8 +176,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		gl.Rotatef(float32(viewerView.Y), 0, 1, 0)
 
 		// draw skybox without consideration for camera translation
-		skyboxSize := 50
-		drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize), float32(0), 100, false)
+		drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
 
 		gl.Translatef(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
 
@@ -208,12 +208,14 @@ func (r *RenderSystem) Update(delta time.Duration) {
 					panic("FAILED TO CAST NAVMESH")
 				}
 			}
+
+			// temp code, force rendering oak tree
+			r.renderModel(r.modelMap["oak"])
 		}
 	} else {
 		fmt.Println("Editor Mode")
 	}
 
-	r.renderModel(r.modelMap["oak"])
 	r.window.GLSwap()
 }
 
