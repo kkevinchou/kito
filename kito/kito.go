@@ -11,6 +11,7 @@ import (
 	"github.com/kkevinchou/kito/entities/grass"
 	"github.com/kkevinchou/kito/entities/viewer"
 	"github.com/kkevinchou/kito/entities/worker"
+	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/geometry"
@@ -66,7 +67,7 @@ type Game struct {
 	worker         *worker.WorkerImpl
 	pathIndex      int
 	gameOver       bool
-	viewer         viewer.Viewer
+	viewer         interfaces.Viewer
 	gameMode       enums.GameMode
 	viewControlled bool
 }

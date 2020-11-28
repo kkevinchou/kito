@@ -25,8 +25,8 @@ func (c *CharacterControllerComponent) Update(delta time.Duration) {
 		return
 	}
 
-	forwardVector := c.entity.Backward()
-	forwardVector = forwardVector.Scale(-c.controlVector.Z)
+	forwardVector := c.entity.Forward()
+	forwardVector = forwardVector.Scale(c.controlVector.Z)
 
 	rightVector := c.entity.Right()
 	rightVector = rightVector.Scale(-c.controlVector.X)

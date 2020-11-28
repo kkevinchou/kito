@@ -1,6 +1,10 @@
 package interfaces
 
-import "github.com/kkevinchou/kito/lib/math/vector"
+import (
+	"time"
+
+	"github.com/kkevinchou/kito/lib/math/vector"
+)
 
 type Item interface {
 	Positionable
@@ -38,7 +42,7 @@ type Ownable interface {
 }
 
 type Controllable interface {
-	Backward() vector.Vector3
+	Forward() vector.Vector3
 	Right() vector.Vector3
 	SetVelocity(vector vector.Vector3)
 	MaxSpeed() float64
@@ -49,4 +53,14 @@ type Worker interface {
 	SetTarget(vector.Vector3)
 	Velocity() vector.Vector3
 	Heading() vector.Vector3
+}
+
+type Viewer interface {
+	Position() vector.Vector3
+	View() vector.Vector
+
+	UpdateView(vector vector.Vector)
+	SetVelocityDirection(vector vector.Vector3)
+
+	Update(delta time.Duration)
 }

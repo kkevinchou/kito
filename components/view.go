@@ -36,7 +36,7 @@ func (c *ViewComponent) UpdateView(delta vector.Vector) {
 	}
 }
 
-func (c *ViewComponent) Backward() vector.Vector3 {
+func (c *ViewComponent) Forward() vector.Vector3 {
 	xRadianAngle := -toRadians(c.view.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
@@ -50,7 +50,7 @@ func (c *ViewComponent) Backward() vector.Vector3 {
 	y := math.Sin(xRadianAngle)
 	z := -math.Sin(yRadianAngle) * math.Cos(xRadianAngle)
 
-	return vector.Vector3{X: x, Y: y, Z: z}
+	return vector.Vector3{X: x, Y: y, Z: z}.Scale(-1)
 }
 
 func (c *ViewComponent) Right() vector.Vector3 {
