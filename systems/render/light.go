@@ -21,7 +21,7 @@ var direction int = 1
 func NewLight(id uint32) *Light {
 	light := &Light{
 		id:       id,
-		position: vector.Vector3{0, 20, 1},
+		position: vector.Vector3{X: 0, Y: 20, Z: 1},
 		ambient:  []float32{0.25, 0.25, 0.25, 1},
 		diffuse:  []float32{1, 1, 1, 1},
 		specular: []float32{1, 1, 1, 1},

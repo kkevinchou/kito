@@ -222,9 +222,24 @@ func (r *RenderSystem) Update(delta time.Duration) {
 func RenderNavMesh(navMesh *pathing.NavMesh) {
 	polygons := navMesh.Polygons()
 	for i, polygon := range polygons {
+		p0 := polygon.Points()[0]
+		p1 := polygon.Points()[1]
+		p2 := polygon.Points()[2]
+
+		a := vector.Vector3{X: p1.X - p0.X, Y: p1.Y - p0.Y, Z: p1.Z - p0.Z}
+		b := vector.Vector3{X: p2.X - p0.X, Y: p2.Y - p0.Y, Z: p2.Z - p0.Z}
+
+		// normal always points "up"
+		normal := a.Cross(b).Normalize()
+		if normal.Y < 0 {
+			normal.Y = -normal.Y
+		}
+
 		color := make([]float32, 3)
+
 		gl.Begin(gl.POLYGON)
-		gl.Normal3f(0, 1, 0)
+		gl.Normal3f(float32(normal.X), float32(normal.Y), float32(normal.Z))
+
 		for _, point := range polygon.Points() {
 			if i%2 == 0 {
 				color[0], color[1], color[2] = 0, 0, 0
