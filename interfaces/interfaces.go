@@ -60,7 +60,6 @@ type Viewer interface {
 	View() vector.Vector
 
 	UpdateView(vector vector.Vector)
-	SetVelocityDirection(vector vector.Vector3)
 
 	Update(delta time.Duration)
 }
