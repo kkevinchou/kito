@@ -41,14 +41,6 @@ type Ownable interface {
 	Owned() bool
 }
 
-type Controllable interface {
-	Forward() vector.Vector3
-	Right() vector.Vector3
-	SetVelocity(vector vector.Vector3)
-	SetVelocityDirection(vector vector.Vector3)
-	MaxSpeed() float64
-}
-
 type Worker interface {
 	ItemGiverReceiver
 	SetTarget(vector.Vector3)
@@ -56,13 +48,25 @@ type Worker interface {
 	Heading() vector.Vector3
 }
 
+// Controllable is an entity that can be controlled. controlled via forward, backward, left, right, up, down
+type Controllable interface {
+	// public
+	SetVelocityDirection(vector vector.Vector3)
+
+	// private
+	Forward() vector.Vector3
+	Right() vector.Vector3
+	SetVelocity(vector vector.Vector3)
+	MaxSpeed() float64
+}
+
+// Viewer is a controllable entity who's perspective can be rendered from the render system
 type Viewer interface {
 	Controllable
 
+	// public
+	Update(delta time.Duration)
+	UpdateView(vector vector.Vector)
 	Position() vector.Vector3
 	View() vector.Vector
-
-	UpdateView(vector vector.Vector)
-
-	Update(delta time.Duration)
 }
