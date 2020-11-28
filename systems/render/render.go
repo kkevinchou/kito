@@ -213,7 +213,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		fmt.Println("Editor Mode")
 	}
 
-	r.renderModel(r.modelMap["oak"])
+	// r.renderModel(r.modelMap["oak"])
 	r.window.GLSwap()
 }
 
