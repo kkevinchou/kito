@@ -113,17 +113,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	gl.DepthFunc(gl.LEQUAL)
 
 	light0 := NewLight(gl.LIGHT0)
-	// light1 := NewLight(gl.LIGHT1)
-	// light2 := NewLight(gl.LIGHT2)
-	// light3 := NewLight(gl.LIGHT3)
-	// light4 := NewLight(gl.LIGHT4)
-	// light5 := NewLight(gl.LIGHT5)
 	renderSystem.lights = append(renderSystem.lights, light0)
-	// renderSystem.lights = append(renderSystem.lights, light1)
-	// renderSystem.lights = append(renderSystem.lights, light2)
-	// renderSystem.lights = append(renderSystem.lights, light3)
-	// renderSystem.lights = append(renderSystem.lights, light4)
-	// renderSystem.lights = append(renderSystem.lights, light5)
 
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
@@ -243,9 +233,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	} else {
 		fmt.Println("Editor Mode")
 	}
-
-	// TODO: For some reason I need to bind a texture before rendering a model or else the lighting looks off...
-	// gl.BindTexture(gl.TEXTURE_2D, r.textureMap["mushroom-gills"])
 
 	r.renderModel(r.modelMap["oak"])
 	r.window.GLSwap()
