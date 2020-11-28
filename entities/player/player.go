@@ -1,4 +1,4 @@
-package worker
+package player
 
 import (
 	"time"
@@ -7,20 +7,25 @@ import (
 	"github.com/kkevinchou/kito/components/physics"
 	"github.com/kkevinchou/kito/components/steering"
 	"github.com/kkevinchou/kito/directory"
-	"github.com/kkevinchou/kito/types"
+	"github.com/kkevinchou/kito/interfaces"
+	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
-type WorkerImpl struct {
-	*physics.PhysicsComponent
-	*steering.SeekComponent
-	*components.RenderComponent
-	*components.PositionComponent
-	*components.AIComponent
-	*components.InventoryComponent
+type Player interface {
+	interfaces.ItemGiverReceiver
+	Velocity() vector.Vector3
 }
 
-func New() *WorkerImpl {
-	entity := &WorkerImpl{}
+type PlayerImpl struct {
+	*physics.PhysicsComponent
+	*components.RenderComponent
+	*components.PositionComponent
+	*components.InventoryComponent
+	*components.CharacterControllerComponent
+}
+
+func New() *PlayerImpl {
+	entity := &PlayerImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
 	entity.PhysicsComponent.Init(entity, 5, 10)
@@ -43,17 +48,12 @@ func New() *WorkerImpl {
 	movementSystem := directory.GetDirectory().MovementSystem()
 	movementSystem.Register(entity)
 
-	entity.AIComponent = components.NewAIComponent(NewBT(entity))
 	entity.InventoryComponent = components.NewInventoryComponent()
 
 	return entity
 }
 
-func (e *WorkerImpl) Update(delta time.Duration) {
+func (e *PlayerImpl) Update(delta time.Duration) {
 	e.PhysicsComponent.Update(delta)
-	e.AIComponent.Update(delta)
-}
-
-func (e *WorkerImpl) MovementType() types.MovementType {
-	return types.MovementTypeSteering
+	e.CharacterControllerComponent.Update(delta)
 }

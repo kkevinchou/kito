@@ -20,7 +20,7 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-type Camera interface {
+type Viewer interface {
 	Position() vector.Vector3
 	View() vector.Vector
 }
@@ -50,7 +50,7 @@ type Renderables []Renderable
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	window       *sdl.Window
-	camera       Camera
+	viewer       Viewer
 	assetManager *lib.AssetManager
 	renderables  Renderables
 	textureMap   map[string]uint32
@@ -74,7 +74,7 @@ func initFont() *ttf.Font {
 	return font
 }
 
-func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *RenderSystem {
+func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(fmt.Sprintf("Failed to init SDL", err))
 	}
@@ -96,7 +96,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,
-		camera:       camera,
+		viewer:       viewer,
 		game:         game,
 	}
 
@@ -177,21 +177,21 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	if r.game.GetGameMode() == enums.GameModePlaying {
-		cameraPosition := r.camera.Position()
-		cameraView := r.camera.View()
+		viewerPosition := r.viewer.Position()
+		viewerView := r.viewer.View()
 
 		// Set up the Model View matrix.  Based on how much the camera has moved,
 		// translate the entire world
 		gl.MatrixMode(gl.MODELVIEW)
 		gl.LoadIdentity()
-		gl.Rotatef(float32(cameraView.X), 1, 0, 0)
-		gl.Rotatef(float32(cameraView.Y), 0, 1, 0)
+		gl.Rotatef(float32(viewerView.X), 1, 0, 0)
+		gl.Rotatef(float32(viewerView.Y), 0, 1, 0)
 
 		// draw skybox without consideration for camera translation
 		skyboxSize := 50
 		drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize), float32(0), 100, false)
 
-		gl.Translatef(float32(-cameraPosition.X), float32(-cameraPosition.Y), float32(-cameraPosition.Z))
+		gl.Translatef(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
 
 		for _, light := range r.lights {
 			light.Update(delta)

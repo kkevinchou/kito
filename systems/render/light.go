@@ -22,7 +22,7 @@ func NewLight(id uint32) *Light {
 	light := &Light{
 		id:       id,
 		position: vector.Vector3{0, 20, 1},
-		ambient:  []float32{0.5, 0.5, 0.5, 1},
+		ambient:  []float32{0.25, 0.25, 0.25, 1},
 		diffuse:  []float32{1, 1, 1, 1},
 		specular: []float32{1, 1, 1, 1},
 	}

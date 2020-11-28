@@ -4,17 +4,18 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/behavior"
+	"github.com/kkevinchou/kito/interfaces"
 	libbehavior "github.com/kkevinchou/kito/lib/behavior"
 )
 
-func NewBT(worker Worker) *BehaviorTree {
+func NewBT(worker interfaces.Worker) *BehaviorTree {
 	return &BehaviorTree{
 		root:  CreateWorkerBT(worker),
 		state: libbehavior.AIState{BlackBoard: map[string]string{}},
 	}
 }
 
-func CreateWorkerBT(worker Worker) libbehavior.Node {
+func CreateWorkerBT(worker interfaces.Worker) libbehavior.Node {
 	memory := libbehavior.NewMemory()
 	seq := libbehavior.NewSequence()
 

@@ -9,7 +9,9 @@ import (
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities/food"
 	"github.com/kkevinchou/kito/entities/grass"
+	"github.com/kkevinchou/kito/entities/viewer"
 	"github.com/kkevinchou/kito/entities/worker"
+	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/lib/math/vector"
@@ -25,8 +27,8 @@ const (
 
 var (
 	fps                 = 60.0
-	cameraStartPosition = vector.Vector3{X: 0, Y: 5, Z: 5}
-	cameraStartView     = vector.Vector{X: 0, Y: 0}
+	viewerStartPosition = vector.Vector3{X: 0, Y: 5, Z: 5}
+	viewerStartView     = vector.Vector{X: 0, Y: 0}
 )
 
 func setupGrass() {
@@ -42,7 +44,7 @@ func (g *Game) setupSystems() *directory.Directory {
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
 	assetManager := lib.NewAssetManager(nil, "_assets")
-	renderSystem := render.NewRenderSystem(g, assetManager, g.camera)
+	renderSystem := render.NewRenderSystem(g, assetManager, g.viewer)
 	movementSystem := movement.NewMovementSystem()
 
 	d := directory.GetDirectory()
@@ -57,13 +59,16 @@ func (g *Game) setupSystems() *directory.Directory {
 	return d
 }
 
+type CommandPoller func() []commands.Command
+
 type Game struct {
-	path      []geometry.Point
-	worker    *worker.WorkerImpl
-	pathIndex int
-	gameOver  bool
-	camera    *Camera
-	gameMode  enums.GameMode
+	path           []geometry.Point
+	worker         *worker.WorkerImpl
+	pathIndex      int
+	gameOver       bool
+	viewer         viewer.Viewer
+	gameMode       enums.GameMode
+	viewControlled bool
 }
 
 func NewGame() *Game {
@@ -71,15 +76,13 @@ func NewGame() *Game {
 	fmt.Println(fmt.Sprintf("Game Initializing with seed %d ...", seed))
 	rand.Seed(seed)
 
-	camera := NewCamera(cameraStartPosition, cameraStartView)
-	fmt.Println("Camera initialized at position", camera.Position(), "and view", camera.View())
+	viewer := viewer.New(viewerStartPosition, viewerStartView)
+	fmt.Println("Camera initialized at position", viewer.Position(), "and view", viewer.View())
 
 	g := &Game{
-		camera:   camera,
+		viewer:   viewer,
 		gameMode: enums.GameModePlaying,
 	}
-
-	g.camera.Position()
 
 	g.setupSystems()
 	setupGrass()
@@ -108,10 +111,6 @@ func (g *Game) PlaceFood(x, y float64) {
 	food.New(x, 0, y)
 }
 
-func (g *Game) GameOver() {
-	g.gameOver = true
-}
-
 func (g *Game) update(delta time.Duration) {
 	if g.path != nil {
 		if g.worker.Position().Sub(g.path[g.pathIndex].Vector3()).Length() <= 2 {
@@ -127,7 +126,7 @@ func (g *Game) update(delta time.Duration) {
 	}
 
 	directory := directory.GetDirectory()
-	g.camera.Update(delta)
+	g.viewer.Update(delta)
 	movementSystem := directory.MovementSystem()
 	movementSystem.Update(delta)
 }
@@ -154,9 +153,9 @@ func (g *Game) Start(commandPoller CommandPoller) {
 		accumulator += delta
 		renderAccumulator += delta
 
-		commands := commandPoller(g)
+		commands := commandPoller()
 		for _, command := range commands {
-			command.Execute(g)
+			g.Handle(command)
 		}
 
 		for accumulator >= gameUpdateDelta {
@@ -178,11 +177,11 @@ func (g *Game) Start(commandPoller CommandPoller) {
 }
 
 func (g *Game) CameraViewChange(v vector.Vector) {
-	g.camera.ChangeView(v)
+	// g.camera.ChangeView(v)
 }
 
 func (g *Game) SetCameraCommandHeading(v vector.Vector3) {
-	g.camera.SetCommandHeading(v)
+	// g.camera.SetCommandHeading(v)
 }
 
 func (g *Game) GetGameMode() enums.GameMode {

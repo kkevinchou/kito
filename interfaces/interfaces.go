@@ -36,3 +36,17 @@ type Ownable interface {
 	OwnedBy() ItemReceiver
 	Owned() bool
 }
+
+type Controllable interface {
+	Backward() vector.Vector3
+	Right() vector.Vector3
+	SetVelocity(vector vector.Vector3)
+	MaxSpeed() float64
+}
+
+type Worker interface {
+	ItemGiverReceiver
+	SetTarget(vector.Vector3)
+	Velocity() vector.Vector3
+	Heading() vector.Vector3
+}

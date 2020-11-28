@@ -4,6 +4,8 @@ import (
 	"runtime"
 
 	"github.com/kkevinchou/kito/kito"
+	"github.com/kkevinchou/kito/kito/commands"
+	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -24,10 +26,9 @@ func NewInputHandler() *InputHandler {
 }
 
 // TODO: event polling will return no events even though the key is being held down
-func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
-	commands := []kito.Command{}
+func (i *InputHandler) CommandPoller() []commands.Command {
+	commandList := []commands.Command{}
 
-	sdl.PumpEvents()
 	var x, y, z float64
 
 	if i.KeyState[sdl.SCANCODE_W] > 0 {
@@ -48,22 +49,25 @@ func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 	if i.KeyState[sdl.SCANCODE_LSHIFT] > 0 {
 		y--
 	}
+	commandList = append(commandList, &commands.MoveCommand{Value: vector.Vector3{x, y, z}})
+
 	if i.KeyState[sdl.SCANCODE_ESCAPE] > 0 {
-		commands = append(commands, &kito.QuitCommand{})
+		commandList = append(commandList, &commands.QuitCommand{})
 	}
 
+	sdl.PumpEvents()
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
 		case *sdl.QuitEvent:
-			commands = append(commands, &kito.QuitCommand{})
+			commandList = append(commandList, &commands.QuitCommand{})
 		case *sdl.MouseButtonEvent:
 			cameraControlled := false
 			if e.State == sdl.RELEASED { // Mouse Up
 				if e.Button == sdl.BUTTON_LEFT {
 				} else if e.Button == sdl.BUTTON_RIGHT {
 				} else if e.Button == sdl.BUTTON_MIDDLE {
-					commands = append(commands, &kito.CameraRaycastCommand{X: float64(e.X), Y: float64(e.Y)})
+					// commands = append(commands, &kito.CameraRaycastCommand{X: float64(e.X), Y: float64(e.Y)})
 				}
 			} else if e.State == sdl.PRESSED {
 				if e.Button == sdl.BUTTON_LEFT {
@@ -71,19 +75,17 @@ func (i *InputHandler) CommandPoller(game *kito.Game) []kito.Command {
 				}
 			}
 
-			commands = append(commands, &kito.SetCameraControlCommand{Value: cameraControlled})
+			commandList = append(commandList, &commands.ToggleCameraControlCommand{Value: cameraControlled})
 
 		case *sdl.MouseMotionEvent:
 			x := float64(e.XRel)
 			y := float64(e.YRel)
 
-			commands = append(commands, &kito.CameraViewCommand{X: x, Y: y})
+			commandList = append(commandList, &commands.UpdateViewCommand{Value: vector.Vector{x, y}})
 		}
 	}
 
-	commands = append(commands, &kito.SetCameraSpeed{X: x, Y: y, Z: z})
-
-	return commands
+	return commandList
 }
 
 func main() {

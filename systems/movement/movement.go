@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/types"
 )
 
 type Mover interface {
@@ -12,6 +13,7 @@ type Mover interface {
 	SetVelocity(vector.Vector3)
 	MaxSpeed() float64
 	CalculateSteeringVelocity() vector.Vector3
+	MovementType() types.MovementType
 }
 
 type MovementSystem struct {
@@ -30,8 +32,10 @@ func NewMovementSystem() *MovementSystem {
 
 func (m *MovementSystem) Update(delta time.Duration) {
 	for _, mover := range m.movers {
-		steeringVelocity := mover.CalculateSteeringVelocity()
-		mover.SetVelocity(mover.Velocity().Add(steeringVelocity).Clamp(mover.MaxSpeed()))
-		mover.Update(delta)
+		if mover.MovementType() == types.MovementTypeSteering {
+			steeringVelocity := mover.CalculateSteeringVelocity()
+			mover.SetVelocity(mover.Velocity().Add(steeringVelocity).Clamp(mover.MaxSpeed()))
+			mover.Update(delta)
+		}
 	}
 }

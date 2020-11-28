@@ -132,6 +132,10 @@ func (v Vector3) String() string {
 	return fmt.Sprintf("<Vector3 %f, %f, %f>", v.X, v.Y, v.Z)
 }
 
+func (v Vector3) IsZero() bool {
+	return v.X == 0 && v.Y == 0 && v.Z == 0
+}
+
 func Zero3() Vector3 {
 	return Vector3{}
 }

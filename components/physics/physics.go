@@ -47,8 +47,7 @@ func (c *PhysicsComponent) SetMaxSpeed(maxSpeed float64) {
 }
 
 func (c *PhysicsComponent) Update(delta time.Duration) {
-	zero := vector.Vector3{}
-	if c.velocity != zero {
+	if !c.velocity.IsZero() {
 		c.heading = c.velocity
 	}
 
