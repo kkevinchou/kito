@@ -59,9 +59,6 @@ type RenderSystem struct {
 	lights       []*Light
 }
 
-var LineStart vector.Vector3
-var LineEnd vector.Vector3
-
 func initFont() *ttf.Font {
 	ttf.Init()
 
@@ -229,7 +226,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 				}
 			}
 		}
-		drawLine(LineStart, LineEnd)
 	} else {
 		fmt.Println("Editor Mode")
 	}
