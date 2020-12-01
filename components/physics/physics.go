@@ -51,7 +51,8 @@ func (c *PhysicsComponent) Update(delta time.Duration) {
 		c.heading = c.velocity
 	}
 
-	c.entity.SetPosition(c.entity.Position().Add(c.velocity.Scale(float64(delta.Seconds()))))
+	newPos := c.entity.Position().Add(c.velocity.Scale(float64(delta.Seconds())))
+	c.entity.SetPosition(newPos)
 }
 
 func (c *PhysicsComponent) Heading() vector.Vector3 {

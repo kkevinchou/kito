@@ -5,10 +5,10 @@ to store the MV matrix in the camera each rendering frame FacePalm
 
 TODO
 
-Move all opengl related calls to a single package
 Decide whether moving along a single vertex is allowed
 max speed currently isn't used in physics component
 networking :D
+bake navmesh polygon normals into nav mesh polygons. in general make then more rich than just plain polygons
 
 BUGS
 
