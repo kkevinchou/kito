@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/common/enums"
 	"github.com/kkevinchou/kito/components"
@@ -15,6 +15,7 @@ import (
 	"github.com/kkevinchou/kito/lib/math/matrix"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
+	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/pathing"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
@@ -26,8 +27,8 @@ type Viewer interface {
 }
 
 const (
-	width               = 1280
-	height              = 1024
+	width               = 800
+	height              = 600
 	floorPanelDimension = 1
 	renderDistance      = 300.0
 	skyboxSize          = 100
@@ -150,8 +151,21 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	if err != nil {
 		panic(fmt.Sprintf("Failed to load oak model %s", err))
 	}
+
+	torus, err := models.NewModel("_assets/obj/torus.obj")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load oak model %s", err))
+	}
+
+	land, err := models.NewModel("_assets/obj/land.obj")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load oak model %s", err))
+	}
+
 	renderSystem.modelMap = map[string]*models.Model{
-		"oak": oak,
+		"oak":   oak,
+		"torus": torus,
+		"land":  land,
 	}
 
 	return &renderSystem
@@ -160,6 +174,8 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 func (r *RenderSystem) Register(renderable Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
+
+var noiseMap [][]float64 = noise.GenerateNoiseMap(10, 10)
 
 func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -210,13 +226,29 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			}
 
 			// temp code, force rendering oak tree
-			r.renderModel(r.modelMap["oak"])
+			r.renderModel(r.modelMap["oak"], vector.Vector3{X: 0, Y: 0, Z: 0})
+			// r.renderModel(r.modelMap["land"], vector.Vector3{X: 0, Y: 0, Z: 0})
+			// RenderNoiseMap()
 		}
 	} else {
 		fmt.Println("Editor Mode")
 	}
 
 	r.window.GLSwap()
+}
+
+func RenderNoiseMap() {
+	for x, _ := range noiseMap {
+		for y, _ := range noiseMap[x] {
+			val := noiseMap[x][y]
+			var r, g, b float32 = float32(val), float32(val), float32(val)
+			// var r, g, b float32 = 0, 0, 0
+			// if y%2 != x%2 {
+			// 	r, g, b = 1, 1, 1
+			// }
+			drawQuad(float32(x), 0, float32(y), 5, r, g, b, false)
+		}
+	}
 }
 
 func RenderNavMesh(navMesh *pathing.NavMesh) {

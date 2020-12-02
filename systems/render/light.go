@@ -3,7 +3,7 @@ package render
 import (
 	"time"
 
-	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
@@ -21,7 +21,7 @@ var direction int = 1
 func NewLight(id uint32) *Light {
 	light := &Light{
 		id:       id,
-		position: vector.Vector3{X: 0, Y: 20, Z: 1},
+		position: vector.Vector3{X: 0, Y: 20, Z: 0},
 		ambient:  []float32{0.25, 0.25, 0.25, 1},
 		diffuse:  []float32{1, 1, 1, 1},
 		specular: []float32{1, 1, 1, 1},

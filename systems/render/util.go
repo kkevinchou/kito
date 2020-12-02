@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
@@ -165,6 +165,24 @@ func drawSkyBox(textureMap map[string]uint32, x, y, z float32, edgeLength float3
 		gl.Enable(gl.LIGHTING)
 	}
 
+}
+
+func drawQuad(x, y, z, edgeLength, r, g, b float32, lightningEnabled bool) {
+	if !lightningEnabled {
+		gl.Disable(gl.LIGHTING)
+	}
+	gl.Begin(gl.POLYGON)
+	gl.Normal3f(0, 1, 0)
+
+	gl.Color3f(r, g, b)
+	gl.Vertex3f((x*edgeLength)-(edgeLength/2), y, (z*edgeLength)+(edgeLength/2))
+	gl.Vertex3f((x*edgeLength)-(edgeLength/2), y, (z*edgeLength)-(edgeLength/2))
+	gl.Vertex3f((x*edgeLength)+(edgeLength/2), y, (z*edgeLength)-(edgeLength/2))
+	gl.Vertex3f((x*edgeLength)+(edgeLength/2), y, (z*edgeLength)+(edgeLength/2))
+	gl.End()
+	if !lightningEnabled {
+		gl.Enable(gl.LIGHTING)
+	}
 }
 
 func drawCube(texture uint32, x, y, z, edgeLength float32, lightningEnabled bool) {
