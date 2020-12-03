@@ -20,7 +20,7 @@ func GenerateNoiseMap(xMax, yMax int) [][]float64 {
 	for x := 0; x < xMax; x++ {
 		result[x] = make([]float64, yMax)
 		for y := 0; y < yMax; y++ {
-			result[x][y] = p.Noise2D(float64(x)/0.3, float64(y)/0.3)
+			result[x][y] = (p.Noise2D(float64(x)/float64(10), float64(y)/float64(10)) + 1) / 2
 		}
 	}
 	fmt.Println(result)

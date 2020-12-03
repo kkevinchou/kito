@@ -27,15 +27,16 @@ type Viewer interface {
 }
 
 const (
-	width               = 800
-	height              = 600
+	width               = 1024
+	height              = 760
 	floorPanelDimension = 1
-	renderDistance      = 300.0
-	skyboxSize          = 100
+	renderDistance      = 500.0
+	skyboxSize          = 500
 )
 
 var (
-	textureMap map[string]uint32
+	aspectRatio = float64(width) / float64(height)
+	textureMap  map[string]uint32
 )
 
 type Game interface {
@@ -117,6 +118,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
 	gl.Frustum(-0.5, 0.5, -0.375, 0.375, 1.0, renderDistance)
+	// gl.Frustum(-aspectRatio, aspectRatio, -1, 1, 1.0, renderDistance)
 	gl.PushMatrix()
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
@@ -175,7 +177,7 @@ func (r *RenderSystem) Register(renderable Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
 
-var noiseMap [][]float64 = noise.GenerateNoiseMap(10, 10)
+var noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
 
 func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -218,17 +220,17 @@ func (r *RenderSystem) Update(delta time.Duration) {
 				drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
 			} else if _, ok := renderData.(*components.ModelRenderData); ok {
 			} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
-				if navMesh, ok := renderable.(*pathing.NavMesh); ok {
-					RenderNavMesh(navMesh)
-				} else {
-					panic("FAILED TO CAST NAVMESH")
-				}
+				// if navMesh, ok := renderable.(*pathing.NavMesh); ok {
+				// 	RenderNavMesh(navMesh)
+				// } else {
+				// 	panic("FAILED TO CAST NAVMESH")
+				// }
 			}
 
 			// temp code, force rendering oak tree
-			r.renderModel(r.modelMap["oak"], vector.Vector3{X: 0, Y: 0, Z: 0})
+			// r.renderModel(r.modelMap["oak"], vector.Vector3{X: 0, Y: 0, Z: 0})
 			// r.renderModel(r.modelMap["land"], vector.Vector3{X: 0, Y: 0, Z: 0})
-			// RenderNoiseMap()
+			RenderNoiseMap()
 		}
 	} else {
 		fmt.Println("Editor Mode")
@@ -246,7 +248,7 @@ func RenderNoiseMap() {
 			// if y%2 != x%2 {
 			// 	r, g, b = 1, 1, 1
 			// }
-			drawQuad(float32(x), 0, float32(y), 5, r, g, b, false)
+			drawQuad(float32(x), float32(val)*10, float32(y), 5, r, g, b, false)
 		}
 	}
 }

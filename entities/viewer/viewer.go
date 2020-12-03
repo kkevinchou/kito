@@ -27,7 +27,7 @@ func New(position vector.Vector3, view vector.Vector) *ViewerImpl {
 	entity := &ViewerImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
-	entity.PhysicsComponent.Init(entity, 5, 10)
+	entity.PhysicsComponent.Init(entity, 10, 10)
 
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.SetPosition(position)
