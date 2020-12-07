@@ -16,6 +16,10 @@ Pathfinding where two polys share a vertex but have no portal.  Pathfinding will
 Renderer is shared between asset manager and render system atm, may wkito to isolate it in one place.
 changing camera view causes view to "shake"
 
+NOTES
+
+Should the forward method be a part of the view component? it seems tied to movement which isn't related to viewing
+
 ANIMATIONS
  - Graze
  - Idle

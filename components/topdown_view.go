@@ -71,7 +71,7 @@ func (c *TopDownViewComponent) Right() vector.Vector3 {
 	v2 := vector.Vector3{X: x, Y: 0, Z: z}
 	v3 := v1.Cross(v2)
 
-	if v3.X == 0 && v3.Y == 0 && v3.Z == 0 {
+	if v3.IsZero() {
 		v3 = vector.Vector3{X: v2.Z, Y: 0, Z: -v2.X}
 	}
 
