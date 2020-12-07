@@ -18,6 +18,7 @@ type Command interface{}
 
 type MoveCommand struct {
 	Value vector.Vector3
+	Zoom  int
 }
 
 type UpdateViewCommand struct {

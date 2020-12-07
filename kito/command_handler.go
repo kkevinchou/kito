@@ -24,8 +24,8 @@ func (g *Game) GameOver() {
 	g.gameOver = true
 }
 
-func (g *Game) MoveCommand(vector vector.Vector3) {
-	g.viewer.SetVelocityDirection(vector)
+func (g *Game) MoveCommand(vector vector.Vector3, zoom int) {
+	g.viewer.SetControlDirection(vector, zoom)
 }
 
 func (g *Game) UpdateViewCommand(vector vector.Vector) {
@@ -42,7 +42,7 @@ func (g *Game) Handle(command interface{}) {
 	if _, ok := command.(*commands.QuitCommand); ok {
 		g.GameOver()
 	} else if c, ok := command.(*commands.MoveCommand); ok {
-		g.MoveCommand(c.Value)
+		g.MoveCommand(c.Value, c.Zoom)
 	} else if c, ok := command.(*commands.UpdateViewCommand); ok {
 		g.UpdateViewCommand(c.Value)
 	} else if c, ok := command.(*commands.ToggleCameraControlCommand); ok {

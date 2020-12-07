@@ -8,14 +8,6 @@ import (
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
-type Viewer interface {
-	SetVelocityDirection(vector vector.Vector3)
-	Position() vector.Vector3
-	View() vector.Vector
-	UpdateView(vector vector.Vector)
-	Update(delta time.Duration)
-}
-
 type ViewerImpl struct {
 	*physics.PhysicsComponent
 	*components.PositionComponent
@@ -40,6 +32,7 @@ func New(position vector.Vector3, view vector.Vector) *ViewerImpl {
 }
 
 func (e *ViewerImpl) Update(delta time.Duration) {
+	// this code should be in a system
 	e.CharacterControllerComponent.Update(delta)
 	e.PhysicsComponent.Update(delta)
 }

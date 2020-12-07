@@ -49,7 +49,7 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 	if i.KeyState[sdl.SCANCODE_LSHIFT] > 0 {
 		y--
 	}
-	commandList = append(commandList, &commands.MoveCommand{Value: vector.Vector3{x, y, z}})
+	var zoom int
 
 	if i.KeyState[sdl.SCANCODE_ESCAPE] > 0 {
 		commandList = append(commandList, &commands.QuitCommand{})
@@ -82,8 +82,11 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 			y := float64(e.YRel)
 
 			commandList = append(commandList, &commands.UpdateViewCommand{Value: vector.Vector{x, y}})
+		case *sdl.MouseWheelEvent:
+			zoom = int(e.Y)
 		}
 	}
+	commandList = append(commandList, &commands.MoveCommand{Value: vector.Vector3{x, y, z}, Zoom: zoom})
 
 	return commandList
 }

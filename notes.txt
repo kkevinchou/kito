@@ -9,6 +9,7 @@ Decide whether moving along a single vertex is allowed
 max speed currently isn't used in physics component
 networking :D
 bake navmesh polygon normals into nav mesh polygons. in general make then more rich than just plain polygons
+Commands should be input keys, not actual commands. the game should interpret the input keys to decide what command to execute
 
 BUGS
 

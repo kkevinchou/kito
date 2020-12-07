@@ -51,9 +51,25 @@ func (c *TopDownViewComponent) Forward() vector.Vector3 {
 	y := math.Sin(xRadianAngle)
 	z := -math.Sin(yRadianAngle) * math.Cos(xRadianAngle)
 
-	_ = y
-	return vector.Vector3{X: x, Y: 0, Z: z}.Scale(-1)
+	return vector.Vector3{X: x, Y: y, Z: z}.Scale(-1)
 }
+
+// func (c *TopDownViewComponent) Forward() vector.Vector3 {
+// 	xRadianAngle := -toRadians(c.view.X)
+// 	if xRadianAngle < 0 {
+// 		xRadianAngle += 2 * math.Pi
+// 	}
+// 	yRadianAngle := -(toRadians(c.view.Y) - (math.Pi / 2))
+// 	if yRadianAngle < 0 {
+// 		yRadianAngle += 2 * math.Pi
+// 	}
+
+// 	x := math.Cos(yRadianAngle) * math.Cos(xRadianAngle)
+// 	y := math.Sin(xRadianAngle)
+// 	z := -math.Sin(yRadianAngle) * math.Cos(xRadianAngle)
+
+// 	return vector.Vector3{X: x, Y: y, Z: z}.Scale(-1)
+// }
 
 func (c *TopDownViewComponent) Right() vector.Vector3 {
 	xRadianAngle := -toRadians(c.view.X)

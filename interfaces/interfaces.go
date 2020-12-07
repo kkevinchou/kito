@@ -49,10 +49,10 @@ type Worker interface {
 }
 
 // Controllable is an entity that can be controlled. controlled via forward, backward, left, right, up, down
-// and is set by SetVelocityDirection
+// and is set by SetControlDirection
 type Controllable interface {
 	// public
-	SetVelocityDirection(vector vector.Vector3)
+	SetControlDirection(vector vector.Vector3, zoom int)
 
 	// private
 	Forward() vector.Vector3
