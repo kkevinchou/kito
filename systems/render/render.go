@@ -193,8 +193,10 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	// draw skybox without consideration for camera translation
 	drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
 
-	gl.Translatef(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
+	// vertical view changes are relative to the viewer
 	gl.Rotatef(float32(viewerView.X), 1, 0, 0)
+	gl.Translatef(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
+	// horizontal view changes are relative to the origin
 	gl.Rotatef(float32(viewerView.Y), 0, 1, 0)
 
 	for _, light := range r.lights {
@@ -229,7 +231,10 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		// temp code, force rendering oak tree
 		// r.renderModel(r.modelMap["oak"], vector.Vector3{X: 0, Y: 0, Z: 0})
 		// r.renderModel(r.modelMap["land"], vector.Vector3{X: 0, Y: 0, Z: 0})
-		RenderNoiseMap()
+		width := float32(len(noiseMap[0]))
+		height := float32(len(noiseMap))
+		var edgeLength float32 = 1
+		RenderNoiseMap(noiseMap, -(width*edgeLength)/2, -(height*edgeLength)/2, edgeLength)
 	}
 
 	r.window.GLSwap()

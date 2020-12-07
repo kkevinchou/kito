@@ -11,9 +11,8 @@ import (
 	"github.com/kkevinchou/kito/lib/pathing"
 )
 
-func RenderNoiseMap() {
+func RenderNoiseMap(noiseMap [][]float64, xOffset, zOffset, edgeLength float32) {
 	var amplitude float32 = 5
-	var edgeLength float32 = 1
 	var lineOffset float32 = 0.01
 	// gl.Disable(gl.LIGHTING)
 
@@ -28,8 +27,8 @@ func RenderNoiseMap() {
 			// }
 			// drawQuad(float32(x), float32(val)*10, float32(y), 5, r, g, b, false)
 			gl.Color3f(0.75, 0.75, 0.75)
-			gl.Vertex3f(float32(x)*edgeLength, float32(noiseMap[x][y])*amplitude, float32(y)*edgeLength)
-			gl.Vertex3f(float32(x)*edgeLength, float32(noiseMap[x][y+1])*amplitude, float32(y+1)*edgeLength)
+			gl.Vertex3f(float32(x)*edgeLength+xOffset, float32(noiseMap[x][y])*amplitude, float32(y)*edgeLength+zOffset)
+			gl.Vertex3f(float32(x)*edgeLength+xOffset, float32(noiseMap[x][y+1])*amplitude, float32(y+1)*edgeLength+zOffset)
 		}
 		gl.End()
 	}
@@ -46,8 +45,8 @@ func RenderNoiseMap() {
 			// }
 			// drawQuad(float32(x), float32(val)*10, float32(y), 5, r, g, b, false)
 			gl.Color3f(0, 0, 0)
-			gl.Vertex3f(float32(x)*edgeLength, float32(noiseMap[x][y])*amplitude+lineOffset, float32(y)*edgeLength)
-			gl.Vertex3f(float32(x)*edgeLength, float32(noiseMap[x][y+1])*amplitude+lineOffset, float32(y+1)*edgeLength)
+			gl.Vertex3f(float32(x)*edgeLength+xOffset, float32(noiseMap[x][y])*amplitude+lineOffset, float32(y)*edgeLength+zOffset)
+			gl.Vertex3f(float32(x)*edgeLength+xOffset, float32(noiseMap[x][y+1])*amplitude+lineOffset, float32(y+1)*edgeLength+zOffset)
 		}
 		gl.End()
 	}

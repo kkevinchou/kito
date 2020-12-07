@@ -41,7 +41,7 @@ func (c *ViewComponent) Forward() vector.Vector3 {
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
-	yRadianAngle := -(toRadians(c.view.Y) - (math.Pi / 2))
+	yRadianAngle := -(toRadians(0) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
 	}
@@ -58,7 +58,7 @@ func (c *ViewComponent) Right() vector.Vector3 {
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
-	yRadianAngle := -(toRadians(c.view.Y) - (math.Pi / 2))
+	yRadianAngle := -(toRadians(0) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
 	}
