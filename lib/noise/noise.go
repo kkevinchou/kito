@@ -1,8 +1,6 @@
 package noise
 
 import (
-	"fmt"
-
 	"github.com/aquilax/go-perlin"
 )
 
@@ -23,7 +21,6 @@ func GenerateNoiseMap(xMax, yMax int) [][]float64 {
 			result[x][y] = (p.Noise2D(float64(x)/float64(10), float64(y)/float64(10)) + 1) / 2
 		}
 	}
-	fmt.Println(result)
 
 	return result
 }

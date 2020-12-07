@@ -182,109 +182,57 @@ var noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
 func (r *RenderSystem) Update(delta time.Duration) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	if r.game.GetGameMode() == enums.GameModePlaying {
-		viewerPosition := r.viewer.Position()
-		viewerView := r.viewer.View()
+	viewerPosition := r.viewer.Position()
+	viewerView := r.viewer.View()
 
-		// Set up the Model View matrix.  Based on how much the camera has moved,
-		// translate the entire world
-		gl.MatrixMode(gl.MODELVIEW)
-		gl.LoadIdentity()
-		gl.Rotatef(float32(viewerView.X), 1, 0, 0)
-		gl.Rotatef(float32(viewerView.Y), 0, 1, 0)
+	// Set up the Model View matrix.  Based on how much the camera has moved,
+	// translate the entire world
+	gl.MatrixMode(gl.MODELVIEW)
+	gl.LoadIdentity()
 
-		// draw skybox without consideration for camera translation
-		drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
+	// draw skybox without consideration for camera translation
+	drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
 
-		gl.Translatef(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
+	gl.Translatef(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
+	gl.Rotatef(float32(viewerView.X), 1, 0, 0)
+	gl.Rotatef(float32(viewerView.Y), 0, 1, 0)
 
-		for _, light := range r.lights {
-			light.Update(delta)
-			texture := r.textureMap["light"]
-			position := light.Position()
-			drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, false)
+	for _, light := range r.lights {
+		light.Update(delta)
+		texture := r.textureMap["light"]
+		position := light.Position()
+		drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, false)
+	}
+
+	for _, renderable := range r.renderables {
+		renderData := renderable.GetRenderData()
+		if !renderData.IsVisible() {
+			continue
+		}
+		if rData, ok := renderData.(*components.TextureRenderData); ok {
+			position := renderable.Position()
+			texture := r.textureMap[rData.ID]
+			drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
+		} else if rData, ok := renderData.(*components.ItemRenderData); ok {
+			position := renderable.Position()
+			texture := r.textureMap[rData.ID]
+			drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
+		} else if _, ok := renderData.(*components.ModelRenderData); ok {
+		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
+			// if navMesh, ok := renderable.(*pathing.NavMesh); ok {
+			// 	RenderNavMesh(navMesh)
+			// } else {
+			// 	panic("FAILED TO CAST NAVMESH")
+			// }
 		}
 
-		for _, renderable := range r.renderables {
-			renderData := renderable.GetRenderData()
-			if !renderData.IsVisible() {
-				continue
-			}
-			if rData, ok := renderData.(*components.TextureRenderData); ok {
-				position := renderable.Position()
-				texture := r.textureMap[rData.ID]
-				drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
-			} else if rData, ok := renderData.(*components.ItemRenderData); ok {
-				position := renderable.Position()
-				texture := r.textureMap[rData.ID]
-				drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
-			} else if _, ok := renderData.(*components.ModelRenderData); ok {
-			} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
-				// if navMesh, ok := renderable.(*pathing.NavMesh); ok {
-				// 	RenderNavMesh(navMesh)
-				// } else {
-				// 	panic("FAILED TO CAST NAVMESH")
-				// }
-			}
-
-			// temp code, force rendering oak tree
-			// r.renderModel(r.modelMap["oak"], vector.Vector3{X: 0, Y: 0, Z: 0})
-			// r.renderModel(r.modelMap["land"], vector.Vector3{X: 0, Y: 0, Z: 0})
-			RenderNoiseMap()
-		}
-	} else {
-		fmt.Println("Editor Mode")
+		// temp code, force rendering oak tree
+		// r.renderModel(r.modelMap["oak"], vector.Vector3{X: 0, Y: 0, Z: 0})
+		// r.renderModel(r.modelMap["land"], vector.Vector3{X: 0, Y: 0, Z: 0})
+		RenderNoiseMap()
 	}
 
 	r.window.GLSwap()
-}
-
-func RenderNoiseMap() {
-	for x, _ := range noiseMap {
-		for y, _ := range noiseMap[x] {
-			val := noiseMap[x][y]
-			var r, g, b float32 = float32(val), float32(val), float32(val)
-			// var r, g, b float32 = 0, 0, 0
-			// if y%2 != x%2 {
-			// 	r, g, b = 1, 1, 1
-			// }
-			drawQuad(float32(x), float32(val)*10, float32(y), 5, r, g, b, false)
-		}
-	}
-}
-
-func RenderNavMesh(navMesh *pathing.NavMesh) {
-	polygons := navMesh.Polygons()
-	for i, polygon := range polygons {
-		p0 := polygon.Points()[0]
-		p1 := polygon.Points()[1]
-		p2 := polygon.Points()[2]
-
-		a := vector.Vector3{X: p1.X - p0.X, Y: p1.Y - p0.Y, Z: p1.Z - p0.Z}
-		b := vector.Vector3{X: p2.X - p0.X, Y: p2.Y - p0.Y, Z: p2.Z - p0.Z}
-
-		// normal always points "up"
-		normal := a.Cross(b).Normalize()
-		if normal.Y < 0 {
-			normal.Y = -normal.Y
-		}
-
-		color := make([]float32, 3)
-
-		gl.Begin(gl.POLYGON)
-		gl.Normal3f(float32(normal.X), float32(normal.Y), float32(normal.Z))
-
-		for _, point := range polygon.Points() {
-			if i%2 == 0 {
-				color[0], color[1], color[2] = 0, 0, 0
-			} else {
-				color[0], color[1], color[2] = 1, 1, 1
-			}
-			gl.Color3f(color[0], color[1], color[2])
-			gl.Vertex3f(float32(point.X), float32(point.Y), float32(point.Z))
-		}
-		gl.End()
-	}
 }
 
 // x, y represents the x,y coordinate on the window. The output is a 3d position in world coordinates

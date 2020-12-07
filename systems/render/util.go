@@ -8,7 +8,86 @@ import (
 
 	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/lib/pathing"
 )
+
+func RenderNoiseMap() {
+	var amplitude float32 = 5
+	var edgeLength float32 = 1
+	var lineOffset float32 = 0.01
+	// gl.Disable(gl.LIGHTING)
+
+	gl.Normal3f(0, 1, 0)
+	for y := 0; y < len(noiseMap[0])-1; y++ {
+		gl.Begin(gl.TRIANGLE_STRIP)
+		for x := 0; x < len(noiseMap); x++ {
+			// val := noiseMap[x][y]
+			// var r, g, b float32 = float32(val), float32(val), float32(val)
+			// if y%2 != x%2 {
+			// 	r, g, b = 1, 1, 1
+			// }
+			// drawQuad(float32(x), float32(val)*10, float32(y), 5, r, g, b, false)
+			gl.Color3f(0.75, 0.75, 0.75)
+			gl.Vertex3f(float32(x)*edgeLength, float32(noiseMap[x][y])*amplitude, float32(y)*edgeLength)
+			gl.Vertex3f(float32(x)*edgeLength, float32(noiseMap[x][y+1])*amplitude, float32(y+1)*edgeLength)
+		}
+		gl.End()
+	}
+
+	gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
+	gl.Normal3f(0, 1, 0)
+	for y := 0; y < len(noiseMap[0])-1; y++ {
+		gl.Begin(gl.TRIANGLE_STRIP)
+		for x := 0; x < len(noiseMap); x++ {
+			// val := noiseMap[x][y]
+			// var r, g, b float32 = float32(val), float32(val), float32(val)
+			// if y%2 != x%2 {
+			// 	r, g, b = 1, 1, 1
+			// }
+			// drawQuad(float32(x), float32(val)*10, float32(y), 5, r, g, b, false)
+			gl.Color3f(0, 0, 0)
+			gl.Vertex3f(float32(x)*edgeLength, float32(noiseMap[x][y])*amplitude+lineOffset, float32(y)*edgeLength)
+			gl.Vertex3f(float32(x)*edgeLength, float32(noiseMap[x][y+1])*amplitude+lineOffset, float32(y+1)*edgeLength)
+		}
+		gl.End()
+	}
+	gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
+	// gl.Enable(gl.LIGHTING)
+}
+
+func RenderNavMesh(navMesh *pathing.NavMesh) {
+	polygons := navMesh.Polygons()
+	for i, polygon := range polygons {
+		p0 := polygon.Points()[0]
+		p1 := polygon.Points()[1]
+		p2 := polygon.Points()[2]
+
+		a := vector.Vector3{X: p1.X - p0.X, Y: p1.Y - p0.Y, Z: p1.Z - p0.Z}
+		b := vector.Vector3{X: p2.X - p0.X, Y: p2.Y - p0.Y, Z: p2.Z - p0.Z}
+
+		// normal always points "up"
+		normal := a.Cross(b).Normalize()
+		if normal.Y < 0 {
+			normal.Y = -normal.Y
+		}
+
+		color := make([]float32, 3)
+
+		gl.Begin(gl.POLYGON)
+		gl.Normal3f(float32(normal.X), float32(normal.Y), float32(normal.Z))
+
+		for _, point := range polygon.Points() {
+			if i%2 == 0 {
+				color[0], color[1], color[2] = 0, 0, 0
+			} else {
+				color[0], color[1], color[2] = 1, 1, 1
+			}
+			gl.Color3f(color[0], color[1], color[2])
+			gl.Vertex3f(float32(point.X), float32(point.Y), float32(point.Z))
+		}
+		gl.End()
+	}
+}
 
 func drawLine(start, end vector.Vector3) {
 	gl.LineWidth(2.5)
