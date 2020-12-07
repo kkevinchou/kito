@@ -26,14 +26,14 @@ func (c *TopDownViewComponent) SetView(view vector.Vector) {
 }
 
 func (c *TopDownViewComponent) UpdateView(delta vector.Vector) {
-	c.view.X += delta.Y * ySensitivity
+	// c.view.X += delta.Y * ySensitivity
 	c.view.Y += delta.X * xSensitivity
 
-	if c.view.X < -cameraRotationXMax {
-		c.view.X = -cameraRotationXMax
-	} else if c.view.X > cameraRotationXMax {
-		c.view.X = cameraRotationXMax
-	}
+	// if c.view.X < -cameraRotationXMax {
+	// 	c.view.X = -cameraRotationXMax
+	// } else if c.view.X > cameraRotationXMax {
+	// 	c.view.X = cameraRotationXMax
+	// }
 }
 
 func (c *TopDownViewComponent) Forward() vector.Vector3 {
@@ -41,6 +41,7 @@ func (c *TopDownViewComponent) Forward() vector.Vector3 {
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
+
 	yRadianAngle := -(toRadians(0) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
@@ -50,7 +51,8 @@ func (c *TopDownViewComponent) Forward() vector.Vector3 {
 	y := math.Sin(xRadianAngle)
 	z := -math.Sin(yRadianAngle) * math.Cos(xRadianAngle)
 
-	return vector.Vector3{X: x, Y: y, Z: z}.Scale(-1)
+	_ = y
+	return vector.Vector3{X: x, Y: 0, Z: z}.Scale(-1)
 }
 
 func (c *TopDownViewComponent) Right() vector.Vector3 {

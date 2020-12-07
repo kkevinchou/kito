@@ -29,7 +29,7 @@ const (
 var (
 	fps                 = 60.0
 	viewerStartPosition = vector.Vector3{X: 0, Y: 50, Z: 100}
-	viewerStartView     = vector.Vector{X: 45, Y: 135}
+	viewerStartView     = vector.Vector{X: 40, Y: 135}
 )
 
 func setupGrass() {
