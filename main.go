@@ -55,7 +55,6 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 		commandList = append(commandList, &commands.QuitCommand{})
 	}
 
-	sdl.PumpEvents()
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
