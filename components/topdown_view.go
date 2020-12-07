@@ -9,23 +9,23 @@ import (
 const (
 	cameraRotationXMax = 80
 	cameraSpeedScalar  = 10
-	xSensitivity       = float64(0.2)
-	ySensitivity       = float64(0.2)
+	xSensitivity       = float64(0.5)
+	ySensitivity       = float64(0.5)
 )
 
-type ViewComponent struct {
+type TopDownViewComponent struct {
 	view vector.Vector
 }
 
-func (c *ViewComponent) View() vector.Vector {
+func (c *TopDownViewComponent) View() vector.Vector {
 	return c.view
 }
 
-func (c *ViewComponent) SetView(view vector.Vector) {
+func (c *TopDownViewComponent) SetView(view vector.Vector) {
 	c.view = view
 }
 
-func (c *ViewComponent) UpdateView(delta vector.Vector) {
+func (c *TopDownViewComponent) UpdateView(delta vector.Vector) {
 	c.view.X += delta.Y * ySensitivity
 	c.view.Y += delta.X * xSensitivity
 
@@ -36,7 +36,7 @@ func (c *ViewComponent) UpdateView(delta vector.Vector) {
 	}
 }
 
-func (c *ViewComponent) Forward() vector.Vector3 {
+func (c *TopDownViewComponent) Forward() vector.Vector3 {
 	xRadianAngle := -toRadians(c.view.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
@@ -53,7 +53,7 @@ func (c *ViewComponent) Forward() vector.Vector3 {
 	return vector.Vector3{X: x, Y: y, Z: z}.Scale(-1)
 }
 
-func (c *ViewComponent) Right() vector.Vector3 {
+func (c *TopDownViewComponent) Right() vector.Vector3 {
 	xRadianAngle := -toRadians(c.view.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi

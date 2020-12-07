@@ -19,7 +19,7 @@ type Viewer interface {
 type ViewerImpl struct {
 	*physics.PhysicsComponent
 	*components.PositionComponent
-	*components.ViewComponent
+	*components.TopDownViewComponent
 	*components.CharacterControllerComponent
 }
 
@@ -31,7 +31,7 @@ func New(position vector.Vector3, view vector.Vector) *ViewerImpl {
 
 	entity.PositionComponent = &components.PositionComponent{}
 	entity.SetPosition(position)
-	entity.ViewComponent = &components.ViewComponent{}
+	entity.TopDownViewComponent = &components.TopDownViewComponent{}
 	entity.SetView(view)
 
 	entity.CharacterControllerComponent = components.NewCharacterControllerComponent(entity)
