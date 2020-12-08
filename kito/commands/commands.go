@@ -16,11 +16,6 @@ type Command interface{}
 // 	fmt.Println("Camera position:", game.camera.Position(), "Direction:", dir)
 // }
 
-type MoveCommand struct {
-	Value vector.Vector3
-	Zoom  int
-}
-
 type UpdateViewCommand struct {
 	Value vector.Vector
 }
@@ -30,3 +25,28 @@ type ToggleCameraControlCommand struct {
 }
 
 type QuitCommand struct{}
+
+type KeyboardKey string
+type KeyboardEvent int
+
+const (
+	KeyboardKeyW KeyboardKey = "W"
+	KeyboardKeyA KeyboardKey = "A"
+	KeyboardKeyS KeyboardKey = "S"
+	KeyboardKeyD KeyboardKey = "D"
+
+	KeyboardKeyLShift KeyboardKey = "Left Shift"
+	KeyboardKeySpace  KeyboardKey = "Space"
+	KeyboardKeyEscape KeyboardKey = "Escape"
+
+	KeyboardEventUp   = iota
+	KeyboardEventDown = iota
+)
+
+type KeyboardInput struct {
+	Key    KeyboardKey
+	Repeat bool
+	Event  KeyboardEvent
+}
+
+type KeyboardInputSet map[KeyboardKey]KeyboardInput

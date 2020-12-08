@@ -1,6 +1,8 @@
 package kito
 
 import (
+	"fmt"
+
 	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
@@ -24,10 +26,6 @@ func (g *Game) GameOver() {
 	g.gameOver = true
 }
 
-func (g *Game) MoveCommand(vector vector.Vector3, zoom int) {
-	g.viewer.SetControlDirection(vector, zoom)
-}
-
 func (g *Game) UpdateViewCommand(vector vector.Vector) {
 	if g.viewControlled {
 		g.viewer.UpdateView(vector)
@@ -41,11 +39,18 @@ func (g *Game) ToggleCameraControlCommand(value bool) {
 func (g *Game) Handle(command interface{}) {
 	if _, ok := command.(*commands.QuitCommand); ok {
 		g.GameOver()
-	} else if c, ok := command.(*commands.MoveCommand); ok {
-		g.MoveCommand(c.Value, c.Zoom)
 	} else if c, ok := command.(*commands.UpdateViewCommand); ok {
 		g.UpdateViewCommand(c.Value)
 	} else if c, ok := command.(*commands.ToggleCameraControlCommand); ok {
 		g.ToggleCameraControlCommand(c.Value)
+	} else if c, ok := command.(*commands.KeyboardInputSet); ok {
+		if _, ok := (*c)[commands.KeyboardKeyEscape]; ok {
+			// move this into a system maybe
+			g.GameOver()
+		}
+		singleton := g.GetSingleton()
+		singleton.SetKeyboardInputSet(c)
+	} else {
+		panic(fmt.Sprintf("UNEXPECTED COMMAND %v", command))
 	}
 }

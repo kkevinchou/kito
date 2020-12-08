@@ -18,42 +18,17 @@ func init() {
 }
 
 type InputHandler struct {
-	KeyState []uint8
 }
 
 func NewInputHandler() *InputHandler {
-	return &InputHandler{KeyState: sdl.GetKeyboardState()}
+	return &InputHandler{}
 }
 
 // TODO: event polling will return no events even though the key is being held down
 func (i *InputHandler) CommandPoller() []commands.Command {
 	commandList := []commands.Command{}
 
-	var x, y, z float64
-
-	if i.KeyState[sdl.SCANCODE_W] > 0 {
-		z--
-	}
-	if i.KeyState[sdl.SCANCODE_S] > 0 {
-		z++
-	}
-	if i.KeyState[sdl.SCANCODE_A] > 0 {
-		x--
-	}
-	if i.KeyState[sdl.SCANCODE_D] > 0 {
-		x++
-	}
-	if i.KeyState[sdl.SCANCODE_SPACE] > 0 {
-		y++
-	}
-	if i.KeyState[sdl.SCANCODE_LSHIFT] > 0 {
-		y--
-	}
-	var zoom int
-
-	if i.KeyState[sdl.SCANCODE_ESCAPE] > 0 {
-		commandList = append(commandList, &commands.QuitCommand{})
-	}
+	keyboardInputSet := commands.KeyboardInputSet{}
 
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -82,10 +57,46 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 
 			commandList = append(commandList, &commands.UpdateViewCommand{Value: vector.Vector{x, y}})
 		case *sdl.MouseWheelEvent:
-			zoom = int(e.Y)
+			// zoom = int(e.Y)
+		case *sdl.KeyboardEvent:
+			var repeat bool
+			if e.Repeat >= 1 {
+				repeat = true
+			}
+			key := commands.KeyboardKey(sdl.GetKeyName(e.Keysym.Sym))
+
+			var keyboardEvent commands.KeyboardEvent
+			if e.Type == sdl.KEYUP {
+				keyboardEvent = commands.KeyboardEventUp
+			} else if e.Type == sdl.KEYDOWN {
+				keyboardEvent = commands.KeyboardEventDown
+			} else {
+				panic("unexpected keyboard event" + string(e.Type))
+			}
+
+			keyboardInputSet[key] = commands.KeyboardInput{
+				Key:    key,
+				Repeat: repeat,
+				Event:  keyboardEvent,
+			}
 		}
 	}
-	commandList = append(commandList, &commands.MoveCommand{Value: vector.Vector3{x, y, z}, Zoom: zoom})
+
+	// // TODO: only check for keys we care about - keyState contains 512 keys
+	// sdl.PumpEvents()
+	// keyState := sdl.GetKeyboardState()
+	// for k, v := range keyState {
+	// 	if v <= 0 {
+	// 		continue
+	// 	}
+	// 	key := commands.KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
+	// 	keyboardInputSet[key] = commands.KeyboardInput{
+	// 		Key:   key,
+	// 		Event: commands.KeyboardEventDown,
+	// 	}
+	// }
+
+	commandList = append(commandList, &keyboardInputSet)
 
 	return commandList
 }

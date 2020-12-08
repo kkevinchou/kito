@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities/food"
 	"github.com/kkevinchou/kito/entities/grass"
+	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/entities/viewer"
 	"github.com/kkevinchou/kito/entities/worker"
 	"github.com/kkevinchou/kito/interfaces"
@@ -18,6 +19,7 @@ import (
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
+	"github.com/kkevinchou/kito/systems/camera"
 	"github.com/kkevinchou/kito/systems/movement"
 	"github.com/kkevinchou/kito/systems/render"
 )
@@ -47,6 +49,7 @@ func (g *Game) setupSystems() *directory.Directory {
 	assetManager := lib.NewAssetManager(nil, "_assets")
 	renderSystem := render.NewRenderSystem(g, assetManager, g.viewer)
 	movementSystem := movement.NewMovementSystem()
+	cameraSystem := camera.NewCameraSystem(g)
 
 	d := directory.GetDirectory()
 	d.RegisterRenderSystem(renderSystem)
@@ -57,7 +60,14 @@ func (g *Game) setupSystems() *directory.Directory {
 
 	renderSystem.Register(pathManager.NavMesh())
 
+	g.systems = append(g.systems, cameraSystem)
+	g.systems = append(g.systems, movementSystem)
+
 	return d
+}
+
+type System interface {
+	Update(delta time.Duration)
 }
 
 type CommandPoller func() []commands.Command
@@ -70,6 +80,9 @@ type Game struct {
 	viewer         interfaces.Viewer
 	gameMode       enums.GameMode
 	viewControlled bool
+
+	singleton *singleton.Singleton
+	systems   []System
 }
 
 func NewGame() *Game {
@@ -81,8 +94,9 @@ func NewGame() *Game {
 	fmt.Println("Viewer initialized at position", viewer.Position(), "and view", viewer.View())
 
 	g := &Game{
-		viewer:   viewer,
-		gameMode: enums.GameModePlaying,
+		viewer:    viewer,
+		gameMode:  enums.GameModePlaying,
+		singleton: singleton.New(),
 	}
 
 	g.setupSystems()
@@ -95,18 +109,13 @@ func NewGame() *Game {
 	return g
 }
 
-// func (g *Game) MoveAnt(x, y float64) {
-// 	position := g.worker.Position()
-// 	pathManager := directory.GetDirectory().PathManager()
-// 	g.path = pathManager.FindPath(
-// 		geometry.Point{X: position.X, Y: position.Y},
-// 		geometry.Point{X: x, Y: y},
-// 	)
-// 	if g.path != nil {
-// 		g.pathIndex = 1
-// 		g.worker.SetTarget(g.path[1].Vector3())
-// 	}
-// }
+func (g *Game) GetCamera() interfaces.Viewer {
+	return g.viewer
+}
+
+func (g *Game) GetSingleton() interfaces.Singleton {
+	return g.singleton
+}
 
 func (g *Game) PlaceFood(x, y float64) {
 	food.New(x, 0, y)
@@ -126,10 +135,10 @@ func (g *Game) update(delta time.Duration) {
 		}
 	}
 
-	directory := directory.GetDirectory()
 	g.viewer.Update(delta)
-	movementSystem := directory.MovementSystem()
-	movementSystem.Update(delta)
+	for _, system := range g.systems {
+		system.Update(delta)
+	}
 }
 
 func (g *Game) Start(commandPoller CommandPoller) {
@@ -138,6 +147,7 @@ func (g *Game) Start(commandPoller CommandPoller) {
 	previousTime := time.Now()
 	var accumulator time.Duration
 	var renderAccumulator time.Duration
+	var debugAccumulator time.Duration
 
 	msPerFrame := time.Duration(1000000.0/fps) * time.Microsecond
 	directory := directory.GetDirectory()
@@ -153,26 +163,38 @@ func (g *Game) Start(commandPoller CommandPoller) {
 
 		accumulator += delta
 		renderAccumulator += delta
+		debugAccumulator += delta
 
-		commands := commandPoller()
-		for _, command := range commands {
-			g.Handle(command)
+		if debugAccumulator > time.Duration(1*time.Second) {
+			// fmt.Println("LOOP START")
 		}
 
 		for accumulator >= gameUpdateDelta {
+			commandList := commandPoller()
+			for _, command := range commandList {
+				g.Handle(command)
+			}
 			g.update(gameUpdateDelta)
 			accumulator -= gameUpdateDelta
 		}
-		if accumulator > 0 { // Temporary update to not lose physics time
-			g.update(accumulator)
-			accumulator = 0
-		}
+
+		// Temporary update to not lose physics time, is this needed? was in a weird
+		// case where the game updates weren't running since we would always set accumulation to zero
+		// if accumulator > 0 {
+		// 	g.update(accumulator)
+		// 	accumulator = 0
+		// }
 
 		if renderAccumulator >= msPerFrame {
 			renderSystem.Update(msPerFrame)
 		}
 		for renderAccumulator > msPerFrame {
 			renderAccumulator -= msPerFrame
+		}
+
+		if debugAccumulator > time.Duration(1*time.Second) {
+			// fmt.Println("LOOP END")
+			debugAccumulator = 0
 		}
 	}
 }
