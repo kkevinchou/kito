@@ -3,7 +3,6 @@ package types
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
@@ -71,8 +70,8 @@ type Viewer interface {
 }
 
 type Singleton interface {
-	GetKeyboardInputSet() *commands.KeyboardInputSet
-	SetKeyboardInputSet(input *commands.KeyboardInputSet)
+	GetKeyboardInputSet() *KeyboardInput
+	SetKeyboardInputSet(input *KeyboardInput)
 	GetMouseInput() *MouseInput
 	SetMouseInput(input *MouseInput)
 }

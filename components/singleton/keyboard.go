@@ -1,21 +1,21 @@
 package singleton
 
-import "github.com/kkevinchou/kito/kito/commands"
+import "github.com/kkevinchou/kito/types"
 
 type KeyboardInputComponent struct {
-	KeyboardInputSet *commands.KeyboardInputSet
+	KeyboardInput *types.KeyboardInput
 }
 
 func NewKeyboardInputComponent() *KeyboardInputComponent {
 	return &KeyboardInputComponent{
-		KeyboardInputSet: &commands.KeyboardInputSet{},
+		KeyboardInput: &types.KeyboardInput{},
 	}
 }
 
-func (c *KeyboardInputComponent) GetKeyboardInputSet() *commands.KeyboardInputSet {
-	return c.KeyboardInputSet
+func (c *KeyboardInputComponent) GetKeyboardInputSet() *types.KeyboardInput {
+	return c.KeyboardInput
 }
 
-func (c *KeyboardInputComponent) SetKeyboardInputSet(input *commands.KeyboardInputSet) {
-	c.KeyboardInputSet = input
+func (c *KeyboardInputComponent) SetKeyboardInputSet(input *types.KeyboardInput) {
+	c.KeyboardInput = input
 }

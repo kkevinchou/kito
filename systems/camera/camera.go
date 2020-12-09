@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/types"
 )
 
 type Singleton interface {
-	GetKeyboardInputSet() *commands.KeyboardInputSet
+	GetKeyboardInputSet() *types.KeyboardInput
 }
 
 type World interface {
@@ -37,27 +36,27 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	}
 
 	singleton := s.world.GetSingleton()
-	keyboardInputSet := *singleton.GetKeyboardInputSet()
+	keyboardInput := *singleton.GetKeyboardInputSet()
 
 	var controlVector vector.Vector3
-	if key, ok := keyboardInputSet[commands.KeyboardKeyW]; ok && key.Event == commands.KeyboardEventDown {
+	if key, ok := keyboardInput[types.KeyboardKeyW]; ok && key.Event == types.KeyboardEventDown {
 		controlVector.Z--
 	}
-	if key, ok := keyboardInputSet[commands.KeyboardKeyS]; ok && key.Event == commands.KeyboardEventDown {
+	if key, ok := keyboardInput[types.KeyboardKeyS]; ok && key.Event == types.KeyboardEventDown {
 		controlVector.Z++
 	}
 	// Left
-	if key, ok := keyboardInputSet[commands.KeyboardKeyA]; ok && key.Event == commands.KeyboardEventDown {
+	if key, ok := keyboardInput[types.KeyboardKeyA]; ok && key.Event == types.KeyboardEventDown {
 		controlVector.X--
 	}
 	// Right
-	if key, ok := keyboardInputSet[commands.KeyboardKeyD]; ok && key.Event == commands.KeyboardEventDown {
+	if key, ok := keyboardInput[types.KeyboardKeyD]; ok && key.Event == types.KeyboardEventDown {
 		controlVector.X++
 	}
-	if key, ok := keyboardInputSet[commands.KeyboardKeyLShift]; ok && key.Event == commands.KeyboardEventDown {
+	if key, ok := keyboardInput[types.KeyboardKeyLShift]; ok && key.Event == types.KeyboardEventDown {
 		controlVector.Y--
 	}
-	if key, ok := keyboardInputSet[commands.KeyboardKeySpace]; ok && key.Event == commands.KeyboardEventDown {
+	if key, ok := keyboardInput[types.KeyboardKeySpace]; ok && key.Event == types.KeyboardEventDown {
 		controlVector.Y++
 	}
 

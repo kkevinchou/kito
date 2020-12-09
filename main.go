@@ -29,7 +29,7 @@ func NewInputHandler() *InputHandler {
 func (i *InputHandler) CommandPoller() []commands.Command {
 	commandList := []commands.Command{}
 
-	keyboardInputSet := commands.KeyboardInputSet{}
+	keyboardInput := types.KeyboardInput{}
 	mouseInput := types.MouseInput{
 		MouseWheel: types.MouseWheelDirectionNeutral,
 	}
@@ -74,18 +74,18 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 			// if e.Repeat >= 1 {
 			// 	repeat = true
 			// }
-			// key := commands.KeyboardKey(sdl.GetKeyName(e.Keysym.Sym))
+			// key := types.KeyboardKey(sdl.GetKeyName(e.Keysym.Sym))
 
-			// var keyboardEvent commands.KeyboardEvent
+			// var keyboardEvent types.KeyboardEvent
 			// if e.Type == sdl.KEYUP {
-			// 	keyboardEvent = commands.KeyboardEventUp
+			// 	keyboardEvent = types.KeyboardEventUp
 			// } else if e.Type == sdl.KEYDOWN {
-			// 	keyboardEvent = commands.KeyboardEventDown
+			// 	keyboardEvent = types.KeyboardEventDown
 			// } else {
 			// 	panic("unexpected keyboard event" + string(e.Type))
 			// }
 
-			// keyboardInputSet[key] = commands.KeyboardInput{
+			// keyboardInput[key] = types.KeyboardInput{
 			// 	Key:    key,
 			// 	Repeat: repeat,
 			// 	Event:  keyboardEvent,
@@ -100,14 +100,14 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 		if v <= 0 {
 			continue
 		}
-		key := commands.KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
-		keyboardInputSet[key] = commands.KeyboardInput{
+		key := types.KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
+		keyboardInput[key] = types.KeyState{
 			Key:   key,
-			Event: commands.KeyboardEventDown,
+			Event: types.KeyboardEventDown,
 		}
 	}
 
-	commandList = append(commandList, &keyboardInputSet)
+	commandList = append(commandList, &keyboardInput)
 	commandList = append(commandList, &mouseInput)
 
 	return commandList

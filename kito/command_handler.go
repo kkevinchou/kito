@@ -44,8 +44,8 @@ func (g *Game) Handle(command interface{}) {
 		g.UpdateViewCommand(c.Value)
 	} else if c, ok := command.(*commands.ToggleCameraControlCommand); ok {
 		g.ToggleCameraControlCommand(c.Value)
-	} else if c, ok := command.(*commands.KeyboardInputSet); ok {
-		if _, ok := (*c)[commands.KeyboardKeyEscape]; ok {
+	} else if c, ok := command.(*types.KeyboardInput); ok {
+		if _, ok := (*c)[types.KeyboardKeyEscape]; ok {
 			// move this into a system maybe
 			g.GameOver()
 		}
