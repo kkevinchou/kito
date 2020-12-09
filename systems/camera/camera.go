@@ -100,7 +100,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	if zoomValue != 0 {
 		zoomSpeed := 2 * camera.MaxSpeed()
 		impulse.Vector = zoomVector.Scale(zoomSpeed)
-		impulse.DecayRate = 1.5
+		impulse.DecayRate = 2.5
 		camera.ApplyImpulse("cameraZoom", impulse)
 	}
 }
