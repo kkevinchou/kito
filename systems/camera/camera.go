@@ -1,7 +1,10 @@
 package camera
 
 import (
+	"fmt"
 	"time"
+
+	"github.com/kkevinchou/kito/types"
 
 	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/kito/commands"
@@ -28,28 +31,15 @@ func NewCameraSystem(world World) *CameraSystem {
 	return &s
 }
 
-// if i.KeyState[sdl.SCANCODE_W] > 0 {
-// 	z--
-// }
-// if i.KeyState[sdl.SCANCODE_S] > 0 {
-// 	z++
-// }
-// if i.KeyState[sdl.SCANCODE_A] > 0 {
-// 	x--
-// }
-// if i.KeyState[sdl.SCANCODE_D] > 0 {
-// 	x++
-// }
-// if i.KeyState[sdl.SCANCODE_SPACE] > 0 {
-// 	y++
-// }
-// if i.KeyState[sdl.SCANCODE_LSHIFT] > 0 {
-// 	y--
-// }
-
 func (s *CameraSystem) Update(delta time.Duration) {
 	camera := s.world.GetCamera()
-	keyboardInputSet := *s.world.GetSingleton().GetKeyboardInputSet()
+
+	if !camera.Controlled() {
+		return
+	}
+
+	singleton := s.world.GetSingleton()
+	keyboardInputSet := *singleton.GetKeyboardInputSet()
 
 	var controlVector vector.Vector3
 	if key, ok := keyboardInputSet[commands.KeyboardKeyW]; ok && key.Event == commands.KeyboardEventDown {
@@ -58,9 +48,11 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	if key, ok := keyboardInputSet[commands.KeyboardKeyS]; ok && key.Event == commands.KeyboardEventDown {
 		controlVector.Z++
 	}
+	// Left
 	if key, ok := keyboardInputSet[commands.KeyboardKeyA]; ok && key.Event == commands.KeyboardEventDown {
 		controlVector.X--
 	}
+	// Right
 	if key, ok := keyboardInputSet[commands.KeyboardKeyD]; ok && key.Event == commands.KeyboardEventDown {
 		controlVector.X++
 	}
@@ -71,5 +63,41 @@ func (s *CameraSystem) Update(delta time.Duration) {
 		controlVector.Y++
 	}
 
-	camera.SetControlDirection(controlVector, 0)
+	mouseInput := singleton.GetMouseInput()
+
+	zoomValue := 0
+	if mouseInput.MouseWheel == types.MouseWheelDirectionNeutral {
+		zoomValue = 0
+	} else if mouseInput.MouseWheel == types.MouseWheelDirectionUp {
+		zoomValue = -1
+	} else if mouseInput.MouseWheel == types.MouseWheelDirectionDown {
+		zoomValue = 1
+	} else {
+		panic(fmt.Sprintf("unexpected mousewheel value %v", mouseInput.MouseWheel))
+	}
+
+	if controlVector.IsZero() && zoomValue == 0 {
+		return
+	}
+
+	forwardVector := camera.Forward()
+	zoomVector := forwardVector.Scale(float64(zoomValue))
+
+	forwardVector = forwardVector.Scale(controlVector.Z)
+	forwardVector.Y = 0
+
+	rightVector := camera.Right()
+	rightVector = rightVector.Scale(-controlVector.X)
+
+	if !controlVector.IsZero() {
+		moveSpeed := camera.MaxSpeed()
+		impulse := forwardVector.Add(rightVector).Add(vector.Vector3{X: 0, Y: controlVector.Y, Z: 0}).Normalize().Scale(moveSpeed)
+		camera.ApplyImpulse("cameraMove", impulse)
+	}
+
+	if zoomValue != 0 {
+		zoomSpeed := 2 * camera.MaxSpeed()
+		impulse := zoomVector.Scale(zoomSpeed)
+		camera.ApplyImpulse("cameraZoom", impulse)
+	}
 }

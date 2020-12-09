@@ -6,6 +6,7 @@ import (
 	"github.com/kkevinchou/kito/kito"
 	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/types"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -29,6 +30,9 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 	commandList := []commands.Command{}
 
 	keyboardInputSet := commands.KeyboardInputSet{}
+	mouseInput := types.MouseInput{
+		MouseWheel: types.MouseWheelDirectionNeutral,
+	}
 
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -58,45 +62,53 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 			commandList = append(commandList, &commands.UpdateViewCommand{Value: vector.Vector{x, y}})
 		case *sdl.MouseWheelEvent:
 			// zoom = int(e.Y)
+			direction := types.MouseWheelDirectionNeutral
+			if e.Y > 0 {
+				direction = types.MouseWheelDirectionUp
+			} else if e.Y < 0 {
+				direction = types.MouseWheelDirectionDown
+			}
+			mouseInput.MouseWheel = direction
 		case *sdl.KeyboardEvent:
-			var repeat bool
-			if e.Repeat >= 1 {
-				repeat = true
-			}
-			key := commands.KeyboardKey(sdl.GetKeyName(e.Keysym.Sym))
+			// var repeat bool
+			// if e.Repeat >= 1 {
+			// 	repeat = true
+			// }
+			// key := commands.KeyboardKey(sdl.GetKeyName(e.Keysym.Sym))
 
-			var keyboardEvent commands.KeyboardEvent
-			if e.Type == sdl.KEYUP {
-				keyboardEvent = commands.KeyboardEventUp
-			} else if e.Type == sdl.KEYDOWN {
-				keyboardEvent = commands.KeyboardEventDown
-			} else {
-				panic("unexpected keyboard event" + string(e.Type))
-			}
+			// var keyboardEvent commands.KeyboardEvent
+			// if e.Type == sdl.KEYUP {
+			// 	keyboardEvent = commands.KeyboardEventUp
+			// } else if e.Type == sdl.KEYDOWN {
+			// 	keyboardEvent = commands.KeyboardEventDown
+			// } else {
+			// 	panic("unexpected keyboard event" + string(e.Type))
+			// }
 
-			keyboardInputSet[key] = commands.KeyboardInput{
-				Key:    key,
-				Repeat: repeat,
-				Event:  keyboardEvent,
-			}
+			// keyboardInputSet[key] = commands.KeyboardInput{
+			// 	Key:    key,
+			// 	Repeat: repeat,
+			// 	Event:  keyboardEvent,
+			// }
 		}
 	}
 
-	// // TODO: only check for keys we care about - keyState contains 512 keys
-	// sdl.PumpEvents()
-	// keyState := sdl.GetKeyboardState()
-	// for k, v := range keyState {
-	// 	if v <= 0 {
-	// 		continue
-	// 	}
-	// 	key := commands.KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
-	// 	keyboardInputSet[key] = commands.KeyboardInput{
-	// 		Key:   key,
-	// 		Event: commands.KeyboardEventDown,
-	// 	}
-	// }
+	// TODO: only check for keys we care about - keyState contains 512 keys
+	sdl.PumpEvents()
+	keyState := sdl.GetKeyboardState()
+	for k, v := range keyState {
+		if v <= 0 {
+			continue
+		}
+		key := commands.KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
+		keyboardInputSet[key] = commands.KeyboardInput{
+			Key:   key,
+			Event: commands.KeyboardEventDown,
+		}
+	}
 
 	commandList = append(commandList, &keyboardInputSet)
+	commandList = append(commandList, &mouseInput)
 
 	return commandList
 }

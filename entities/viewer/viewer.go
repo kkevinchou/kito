@@ -12,7 +12,7 @@ type ViewerImpl struct {
 	*physics.PhysicsComponent
 	*components.PositionComponent
 	*components.TopDownViewComponent
-	*components.CharacterControllerComponent
+	*components.PlayerControllerComponent
 }
 
 func New(position vector.Vector3, view vector.Vector) *ViewerImpl {
@@ -26,13 +26,12 @@ func New(position vector.Vector3, view vector.Vector) *ViewerImpl {
 	entity.TopDownViewComponent = &components.TopDownViewComponent{}
 	entity.SetView(view)
 
-	entity.CharacterControllerComponent = components.NewCharacterControllerComponent(entity)
+	entity.PlayerControllerComponent = components.NewPlayerControllerComponent()
+	entity.PlayerControllerComponent.SetControlled(true)
 
 	return entity
 }
 
 func (e *ViewerImpl) Update(delta time.Duration) {
-	// this code should be in a system
-	e.CharacterControllerComponent.Update(delta)
 	e.PhysicsComponent.Update(delta)
 }

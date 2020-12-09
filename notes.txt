@@ -14,6 +14,7 @@ Commands should be input keys, not actual commands. the game should interpret th
 Commands should only be dispatched once a computation frame. Device inputs should be collected every frame, batched, then dispatched.
 Mouse wheel command should trigger a command that executes over multiple frames. Long enough that if there's a small break in mousewheel events
 the command should still execute and continue seemlessly
+keybaord key shoudl
 
 BUGS
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/types"
 )
 
 type Item interface {
@@ -49,31 +50,30 @@ type Worker interface {
 	Heading() vector.Vector3
 }
 
-// Controllable is an entity that can be controlled. controlled via forward, backward, left, right, up, down
-// and is set by SetControlDirection
+// Controllable is an entity that can be controlled
 type Controllable interface {
-	// public
-	SetControlDirection(vector vector.Vector3, zoom int)
-
-	// private
-	Forward() vector.Vector3
-	Right() vector.Vector3
-	SetVelocity(vector vector.Vector3)
-	MaxSpeed() float64
+	Controlled() bool
 }
 
 // Viewer is a controllable entity who's perspective can be rendered from the render system
 type Viewer interface {
 	Controllable
 
-	// public
+	Forward() vector.Vector3
+	Right() vector.Vector3
+	SetVelocity(vector vector.Vector3)
+	MaxSpeed() float64
+
 	Update(delta time.Duration)
 	UpdateView(vector vector.Vector)
 	Position() vector.Vector3
 	View() vector.Vector
+	ApplyImpulse(name string, impulse vector.Vector3)
 }
 
 type Singleton interface {
 	GetKeyboardInputSet() *commands.KeyboardInputSet
 	SetKeyboardInputSet(input *commands.KeyboardInputSet)
+	GetMouseInput() *types.MouseInput
+	SetMouseInput(input *types.MouseInput)
 }

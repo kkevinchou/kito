@@ -5,11 +5,13 @@ import (
 )
 
 type Singleton struct {
-	*singleton.InputComponent
+	*singleton.KeyboardInputComponent
+	*singleton.MouseInputComponent
 }
 
 func New() *Singleton {
 	return &Singleton{
-		InputComponent: singleton.New(),
+		KeyboardInputComponent: singleton.NewKeyboardInputComponent(),
+		MouseInputComponent:    singleton.NewMouseInputComponent(),
 	}
 }

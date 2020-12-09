@@ -5,6 +5,7 @@ import (
 
 	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/types"
 )
 
 // type CameraRaycastCommand struct {
@@ -50,6 +51,9 @@ func (g *Game) Handle(command interface{}) {
 		}
 		singleton := g.GetSingleton()
 		singleton.SetKeyboardInputSet(c)
+	} else if c, ok := command.(*types.MouseInput); ok {
+		singleton := g.GetSingleton()
+		singleton.SetMouseInput(c)
 	} else {
 		panic(fmt.Sprintf("UNEXPECTED COMMAND %v", command))
 	}
