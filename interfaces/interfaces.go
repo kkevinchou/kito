@@ -68,7 +68,7 @@ type Viewer interface {
 	UpdateView(vector vector.Vector)
 	Position() vector.Vector3
 	View() vector.Vector
-	ApplyImpulse(name string, impulse vector.Vector3)
+	ApplyImpulse(name string, impulse *types.Impulse)
 }
 
 type Singleton interface {

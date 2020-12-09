@@ -5,18 +5,12 @@ import (
 
 	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/types"
 )
 
 const (
-	// the decay fraction per second for an impulse
-	impulseDecay       = float64(3)
 	fullDecayThreshold = float64(0.05)
 )
-
-type Impulse struct {
-	v           vector.Vector3
-	elpasedTime time.Duration
-}
 
 type PhysicsComponent struct {
 	velocity vector.Vector3
@@ -26,7 +20,7 @@ type PhysicsComponent struct {
 	heading  vector.Vector3
 
 	// impulses have a name that can be reset or overwritten
-	impulses map[string]*Impulse
+	impulses map[string]*types.Impulse
 }
 
 func (c *PhysicsComponent) Init(entity interfaces.Positionable, maxSpeed, mass float64) {
@@ -34,7 +28,7 @@ func (c *PhysicsComponent) Init(entity interfaces.Positionable, maxSpeed, mass f
 	c.maxSpeed = maxSpeed
 	c.mass = mass
 	c.heading = vector.Vector3{X: 0, Y: 0, Z: -1}
-	c.impulses = map[string]*Impulse{}
+	c.impulses = map[string]*types.Impulse{}
 }
 
 func (c *PhysicsComponent) Velocity() vector.Vector3 {
@@ -61,8 +55,8 @@ func (c *PhysicsComponent) SetMaxSpeed(maxSpeed float64) {
 	c.maxSpeed = maxSpeed
 }
 
-func (c *PhysicsComponent) ApplyImpulse(name string, impulse vector.Vector3) {
-	c.impulses[name] = &Impulse{v: impulse}
+func (c *PhysicsComponent) ApplyImpulse(name string, impulse *types.Impulse) {
+	c.impulses[name] = impulse
 }
 
 func (c *PhysicsComponent) Update(delta time.Duration) {
@@ -72,8 +66,9 @@ func (c *PhysicsComponent) Update(delta time.Duration) {
 
 	var totalImpulse vector.Vector3
 	for name := range c.impulses {
-		c.impulses[name].elpasedTime = c.impulses[name].elpasedTime + delta
-		decayRatio := 1.0 - (c.impulses[name].elpasedTime.Seconds() * impulseDecay)
+		impulse := c.impulses[name]
+		impulse.ElapsedTime = impulse.ElapsedTime + delta
+		decayRatio := 1.0 - (impulse.ElapsedTime.Seconds() * impulse.DecayRate)
 		if decayRatio < 0 {
 			decayRatio = 0
 		}
@@ -81,7 +76,7 @@ func (c *PhysicsComponent) Update(delta time.Duration) {
 		if decayRatio < fullDecayThreshold {
 			delete(c.impulses, name)
 		} else {
-			realImpulse := c.impulses[name].v.Scale(decayRatio)
+			realImpulse := impulse.Vector.Scale(decayRatio)
 			totalImpulse = totalImpulse.Add(realImpulse)
 		}
 	}

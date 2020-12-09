@@ -89,15 +89,18 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	rightVector := camera.Right()
 	rightVector = rightVector.Scale(-controlVector.X)
 
+	impulse := &types.Impulse{}
 	if !controlVector.IsZero() {
 		moveSpeed := camera.MaxSpeed()
-		impulse := forwardVector.Add(rightVector).Add(vector.Vector3{X: 0, Y: controlVector.Y, Z: 0}).Normalize().Scale(moveSpeed)
+		impulse.Vector = forwardVector.Add(rightVector).Add(vector.Vector3{X: 0, Y: controlVector.Y, Z: 0}).Normalize().Scale(moveSpeed)
+		impulse.DecayRate = 2.5
 		camera.ApplyImpulse("cameraMove", impulse)
 	}
 
 	if zoomValue != 0 {
 		zoomSpeed := 2 * camera.MaxSpeed()
-		impulse := zoomVector.Scale(zoomSpeed)
+		impulse.Vector = zoomVector.Scale(zoomSpeed)
+		impulse.DecayRate = 1.5
 		camera.ApplyImpulse("cameraZoom", impulse)
 	}
 }
