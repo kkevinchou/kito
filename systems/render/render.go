@@ -8,15 +8,14 @@ import (
 
 	"github.com/go-gl/gl/v4.6-compatibility/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/common/enums"
 	"github.com/kkevinchou/kito/components"
-	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/math/matrix"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/pathing"
+	"github.com/kkevinchou/kito/types"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -40,11 +39,10 @@ var (
 )
 
 type Game interface {
-	GetGameMode() enums.GameMode
 }
 
 type Renderable interface {
-	interfaces.Positionable
+	types.Positionable
 	GetRenderData() components.RenderData
 }
 

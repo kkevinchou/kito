@@ -6,3 +6,10 @@ const (
 	MovementTypeSteering    MovementType = iota
 	MovementTypeDirectional MovementType = iota
 )
+
+type GameMode string
+
+const (
+	GameModeEditor  GameMode = "EDITOR"
+	GameModePlaying GameMode = "PLAYING"
+)

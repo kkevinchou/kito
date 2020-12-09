@@ -1,11 +1,10 @@
-package interfaces
+package types
 
 import (
 	"time"
 
 	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib/math/vector"
-	"github.com/kkevinchou/kito/types"
 )
 
 type Item interface {
@@ -68,12 +67,12 @@ type Viewer interface {
 	UpdateView(vector vector.Vector)
 	Position() vector.Vector3
 	View() vector.Vector
-	ApplyImpulse(name string, impulse *types.Impulse)
+	ApplyImpulse(name string, impulse *Impulse)
 }
 
 type Singleton interface {
 	GetKeyboardInputSet() *commands.KeyboardInputSet
 	SetKeyboardInputSet(input *commands.KeyboardInputSet)
-	GetMouseInput() *types.MouseInput
-	SetMouseInput(input *types.MouseInput)
+	GetMouseInput() *MouseInput
+	SetMouseInput(input *MouseInput)
 }

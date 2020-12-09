@@ -4,21 +4,21 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/directory"
-	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib/behavior"
-	"github.com/kkevinchou/kito/logger"
+	"github.com/kkevinchou/kito/lib/logger"
+	"github.com/kkevinchou/kito/types"
 )
 
 type PickupItem struct {
-	Entity interfaces.ItemReceiver
+	Entity types.ItemReceiver
 }
 
 func (p *PickupItem) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {
 	logger.Debug("PickupItem - ENTER")
-	var item interfaces.Item
+	var item types.Item
 	var ok bool
 
-	if item, ok = input.(interfaces.Item); !ok {
+	if item, ok = input.(types.Item); !ok {
 		logger.Debug("PickupItem - FAIL")
 		return nil, behavior.FAILURE
 	}
@@ -38,16 +38,16 @@ func (p *PickupItem) Tick(input interface{}, state behavior.AIState, delta time.
 func (p *PickupItem) Reset() {}
 
 type DropItem struct {
-	Entity interfaces.ItemGiver
+	Entity types.ItemGiver
 }
 
 func (d *DropItem) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {
 	logger.Debug("DropItem - ENTER")
 
-	var item interfaces.Item
+	var item types.Item
 	var ok bool
 
-	if item, ok = input.(interfaces.Item); !ok {
+	if item, ok = input.(types.Item); !ok {
 		logger.Debug("DropItem - FAIL")
 		return nil, behavior.FAILURE
 	}

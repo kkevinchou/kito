@@ -3,7 +3,6 @@ package physics
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/types"
 )
@@ -16,14 +15,14 @@ type PhysicsComponent struct {
 	velocity vector.Vector3
 	mass     float64
 	maxSpeed float64
-	entity   interfaces.Positionable
+	entity   types.Positionable
 	heading  vector.Vector3
 
 	// impulses have a name that can be reset or overwritten
 	impulses map[string]*types.Impulse
 }
 
-func (c *PhysicsComponent) Init(entity interfaces.Positionable, maxSpeed, mass float64) {
+func (c *PhysicsComponent) Init(entity types.Positionable, maxSpeed, mass float64) {
 	c.entity = entity
 	c.maxSpeed = maxSpeed
 	c.mass = mass

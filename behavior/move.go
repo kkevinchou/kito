@@ -4,15 +4,15 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/directory"
-	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib/behavior"
 	"github.com/kkevinchou/kito/lib/geometry"
+	"github.com/kkevinchou/kito/lib/logger"
 	"github.com/kkevinchou/kito/lib/math/vector"
-	"github.com/kkevinchou/kito/logger"
+	"github.com/kkevinchou/kito/types"
 )
 
 type Mover interface {
-	interfaces.Positionable
+	types.Positionable
 	SetTarget(target vector.Vector3)
 }
 

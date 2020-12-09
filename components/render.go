@@ -1,6 +1,6 @@
 package components
 
-import "github.com/kkevinchou/kito/interfaces"
+import "github.com/kkevinchou/kito/types"
 
 type RenderData interface {
 	IsVisible() bool
@@ -26,7 +26,7 @@ func (m *ModelRenderData) IsVisible() bool {
 
 type ItemRenderData struct {
 	ID     string
-	Entity interfaces.Ownable
+	Entity types.Ownable
 }
 
 func (t *ItemRenderData) IsVisible() bool {

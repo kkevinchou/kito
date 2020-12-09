@@ -4,12 +4,12 @@ import (
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/components/id"
 	"github.com/kkevinchou/kito/directory"
-	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/types"
 )
 
 type Food interface {
-	interfaces.Item
+	types.Item
 }
 
 type FoodImpl struct {

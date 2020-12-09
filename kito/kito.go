@@ -5,14 +5,12 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/kkevinchou/kito/common/enums"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities/food"
 	"github.com/kkevinchou/kito/entities/grass"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/entities/viewer"
 	"github.com/kkevinchou/kito/entities/worker"
-	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/geometry"
@@ -22,6 +20,7 @@ import (
 	"github.com/kkevinchou/kito/systems/camera"
 	"github.com/kkevinchou/kito/systems/movement"
 	"github.com/kkevinchou/kito/systems/render"
+	"github.com/kkevinchou/kito/types"
 )
 
 const (
@@ -77,8 +76,8 @@ type Game struct {
 	worker         *worker.WorkerImpl
 	pathIndex      int
 	gameOver       bool
-	viewer         interfaces.Viewer
-	gameMode       enums.GameMode
+	viewer         types.Viewer
+	gameMode       types.GameMode
 	viewControlled bool
 
 	singleton *singleton.Singleton
@@ -95,7 +94,7 @@ func NewGame() *Game {
 
 	g := &Game{
 		viewer:    viewer,
-		gameMode:  enums.GameModePlaying,
+		gameMode:  types.GameModePlaying,
 		singleton: singleton.New(),
 	}
 
@@ -109,11 +108,11 @@ func NewGame() *Game {
 	return g
 }
 
-func (g *Game) GetCamera() interfaces.Viewer {
+func (g *Game) GetCamera() types.Viewer {
 	return g.viewer
 }
 
-func (g *Game) GetSingleton() interfaces.Singleton {
+func (g *Game) GetSingleton() types.Singleton {
 	return g.singleton
 }
 
@@ -197,16 +196,4 @@ func (g *Game) Start(commandPoller CommandPoller) {
 			debugAccumulator = 0
 		}
 	}
-}
-
-func (g *Game) CameraViewChange(v vector.Vector) {
-	// g.camera.ChangeView(v)
-}
-
-func (g *Game) SetCameraCommandHeading(v vector.Vector3) {
-	// g.camera.SetCommandHeading(v)
-}
-
-func (g *Game) GetGameMode() enums.GameMode {
-	return g.gameMode
 }

@@ -31,7 +31,7 @@ import (
 
 // type RenderSystemI interface {
 // 	System
-// 	Register(interfaces.Renderable)
+// 	Register(types.Renderable)
 // 	EventHandlers() []EventHandler
 // }
 

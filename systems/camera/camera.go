@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kkevinchou/kito/types"
-
-	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/types"
 )
 
 type Singleton interface {
@@ -16,8 +14,8 @@ type Singleton interface {
 }
 
 type World interface {
-	GetSingleton() interfaces.Singleton
-	GetCamera() interfaces.Viewer
+	GetSingleton() types.Singleton
+	GetCamera() types.Viewer
 }
 
 type CameraSystem struct {

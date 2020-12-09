@@ -1,12 +1,12 @@
 package steering
 
 import (
-	"github.com/kkevinchou/kito/interfaces"
 	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/kkevinchou/kito/types"
 )
 
 type Seeker interface {
-	interfaces.Positionable
+	types.Positionable
 	Velocity() vector.Vector3
 	Mass() float64
 	MaxSpeed() float64
