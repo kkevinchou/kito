@@ -11,7 +11,6 @@ import (
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/entities/viewer"
 	"github.com/kkevinchou/kito/entities/worker"
-	"github.com/kkevinchou/kito/kito/commands"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/lib/math/vector"
@@ -69,7 +68,8 @@ type System interface {
 	Update(delta time.Duration)
 }
 
-type CommandPoller func() []commands.Command
+type Input interface{}
+type InputPoller func() []Input
 
 type Game struct {
 	path           []geometry.Point
@@ -140,7 +140,7 @@ func (g *Game) update(delta time.Duration) {
 	}
 }
 
-func (g *Game) Start(commandPoller CommandPoller) {
+func (g *Game) Start(pollInputFunc InputPoller) {
 	rand.Seed(time.Now().Unix())
 
 	previousTime := time.Now()
@@ -169,9 +169,9 @@ func (g *Game) Start(commandPoller CommandPoller) {
 		}
 
 		for accumulator >= gameUpdateDelta {
-			commandList := commandPoller()
-			for _, command := range commandList {
-				g.Handle(command)
+			inputList := pollInputFunc()
+			for _, input := range inputList {
+				g.HandleInput(input)
 			}
 			g.update(gameUpdateDelta)
 			accumulator -= gameUpdateDelta

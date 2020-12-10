@@ -37,6 +37,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 
 	singleton := s.world.GetSingleton()
 	keyboardInput := *singleton.GetKeyboardInputSet()
+	mouseInput := *singleton.GetMouseInput()
 
 	var controlVector vector.Vector3
 	if key, ok := keyboardInput[types.KeyboardKeyW]; ok && key.Event == types.KeyboardEventDown {
@@ -60,7 +61,9 @@ func (s *CameraSystem) Update(delta time.Duration) {
 		controlVector.Y++
 	}
 
-	mouseInput := singleton.GetMouseInput()
+	if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
+		camera.UpdateView(vector.Vector{X: mouseInput.MouseMotionEvent.XRel, Y: mouseInput.MouseMotionEvent.YRel})
+	}
 
 	zoomValue := 0
 	if mouseInput.MouseWheel == types.MouseWheelDirectionNeutral {

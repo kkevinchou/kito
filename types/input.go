@@ -8,8 +8,17 @@ const (
 	MouseWheelDirectionNeutral MouseWheelDirection = "NEUTRAL"
 )
 
+type MouseMotionEvent struct {
+	XRel float64
+	YRel float64
+}
+
 type MouseInput struct {
-	MouseWheel MouseWheelDirection
+	MouseWheel       MouseWheelDirection
+	MouseMotionEvent *MouseMotionEvent
+	LeftButtonDown   bool
+	MiddleButtonDown bool
+	RightButtonDown  bool
 }
 
 type KeyboardKey string
@@ -35,3 +44,6 @@ type KeyState struct {
 }
 
 type KeyboardInput map[KeyboardKey]KeyState
+
+type QuitCommand struct {
+}

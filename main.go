@@ -4,8 +4,6 @@ import (
 	"runtime"
 
 	"github.com/kkevinchou/kito/kito"
-	"github.com/kkevinchou/kito/kito/commands"
-	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/types"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -18,50 +16,45 @@ func init() {
 	runtime.LockOSThread()
 }
 
-type InputHandler struct {
+type InputPoller struct {
 }
 
-func NewInputHandler() *InputHandler {
-	return &InputHandler{}
+func NewInputPoller() *InputPoller {
+	return &InputPoller{}
 }
 
-// TODO: event polling will return no events even though the key is being held down
-func (i *InputHandler) CommandPoller() []commands.Command {
-	commandList := []commands.Command{}
+func (i *InputPoller) PollInput() []kito.Input {
+	inputList := []kito.Input{}
 
 	keyboardInput := types.KeyboardInput{}
 	mouseInput := types.MouseInput{
 		MouseWheel: types.MouseWheelDirectionNeutral,
 	}
 
+	_, _, mouseState := sdl.GetMouseState()
+	if mouseState&sdl.BUTTON_LEFT > 0 {
+		mouseInput.LeftButtonDown = true
+	}
+	if mouseState&sdl.BUTTON_MIDDLE > 0 {
+		mouseInput.MiddleButtonDown = true
+	}
+	if mouseState&sdl.BUTTON_RIGHT > 0 {
+		mouseInput.RightButtonDown = true
+	}
+
 	var event sdl.Event
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
 		case *sdl.QuitEvent:
-			commandList = append(commandList, &commands.QuitCommand{})
+			inputList = append(inputList, &types.QuitCommand{})
 		case *sdl.MouseButtonEvent:
-			cameraControlled := false
-			if e.State == sdl.RELEASED { // Mouse Up
-				if e.Button == sdl.BUTTON_LEFT {
-				} else if e.Button == sdl.BUTTON_RIGHT {
-				} else if e.Button == sdl.BUTTON_MIDDLE {
-					// commands = append(commands, &kito.CameraRaycastCommand{X: float64(e.X), Y: float64(e.Y)})
-				}
-			} else if e.State == sdl.PRESSED {
-				if e.Button == sdl.BUTTON_LEFT {
-					cameraControlled = true
-				}
-			}
-
-			commandList = append(commandList, &commands.ToggleCameraControlCommand{Value: cameraControlled})
-
+			// ?
 		case *sdl.MouseMotionEvent:
-			x := float64(e.XRel)
-			y := float64(e.YRel)
-
-			commandList = append(commandList, &commands.UpdateViewCommand{Value: vector.Vector{x, y}})
+			mouseInput.MouseMotionEvent = &types.MouseMotionEvent{
+				XRel: float64(e.XRel),
+				YRel: float64(e.YRel),
+			}
 		case *sdl.MouseWheelEvent:
-			// zoom = int(e.Y)
 			direction := types.MouseWheelDirectionNeutral
 			if e.Y > 0 {
 				direction = types.MouseWheelDirectionUp
@@ -70,6 +63,7 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 			}
 			mouseInput.MouseWheel = direction
 		case *sdl.KeyboardEvent:
+			// ?
 			// var repeat bool
 			// if e.Repeat >= 1 {
 			// 	repeat = true
@@ -107,15 +101,15 @@ func (i *InputHandler) CommandPoller() []commands.Command {
 		}
 	}
 
-	commandList = append(commandList, &keyboardInput)
-	commandList = append(commandList, &mouseInput)
+	inputList = append(inputList, &keyboardInput)
+	inputList = append(inputList, &mouseInput)
 
-	return commandList
+	return inputList
 }
 
 func main() {
 	game := kito.NewGame()
-	inputHandler := NewInputHandler()
-	game.Start(inputHandler.CommandPoller)
+	inputPoller := NewInputPoller()
+	game.Start(inputPoller.PollInput)
 	sdl.Quit()
 }

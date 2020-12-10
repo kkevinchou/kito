@@ -3,8 +3,6 @@ package kito
 import (
 	"fmt"
 
-	"github.com/kkevinchou/kito/kito/commands"
-	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -27,23 +25,9 @@ func (g *Game) GameOver() {
 	g.gameOver = true
 }
 
-func (g *Game) UpdateViewCommand(vector vector.Vector) {
-	if g.viewControlled {
-		g.viewer.UpdateView(vector)
-	}
-}
-
-func (g *Game) ToggleCameraControlCommand(value bool) {
-	g.viewControlled = value
-}
-
-func (g *Game) Handle(command interface{}) {
-	if _, ok := command.(*commands.QuitCommand); ok {
+func (g *Game) HandleInput(command interface{}) {
+	if _, ok := command.(*types.QuitCommand); ok {
 		g.GameOver()
-	} else if c, ok := command.(*commands.UpdateViewCommand); ok {
-		g.UpdateViewCommand(c.Value)
-	} else if c, ok := command.(*commands.ToggleCameraControlCommand); ok {
-		g.ToggleCameraControlCommand(c.Value)
 	} else if c, ok := command.(*types.KeyboardInput); ok {
 		if _, ok := (*c)[types.KeyboardKeyEscape]; ok {
 			// move this into a system maybe

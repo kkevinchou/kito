@@ -10,12 +10,6 @@ max speed currently isn't used in physics component
 networking :D
 bake navmesh polygon normals into nav mesh polygons. in general make then more rich than just plain polygons
 
-Commands should be input keys, not actual commands. the game should interpret the input keys to decide what command to execute
-Commands should only be dispatched once a computation frame. Device inputs should be collected every frame, batched, then dispatched.
-Mouse wheel command should trigger a command that executes over multiple frames. Long enough that if there's a small break in mousewheel events
-the command should still execute and continue seemlessly
-keybaord key shoudl
-
 BUGS
 
 Pathfinding where two polys share a vertex but have no portal.  Pathfinding will find a path but smoothing will fail (i think?).
