@@ -26,6 +26,8 @@ func (g *Game) GameOver() {
 }
 
 func (g *Game) HandleInput(command interface{}) {
+	singleton := g.GetSingleton()
+
 	if _, ok := command.(*types.QuitCommand); ok {
 		g.GameOver()
 	} else if c, ok := command.(*types.KeyboardInput); ok {
@@ -33,10 +35,8 @@ func (g *Game) HandleInput(command interface{}) {
 			// move this into a system maybe
 			g.GameOver()
 		}
-		singleton := g.GetSingleton()
 		singleton.SetKeyboardInputSet(c)
 	} else if c, ok := command.(*types.MouseInput); ok {
-		singleton := g.GetSingleton()
 		singleton.SetMouseInput(c)
 	} else {
 		panic(fmt.Sprintf("UNEXPECTED COMMAND %v", command))
