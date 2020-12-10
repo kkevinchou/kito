@@ -26,7 +26,7 @@ func RenderNoiseMap(noiseMap [][]float64, xOffset, zOffset, edgeLength float32) 
 			// 	r, g, b = 1, 1, 1
 			// }
 			// drawQuad(float32(x), float32(val)*10, float32(y), 5, r, g, b, false)
-			gl.Color3f(0.75, 0.75, 0.75)
+			gl.Color3f(0.11, 0.31, 0.29)
 			gl.Vertex3f(float32(x)*edgeLength+xOffset, float32(noiseMap[x][y])*amplitude, float32(y)*edgeLength+zOffset)
 			gl.Vertex3f(float32(x)*edgeLength+xOffset, float32(noiseMap[x][y+1])*amplitude, float32(y+1)*edgeLength+zOffset)
 		}

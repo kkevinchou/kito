@@ -7,6 +7,11 @@ import (
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
+const (
+	maxY = 25
+	minY = 5
+)
+
 type Light struct {
 	id       uint32
 	ambient  []float32
@@ -21,7 +26,7 @@ var direction int = 1
 func NewLight(id uint32) *Light {
 	light := &Light{
 		id:       id,
-		position: vector.Vector3{X: 0, Y: 20, Z: 0},
+		position: vector.Vector3{X: 0, Y: maxY, Z: 0},
 		ambient:  []float32{0.25, 0.25, 0.25, 1},
 		diffuse:  []float32{1, 1, 1, 1},
 		specular: []float32{1, 1, 1, 1},
@@ -40,11 +45,11 @@ func (l *Light) SetPosition(position vector.Vector3) {
 }
 
 func (l *Light) Update(delta time.Duration) {
-	if l.position.Y < 0 {
+	if l.position.Y < minY {
 		direction = -1
 	}
 
-	if l.position.Y > 20 {
+	if l.position.Y > maxY {
 		direction = 1
 	}
 
