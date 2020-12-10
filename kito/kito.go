@@ -32,38 +32,6 @@ var (
 	viewerStartView     = vector.Vector{X: 40, Y: 135}
 )
 
-func setupGrass() {
-	grass.New(5, 0, 4)
-	grass.New(2, 0, 2)
-	grass.New(6, 0, 1)
-	grass.New(6, 0, 7)
-	grass.New(4, 0, 2)
-	// grass.New(0, 0, 0)
-}
-
-func (g *Game) setupSystems() *directory.Directory {
-	itemManager := item.NewManager()
-	pathManager := path.NewManager()
-	assetManager := lib.NewAssetManager(nil, "_assets")
-	renderSystem := render.NewRenderSystem(g, assetManager, g.viewer)
-	movementSystem := movement.NewMovementSystem()
-	cameraSystem := camera.NewCameraSystem(g)
-
-	d := directory.GetDirectory()
-	d.RegisterRenderSystem(renderSystem)
-	d.RegisterMovementSystem(movementSystem)
-	d.RegisterAssetManager(assetManager)
-	d.RegisterItemManager(itemManager)
-	d.RegisterPathManager(pathManager)
-
-	renderSystem.Register(pathManager.NavMesh())
-
-	g.systems = append(g.systems, cameraSystem)
-	g.systems = append(g.systems, movementSystem)
-
-	return d
-}
-
 type System interface {
 	Update(delta time.Duration)
 }
@@ -106,18 +74,6 @@ func NewGame() *Game {
 	// g.camera.Follow(g.worker)
 
 	return g
-}
-
-func (g *Game) GetCamera() types.Viewer {
-	return g.viewer
-}
-
-func (g *Game) GetSingleton() types.Singleton {
-	return g.singleton
-}
-
-func (g *Game) PlaceFood(x, y float64) {
-	food.New(x, 0, y)
 }
 
 func (g *Game) update(delta time.Duration) {
@@ -196,4 +152,49 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 			debugAccumulator = 0
 		}
 	}
+}
+
+func (g *Game) GetCamera() types.Viewer {
+	return g.viewer
+}
+
+func (g *Game) GetSingleton() types.Singleton {
+	return g.singleton
+}
+
+func (g *Game) PlaceFood(x, y float64) {
+	food.New(x, 0, y)
+}
+
+func (g *Game) setupSystems() *directory.Directory {
+	itemManager := item.NewManager()
+	pathManager := path.NewManager()
+	assetManager := lib.NewAssetManager(nil, "_assets")
+
+	renderSystem := render.NewRenderSystem(g, assetManager, g.viewer)
+	movementSystem := movement.NewMovementSystem()
+	cameraSystem := camera.NewCameraSystem(g)
+
+	d := directory.GetDirectory()
+	d.RegisterRenderSystem(renderSystem)
+	d.RegisterMovementSystem(movementSystem)
+	d.RegisterAssetManager(assetManager)
+	d.RegisterItemManager(itemManager)
+	d.RegisterPathManager(pathManager)
+
+	renderSystem.Register(pathManager.NavMesh())
+
+	g.systems = append(g.systems, cameraSystem)
+	g.systems = append(g.systems, movementSystem)
+
+	return d
+}
+
+func setupGrass() {
+	grass.New(5, 0, 4)
+	grass.New(2, 0, 2)
+	grass.New(6, 0, 1)
+	grass.New(6, 0, 7)
+	grass.New(4, 0, 2)
+	// grass.New(0, 0, 0)
 }
