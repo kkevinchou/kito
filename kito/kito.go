@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kkevinchou/kito/systems/animation"
+
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities/food"
 	"github.com/kkevinchou/kito/entities/grass"
@@ -174,6 +176,7 @@ func (g *Game) setupSystems() *directory.Directory {
 	renderSystem := render.NewRenderSystem(g, assetManager, g.viewer)
 	movementSystem := movement.NewMovementSystem()
 	cameraSystem := camera.NewCameraSystem(g)
+	animationSystem := animation.NewAnimationSystem(g)
 
 	d := directory.GetDirectory()
 	d.RegisterRenderSystem(renderSystem)
@@ -186,6 +189,7 @@ func (g *Game) setupSystems() *directory.Directory {
 
 	g.systems = append(g.systems, cameraSystem)
 	g.systems = append(g.systems, movementSystem)
+	g.systems = append(g.systems, animationSystem)
 
 	return d
 }
