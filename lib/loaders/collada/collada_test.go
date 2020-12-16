@@ -1,7 +1,6 @@
 package collada_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -14,9 +13,7 @@ func TestCollada(t *testing.T) {
 		t.Error(err)
 	}
 
-	collada := collada.ParseCollada(rawCollada)
-	fmt.Println(len(collada.Vertices))
-	fmt.Println(len(collada.Normals))
+	_ = collada.ParseCollada(rawCollada)
 	t.Error()
 }
 
