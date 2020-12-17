@@ -253,11 +253,11 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	translationMatrix := mgl32.Ident4()
 	modelMatrix = translationMatrix.Mul4(rotationMatrix).Mul4(modelMatrix)
 
-	fmt.Println(float32(viewerView.Y))
 	viewMatrix := mgl32.Ident4()
 	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
 	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
-	viewMatrix = viewTranslationMatrix.Mul4(horizontalViewRotationMatrix).Mul4(viewMatrix)
+	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
+	viewMatrix = verticalViewRotationMatrix.Mul4(viewTranslationMatrix).Mul4(horizontalViewRotationMatrix).Mul4(viewMatrix)
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(45), 800.0/600.0, 1, 100)
 
