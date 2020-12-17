@@ -21,6 +21,7 @@ import (
 )
 
 type Viewer interface {
+	UpdateView(vector.Vector)
 	Position() vector.Vector3
 	View() vector.Vector
 }
@@ -221,6 +222,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()
 
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
 	var vbo, vao, ebo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.GenBuffers(1, &ebo)
@@ -239,11 +242,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, gl.PtrOffset(3*4))
 	gl.EnableVertexAttribArray(1)
 
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
-	// viewerPosition := r.viewer.Position()
-	// viewerView := r.viewer.View()
-
 	// draw skybox without consideration for camera translation
 	// drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
 
@@ -255,6 +253,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	translationMatrix := mgl32.Ident4()
 	modelMatrix = translationMatrix.Mul4(rotationMatrix).Mul4(modelMatrix)
 
+	fmt.Println(float32(viewerView.Y))
 	viewMatrix := mgl32.Ident4()
 	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
 	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()

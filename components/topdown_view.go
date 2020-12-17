@@ -10,7 +10,7 @@ const (
 	cameraRotationXMax = 80
 	cameraSpeedScalar  = 10
 	xSensitivity       = float64(0.5)
-	ySensitivity       = float64(0.1)
+	ySensitivity       = float64(1)
 )
 
 type TopDownViewComponent struct {
@@ -27,6 +27,12 @@ func (c *TopDownViewComponent) SetView(view vector.Vector) {
 
 func (c *TopDownViewComponent) UpdateView(delta vector.Vector) {
 	c.view.Y += delta.X * xSensitivity
+	// if c.view.Y > 360 {
+	// 	c.view.Y -= 360
+	// }
+	// if c.view.Y < -360 {
+	// 	c.view.Y += 360
+	// }
 }
 
 func (c *TopDownViewComponent) Forward() vector.Vector3 {
