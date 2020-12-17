@@ -6,15 +6,15 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-gl/gl/v4.6-compatibility/gl"
+	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/lib"
-	"github.com/kkevinchou/kito/lib/math/matrix"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/pathing"
+	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/types"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
@@ -36,7 +36,53 @@ const (
 var (
 	aspectRatio = float64(width) / float64(height)
 	textureMap  map[string]uint32
+
+	noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
 )
+
+var vertices []float32 = []float32{
+	-0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
+	0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
+	0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
+	0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
+	-0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
+	-0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
+
+	-0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
+	0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
+	0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
+	0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
+	-0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
+	-0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
+
+	-0.5, 0.5, 0.5, -1.0, 0.0, 0.0,
+	-0.5, 0.5, -0.5, -1.0, 0.0, 0.0,
+	-0.5, -0.5, -0.5, -1.0, 0.0, 0.0,
+	-0.5, -0.5, -0.5, -1.0, 0.0, 0.0,
+	-0.5, -0.5, 0.5, -1.0, 0.0, 0.0,
+	-0.5, 0.5, 0.5, -1.0, 0.0, 0.0,
+
+	0.5, 0.5, 0.5, 1.0, 0.0, 0.0,
+	0.5, 0.5, -0.5, 1.0, 0.0, 0.0,
+	0.5, -0.5, -0.5, 1.0, 0.0, 0.0,
+	0.5, -0.5, -0.5, 1.0, 0.0, 0.0,
+	0.5, -0.5, 0.5, 1.0, 0.0, 0.0,
+	0.5, 0.5, 0.5, 1.0, 0.0, 0.0,
+
+	-0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
+	0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
+	0.5, -0.5, 0.5, 0.0, -1.0, 0.0,
+	0.5, -0.5, 0.5, 0.0, -1.0, 0.0,
+	-0.5, -0.5, 0.5, 0.0, -1.0, 0.0,
+	-0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
+
+	-0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
+	0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
+	0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
+	0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
+	-0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
+	-0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
+}
 
 type Game interface {
 }
@@ -58,6 +104,7 @@ type RenderSystem struct {
 	modelMap     map[string]*models.Model
 	game         Game
 	lights       []*Light
+	shaders      map[string]*shaders.Shader
 }
 
 func initFont() *ttf.Font {
@@ -101,28 +148,13 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
 
-	gl.Enable(gl.LIGHTING)
-	gl.Enable(gl.DEPTH_TEST)
-	gl.Enable(gl.COLOR_MATERIAL)
-	gl.ColorMaterial(gl.FRONT, gl.AMBIENT_AND_DIFFUSE)
-
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
+
+	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
 
-	light0 := NewLight(gl.LIGHT0)
-	renderSystem.lights = append(renderSystem.lights, light0)
-
-	gl.MatrixMode(gl.PROJECTION)
-	gl.LoadIdentity()
-	gl.Frustum(-0.5, 0.5, -0.375, 0.375, 1.0, renderDistance)
-	// gl.Frustum(-aspectRatio, aspectRatio, -1, 1, 1.0, renderDistance)
-	gl.PushMatrix()
-	gl.MatrixMode(gl.MODELVIEW)
-	gl.LoadIdentity()
-
 	_ = initFont()
-	// skyboxTexture := newCubeMap("_assets/images/skybox.png")
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
 	mushroomGilsTexture := newTexture("_assets/icons/mushroom-gills.png")
 	workerTexture := newTexture("_assets/icons/worker.png")
@@ -138,7 +170,8 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		"mushroom-gills": mushroomGilsTexture,
 		"worker":         workerTexture,
 		"light":          lightTexture,
-		// "skybox":         skyboxTexture,
+
+		// skybox
 		"left":   leftTexture,
 		"right":  rightTexture,
 		"front":  frontTexture,
@@ -168,6 +201,15 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		"land":  land,
 	}
 
+	basicShader, err := shaders.NewShader("shaders/basic.vs", "shaders/basic.fs")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load basic shader %s", err))
+	}
+
+	renderSystem.shaders = map[string]*shaders.Shader{
+		"basic": basicShader,
+	}
+
 	return &renderSystem
 }
 
@@ -175,34 +217,57 @@ func (r *RenderSystem) Register(renderable Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
 
-var noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
-
 func (r *RenderSystem) Update(delta time.Duration) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()
 
-	// Set up the Model View matrix.  Based on how much the camera has moved,
-	// translate the entire world
-	gl.MatrixMode(gl.MODELVIEW)
-	gl.LoadIdentity()
+	var vbo, vao, ebo uint32
+	gl.GenBuffers(1, &vbo)
+	gl.GenBuffers(1, &ebo)
+	gl.GenVertexArrays(1, &vao)
+
+	gl.BindVertexArray(vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
+	gl.EnableVertexAttribArray(0)
+
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, gl.PtrOffset(3*4))
+	gl.EnableVertexAttribArray(1)
+
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+	// viewerPosition := r.viewer.Position()
+	// viewerView := r.viewer.View()
 
 	// draw skybox without consideration for camera translation
-	drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
+	// drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
 
-	// vertical view changes are relative to the viewer
-	gl.Rotatef(float32(viewerView.X), 1, 0, 0)
-	gl.Translatef(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
-	// horizontal view changes are relative to the origin
-	gl.Rotatef(float32(viewerView.Y), 0, 1, 0)
+	basicShader := r.shaders["basic"]
+	basicShader.Use()
 
-	for _, light := range r.lights {
-		light.Update(delta)
-		texture := r.textureMap["light"]
-		position := light.Position()
-		drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, false)
-	}
+	modelMatrix := mgl32.Ident4()
+	rotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{0, 1, 0}).Mat4().Mul4(mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{1, 0, 0}).Mat4())
+	translationMatrix := mgl32.Ident4()
+	modelMatrix = translationMatrix.Mul4(rotationMatrix).Mul4(modelMatrix)
+
+	viewMatrix := mgl32.Ident4()
+	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
+	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
+	viewMatrix = viewTranslationMatrix.Mul4(horizontalViewRotationMatrix).Mul4(viewMatrix)
+
+	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(45), 800.0/600.0, 1, 100)
+
+	basicShader.SetUniformMat4("model", modelMatrix)
+	basicShader.SetUniformMat4("view", viewMatrix)
+	basicShader.SetUniformMat4("projection", projectionMatrix)
+
+	gl.BindVertexArray(vao)
+	gl.DrawArrays(gl.TRIANGLES, 0, 36)
 
 	for _, renderable := range r.renderables {
 		renderData := renderable.GetRenderData()
@@ -210,13 +275,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			continue
 		}
 		if rData, ok := renderData.(*components.TextureRenderData); ok {
-			position := renderable.Position()
-			texture := r.textureMap[rData.ID]
-			drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
+			_ = rData
+			// position := renderable.Position()
+			// texture := r.textureMap[rData.ID]
+			// drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
 		} else if rData, ok := renderData.(*components.ItemRenderData); ok {
-			position := renderable.Position()
-			texture := r.textureMap[rData.ID]
-			drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
+			_ = rData
+			// position := renderable.Position()
+			// texture := r.textureMap[rData.ID]
+			// drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
 		} else if _, ok := renderData.(*components.ModelRenderData); ok {
 		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
 			// if navMesh, ok := renderable.(*pathing.NavMesh); ok {
@@ -229,37 +296,40 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		// temp code, force rendering oak tree
 		// r.renderModel(r.modelMap["oak"], vector.Vector3{X: 0, Y: 0, Z: 0})
 		// r.renderModel(r.modelMap["land"], vector.Vector3{X: 0, Y: 0, Z: 0})
-		width := float32(len(noiseMap[0]))
-		height := float32(len(noiseMap))
-		var edgeLength float32 = 1
-		RenderNoiseMap(noiseMap, -(width*edgeLength)/2, -(height*edgeLength)/2, edgeLength)
+
+		// width := float32(len(noiseMap[0]))
+		// height := float32(len(noiseMap))
+		// var edgeLength float32 = 1
+		// RenderNoiseMap(noiseMap, -(width*edgeLength)/2, -(height*edgeLength)/2, edgeLength)
 	}
+
+	gl.UseProgram(0)
 
 	r.window.GLSwap()
 }
 
-// x, y represents the x,y coordinate on the window. The output is a 3d position in world coordinates
-func (r *RenderSystem) GetWorldPoint(x, y float64) vector.Vector3 {
-	// Get the projection matrix
-	pMatrixValues := make([]float32, 16)
-	gl.GetFloatv(gl.PROJECTION_MATRIX, &pMatrixValues[0])
+// // x, y represents the x,y coordinate on the window. The output is a 3d position in world coordinates
+// func (r *RenderSystem) GetWorldPoint(x, y float64) vector.Vector3 {
+// 	// Get the projection matrix
+// 	pMatrixValues := make([]float32, 16)
+// 	gl.GetFloatv(gl.PROJECTION_MATRIX, &pMatrixValues[0])
 
-	// Get the model view matrix
-	mvMatrixValues := make([]float32, 16)
-	gl.GetFloatv(gl.MODELVIEW, &mvMatrixValues[0])
+// 	// Get the model view matrix
+// 	mvMatrixValues := make([]float32, 16)
+// 	gl.GetFloatv(gl.MODELVIEW, &mvMatrixValues[0])
 
-	mvMatrix := matrix.Mat4FromValues(mvMatrixValues)
-	pMatrix := matrix.Mat4FromValues(pMatrixValues)
+// 	mvMatrix := matrix.Mat4FromValues(mvMatrixValues)
+// 	pMatrix := matrix.Mat4FromValues(pMatrixValues)
 
-	// Convert the screen coordinate to normalised device coordinates
-	NDCPoint := mgl32.Vec4{(2.0*float32(x))/width - 1, 1 - (2.0*float32(y))/height, -1, 1}
-	worldPoint := pMatrix.Mul4(mvMatrix).Inv().Mul4x1(NDCPoint)
+// 	// Convert the screen coordinate to normalised device coordinates
+// 	NDCPoint := mgl32.Vec4{(2.0*float32(x))/width - 1, 1 - (2.0*float32(y))/height, -1, 1}
+// 	worldPoint := pMatrix.Mul4(mvMatrix).Inv().Mul4x1(NDCPoint)
 
-	// Normalize on W
-	worldPoint = mgl32.Vec4{worldPoint[0] / worldPoint[3], worldPoint[1] / worldPoint[3], worldPoint[2] / worldPoint[3], 1}
+// 	// Normalize on W
+// 	worldPoint = mgl32.Vec4{worldPoint[0] / worldPoint[3], worldPoint[1] / worldPoint[3], worldPoint[2] / worldPoint[3], 1}
 
-	// Extract the 3D vector
-	worldPointVector := vector.Vector3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
+// 	// Extract the 3D vector
+// 	worldPointVector := vector.Vector3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
 
-	return worldPointVector
-}
+// 	return worldPointVector
+// }

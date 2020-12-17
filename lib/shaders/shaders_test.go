@@ -24,6 +24,7 @@ func TestShader(t *testing.T) {
 	window.GLCreateContext()
 
 	gl.Init()
+
 	shader, err := shaders.NewShader("testshaders/testshader.vs", "testshaders/testshader.fs")
 	if err != nil {
 		t.Errorf("failed to create shader %v", err.Error())
