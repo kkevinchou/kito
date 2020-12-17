@@ -82,6 +82,12 @@ func (s *Shader) SetUniformMat4(uniform string, value mgl32.Mat4) {
 	gl.UniformMatrix4fv(uniformLocation, 1, false, &value[0])
 }
 
+func (s *Shader) SetUniformVec3(uniform string, value mgl32.Vec3) {
+	floats := []float32{value.X(), value.Y(), value.Z()}
+	uniformLocation := gl.GetUniformLocation(s.ID, gl.Str(fmt.Sprintf("%s\x00", uniform)))
+	gl.Uniform3fv(uniformLocation, 1, &floats[0])
+}
+
 func (s *Shader) Use() {
 	gl.UseProgram(s.ID)
 }

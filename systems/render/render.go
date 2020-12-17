@@ -77,12 +77,13 @@ var vertices []float32 = []float32{
 	-0.5, -0.5, 0.5, 0.0, -1.0, 0.0,
 	-0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
 
+	// top
 	-0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
+	0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
 	0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
 	0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
-	0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
-	-0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
 	-0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
+	-0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
 }
 
 type Game interface {
@@ -154,6 +155,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
+	gl.Enable(gl.CULL_FACE)
 
 	_ = initFont()
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
@@ -249,7 +251,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	basicShader.Use()
 
 	modelMatrix := mgl32.Ident4()
-	rotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{0, 1, 0}).Mat4().Mul4(mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{1, 0, 0}).Mat4())
+	// rotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{0, 1, 0}).Mat4().Mul4(mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{1, 0, 0}).Mat4())
+	rotationMatrix := mgl32.Ident4()
 	translationMatrix := mgl32.Ident4()
 	modelMatrix = translationMatrix.Mul4(rotationMatrix).Mul4(modelMatrix)
 
@@ -264,6 +267,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	basicShader.SetUniformMat4("model", modelMatrix)
 	basicShader.SetUniformMat4("view", viewMatrix)
 	basicShader.SetUniformMat4("projection", projectionMatrix)
+	basicShader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
 
 	gl.BindVertexArray(vao)
 	gl.DrawArrays(gl.TRIANGLES, 0, 36)
