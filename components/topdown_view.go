@@ -10,7 +10,7 @@ const (
 	cameraRotationXMax = 80
 	cameraSpeedScalar  = 10
 	xSensitivity       = float64(0.5)
-	ySensitivity       = float64(1)
+	ySensitivity       = float64(0.5)
 )
 
 type TopDownViewComponent struct {

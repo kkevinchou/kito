@@ -42,13 +42,15 @@ var (
 )
 
 var vertices []float32 = []float32{
+	// back
 	-0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
+	0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
 	0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
 	0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
-	0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
-	-0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
 	-0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
+	-0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
 
+	// front
 	-0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
 	0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
 	0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
@@ -56,6 +58,7 @@ var vertices []float32 = []float32{
 	-0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
 	-0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
 
+	// left
 	-0.5, 0.5, 0.5, -1.0, 0.0, 0.0,
 	-0.5, 0.5, -0.5, -1.0, 0.0, 0.0,
 	-0.5, -0.5, -0.5, -1.0, 0.0, 0.0,
@@ -63,13 +66,15 @@ var vertices []float32 = []float32{
 	-0.5, -0.5, 0.5, -1.0, 0.0, 0.0,
 	-0.5, 0.5, 0.5, -1.0, 0.0, 0.0,
 
+	// right
 	0.5, 0.5, 0.5, 1.0, 0.0, 0.0,
+	0.5, -0.5, -0.5, 1.0, 0.0, 0.0,
 	0.5, 0.5, -0.5, 1.0, 0.0, 0.0,
 	0.5, -0.5, -0.5, 1.0, 0.0, 0.0,
-	0.5, -0.5, -0.5, 1.0, 0.0, 0.0,
-	0.5, -0.5, 0.5, 1.0, 0.0, 0.0,
 	0.5, 0.5, 0.5, 1.0, 0.0, 0.0,
+	0.5, -0.5, 0.5, 1.0, 0.0, 0.0,
 
+	// bottom
 	-0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
 	0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
 	0.5, -0.5, 0.5, 0.0, -1.0, 0.0,
@@ -221,6 +226,7 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
+	// r.viewer.UpdateView(vector.Vector{X: 20, Y: 0})
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()
 
@@ -254,15 +260,16 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	// rotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{0, 1, 0}).Mat4().Mul4(mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{1, 0, 0}).Mat4())
 	rotationMatrix := mgl32.Ident4()
 	translationMatrix := mgl32.Ident4()
-	modelMatrix = translationMatrix.Mul4(rotationMatrix).Mul4(modelMatrix)
+	scaleMatrix := mgl32.Scale3D(5, 5, 5)
+	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
+	modelMatrix = horizontalViewRotationMatrix.Mul4(scaleMatrix).Mul4(translationMatrix).Mul4(rotationMatrix).Mul4(modelMatrix)
 
 	viewMatrix := mgl32.Ident4()
 	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
-	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
 	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
 	viewMatrix = verticalViewRotationMatrix.Mul4(viewTranslationMatrix).Mul4(horizontalViewRotationMatrix).Mul4(viewMatrix)
 
-	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(45), 800.0/600.0, 1, 100)
+	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(45), 800.0/600.0, 1, 500)
 
 	basicShader.SetUniformMat4("model", modelMatrix)
 	basicShader.SetUniformMat4("view", viewMatrix)
