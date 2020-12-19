@@ -88,6 +88,11 @@ func (s *Shader) SetUniformVec3(uniform string, value mgl32.Vec3) {
 	gl.Uniform3fv(uniformLocation, 1, &floats[0])
 }
 
+func (s *Shader) SetUniformInt(uniform string, value int32) {
+	uniformLocation := gl.GetUniformLocation(s.ID, gl.Str(fmt.Sprintf("%s\x00", uniform)))
+	gl.Uniform1i(uniformLocation, value)
+}
+
 func (s *Shader) Use() {
 	gl.UseProgram(s.ID)
 }

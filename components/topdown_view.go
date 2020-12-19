@@ -9,7 +9,7 @@ import (
 const (
 	cameraRotationXMax = 80
 	cameraSpeedScalar  = 10
-	xSensitivity       = float64(0.1)
+	xSensitivity       = float64(0.2)
 	ySensitivity       = float64(0.1)
 )
 

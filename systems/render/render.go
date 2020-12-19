@@ -112,6 +112,7 @@ type RenderSystem struct {
 	game         Game
 	lights       []*Light
 	shaders      map[string]*shaders.Shader
+	skybox       *SkyBox
 }
 
 func initFont() *ttf.Font {
@@ -150,6 +151,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		window:       window,
 		viewer:       viewer,
 		game:         game,
+		skybox:       NewSkyBox(10),
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -160,7 +162,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
-	gl.Enable(gl.CULL_FACE)
+	// gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
 
 	_ = initFont()
@@ -215,8 +217,14 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		panic(fmt.Sprintf("Failed to load basic shader %s", err))
 	}
 
+	skyBoxShader, err := shaders.NewShader("shaders/skybox.vs", "shaders/skybox.fs")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load basic shader %s", err))
+	}
+
 	renderSystem.shaders = map[string]*shaders.Shader{
-		"basic": basicShader,
+		"basic":  basicShader,
+		"skybox": skyBoxShader,
 	}
 
 	return &renderSystem
@@ -232,6 +240,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	viewerView := r.viewer.View()
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
+	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
+	viewMatrix := verticalViewRotationMatrix.Mul4(viewTranslationMatrix)
+	skyBoxViewMatrix := verticalViewRotationMatrix
+
+	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(45), 800.0/600.0, 1, 1000)
+
+	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), skyBoxViewMatrix, projectionMatrix)
 
 	var vbo, vao, ebo uint32
 	gl.GenBuffers(1, &vbo)
@@ -262,12 +279,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	modelScaleMatrix := mgl32.Scale3D(5, 5, 5)
 	worldHorizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
 	modelMatrix := worldHorizontalViewRotationMatrix.Mul4(modelTranslationMatrix).Mul4(modelRotationMatrix).Mul4(modelScaleMatrix)
-
-	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
-	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
-	viewMatrix := verticalViewRotationMatrix.Mul4(viewTranslationMatrix)
-
-	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(45), 800.0/600.0, 1, 500)
 
 	basicShader.SetUniformMat4("model", modelMatrix)
 	basicShader.SetUniformMat4("view", viewMatrix)
