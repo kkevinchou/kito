@@ -43,6 +43,8 @@ func (i *InputPoller) PollInput() []kito.Input {
 	}
 
 	var event sdl.Event
+
+	// The same event can be fired multiple times in the same PollEvent loop
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
 		case *sdl.QuitEvent:
@@ -50,10 +52,11 @@ func (i *InputPoller) PollInput() []kito.Input {
 		case *sdl.MouseButtonEvent:
 			// ?
 		case *sdl.MouseMotionEvent:
-			mouseInput.MouseMotionEvent = &types.MouseMotionEvent{
-				XRel: float64(e.XRel),
-				YRel: float64(e.YRel),
+			if mouseInput.MouseMotionEvent == nil {
+				mouseInput.MouseMotionEvent = &types.MouseMotionEvent{}
 			}
+			mouseInput.MouseMotionEvent.XRel += float64(e.XRel)
+			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
 		case *sdl.MouseWheelEvent:
 			direction := types.MouseWheelDirectionNeutral
 			if e.Y > 0 {

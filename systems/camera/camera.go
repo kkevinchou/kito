@@ -37,7 +37,6 @@ func (s *CameraSystem) Update(delta time.Duration) {
 
 	singleton := s.world.GetSingleton()
 	keyboardInput := *singleton.GetKeyboardInputSet()
-	mouseInput := *singleton.GetMouseInput()
 
 	var controlVector vector.Vector3
 	if key, ok := keyboardInput[types.KeyboardKeyW]; ok && key.Event == types.KeyboardEventDown {
@@ -61,21 +60,23 @@ func (s *CameraSystem) Update(delta time.Duration) {
 		controlVector.Y++
 	}
 
-	if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
-		camera.UpdateView(vector.Vector{X: mouseInput.MouseMotionEvent.XRel, Y: mouseInput.MouseMotionEvent.YRel})
-	}
-
 	zoomValue := 0
-	if mouseInput.MouseWheel == types.MouseWheelDirectionNeutral {
-		zoomValue = 0
-	} else if mouseInput.MouseWheel == types.MouseWheelDirectionUp {
-		zoomValue = -1
-	} else if mouseInput.MouseWheel == types.MouseWheelDirectionDown {
-		zoomValue = 1
-	} else {
-		panic(fmt.Sprintf("unexpected mousewheel value %v", mouseInput.MouseWheel))
-	}
+	if singleton.GetMouseInput() != nil {
+		mouseInput := *singleton.GetMouseInput()
+		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
+			camera.UpdateView(vector.Vector{X: mouseInput.MouseMotionEvent.XRel, Y: mouseInput.MouseMotionEvent.YRel})
+		}
 
+		if mouseInput.MouseWheel == types.MouseWheelDirectionNeutral {
+			zoomValue = 0
+		} else if mouseInput.MouseWheel == types.MouseWheelDirectionUp {
+			zoomValue = -1
+		} else if mouseInput.MouseWheel == types.MouseWheelDirectionDown {
+			zoomValue = 1
+		} else {
+			panic(fmt.Sprintf("unexpected mousewheel value %v", mouseInput.MouseWheel))
+		}
+	}
 	if controlVector.IsZero() && zoomValue == 0 {
 		return
 	}

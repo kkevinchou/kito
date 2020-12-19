@@ -127,6 +127,7 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 		}
 
 		for accumulator >= gameUpdateDelta {
+			// input is handled once per frame
 			inputList := pollInputFunc()
 			for _, input := range inputList {
 				g.HandleInput(input)

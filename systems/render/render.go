@@ -161,6 +161,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Enable(gl.CULL_FACE)
+	gl.FrontFace(gl.CCW)
 
 	_ = initFont()
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
@@ -226,7 +227,7 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
-	// r.viewer.UpdateView(vector.Vector{X: 20, Y: 0})
+	// r.viewer.UpdateView(vector.Vector{X: 5, Y: 0})
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()
 
@@ -256,18 +257,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	basicShader := r.shaders["basic"]
 	basicShader.Use()
 
-	modelMatrix := mgl32.Ident4()
-	// rotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{0, 1, 0}).Mat4().Mul4(mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{1, 0, 0}).Mat4())
-	rotationMatrix := mgl32.Ident4()
-	translationMatrix := mgl32.Ident4()
-	scaleMatrix := mgl32.Scale3D(5, 5, 5)
-	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
-	modelMatrix = horizontalViewRotationMatrix.Mul4(scaleMatrix).Mul4(translationMatrix).Mul4(rotationMatrix).Mul4(modelMatrix)
+	modelRotationMatrix := mgl32.Ident4()
+	modelTranslationMatrix := mgl32.Ident4()
+	modelScaleMatrix := mgl32.Scale3D(5, 5, 5)
+	worldHorizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
+	modelMatrix := worldHorizontalViewRotationMatrix.Mul4(modelTranslationMatrix).Mul4(modelRotationMatrix).Mul4(modelScaleMatrix)
 
-	viewMatrix := mgl32.Ident4()
 	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
 	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
-	viewMatrix = verticalViewRotationMatrix.Mul4(viewTranslationMatrix).Mul4(horizontalViewRotationMatrix).Mul4(viewMatrix)
+	viewMatrix := verticalViewRotationMatrix.Mul4(viewTranslationMatrix)
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(45), 800.0/600.0, 1, 500)
 
