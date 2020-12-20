@@ -8,11 +8,12 @@ import (
 )
 
 type Collada struct {
-	vertexSourceData       []mgl32.Vec3
-	vertexFloatsSourceData []float32
-	normalSourceData       []mgl32.Vec3
-	normalFloatsSourceData []float32
-	textureSourceData      []mgl32.Vec2
+	vertexSourceData        []mgl32.Vec3
+	VertexFloatsSourceData  []float32
+	normalSourceData        []mgl32.Vec3
+	NormalFloatsSourceData  []float32
+	textureSourceData       []mgl32.Vec2
+	TextureFloatsSourceData []float32
 }
 
 type SemanticType string
@@ -66,9 +67,9 @@ func ParseCollada(documentPath string) (*Collada, error) {
 	normals := ParseVec3Array(normalSource)          // looks at <geometries>
 	result := &Collada{
 		vertexSourceData:       vertices,
-		vertexFloatsSourceData: convertToFloatList(vertices),
+		VertexFloatsSourceData: convertToFloatList(vertices),
 		normalSourceData:       normals,
-		normalFloatsSourceData: convertToFloatList(normals),
+		NormalFloatsSourceData: convertToFloatList(normals),
 	}
 	// parseAnimations(rawCollada) // looks at <animations> and <controllers> <scenes>(contains hierarchy)
 
