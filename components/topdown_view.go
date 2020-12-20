@@ -27,7 +27,7 @@ func (c *TopDownViewComponent) SetView(view vector.Vector) {
 
 func (c *TopDownViewComponent) UpdateView(delta vector.Vector) {
 	c.view.Y += delta.X * xSensitivity
-	// c.view.X += delta.Y * ySensitivity
+	c.view.X += delta.Y * ySensitivity
 	// if c.view.Y > 360 {
 	// 	c.view.Y -= 360
 	// }

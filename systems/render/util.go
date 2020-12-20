@@ -8,13 +8,75 @@ import (
 
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/shaders"
 )
 
-func blah() uint32 {
+func newTexture(file string) uint32 {
+	imgFile, err := os.Open(file)
+	if err != nil {
+		log.Fatalf("texture %q not found on disk: %v\n", file, err)
+	}
+	img, _, err := image.Decode(imgFile)
+	if err != nil {
+		panic(err)
+	}
+
+	rgba := image.NewRGBA(img.Bounds())
+	if rgba.Stride != rgba.Rect.Size().X*4 {
+		panic("unsupported stride")
+	}
+	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
+
 	var texture uint32
 	gl.GenTextures(1, &texture)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+	gl.TexImage2D(
+		gl.TEXTURE_2D,
+		0,
+		gl.RGBA,
+		int32(rgba.Rect.Size().X),
+		int32(rgba.Rect.Size().Y),
+		0,
+		gl.RGBA,
+		gl.UNSIGNED_BYTE,
+		gl.Ptr(rgba.Pix))
+
 	return texture
+}
+
+func drawSkyBox(sb *SkyBox, shader *shaders.Shader, textureMap map[string]uint32, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
+	textures := []uint32{textureMap["back"], textureMap["front"], textureMap["left"], textureMap["right"], textureMap["bottom"], textureMap["top"]}
+
+	gl.ActiveTexture(gl.TEXTURE0)
+	shader.Use()
+	shader.SetUniformInt("skyboxTexture", 0)
+	shader.SetUniformMat4("model", modelMatrix)
+	shader.SetUniformMat4("view", viewMatrix)
+	shader.SetUniformMat4("projection", projectionMatrix)
+	for i := 0; i < 1; i++ {
+		gl.BindTexture(gl.TEXTURE_2D, textures[i])
+		gl.BindVertexArray(sb.VAO())
+		gl.DrawArrays(gl.TRIANGLES, int32(i*6), 6)
+	}
+}
+
+func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition vector.Vector3) {
+	shader.Use()
+	shader.SetUniformMat4("model", modelMatrix)
+	shader.SetUniformMat4("view", viewMatrix)
+	shader.SetUniformMat4("projection", projectionMatrix)
+	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
+	gl.BindVertexArray(q.VAO())
+	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+}
+
+func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl32.Mat4) mgl32.Mat4 {
+	return translationMatrix.Mul4(rotationMatrix).Mul4(scaleMatrix)
 }
 
 // func RenderNoiseMap(noiseMap [][]float64, xOffset, zOffset, edgeLength float32) {
@@ -101,290 +163,4 @@ func blah() uint32 {
 // 	gl.Vertex3f(float32(start.X), float32(start.Y), float32(start.Z))
 // 	gl.Vertex3f(float32(end.X), float32(end.Y), float32(end.Z))
 // 	gl.End()
-// }
-
-func newTexture(file string) uint32 {
-	imgFile, err := os.Open(file)
-	if err != nil {
-		log.Fatalf("texture %q not found on disk: %v\n", file, err)
-	}
-	img, _, err := image.Decode(imgFile)
-	if err != nil {
-		panic(err)
-	}
-
-	rgba := image.NewRGBA(img.Bounds())
-	if rgba.Stride != rgba.Rect.Size().X*4 {
-		panic("unsupported stride")
-	}
-	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
-
-	var texture uint32
-	gl.GenTextures(1, &texture)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	gl.TexImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		int32(rgba.Rect.Size().X),
-		int32(rgba.Rect.Size().Y),
-		0,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		gl.Ptr(rgba.Pix))
-
-	return texture
-}
-
-type SkyBox struct {
-	vbo uint32
-	vao uint32
-}
-
-func NewSkyBox(scale float32) *SkyBox {
-	// var skyboxVertices []float32 = []float32{
-	// 	// back
-	// 	-0.5, -0.5, -0.5, 0.0, 0.0,
-	// 	0.5, -0.5, -0.5, 1.0, 0.0,
-	// 	0.5, 0.5, -0.5, 1.0, 1.0,
-	// 	0.5, 0.5, -0.5, 1.0, 1.0,
-	// 	-0.5, 0.5, -0.5, 0.0, 1.0,
-	// 	-0.5, -0.5, -0.5, 0.0, 0.0,
-
-	// 	// // front
-	// 	// -0.5, -0.5, 0.5,
-	// 	// 0.5, 0.5, 0.5,
-	// 	// 0.5, -0.5, 0.5,
-	// 	// 0.5, 0.5, 0.5,
-	// 	// -0.5, -0.5, 0.5,
-	// 	// -0.5, 0.5, 0.5,
-
-	// 	// // left
-	// 	// -0.5, 0.5, 0.5,
-	// 	// -0.5, -0.5, -0.5,
-	// 	// -0.5, 0.5, -0.5,
-	// 	// -0.5, -0.5, -0.5,
-	// 	// -0.5, 0.5, 0.5,
-	// 	// -0.5, -0.5, 0.5,
-
-	// 	// // right
-	// 	// 0.5, 0.5, 0.5,
-	// 	// 0.5, 0.5, -0.5,
-	// 	// 0.5, -0.5, -0.5,
-	// 	// 0.5, -0.5, -0.5,
-	// 	// 0.5, -0.5, 0.5,
-	// 	// 0.5, 0.5, 0.5,
-
-	// 	// // bottom
-	// 	// -0.5, -0.5, -0.5,
-	// 	// 0.5, -0.5, 0.5,
-	// 	// 0.5, -0.5, -0.5,
-	// 	// 0.5, -0.5, 0.5,
-	// 	// -0.5, -0.5, -0.5,
-	// 	// -0.5, -0.5, 0.5,
-
-	// 	// // top
-	// 	// -0.5, 0.5, -0.5,
-	// 	// 0.5, 0.5, -0.5,
-	// 	// 0.5, 0.5, 0.5,
-	// 	// 0.5, 0.5, 0.5,
-	// 	// -0.5, 0.5, 0.5,
-	// 	// -0.5, 0.5, -0.5,
-	// }
-
-	// for i := range skyboxVertices {
-	// 	skyboxVertices[i] = skyboxVertices[i] * scale
-	// }
-
-	var vbo, vao uint32
-	// gl.GenBuffers(1, &vbo)
-	// gl.GenVertexArrays(1, &vao)
-
-	// gl.BindVertexArray(vao)
-	// gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	// gl.BufferData(gl.ARRAY_BUFFER, len(skyboxVertices)*4, gl.Ptr(skyboxVertices), gl.STATIC_DRAW)
-
-	// gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
-	// gl.EnableVertexAttribArray(0)
-
-	// gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
-	// gl.EnableVertexAttribArray(1)
-
-	sb := SkyBox{
-		vbo: vbo,
-		vao: vao,
-	}
-	return &sb
-}
-
-func (sb *SkyBox) VAO() uint32 {
-	return sb.vao
-}
-
-func drawSkyBox(sb *SkyBox, shader *shaders.Shader, textureMap map[string]uint32, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
-	// var skyboxVertices []float32 = []float32{
-	// 	-0.5, -0.5, -0.5,
-	// 	0.5, -0.5, -0.5,
-	// 	0.5, 0.5, -0.5,
-	// 	0.5, 0.5, -0.5,
-	// 	-0.5, 0.5, -0.5,
-	// 	-0.5, -0.5, -0.5,
-	// }
-
-	// texture coords top left = 0,0 | bottom right = 1,1
-	var skyboxVertices []float32 = []float32{
-		// back
-		-0.5, -0.5, -500, 0.0, 1.0,
-		0.5, -0.5, -500, 1.0, 1.0,
-		0.5, 0.5, -500, 1.0, 0.0,
-		0.5, 0.5, -500, 1.0, 0.0,
-		-0.5, 0.5, -500, 0.0, 0.0,
-		-0.5, -0.5, -500, 0.0, 1.0,
-	}
-
-	var scale float32 = 300
-
-	for i := 0; i < len(skyboxVertices); i += 5 {
-		skyboxVertices[i] *= scale
-		skyboxVertices[i+1] *= scale
-		// skyboxVertices[i+2] *= scale
-	}
-
-	var vbo, vao uint32
-	gl.GenBuffers(1, &vbo)
-	gl.GenVertexArrays(1, &vao)
-
-	gl.BindVertexArray(vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(skyboxVertices)*4, gl.Ptr(skyboxVertices), gl.STATIC_DRAW)
-
-	// gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, nil)
-	// gl.EnableVertexAttribArray(0)
-
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
-	gl.EnableVertexAttribArray(0)
-
-	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
-	gl.EnableVertexAttribArray(1)
-
-	textures := []uint32{textureMap["back"], textureMap["front"], textureMap["left"], textureMap["right"], textureMap["bottom"], textureMap["top"]}
-
-	gl.ActiveTexture(gl.TEXTURE0)
-	shader.Use()
-	shader.SetUniformInt("skyboxTexture", 0)
-	shader.SetUniformMat4("model", modelMatrix)
-	shader.SetUniformMat4("view", viewMatrix)
-	shader.SetUniformMat4("projection", projectionMatrix)
-	for i := 0; i < 1; i++ {
-		gl.BindTexture(gl.TEXTURE_2D, textures[i])
-		gl.BindVertexArray(vao)
-		gl.DrawArrays(gl.TRIANGLES, int32(i*6), 6)
-	}
-
-}
-
-// func drawQuad(x, y, z, edgeLength, r, g, b float32, lightningEnabled bool) {
-// 	if !lightningEnabled {
-// 		gl.Disable(gl.LIGHTING)
-// 	}
-// 	gl.Begin(gl.POLYGON)
-// 	gl.Normal3f(0, 1, 0)
-
-// 	gl.Color3f(r, g, b)
-// 	gl.Vertex3f((x*edgeLength)-(edgeLength/2), y, (z*edgeLength)+(edgeLength/2))
-// 	gl.Vertex3f((x*edgeLength)-(edgeLength/2), y, (z*edgeLength)-(edgeLength/2))
-// 	gl.Vertex3f((x*edgeLength)+(edgeLength/2), y, (z*edgeLength)-(edgeLength/2))
-// 	gl.Vertex3f((x*edgeLength)+(edgeLength/2), y, (z*edgeLength)+(edgeLength/2))
-// 	gl.End()
-// 	if !lightningEnabled {
-// 		gl.Enable(gl.LIGHTING)
-// 	}
-// }
-
-// func drawCube(texture uint32, x, y, z, edgeLength float32, lightningEnabled bool) {
-// 	if !lightningEnabled {
-// 		gl.Disable(gl.LIGHTING)
-// 	}
-// 	gl.Enable(gl.TEXTURE_2D)
-// 	gl.BindTexture(gl.TEXTURE_2D, texture)
-
-// 	gl.Color4f(1, 1, 1, 1)
-
-// 	gl.Begin(gl.QUADS)
-
-// 	// // FRONT
-// 	gl.Normal3f(0, 0, 1)
-// 	gl.TexCoord2f(0, 0)
-// 	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z+(edgeLength/2))
-// 	gl.TexCoord2f(0, 1)
-// 	gl.Vertex3f(x-(edgeLength/2), y+0, z+(edgeLength/2))
-// 	gl.TexCoord2f(1, 1)
-// 	gl.Vertex3f(x+(edgeLength/2), y+0, z+(edgeLength/2))
-// 	gl.TexCoord2f(1, 0)
-// 	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z+(edgeLength/2))
-
-// 	// BACK
-// 	gl.Normal3f(0, 0, -1)
-// 	gl.TexCoord2f(0, 0)
-// 	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z-(edgeLength/2))
-// 	gl.TexCoord2f(0, 1)
-// 	gl.Vertex3f(x+(edgeLength/2), y+0, z-(edgeLength/2))
-// 	gl.TexCoord2f(1, 1)
-// 	gl.Vertex3f(x-(edgeLength/2), y+0, z-(edgeLength/2))
-// 	gl.TexCoord2f(1, 0)
-// 	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z-(edgeLength/2))
-
-// 	// TOP
-// 	gl.Normal3f(0, 1, 0)
-// 	gl.TexCoord2f(0, 0)
-// 	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z-(edgeLength/2))
-// 	gl.TexCoord2f(0, 1)
-// 	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z+(edgeLength/2))
-// 	gl.TexCoord2f(1, 1)
-// 	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z+(edgeLength/2))
-// 	gl.TexCoord2f(1, 0)
-// 	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z-(edgeLength/2))
-
-// 	// BOTTOM
-// 	gl.Normal3f(0, -1, 0)
-// 	gl.TexCoord2f(0, 0)
-// 	gl.Vertex3f(x-(edgeLength/2), y+0, z+(edgeLength/2))
-// 	gl.TexCoord2f(0, 1)
-// 	gl.Vertex3f(x-(edgeLength/2), y+0, z-(edgeLength/2))
-// 	gl.TexCoord2f(1, 1)
-// 	gl.Vertex3f(x+(edgeLength/2), y+0, z-(edgeLength/2))
-// 	gl.TexCoord2f(1, 0)
-// 	gl.Vertex3f(x+(edgeLength/2), y+0, z+(edgeLength/2))
-
-// 	// RIGHT
-// 	gl.Normal3f(1, 0, 0)
-// 	gl.TexCoord2f(0, 0)
-// 	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z+(edgeLength/2))
-// 	gl.TexCoord2f(0, 1)
-// 	gl.Vertex3f(x+(edgeLength/2), y+0, z+(edgeLength/2))
-// 	gl.TexCoord2f(1, 1)
-// 	gl.Vertex3f(x+(edgeLength/2), y+0, z-(edgeLength/2))
-// 	gl.TexCoord2f(1, 0)
-// 	gl.Vertex3f(x+(edgeLength/2), y+edgeLength, z-(edgeLength/2))
-
-// 	// LEFT
-// 	gl.Normal3f(-1, 0, 0)
-// 	gl.TexCoord2f(0, 0)
-// 	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z-(edgeLength/2))
-// 	gl.TexCoord2f(0, 1)
-// 	gl.Vertex3f(x-(edgeLength/2), y+0, z-(edgeLength/2))
-// 	gl.TexCoord2f(1, 1)
-// 	gl.Vertex3f(x-(edgeLength/2), y+0, z+(edgeLength/2))
-// 	gl.TexCoord2f(1, 0)
-// 	gl.Vertex3f(x-(edgeLength/2), y+edgeLength, z+(edgeLength/2))
-
-// 	gl.End()
-// 	gl.Disable(gl.TEXTURE_2D)
-// 	if !lightningEnabled {
-// 		gl.Enable(gl.LIGHTING)
-// 	}
 // }

@@ -27,16 +27,18 @@ type Viewer interface {
 }
 
 const (
-	width               = 1024
-	height              = 760
-	floorPanelDimension = 1
-	renderDistance      = 500.0
-	skyboxSize          = 500
+	width               int32 = 1024
+	height              int32 = 760
+	floorPanelDimension       = 1
+	renderDistance            = 500.0
+	skyboxSize                = 500
+
+	aspectRatio = float32(width) / float32(height)
+	fovy        = float32(90.0 / aspectRatio)
 )
 
 var (
-	aspectRatio = float64(width) / float64(height)
-	textureMap  map[string]uint32
+	textureMap map[string]uint32
 
 	noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
 )
@@ -113,6 +115,7 @@ type RenderSystem struct {
 	lights       []*Light
 	shaders      map[string]*shaders.Shader
 	skybox       *SkyBox
+	floor        *Quad
 }
 
 func initFont() *ttf.Font {
@@ -151,7 +154,8 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		window:       window,
 		viewer:       viewer,
 		game:         game,
-		skybox:       NewSkyBox(10),
+		skybox:       NewSkyBox(300),
+		floor:        NewQuad(nil),
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -162,7 +166,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
-	// gl.Enable(gl.CULL_FACE)
+	gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
 
 	_ = initFont()
@@ -241,14 +245,23 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
 	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
+	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
+
+	floorModelMatrix := createModelMatrix(
+		mgl32.Scale3D(50, 50, 50),
+		mgl32.Ident4(),
+		mgl32.Ident4(),
+	)
+	floorModelMatrix = horizontalViewRotationMatrix.Mul4(floorModelMatrix)
+
+	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
 	viewMatrix := verticalViewRotationMatrix.Mul4(viewTranslationMatrix)
-	skyBoxViewMatrix := verticalViewRotationMatrix
 
-	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(45), 800.0/600.0, 1, 1000)
+	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
 
-	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), skyBoxViewMatrix, projectionMatrix)
+	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), mgl32.Ident4(), projectionMatrix)
+	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 
 	var vbo, vao, ebo uint32
 	gl.GenBuffers(1, &vbo)
@@ -271,14 +284,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	// draw skybox without consideration for camera translation
 	// drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
 
+	modelMatrix := createModelMatrix(
+		mgl32.Scale3D(5, 5, 5),
+		mgl32.Ident4(),
+		mgl32.Translate3D(0, 10, 0),
+	)
+	modelMatrix = horizontalViewRotationMatrix.Mul4(modelMatrix)
+
 	basicShader := r.shaders["basic"]
 	basicShader.Use()
-
-	modelRotationMatrix := mgl32.Ident4()
-	modelTranslationMatrix := mgl32.Ident4()
-	modelScaleMatrix := mgl32.Scale3D(5, 5, 5)
-	worldHorizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
-	modelMatrix := worldHorizontalViewRotationMatrix.Mul4(modelTranslationMatrix).Mul4(modelRotationMatrix).Mul4(modelScaleMatrix)
 
 	basicShader.SetUniformMat4("model", modelMatrix)
 	basicShader.SetUniformMat4("view", viewMatrix)

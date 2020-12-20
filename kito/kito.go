@@ -30,8 +30,8 @@ const (
 
 var (
 	fps                 = 60.0
-	viewerStartPosition = vector.Vector3{X: 0, Y: 0, Z: 10}
-	viewerStartView     = vector.Vector{X: 0, Y: 0}
+	viewerStartPosition = vector.Vector3{X: 0, Y: 40, Z: 40}
+	viewerStartView     = vector.Vector{X: 10, Y: 0}
 )
 
 type System interface {
