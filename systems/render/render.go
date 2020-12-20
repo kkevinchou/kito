@@ -259,7 +259,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
 
 	floorModelMatrix := createModelMatrix(
-		mgl32.Scale3D(50, 50, 50),
+		mgl32.Scale3D(200, 200, 200),
 		mgl32.Ident4(),
 		mgl32.Ident4(),
 	)
