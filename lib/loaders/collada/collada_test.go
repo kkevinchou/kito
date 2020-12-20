@@ -8,12 +8,7 @@ import (
 )
 
 func TestCollada(t *testing.T) {
-	rawCollada, err := collada.LoadDocument("sample/model.dae")
-	if err != nil {
-		t.Error(err)
-	}
-
-	_ = collada.ParseCollada(rawCollada)
+	_, _ = collada.ParseCollada(rawCollada)
 	t.Error()
 }
 

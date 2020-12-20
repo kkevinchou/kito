@@ -8,9 +8,11 @@ import (
 )
 
 type Collada struct {
-	vertexSourceData  []mgl32.Vec3
-	normalSourceData  []mgl32.Vec3
-	textureSourceData []mgl32.Vec2
+	vertexSourceData       []mgl32.Vec3
+	vertexFloatsSourceData []float32
+	normalSourceData       []mgl32.Vec3
+	normalFloatsSourceData []float32
+	textureSourceData      []mgl32.Vec2
 }
 
 type SemanticType string
@@ -23,7 +25,12 @@ const (
 	SemanticPosition SemanticType = "POSITION"
 )
 
-func ParseCollada(rawCollada *RawCollada) *Collada {
+func ParseCollada(documentPath string) (*Collada, error) {
+	rawCollada, err := LoadDocument(documentPath)
+	if err != nil {
+		return nil, err
+	}
+
 	mesh := rawCollada.LibraryGeometries[0].Geometry[0].Mesh
 
 	var normalSourceID Uri
@@ -58,12 +65,14 @@ func ParseCollada(rawCollada *RawCollada) *Collada {
 	vertices := ParseVec3Array(vertexPositionSource) // looks at <geometries>
 	normals := ParseVec3Array(normalSource)          // looks at <geometries>
 	result := &Collada{
-		vertexSourceData: vertices,
-		normalSourceData: normals,
+		vertexSourceData:       vertices,
+		vertexFloatsSourceData: convertToFloatList(vertices),
+		normalSourceData:       normals,
+		normalFloatsSourceData: convertToFloatList(normals),
 	}
 	// parseAnimations(rawCollada) // looks at <animations> and <controllers> <scenes>(contains hierarchy)
 
-	return result
+	return result, nil
 }
 
 func ParseVec3Array(source *Source) []mgl32.Vec3 {
@@ -85,4 +94,14 @@ func mustParseFloat32(input string) float32 {
 		panic(err)
 	}
 	return float32(out)
+}
+
+func convertToFloatList(v []mgl32.Vec3) []float32 {
+	result := make([]float32, len(v)*3)
+	for i := range v {
+		result[i] = v[i].X()
+		result[i+1] = v[i].Y()
+		result[i+2] = v[i].Z()
+	}
+	return result
 }

@@ -50,17 +50,17 @@ func newTexture(file string) uint32 {
 }
 
 func drawSkyBox(sb *SkyBox, shader *shaders.Shader, textureMap map[string]uint32, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
-	textures := []uint32{textureMap["back"], textureMap["front"], textureMap["left"], textureMap["right"], textureMap["bottom"], textureMap["top"]}
+	textures := []uint32{textureMap["front"], textureMap["top"], textureMap["left"], textureMap["right"], textureMap["bottom"], textureMap["back"]}
 
 	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindVertexArray(sb.VAO())
 	shader.Use()
 	shader.SetUniformInt("skyboxTexture", 0)
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 6; i++ {
 		gl.BindTexture(gl.TEXTURE_2D, textures[i])
-		gl.BindVertexArray(sb.VAO())
 		gl.DrawArrays(gl.TRIANGLES, int32(i*6), 6)
 	}
 }

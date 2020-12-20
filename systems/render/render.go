@@ -10,6 +10,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/lib/loaders/collada"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/noise"
@@ -116,6 +117,8 @@ type RenderSystem struct {
 	shaders      map[string]*shaders.Shader
 	skybox       *SkyBox
 	floor        *Quad
+
+	model *collada.Collada
 }
 
 func initFont() *ttf.Font {
@@ -157,6 +160,13 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		skybox:       NewSkyBox(300),
 		floor:        NewQuad(nil),
 	}
+
+	model, err := collada.ParseCollada("_assets/collada/model.dae")
+	if err != nil {
+		panic(err)
+	}
+
+	renderSystem.model = model
 
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
@@ -260,20 +270,16 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
 
-	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), mgl32.Ident4(), projectionMatrix)
+	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
 	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 
-	var vbo, vao, ebo uint32
+	var vbo, vao uint32
 	gl.GenBuffers(1, &vbo)
-	gl.GenBuffers(1, &ebo)
 	gl.GenVertexArrays(1, &vao)
 
 	gl.BindVertexArray(vao)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
-
-	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-	// gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
 
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
 	gl.EnableVertexAttribArray(0)
@@ -281,12 +287,9 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, gl.PtrOffset(3*4))
 	gl.EnableVertexAttribArray(1)
 
-	// draw skybox without consideration for camera translation
-	// drawSkyBox(r.textureMap, float32(0), float32(-skyboxSize/2), float32(0), skyboxSize, false)
-
 	modelMatrix := createModelMatrix(
 		mgl32.Scale3D(5, 5, 5),
-		mgl32.Ident4(),
+		mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{1, 0, 0}).Mat4(),
 		mgl32.Translate3D(0, 10, 0),
 	)
 	modelMatrix = horizontalViewRotationMatrix.Mul4(modelMatrix)
