@@ -10,6 +10,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/loaders/collada"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
@@ -94,6 +95,26 @@ var vertices []float32 = []float32{
 	-0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
 }
 
+var indices []uint32 = []uint32{
+	0, 1, 2,
+	3, 4, 5,
+
+	6, 7, 8,
+	9, 10, 11,
+
+	12, 13, 14,
+	15, 16, 17,
+
+	18, 19, 20,
+	21, 22, 23,
+
+	24, 25, 26,
+	27, 28, 29,
+
+	30, 31, 32,
+	33, 34, 35,
+}
+
 type Game interface {
 }
 
@@ -118,7 +139,7 @@ type RenderSystem struct {
 	skybox       *SkyBox
 	floor        *Quad
 
-	model *collada.Collada
+	mesh *animation.Mesh
 }
 
 func initFont() *ttf.Font {
@@ -161,13 +182,6 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		floor:        NewQuad(nil),
 	}
 
-	model, err := collada.ParseCollada("_assets/collada/model.dae")
-	if err != nil {
-		panic(err)
-	}
-
-	renderSystem.model = model
-
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
 
@@ -178,6 +192,14 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
+
+	parsedCollada, err := collada.ParseCollada("_assets/collada/model.dae")
+	if err != nil {
+		panic(err)
+	}
+	animatedModel := animation.NewAnimatedModel(parsedCollada, 50, 3)
+
+	renderSystem.mesh = animatedModel.Mesh
 
 	_ = initFont()
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
@@ -270,16 +292,26 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
 
+	meshModelMatrix := createModelMatrix(
+		mgl32.Scale3D(3, 3, 3),
+		horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
+		mgl32.Ident4(),
+	)
+	drawMesh(r.mesh, r.shaders["basic"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
 	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 
-	var vbo, vao uint32
+	var vbo, vao, ebo uint32
 	gl.GenBuffers(1, &vbo)
+	gl.GenBuffers(1, &ebo)
 	gl.GenVertexArrays(1, &vao)
 
 	gl.BindVertexArray(vao)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
 
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
 	gl.EnableVertexAttribArray(0)
@@ -303,7 +335,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	basicShader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
 
 	gl.BindVertexArray(vao)
-	gl.DrawArrays(gl.TRIANGLES, 0, 36)
+	// gl.DrawElements(gl.TRIANGLES, 36, gl.UNSIGNED_INT, nil)
 
 	for _, renderable := range r.renderables {
 		renderData := renderable.GetRenderData()

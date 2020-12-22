@@ -12,10 +12,6 @@ type Animator struct {
 	ElapsedTime   time.Duration
 }
 
-type AnimatedModel struct {
-	RootJoint *Joint
-}
-
 func (a *Animator) Init() {
 	a.AnimatedModel.RootJoint.CalculateInverseBindTransform(mgl32.Ident4())
 }

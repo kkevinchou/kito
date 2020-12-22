@@ -1,6 +1,7 @@
 package render
 
 import (
+	"fmt"
 	"image"
 	"image/draw"
 	"log"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/shaders"
 )
@@ -73,6 +75,20 @@ func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projecti
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
 	gl.BindVertexArray(q.VAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+}
+
+func drawMesh(mesh *animation.Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition vector.Vector3) {
+	fmt.Println("draw1")
+	shader.Use()
+	shader.SetUniformMat4("model", modelMatrix)
+	shader.SetUniformMat4("view", viewMatrix)
+	shader.SetUniformMat4("projection", projectionMatrix)
+	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
+	gl.BindVertexArray(mesh.VAO())
+	fmt.Println("draw2")
+
+	gl.DrawElements(gl.TRIANGLES, int32(mesh.VertexCount()), gl.UNSIGNED_INT, nil)
+	fmt.Println("draw3")
 }
 
 func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl32.Mat4) mgl32.Mat4 {

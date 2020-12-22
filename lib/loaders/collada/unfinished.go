@@ -45,18 +45,8 @@ type Perspective struct {
 	//TODO
 }
 
-//Controller categorizes the declaration of generic control information.
-type Controller struct {
-	//TODO
-}
-
 //Joints associates joint, or skeleton, nodes with attribute data.
 type Joints struct {
-	//TODO
-}
-
-//LibraryControllers provides a library in which to place <controller> elements.
-type LibraryControllers struct {
 	//TODO
 }
 
@@ -70,23 +60,8 @@ type Skeleton struct {
 	//TODO
 }
 
-//Skin contains vertex and primitive information sufficient to describe blend-weight skinning.
-type Skin struct {
-	//TODO
-}
-
 // Targets teclares morph targets, their weights, and any user-defined attributes associated with them.
 type Targets struct {
-	//TODO
-}
-
-// VertexWeights describes the combination of joints and weights used by a skin.
-type VertexWeights struct {
-	//TODO
-}
-
-// Accessor declares an access pattern to one of the array elements <float_array>, <int_array>, <Name_array>, <bool_array>, and <IDREF_array>.
-type Accessor struct {
 	//TODO
 }
 

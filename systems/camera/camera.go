@@ -8,6 +8,11 @@ import (
 	"github.com/kkevinchou/kito/types"
 )
 
+const (
+	zoomSpeed float64 = 100
+	moveSpeed float64 = 25
+)
+
 type Singleton interface {
 	GetKeyboardInputSet() *types.KeyboardInput
 }
@@ -92,14 +97,12 @@ func (s *CameraSystem) Update(delta time.Duration) {
 
 	impulse := &types.Impulse{}
 	if !controlVector.IsZero() {
-		moveSpeed := camera.MaxSpeed()
 		impulse.Vector = forwardVector.Add(rightVector).Add(vector.Vector3{X: 0, Y: controlVector.Y, Z: 0}).Normalize().Scale(moveSpeed)
 		impulse.DecayRate = 2.5
 		camera.ApplyImpulse("cameraMove", impulse)
 	}
 
 	if zoomValue != 0 {
-		zoomSpeed := 2 * camera.MaxSpeed()
 		impulse.Vector = zoomVector.Scale(zoomSpeed)
 		impulse.DecayRate = 2.5
 		camera.ApplyImpulse("cameraZoom", impulse)

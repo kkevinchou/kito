@@ -178,11 +178,6 @@ type TechniqueCore struct {
 	XML     string `xml:",innerxml"`
 }
 
-//TechniqueCommon specifies the information for a specific element for the common profile that all COLLADA implementations must support.
-type TechniqueCommon struct {
-	XML string `xml:",innerxml"`
-}
-
 //ControlVertices describes the control vertices (CVs) of a spline.
 type ControlVertices struct {
 	//TODO
@@ -767,9 +762,6 @@ type HasNodes struct {
 }
 type HasExtra struct {
 	Extra []*Extra `xml:"extra"`
-}
-type HasTechniqueCommon struct {
-	TechniqueCommon TechniqueCommon `xml:"technique_common"`
 }
 type HasTechnique struct {
 	TechniqueCore []*TechniqueCore `xml:"technique,omitempty"`

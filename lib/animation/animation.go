@@ -25,10 +25,3 @@ type JointTransform struct {
 	Position mgl32.Vec3
 	Rotation mgl32.Quat
 }
-
-func ParseCollada(filename string) {
-	// colladaDoc, err := collada.LoadDocument("sample/model.dae")
-	// if err != nil {
-	// 	t.Error(err)
-	// }
-}
