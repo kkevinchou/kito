@@ -45,76 +45,6 @@ var (
 	noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
 )
 
-var vertices []float32 = []float32{
-	// back
-	-0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
-	0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
-	0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
-	0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
-	-0.5, -0.5, -0.5, 0.0, 0.0, -1.0,
-	-0.5, 0.5, -0.5, 0.0, 0.0, -1.0,
-
-	// front
-	-0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
-	0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
-	0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
-	0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
-	-0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
-	-0.5, -0.5, 0.5, 0.0, 0.0, 1.0,
-
-	// left
-	-0.5, 0.5, 0.5, -1.0, 0.0, 0.0,
-	-0.5, 0.5, -0.5, -1.0, 0.0, 0.0,
-	-0.5, -0.5, -0.5, -1.0, 0.0, 0.0,
-	-0.5, -0.5, -0.5, -1.0, 0.0, 0.0,
-	-0.5, -0.5, 0.5, -1.0, 0.0, 0.0,
-	-0.5, 0.5, 0.5, -1.0, 0.0, 0.0,
-
-	// right
-	0.5, 0.5, 0.5, 1.0, 0.0, 0.0,
-	0.5, -0.5, -0.5, 1.0, 0.0, 0.0,
-	0.5, 0.5, -0.5, 1.0, 0.0, 0.0,
-	0.5, -0.5, -0.5, 1.0, 0.0, 0.0,
-	0.5, 0.5, 0.5, 1.0, 0.0, 0.0,
-	0.5, -0.5, 0.5, 1.0, 0.0, 0.0,
-
-	// bottom
-	-0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
-	0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
-	0.5, -0.5, 0.5, 0.0, -1.0, 0.0,
-	0.5, -0.5, 0.5, 0.0, -1.0, 0.0,
-	-0.5, -0.5, 0.5, 0.0, -1.0, 0.0,
-	-0.5, -0.5, -0.5, 0.0, -1.0, 0.0,
-
-	// top
-	-0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
-	0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
-	0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
-	0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
-	-0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
-	-0.5, 0.5, 0.5, 0.0, 1.0, 0.0,
-}
-
-var indices []uint32 = []uint32{
-	0, 1, 2,
-	3, 4, 5,
-
-	6, 7, 8,
-	9, 10, 11,
-
-	12, 13, 14,
-	15, 16, 17,
-
-	18, 19, 20,
-	21, 22, 23,
-
-	24, 25, 26,
-	27, 28, 29,
-
-	30, 31, 32,
-	33, 34, 35,
-}
-
 type Game interface {
 }
 
@@ -308,42 +238,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	drawMesh(r.mesh, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
 	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
-
-	var vbo, vao, ebo uint32
-	gl.GenBuffers(1, &vbo)
-	gl.GenBuffers(1, &ebo)
-	gl.GenVertexArrays(1, &vao)
-
-	gl.BindVertexArray(vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
-
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
-
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
-	gl.EnableVertexAttribArray(0)
-
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, gl.PtrOffset(3*4))
-	gl.EnableVertexAttribArray(1)
-
-	modelMatrix := createModelMatrix(
-		mgl32.Scale3D(5, 5, 5),
-		mgl32.QuatRotate(mgl32.DegToRad(45), mgl32.Vec3{1, 0, 0}).Mat4(),
-		mgl32.Translate3D(0, 10, 0),
-	)
-	modelMatrix = horizontalViewRotationMatrix.Mul4(modelMatrix)
-
-	basicShader := r.shaders["basic"]
-	basicShader.Use()
-
-	basicShader.SetUniformMat4("model", modelMatrix)
-	basicShader.SetUniformMat4("view", viewMatrix)
-	basicShader.SetUniformMat4("projection", projectionMatrix)
-	basicShader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
-
-	gl.BindVertexArray(vao)
-	// gl.DrawElements(gl.TRIANGLES, 36, gl.UNSIGNED_INT, nil)
 
 	for _, renderable := range r.renderables {
 		renderData := renderable.GetRenderData()
