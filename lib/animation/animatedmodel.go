@@ -1,8 +1,6 @@
 package animation
 
 import (
-	"fmt"
-
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/lib/loaders/collada"
@@ -38,13 +36,10 @@ func NewMesh(c *collada.Collada) *Mesh {
 		c.TextureSourceData,
 	)
 
-	fmt.Println(len(vertexAttributes))
-	fmt.Println(totalAttributeSize)
-	fmt.Println(len(vertexAttributes) / totalAttributeSize)
-
+	vertexCount := len(vertexAttributes) / totalAttributeSize
 	return &Mesh{
-		vao:         constructGeometryVAO(vertexAttributes, totalAttributeSize),
-		vertexCount: len(vertexAttributes) / totalAttributeSize,
+		vao:         constructGeometryVAO(vertexAttributes, totalAttributeSize, vertexCount),
+		vertexCount: vertexCount,
 	}
 }
 
@@ -107,22 +102,20 @@ func constructVertexAttributes(
 	return vertexAttributes, totalAttributeSize
 }
 
-func constructGeometryVAO(vertexAttributes []float32, totalAttributeSize int) uint32 {
-	fmt.Println("HI")
+func constructGeometryVAO(vertexAttributes []float32, totalAttributeSize int, vertexCount int) uint32 {
 	var vbo, vao, ebo uint32
 	gl.GenBuffers(1, &vbo)
+	gl.GenBuffers(1, &ebo)
 	gl.GenVertexArrays(1, &vao)
 
 	gl.BindVertexArray(vao)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertexAttributes)*4, gl.Ptr(vertexAttributes), gl.STATIC_DRAW)
 
-	indices := []int{}
-	for i := 0; i < len(vertexAttributes)/totalAttributeSize; i++ {
-		indices = append(indices, i)
+	indices := []uint32{}
+	for i := 0; i < vertexCount; i++ {
+		indices = append(indices, uint32(i))
 	}
-
-	fmt.Println(indices[len(indices)-1])
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
@@ -138,8 +131,6 @@ func constructGeometryVAO(vertexAttributes []float32, totalAttributeSize int) ui
 
 	gl.VertexAttribPointer(3, 3, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(8*4))
 	gl.EnableVertexAttribArray(3)
-
-	fmt.Println("BYE")
 
 	return vao
 }

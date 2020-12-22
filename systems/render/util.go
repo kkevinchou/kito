@@ -1,7 +1,6 @@
 package render
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"log"
@@ -78,17 +77,14 @@ func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projecti
 }
 
 func drawMesh(mesh *animation.Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition vector.Vector3) {
-	fmt.Println("draw1")
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
 	gl.BindVertexArray(mesh.VAO())
-	fmt.Println("draw2")
 
 	gl.DrawElements(gl.TRIANGLES, int32(mesh.VertexCount()), gl.UNSIGNED_INT, nil)
-	fmt.Println("draw3")
 }
 
 func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl32.Mat4) mgl32.Mat4 {
