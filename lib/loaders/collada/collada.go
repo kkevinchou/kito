@@ -60,8 +60,9 @@ const (
 	TechniqueTransform TechniqueType = "TRANSFORM"
 	TechniqueWeight    TechniqueType = "WEIGHT"
 
-	NodeJoint      NodeType = "JOINT"
-	ArmatureNodeID          = "Armature"
+	NodeJoint NodeType = "JOINT"
+
+	ArmatureNodeID = "Armature"
 )
 
 func ParseCollada(documentPath string) (*Collada, error) {
@@ -72,10 +73,12 @@ func ParseCollada(documentPath string) (*Collada, error) {
 
 	mesh := rawCollada.LibraryGeometries[0].Geometry[0].Mesh
 
-	var normalSourceID Uri
+	var normalSourceID, textureSourceID Uri
 	for _, input := range mesh.Polylist[0].Input {
 		if input.Semantic == string(SemanticNormal) {
 			normalSourceID = input.Source[1:] // remove leading "#"
+		} else if input.Semantic == string(SemanticTexCoord) {
+			textureSourceID = input.Source[1:] // remove leading "#"
 		}
 	}
 
@@ -86,12 +89,15 @@ func ParseCollada(documentPath string) (*Collada, error) {
 
 	var positionSourceElement *Source
 	var normalSourceElement *Source
+	var textureSourceElement *Source
 
 	for _, source := range mesh.Source {
 		if string(source.Id) == string(vertexSourceID) {
 			positionSourceElement = source
 		} else if string(source.Id) == string(normalSourceID) {
 			normalSourceElement = source
+		} else if string(source.Id) == string(textureSourceID) {
+			textureSourceElement = source
 		}
 	}
 
@@ -103,26 +109,15 @@ func ParseCollada(documentPath string) (*Collada, error) {
 		panic("could not find normal source")
 	}
 
+	if textureSourceElement == nil {
+		panic("could not find texture source")
+	}
+
 	positionSource := ParseVec3Array(positionSourceElement) // looks at <geometries>
 	normalSource := ParseVec3Array(normalSourceElement)     // looks at <geometries>
+	textureSource := ParseVec2Array(textureSourceElement)   // looks at <geometries>
 
-	vertexFloatData := []float32{}
-	normalFloatData := []float32{}
-	// texCoordFloatData := []float32{}
-	// colorFloatData := []float32{}
-
-	// look up the sources by index to fetch the actual data
 	triVertices := parseIntArrayString(mesh.Polylist[0].P.V)
-	pList := strings.Split(mesh.Polylist[0].P.V, " ")
-	for i := 0; i < len(pList); i += 4 {
-		num0 := mustParseInt(pList[i])
-		num1 := mustParseInt(pList[i+1])
-		// num2 := mustParseNum(pList[i+2])
-		// num3 := mustParseNum(pList[i+3])
-
-		vertexFloatData = append(vertexFloatData, positionSource[num0].X(), positionSource[num0].Y(), positionSource[num0].Z())
-		normalFloatData = append(normalFloatData, normalSource[num1].X(), normalSource[num1].Y(), normalSource[num1].Z())
-	}
 
 	skin := rawCollada.LibraryControllers[0].Controller.Skin
 
@@ -181,8 +176,8 @@ func ParseCollada(documentPath string) (*Collada, error) {
 
 		PositionSourceData: positionSource,
 		NormalSourceData:   normalSource,
+		TextureSourceData:  textureSource,
 		ColorSourceData:    nil,
-		TextureSourceData:  nil,
 
 		JointsSourceData:       joints,
 		JointWeightsSourceData: weights,
@@ -221,6 +216,18 @@ func ParseVec3Array(source *Source) []mgl32.Vec3 {
 		z := mustParseFloat32(splitString[i+2])
 		v := mgl32.Vec3{x, y, z}
 		result[i/3] = v
+	}
+	return result
+}
+
+func ParseVec2Array(source *Source) []mgl32.Vec2 {
+	splitString := strings.Split(source.FloatArray.Floats.Values.V, " ")
+	result := make([]mgl32.Vec2, len(splitString)/2)
+	for i := 0; i < len(splitString); i += 2 {
+		x := mustParseFloat32(splitString[i])
+		y := mustParseFloat32(splitString[i+1])
+		v := mgl32.Vec2{x, y}
+		result[i/2] = v
 	}
 	return result
 }

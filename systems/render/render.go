@@ -212,6 +212,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	backTexture := newTexture("_assets/images/back.png")
 	topTexture := newTexture("_assets/images/top.png")
 	bottomTexture := newTexture("_assets/images/bottom.png")
+	cowboyTexture := newTexture("_assets/collada/diffuse.png")
 	renderSystem.textureMap = map[string]uint32{
 		"high-grass":     highGrassTexture,
 		"mushroom-gills": mushroomGilsTexture,
@@ -225,6 +226,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		"back":   backTexture,
 		"top":    topTexture,
 		"bottom": bottomTexture,
+		"cowboy": cowboyTexture,
 	}
 
 	oak, err := models.NewModel("_assets/obj/Oak_Green_01.obj")
@@ -255,12 +257,18 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 
 	skyBoxShader, err := shaders.NewShader("shaders/skybox.vs", "shaders/skybox.fs")
 	if err != nil {
-		panic(fmt.Sprintf("Failed to load basic shader %s", err))
+		panic(fmt.Sprintf("Failed to load skybox shader %s", err))
+	}
+
+	modelShader, err := shaders.NewShader("shaders/model.vs", "shaders/model.fs")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load model shader %s", err))
 	}
 
 	renderSystem.shaders = map[string]*shaders.Shader{
 		"basic":  basicShader,
 		"skybox": skyBoxShader,
+		"model":  modelShader,
 	}
 
 	return &renderSystem
@@ -297,7 +305,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
 		mgl32.Ident4(),
 	)
-	drawMesh(r.mesh, r.shaders["basic"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
+	drawMesh(r.mesh, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
 	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 

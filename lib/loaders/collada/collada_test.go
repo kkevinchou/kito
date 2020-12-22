@@ -13,8 +13,8 @@ func TestCollada(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fmt.Println(c.Root)
-	fmt.Println(c.Root.Children[0])
+	fmt.Println(c.TextureSourceData)
+	// fmt.Println(c.Root.Children[0])
 
 	t.Error()
 }

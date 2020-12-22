@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/lib/animation"
@@ -23,11 +24,15 @@ func newTexture(file string) uint32 {
 		panic(err)
 	}
 
+	// is vertically flipped if directly read into opengl texture
+	nrgba := imaging.FlipV(img)
+
 	rgba := image.NewRGBA(img.Bounds())
 	if rgba.Stride != rgba.Rect.Size().X*4 {
 		panic("unsupported stride")
 	}
-	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
+
+	draw.Draw(rgba, rgba.Bounds(), nrgba, image.Point{0, 0}, draw.Src)
 
 	var texture uint32
 	gl.GenTextures(1, &texture)
@@ -76,14 +81,15 @@ func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projecti
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(mesh *animation.Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition vector.Vector3) {
+func drawMesh(mesh *animation.Mesh, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition vector.Vector3) {
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
 	gl.BindVertexArray(mesh.VAO())
-
 	gl.DrawElements(gl.TRIANGLES, int32(mesh.VertexCount()), gl.UNSIGNED_INT, nil)
 }
 

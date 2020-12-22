@@ -35,10 +35,14 @@ func NewMesh(c *collada.Collada) *Mesh {
 		c.ColorSourceData,
 		c.TextureSourceData,
 	)
-
 	vertexCount := len(vertexAttributes) / totalAttributeSize
+
+	var vao uint32
+	gl.GenVertexArrays(1, &vao)
+	configureGeometryVertexAttributes(vao, vertexAttributes, totalAttributeSize, vertexCount)
+
 	return &Mesh{
-		vao:         constructGeometryVAO(vertexAttributes, totalAttributeSize, vertexCount),
+		vao:         vao,
 		vertexCount: vertexCount,
 	}
 }
@@ -74,10 +78,9 @@ func constructVertexAttributes(
 	for i := 0; i < len(triIndices); i += 4 {
 		position := positionSourceData[triIndices[i]]
 		normal := normalSourceData[triIndices[i+1]]
-		// texture := textureSourceData[i]
+		texture := textureSourceData[triIndices[i+2]]
 		// color := colorSourceData[i]
 
-		texture := mgl32.Vec2{0, 0}
 		color := mgl32.Vec3{0, 0, 0}
 
 		// vertJointIDs := jointIDs[i]
@@ -102,11 +105,10 @@ func constructVertexAttributes(
 	return vertexAttributes, totalAttributeSize
 }
 
-func constructGeometryVAO(vertexAttributes []float32, totalAttributeSize int, vertexCount int) uint32 {
-	var vbo, vao, ebo uint32
+func configureGeometryVertexAttributes(vao uint32, vertexAttributes []float32, totalAttributeSize int, vertexCount int) {
+	var vbo, ebo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.GenBuffers(1, &ebo)
-	gl.GenVertexArrays(1, &vao)
 
 	gl.BindVertexArray(vao)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
@@ -131,13 +133,37 @@ func constructGeometryVAO(vertexAttributes []float32, totalAttributeSize int, ve
 
 	gl.VertexAttribPointer(3, 3, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(8*4))
 	gl.EnableVertexAttribArray(3)
-
-	return vao
 }
 
-func constructJointVAO(vao uint32) {
+// func configureJointVertexAttributes(vao uint32) {
+// 	var vbo, ebo uint32
+// 	gl.GenBuffers(1, &vbo)
+// 	gl.GenBuffers(1, &ebo)
 
-}
+// 	gl.BindVertexArray(vao)
+// 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+// 	gl.BufferData(gl.ARRAY_BUFFER, len(vertexAttributes)*4, gl.Ptr(vertexAttributes), gl.STATIC_DRAW)
+
+// 	indices := []uint32{}
+// 	for i := 0; i < vertexCount; i++ {
+// 		indices = append(indices, uint32(i))
+// 	}
+
+// 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+// 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
+
+// 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(totalAttributeSize)*4, nil)
+// 	gl.EnableVertexAttribArray(0)
+
+// 	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(3*4))
+// 	gl.EnableVertexAttribArray(1)
+
+// 	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(6*4))
+// 	gl.EnableVertexAttribArray(2)
+
+// 	gl.VertexAttribPointer(3, 3, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(8*4))
+// 	gl.EnableVertexAttribArray(3)
+// }
 
 func copySliceSliceInt(data [][]int) [][]int {
 	result := [][]int{}
