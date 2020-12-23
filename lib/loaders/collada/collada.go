@@ -5,36 +5,8 @@ import (
 	"strings"
 
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/lib/loaders"
 )
-
-type Joint struct {
-	ID            int
-	Name          string
-	BindTransform mgl32.Mat4
-	Children      []*Joint
-}
-
-type Collada struct {
-	// Geometry
-	TriIndices []int // vertex indices in triangle order. Each triplet defines a face
-
-	PositionSourceData []mgl32.Vec3
-	NormalSourceData   []mgl32.Vec3
-	ColorSourceData    []mgl32.Vec3
-	TextureSourceData  []mgl32.Vec2
-
-	// Controllers
-
-	JointIDs     [][]int
-	JointWeights [][]int
-
-	JointsSourceData       []string // index is the joint id, the string value is the name
-	JointWeightsSourceData []float32
-
-	// Joint Hierarchy
-
-	Root *Joint
-}
 
 type TechniqueType string
 
@@ -65,7 +37,7 @@ const (
 	ArmatureNodeID = "Armature"
 )
 
-func ParseCollada(documentPath string) (*Collada, error) {
+func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
 	rawCollada, err := LoadDocument(documentPath)
 	if err != nil {
 		return nil, err
@@ -161,7 +133,7 @@ func ParseCollada(documentPath string) (*Collada, error) {
 	}
 
 	// parse joint hierarchy
-	var rootJoint *Joint
+	var rootJoint *loaders.Joint
 	for _, node := range rawCollada.LibraryVisualScenes[0].VisualScene[0].Node {
 		if string(node.Id) == ArmatureNodeID {
 			rootNode := node.Node[0]
@@ -169,7 +141,7 @@ func ParseCollada(documentPath string) (*Collada, error) {
 		}
 	}
 
-	result := &Collada{
+	result := &loaders.ModelSpecification{
 		// VertexFloatsSourceData: vertexFloatData,
 		// NormalFloatsSourceData: normalFloatData,
 		TriIndices: triVertices,
@@ -191,14 +163,14 @@ func ParseCollada(documentPath string) (*Collada, error) {
 	return result, nil
 }
 
-func parseJointElement(node *Node, jointsToIndex map[string]int) *Joint {
-	children := []*Joint{}
+func parseJointElement(node *Node, jointsToIndex map[string]int) *loaders.Joint {
+	children := []*loaders.Joint{}
 	for _, childNode := range node.Node {
 		children = append(children, parseJointElement(childNode, jointsToIndex))
 	}
 
 	bindTransform := parseMatrixArrayString(node.Matrix[0].V)
-	joint := &Joint{
+	joint := &loaders.Joint{
 		ID:            jointsToIndex[node.Name],
 		Name:          node.Name,
 		BindTransform: bindTransform,

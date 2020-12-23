@@ -1,9 +1,11 @@
 package animation
 
 import (
+	"sort"
+
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/loaders/collada"
+	"github.com/kkevinchou/kito/lib/loaders"
 )
 
 type Mesh struct {
@@ -16,15 +18,14 @@ type AnimatedModel struct {
 	Mesh      *Mesh
 }
 
-func NewAnimatedModel(c *collada.Collada, maxJoints, maxWeights int) *AnimatedModel {
+func NewAnimatedModel(c *loaders.ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	mesh := NewMesh(c, maxWeights)
 	return &AnimatedModel{
 		Mesh: mesh,
 	}
 }
 
-// func NewMeshFromCollada(c *collada.Collada) *Mesh {
-func NewMesh(c *collada.Collada, maxWeights int) *Mesh {
+func NewMesh(c *loaders.ModelSpecification, maxWeights int) *Mesh {
 	// maxJoints := 50
 
 	var vao uint32
@@ -126,9 +127,7 @@ func configureJointVertexAttributes(vao uint32, JointWeightsSourceData []float32
 	jointWeightsAttribute := []float32{}
 
 	for i := 0; i < len(jointIDs); i++ {
-		// fill in empty weights if we're overboard
-
-		ids, weights := normalizeWeights(jointIDs[i], jointWeights[i], JointWeightsSourceData, maxWeights)
+		ids, weights := FillWeights(jointIDs[i], jointWeights[i], JointWeightsSourceData, maxWeights)
 		for j := 0; j < maxWeights; j++ {
 			jointIDsAttribute = append(jointIDsAttribute, ids...)
 			jointWeightsAttribute = append(jointWeightsAttribute, weights...)
@@ -160,15 +159,69 @@ func copySliceSliceInt(data [][]int) [][]int {
 
 // if we exceed maxWeights, drop the weakest weights and normalize
 // if we're below maxWeights, fill in dummy weights so we always have "maxWeights" number of weights
-func normalizeWeights(jointIDs []int, weights []int, JointWeightsSourceData []float32, maxWeights int) ([]int, []float32) {
-	// TODO
+func FillWeights(jointIDs []int, weights []int, jointWeightsSourceData []float32, maxWeights int) ([]int, []float32) {
 	j := []int{}
 	w := []float32{}
 
-	for i := 0; i < maxWeights; i++ {
-		j = append(j, 0)
-		w = append(w, 0)
+	if len(jointIDs) <= maxWeights {
+		j = append(j, jointIDs...)
+		for _, weightIndex := range weights {
+			w = append(w, jointWeightsSourceData[weightIndex])
+		}
+		// fill in empty jointIDs and weights
+		for i := 0; i < maxWeights-len(jointIDs); i++ {
+			j = append(j, 0)
+			w = append(w, 0)
+		}
+	} else if len(jointIDs) > maxWeights {
+		jointWeights := []JointWeight{}
+		for i := range jointIDs {
+			jointWeights = append(jointWeights, JointWeight{JointID: jointIDs[i], Weight: jointWeightsSourceData[weights[i]]})
+		}
+		sort.Sort(sort.Reverse(byWeights(jointWeights)))
+
+		// take top 3 weights
+		jointWeights = jointWeights[:maxWeights]
+		NormalizeWeights(jointWeights)
+		for _, jw := range jointWeights {
+			j = append(j, jw.JointID)
+			w = append(w, jw.Weight)
+		}
 	}
 
 	return j, w
 }
+
+func NormalizeWeights(jointWeights []JointWeight) {
+	var totalWeight float32
+	for _, jw := range jointWeights {
+		totalWeight += jw.Weight
+	}
+
+	for i := range jointWeights {
+		jointWeights[i].Weight /= totalWeight
+	}
+}
+
+type byWeights []JointWeight
+
+type JointWeight struct {
+	JointID int
+	Weight  float32
+}
+
+func (s byWeights) Len() int {
+	return len(s)
+}
+func (s byWeights) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s byWeights) Less(i, j int) bool {
+	return s[i].Weight < s[j].Weight
+}
+
+// func main() {
+// 	fruits := []string{"peach", "banana", "kiwi"}
+// 	sort.Sort(byLength(fruits))
+// 	fmt.Println(fruits)
+// }
