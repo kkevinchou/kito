@@ -41,6 +41,7 @@ func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
 		return nil, err
 	}
 
+	// parse geometry
 	mesh := rawCollada.LibraryGeometries[0].Geometry[0].Mesh
 
 	var normalSourceID, textureSourceID Uri
@@ -89,11 +90,11 @@ func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
 
 	triVertices := parseIntArrayString(mesh.Polylist[0].P.V)
 
+	// parse skinning information, joint weights
 	skin := rawCollada.LibraryControllers[0].Controller.Skin
 
 	var joints []string
 	var weights []float32
-	// parse controller sources
 	for _, source := range skin.Source {
 		if source.TechniqueCommon.Accessor.Param.Name == TechniqueJoint.String() {
 			joints = strings.Split(source.NameArray.V, " ")
@@ -108,7 +109,6 @@ func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
 		jointsToIndex[name] = i
 	}
 
-	// parse joint weights
 	vcount := parseIntArrayString(skin.VertexWeights.VCount)
 	v := parseIntArrayString(skin.VertexWeights.V)
 
@@ -138,6 +138,9 @@ func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
 			rootJoint = parseJointElement(rootNode, jointsToIndex)
 		}
 	}
+
+	// parse animations
+	// rawCollada.LibraryAnimations.
 
 	result := &loaders.ModelSpecification{
 		// VertexFloatsSourceData: vertexFloatData,

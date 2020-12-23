@@ -1,12 +1,35 @@
 package loaders
 
-import "github.com/go-gl/mathgl/mgl32"
+import (
+	"time"
+
+	"github.com/go-gl/mathgl/mgl32"
+)
 
 type Joint struct {
 	ID            int
 	Name          string
 	BindTransform mgl32.Mat4
 	Children      []*Joint
+}
+
+type Animation struct {
+	KeyFrames []*KeyFrame
+	Length    time.Duration
+}
+
+// KeyFrame contains a "Pose" which is the mapping from joint name to
+// the transformtations that should be applied to the joint for this pose
+type KeyFrame struct {
+	Pose  map[string]*JointTransform
+	Start time.Duration
+}
+
+// JointTransform represents the joint-space transformations that should be
+// applied to the joint for the KeyFrame it is associated with.
+type JointTransform struct {
+	Position mgl32.Vec3
+	Rotation mgl32.Quat
 }
 
 type ModelSpecification struct {

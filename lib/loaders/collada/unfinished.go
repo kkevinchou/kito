@@ -1,10 +1,5 @@
 package collada
 
-//Animation ategorizes the declaration of animation information.
-type Animation struct {
-	//TODO
-}
-
 //AnimationClip defines a section of the animation curves to be used together as an animation clip.
 type AnimationClip struct {
 	//TODO
@@ -22,11 +17,6 @@ type InstanceAnimation struct {
 
 //LibraryAnimationClips provides a library in which to place <animation_clip> elements.
 type LibraryAnimationClips struct {
-	//TODO
-}
-
-//LibraryAnimations provides a library in which to place <animation> elements.
-type LibraryAnimations struct {
 	//TODO
 }
 

@@ -40,3 +40,14 @@ type Param struct {
 type Accessor struct {
 	Param *Param `xml:"param"`
 }
+
+//LibraryAnimations provides a library in which to place <animation> elements.
+type LibraryAnimations struct {
+	//TODO
+	Animation []*Animation `xml:"animation"`
+}
+
+//Animation ategorizes the declaration of animation information.
+type Animation struct {
+	//TODO
+}
