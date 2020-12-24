@@ -69,7 +69,8 @@ type RenderSystem struct {
 	skybox       *SkyBox
 	floor        *Quad
 
-	mesh *animation.Mesh
+	mesh     *animation.Mesh
+	animator *animation.Animator
 }
 
 func initFont() *ttf.Font {
@@ -130,6 +131,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	animatedModel := animation.NewAnimatedModel(parsedCollada, 50, 3)
 
 	renderSystem.mesh = animatedModel.Mesh
+	renderSystem.animator = animation.NewAnimator(animatedModel, parsedCollada.Animation)
 
 	_ = initFont()
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")

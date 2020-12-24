@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/loaders"
 )
 
 type Mesh struct {
@@ -18,14 +17,14 @@ type AnimatedModel struct {
 	Mesh      *Mesh
 }
 
-func NewAnimatedModel(c *loaders.ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
+func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	mesh := NewMesh(c, maxWeights)
 	return &AnimatedModel{
 		Mesh: mesh,
 	}
 }
 
-func NewMesh(c *loaders.ModelSpecification, maxWeights int) *Mesh {
+func NewMesh(c *ModelSpecification, maxWeights int) *Mesh {
 	// maxJoints := 50
 
 	var vao uint32
@@ -219,9 +218,3 @@ func (s byWeights) Swap(i, j int) {
 func (s byWeights) Less(i, j int) bool {
 	return s[i].Weight < s[j].Weight
 }
-
-// func main() {
-// 	fruits := []string{"peach", "banana", "kiwi"}
-// 	sort.Sort(byLength(fruits))
-// 	fmt.Println(fruits)
-// }

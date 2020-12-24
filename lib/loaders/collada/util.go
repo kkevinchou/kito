@@ -93,3 +93,15 @@ func parseMatrixArrayString(s string) mgl32.Mat4 {
 		mgl32.Vec4{data[12], data[13], data[14], data[15]},
 	)
 }
+
+func parseMultiMatrixArrayString(s string) []mgl32.Mat4 {
+	results := []mgl32.Mat4{}
+	splitString := strings.Split(strings.TrimSpace(s), " ")
+
+	for i := 0; i < len(splitString); i += 16 {
+		matrixString := strings.Join(splitString[i:i+16], " ")
+		matrix := parseMatrixArrayString(matrixString)
+		results = append(results, matrix)
+	}
+	return results
+}

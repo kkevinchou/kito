@@ -5,11 +5,6 @@ type AnimationClip struct {
 	//TODO
 }
 
-//Channel declares an output channel of an animation.
-type Channel struct {
-	//TODO
-}
-
 //InstanceAnimation instantiates a COLLADA animation resource.
 type InstanceAnimation struct {
 	//TODO
@@ -17,11 +12,6 @@ type InstanceAnimation struct {
 
 //LibraryAnimationClips provides a library in which to place <animation_clip> elements.
 type LibraryAnimationClips struct {
-	//TODO
-}
-
-//Sampler declares an interpolation sampling function for an animation.
-type Sampler struct {
 	//TODO
 }
 

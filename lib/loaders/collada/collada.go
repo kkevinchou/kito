@@ -1,9 +1,13 @@
 package collada
 
 import (
+	"fmt"
+	"sort"
 	"strings"
+	"time"
 
-	"github.com/kkevinchou/kito/lib/loaders"
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/lib/animation"
 )
 
 type TechniqueType string
@@ -16,6 +20,10 @@ func (t NodeType) String() string {
 	return string(t)
 }
 
+func (t SemanticType) String() string {
+	return string(t)
+}
+
 type SemanticType string
 type NodeType string
 
@@ -25,6 +33,8 @@ const (
 	SemanticTexCoord SemanticType = "TEXCOORD"
 	SemanticColor    SemanticType = "COLOR"
 	SemanticPosition SemanticType = "POSITION"
+	SemanticInput    SemanticType = "INPUT"
+	SemanticOutput   SemanticType = "OUTPUT"
 
 	TechniqueJoint     TechniqueType = "JOINT"
 	TechniqueTransform TechniqueType = "TRANSFORM"
@@ -35,7 +45,7 @@ const (
 	ArmatureNodeID = "Armature"
 )
 
-func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
+func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	rawCollada, err := LoadDocument(documentPath)
 	if err != nil {
 		return nil, err
@@ -131,7 +141,7 @@ func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
 	}
 
 	// parse joint hierarchy
-	var rootJoint *loaders.Joint
+	var rootJoint *animation.JointSpecification
 	for _, node := range rawCollada.LibraryVisualScenes[0].VisualScene[0].Node {
 		if string(node.Id) == ArmatureNodeID {
 			rootNode := node.Node[0]
@@ -140,11 +150,79 @@ func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
 	}
 
 	// parse animations
-	// rawCollada.LibraryAnimations.
+	timeStampToPose := map[float32]map[int]*animation.JointTransform{}
 
-	result := &loaders.ModelSpecification{
-		// VertexFloatsSourceData: vertexFloatData,
-		// NormalFloatsSourceData: normalFloatData,
+	for _, animationElement := range rawCollada.LibraryAnimations[0].Animations {
+		// get the input/output sources
+		var inputSource Uri
+		var outputSource Uri
+		for _, input := range animationElement.Sampler.Inputs {
+			if input.Semantic == SemanticInput.String() {
+				inputSource = input.Source
+			} else if input.Semantic == SemanticOutput.String() {
+				outputSource = input.Source
+			}
+		}
+
+		if string(inputSource) == "" {
+			panic("could not find input source")
+		}
+
+		if string(outputSource) == "" {
+			panic("could not find output source")
+		}
+
+		target := animationElement.Channel.Target
+		jointName := strings.Split(target, "/")[0] // guessing the sample i'm looking at looks like: "Torso/transform"
+		if _, ok := jointsToIndex[jointName]; !ok {
+			panic(fmt.Sprintf("couldn't find joint name %s in joint listing", jointName))
+		}
+		jointID := jointsToIndex[jointName]
+
+		var timeStamps []float32
+		var poseMatrices []mgl32.Mat4
+		for _, source := range animationElement.Source {
+			if string(source.Id) == string(inputSource)[1:] {
+				timeStamps = parseFloatArrayString(source.FloatArray.V)
+			} else if string(source.Id) == string(outputSource)[1:] {
+				poseMatrices = parseMultiMatrixArrayString(source.FloatArray.V)
+			}
+		}
+
+		if len(timeStamps) != len(poseMatrices) {
+			panic("number of timestamps doesn't line up with number of matrices")
+		}
+
+		for i := 0; i < len(timeStamps); i++ {
+			timeStamp := timeStamps[i]
+			transform := poseMatrices[i]
+			if timeStampToPose[timeStamp] == nil {
+				timeStampToPose[timeStamp] = map[int]*animation.JointTransform{}
+			}
+
+			timeStampToPose[timeStamp][jointID] = &animation.JointTransform{
+				Translation: mgl32.Vec3{transform[3], transform[7], transform[11]},
+				Rotation:    mgl32.Mat4ToQuat(transform),
+			}
+		}
+	}
+
+	timeStamps := []float32{}
+	for timeStamp := range timeStampToPose {
+		timeStamps = append(timeStamps, timeStamp)
+	}
+
+	sort.Sort(byFloat32(timeStamps))
+
+	keyFrames := []*animation.KeyFrame{}
+	for _, timeStamp := range timeStamps {
+		keyFrames = append(keyFrames, &animation.KeyFrame{
+			Start: time.Duration(int(timeStamp*1000)) * time.Second,
+			Pose:  timeStampToPose[timeStamp],
+		})
+	}
+
+	result := &animation.ModelSpecification{
 		TriIndices: triVertices,
 
 		PositionSourceData: positionSource,
@@ -158,24 +236,36 @@ func ParseCollada(documentPath string) (*loaders.ModelSpecification, error) {
 		JointIDs:     jointIDs,
 		JointWeights: jointWeights,
 
-		Root: rootJoint,
+		Root:      rootJoint,
+		Animation: &animation.Animation{KeyFrames: keyFrames, Length: keyFrames[len(keyFrames)-1].Start},
 	}
 
 	return result, nil
 }
 
-func parseJointElement(node *Node, jointsToIndex map[string]int) *loaders.Joint {
-	children := []*loaders.Joint{}
+func parseJointElement(node *Node, jointsToIndex map[string]int) *animation.JointSpecification {
+	children := []*animation.JointSpecification{}
 	for _, childNode := range node.Node {
 		children = append(children, parseJointElement(childNode, jointsToIndex))
 	}
 
 	bindTransform := parseMatrixArrayString(node.Matrix[0].V)
-	joint := &loaders.Joint{
+	joint := &animation.JointSpecification{
 		ID:            jointsToIndex[node.Name],
-		Name:          node.Name,
 		BindTransform: bindTransform,
 		Children:      children,
 	}
 	return joint
+}
+
+type byFloat32 []float32
+
+func (s byFloat32) Len() int {
+	return len(s)
+}
+func (s byFloat32) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s byFloat32) Less(i, j int) bool {
+	return s[i] < s[j]
 }

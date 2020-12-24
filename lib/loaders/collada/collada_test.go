@@ -1,7 +1,6 @@
 package collada_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/kkevinchou/kito/lib/loaders/collada"
@@ -12,9 +11,7 @@ func TestCollada(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	fmt.Println(c.TextureSourceData)
-	// fmt.Println(c.Root.Children[0])
+	_ = c
 
 	t.Error()
 }

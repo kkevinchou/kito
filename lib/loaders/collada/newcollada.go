@@ -43,11 +43,22 @@ type Accessor struct {
 
 //LibraryAnimations provides a library in which to place <animation> elements.
 type LibraryAnimations struct {
-	//TODO
-	Animation []*Animation `xml:"animation"`
+	Animations []*Animation `xml:"animation"`
 }
 
 //Animation ategorizes the declaration of animation information.
 type Animation struct {
-	//TODO
+	Source  []*Source `xml:"source"`
+	Sampler Sampler   `xml:"sampler"`
+	Channel Channel   `xml:"channel"`
+}
+
+//Sampler declares an interpolation sampling function for an animation.
+type Sampler struct {
+	Inputs []*InputUnshared `xml:"input"`
+}
+
+//Channel declares an output channel of an animation.
+type Channel struct {
+	Target string `xml:"target,attr"`
 }

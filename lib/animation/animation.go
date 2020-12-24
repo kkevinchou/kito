@@ -15,13 +15,13 @@ type Animation struct {
 // KeyFrame contains a "Pose" which is the mapping from joint name to
 // the transformtations that should be applied to the joint for this pose
 type KeyFrame struct {
-	Pose  map[string]*JointTransform
+	Pose  map[int]*JointTransform
 	Start time.Duration
 }
 
 // JointTransform represents the joint-space transformations that should be
 // applied to the joint for the KeyFrame it is associated with.
 type JointTransform struct {
-	Position mgl32.Vec3
-	Rotation mgl32.Quat
+	Translation mgl32.Vec3
+	Rotation    mgl32.Quat
 }
