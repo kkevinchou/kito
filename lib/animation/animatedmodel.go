@@ -17,10 +17,19 @@ type AnimatedModel struct {
 	Mesh      *Mesh
 }
 
+func JointSpecToJoint(js *JointSpecification) *Joint {
+	j := NewJoint(js.ID, js.BindTransform)
+	for _, c := range js.Children {
+		j.Children = append(j.Children, JointSpecToJoint(c))
+	}
+	return j
+}
+
 func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	mesh := NewMesh(c, maxWeights)
 	return &AnimatedModel{
-		Mesh: mesh,
+		Mesh:      mesh,
+		RootJoint: JointSpecToJoint(c.Root),
 	}
 }
 

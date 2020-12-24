@@ -13,10 +13,12 @@ type Animator struct {
 }
 
 func NewAnimator(animatedModel *AnimatedModel, animation *Animation) *Animator {
-	return &Animator{
+	animator := &Animator{
 		Animation:     animation,
 		AnimatedModel: animatedModel,
 	}
+	animator.Init()
+	return animator
 }
 
 func (a *Animator) Init() {
@@ -43,6 +45,20 @@ func (a *Animator) ApplyPoseToJoints(joint *Joint, parentTransform mgl32.Mat4, p
 	joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
 }
 
+// CollectAnimationTransforms recursively collects all of the animation transforms
+// which are used for transforming joints from their bind pose to the animation position
+func (a *Animator) CollectAnimationTransforms() []*mgl32.Mat4 {
+	return a.collectAnimationTransforms(a.AnimatedModel.RootJoint)
+}
+
+func (a *Animator) collectAnimationTransforms(joint *Joint) []*mgl32.Mat4 {
+	animationTransforms := []*mgl32.Mat4{&joint.AnimationTransform}
+	for _, child := range joint.Children {
+		animationTransforms = append(animationTransforms, a.collectAnimationTransforms(child)...)
+	}
+	return animationTransforms
+}
+
 func (a *Animator) PlayAnimation(animation *Animation) {
 	a.Animation = animation
 	a.ElapsedTime = 0
@@ -59,7 +75,7 @@ func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 	for i := 0; i < len(a.Animation.KeyFrames)-1; i++ {
 		keyFrame := a.Animation.KeyFrames[i]
 		nextKeyFrame := a.Animation.KeyFrames[i+1]
-		if a.ElapsedTime > keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
+		if a.ElapsedTime >= keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
 			startKeyFrame = keyFrame
 			endKeyFrame = nextKeyFrame
 			break

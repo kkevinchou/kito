@@ -211,6 +211,8 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
+	r.animator.Update(delta)
+	r.animator.CollectAnimationTransforms()
 	// r.viewer.UpdateView(vector.Vector{X: 5, Y: 0})
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()

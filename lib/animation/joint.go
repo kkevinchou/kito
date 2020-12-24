@@ -1,6 +1,8 @@
 package animation
 
-import "github.com/go-gl/mathgl/mgl32"
+import (
+	"github.com/go-gl/mathgl/mgl32"
+)
 
 var (
 	jointIDCounter = 0
@@ -8,7 +10,6 @@ var (
 
 type Joint struct {
 	ID       int
-	Name     string
 	Children []*Joint
 
 	LocalBindTransform   mgl32.Mat4
@@ -17,14 +18,12 @@ type Joint struct {
 	AnimationTransform mgl32.Mat4 // calculated by the animator
 }
 
-func NewJoint(name string, localBindTransform mgl32.Mat4) *Joint {
+func NewJoint(id int, localBindTransform mgl32.Mat4) *Joint {
 	joint := Joint{
-		ID:                 jointIDCounter,
-		Name:               name,
+		ID:                 id,
 		Children:           []*Joint{},
 		LocalBindTransform: localBindTransform,
 	}
-	jointIDCounter++
 
 	return &joint
 }
