@@ -69,7 +69,6 @@ type RenderSystem struct {
 	skybox       *SkyBox
 	floor        *Quad
 
-	mesh     *animation.Mesh
 	animator *animation.Animator
 }
 
@@ -121,7 +120,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
-	gl.Enable(gl.CULL_FACE)
+	// gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
 
 	parsedCollada, err := collada.ParseCollada("_assets/collada/model.dae")
@@ -129,8 +128,6 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 		panic(err)
 	}
 	animatedModel := animation.NewAnimatedModel(parsedCollada, 50, 3)
-
-	renderSystem.mesh = animatedModel.Mesh
 	renderSystem.animator = animation.NewAnimator(animatedModel, parsedCollada.Animation)
 
 	_ = initFont()
@@ -212,7 +209,6 @@ func (r *RenderSystem) Register(renderable Renderable) {
 
 func (r *RenderSystem) Update(delta time.Duration) {
 	r.animator.Update(delta)
-	r.animator.CollectAnimationTransforms()
 	// r.viewer.UpdateView(vector.Vector{X: 5, Y: 0})
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()
@@ -236,12 +232,13 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	meshModelMatrix := createModelMatrix(
 		mgl32.Scale3D(3, 3, 3),
-		horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
+		horizontalViewRotationMatrix,
+		// horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
 		mgl32.Ident4(),
 	)
-	drawMesh(r.mesh, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
+	drawMesh(r, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
-	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
+	// drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 
 	for _, renderable := range r.renderables {
 		renderData := renderable.GetRenderData()

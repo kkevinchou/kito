@@ -203,6 +203,7 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 			timeStampToPose[timeStamp][jointID] = &animation.JointTransform{
 				Translation: mgl32.Vec3{transform[3], transform[7], transform[11]},
 				Rotation:    mgl32.Mat4ToQuat(transform),
+				Transform:   transform,
 			}
 		}
 	}
@@ -251,7 +252,7 @@ func parseJointElement(node *Node, jointsToIndex map[string]int) *animation.Join
 
 	bindTransform := parseMatrixArrayString(node.Matrix[0].V)
 	joint := &animation.JointSpecification{
-		ID:            jointsToIndex[node.Name],
+		ID:            jointsToIndex[string(node.Id)],
 		BindTransform: bindTransform,
 		Children:      children,
 	}

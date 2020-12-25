@@ -28,9 +28,7 @@ func (a *Animator) Init() {
 func (a *Animator) Update(delta time.Duration) {
 	a.ElapsedTime += delta
 	if a.ElapsedTime.Milliseconds() > a.Animation.Length.Milliseconds() {
-		// TODO: handle animation looping
-		return
-		// a.ElapsedTime -= a.Animation.Length
+		a.ElapsedTime = 0
 	}
 	pose := a.calculateCurrentAnimationPose()
 	a.ApplyPoseToJoints(a.AnimatedModel.RootJoint, mgl32.Ident4(), pose)
@@ -47,16 +45,32 @@ func (a *Animator) ApplyPoseToJoints(joint *Joint, parentTransform mgl32.Mat4, p
 
 // CollectAnimationTransforms recursively collects all of the animation transforms
 // which are used for transforming joints from their bind pose to the animation position
-func (a *Animator) CollectAnimationTransforms() []*mgl32.Mat4 {
-	return a.collectAnimationTransforms(a.AnimatedModel.RootJoint)
+
+// this should technically be a dictionary by jointID
+func (a *Animator) CollectAnimationTransforms() map[int]mgl32.Mat4 {
+	transforms := map[int]mgl32.Mat4{}
+	a.collectAnimationTransforms(a.AnimatedModel.RootJoint, transforms)
+	return transforms
 }
 
-func (a *Animator) collectAnimationTransforms(joint *Joint) []*mgl32.Mat4 {
-	animationTransforms := []*mgl32.Mat4{&joint.AnimationTransform}
+func (a *Animator) collectAnimationTransforms(joint *Joint, transforms map[int]mgl32.Mat4) {
+	transforms[joint.ID] = joint.AnimationTransform
 	for _, child := range joint.Children {
-		animationTransforms = append(animationTransforms, a.collectAnimationTransforms(child)...)
+		a.collectAnimationTransforms(child, transforms)
 	}
-	return animationTransforms
+}
+
+func (a *Animator) CollectBindPoseAnimationTransforms() map[int]mgl32.Mat4 {
+	transforms := map[int]mgl32.Mat4{}
+	a.collectBindPoseAnimationTransforms(a.AnimatedModel.RootJoint, transforms)
+	return transforms
+}
+
+func (a *Animator) collectBindPoseAnimationTransforms(joint *Joint, transforms map[int]mgl32.Mat4) {
+	transforms[joint.ID] = joint.LocalBindTransform
+	for _, child := range joint.Children {
+		a.collectBindPoseAnimationTransforms(child, transforms)
+	}
 }
 
 func (a *Animator) PlayAnimation(animation *Animation) {
@@ -70,19 +84,24 @@ func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 	// lastKeyFrame := a.Animation.KeyFrames[len(a.Animation.KeyFrames)-1]
 	// if a.ElapsedTime > lastKeyFrame.
 
-	var startKeyFrame *KeyFrame
-	var endKeyFrame *KeyFrame
-	for i := 0; i < len(a.Animation.KeyFrames)-1; i++ {
-		keyFrame := a.Animation.KeyFrames[i]
-		nextKeyFrame := a.Animation.KeyFrames[i+1]
-		if a.ElapsedTime >= keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
-			startKeyFrame = keyFrame
-			endKeyFrame = nextKeyFrame
-			break
-		}
-	}
+	// var startKeyFrame *KeyFrame
+	// var endKeyFrame *KeyFrame
+	// for i := 0; i < len(a.Animation.KeyFrames)-1; i++ {
+	// 	keyFrame := a.Animation.KeyFrames[i]
+	// 	nextKeyFrame := a.Animation.KeyFrames[i+1]
+	// 	if a.ElapsedTime >= keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
+	// 		startKeyFrame = keyFrame
+	// 		endKeyFrame = nextKeyFrame
+	// 		break
+	// 	}
+	// }
 
-	return InterpolatePoses(startKeyFrame, endKeyFrame, 0)
+	// if a.ElapsedTime > 400*time.Millisecond {
+	// 	return InterpolatePoses(a.Animation.KeyFrames[2], a.Animation.KeyFrames[3], 0)
+	// }
+
+	// return InterpolatePoses(startKeyFrame, endKeyFrame, 0)
+	return InterpolatePoses(a.Animation.KeyFrames[0], a.Animation.KeyFrames[1], 0)
 }
 
 // TODO fill in actual interpolation.
@@ -100,11 +119,25 @@ func CalculateJointTransformMatrix(t *JointTransform) mgl32.Mat4 {
 
 // TODO fill in actual interpolation. This just keeps the first keyframe
 func InterpolatePoses(k1, k2 *KeyFrame, progression float64) map[int]mgl32.Mat4 {
-	progression = 0
-
 	interpolatedPose := map[int]mgl32.Mat4{}
 	for jointID, jointTransform := range k1.Pose {
 		interpolatedPose[jointID] = CalculateJointTransformMatrix(jointTransform)
+		// BUG: my self extracted translations and rotations don't recompute the transform matrix properly
+		// for now, using the transform matrix directly from the collada document
+
+		// if jointID == 0 {
+		// 	if CalculateJointTransformMatrix(jointTransform) != jointTransform.Transform {
+		// 		fmt.Println(jointID)
+		// 		fmt.Println(jointTransform.Translation)
+		// 		fmt.Println(jointTransform.Rotation)
+		// 		fmt.Println(CalculateJointTransformMatrix(jointTransform))
+		// 		fmt.Println(jointTransform.Transform)
+		// 		panic("WHOA")
+		// 	} else {
+		// 		fmt.Println("OKAY", jointID)
+		// 	}
+		// }
+		interpolatedPose[jointID] = jointTransform.Transform
 	}
 	return interpolatedPose
 }

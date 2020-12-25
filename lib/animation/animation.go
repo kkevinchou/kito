@@ -24,4 +24,5 @@ type KeyFrame struct {
 type JointTransform struct {
 	Translation mgl32.Vec3
 	Rotation    mgl32.Quat
+	Transform   mgl32.Mat4
 }
