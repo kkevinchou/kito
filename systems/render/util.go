@@ -81,8 +81,6 @@ func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projecti
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-var lastMatrix map[int]mgl32.Mat4
-
 func drawMesh(r *RenderSystem, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition vector.Vector3) {
 	mesh := r.animator.AnimatedModel.Mesh
 	shader.Use()
@@ -91,23 +89,12 @@ func drawMesh(r *RenderSystem, texture uint32, shader *shaders.Shader, modelMatr
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
 
-	// animationTransforms := r.animator.CollectBindPoseAnimationTransforms()
 	animationTransforms := r.animator.CollectAnimationTransforms()
-	if lastMatrix == nil {
-		lastMatrix = animationTransforms
-		fmt.Println(lastMatrix)
-	}
 
-	for i, mat := range lastMatrix {
-		if !mat.ApproxEqual(lastMatrix[i]) {
-			panic("WHA")
-		}
-	}
-	// fmt.Println(animationTransforms)
-	// os.Exit(1)
 	for i := 0; i < len(animationTransforms); i++ {
 		shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
 	}
+	// fmt.Println(animationTransforms)
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 	gl.BindVertexArray(mesh.VAO())

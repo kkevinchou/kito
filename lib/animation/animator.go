@@ -121,7 +121,7 @@ func CalculateJointTransformMatrix(t *JointTransform) mgl32.Mat4 {
 func InterpolatePoses(k1, k2 *KeyFrame, progression float64) map[int]mgl32.Mat4 {
 	interpolatedPose := map[int]mgl32.Mat4{}
 	for jointID, jointTransform := range k1.Pose {
-		interpolatedPose[jointID] = CalculateJointTransformMatrix(jointTransform)
+		// interpolatedPose[jointID] = CalculateJointTransformMatrix(jointTransform)
 		// BUG: my self extracted translations and rotations don't recompute the transform matrix properly
 		// for now, using the transform matrix directly from the collada document
 

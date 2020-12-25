@@ -120,7 +120,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
-	// gl.Enable(gl.CULL_FACE)
+	gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
 
 	parsedCollada, err := collada.ParseCollada("_assets/collada/model.dae")
@@ -207,8 +207,13 @@ func (r *RenderSystem) Register(renderable Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
 
+var updateOnce bool
+
 func (r *RenderSystem) Update(delta time.Duration) {
-	r.animator.Update(delta)
+	if !updateOnce {
+		r.animator.Update(delta)
+		updateOnce = true
+	}
 	// r.viewer.UpdateView(vector.Vector{X: 5, Y: 0})
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()

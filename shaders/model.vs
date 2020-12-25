@@ -13,6 +13,8 @@ out vec3 FragPos;
 out vec3 Normal;
 out vec2 TexCoord;
 
+out vec4 Color;
+
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -22,8 +24,19 @@ void main() {
     vec4 totalLocalPos = vec4(0.0);
 	vec4 totalNormal = vec4(0.0);
 
-	for(int i=0;i<MAX_WEIGHTS;i++){
-		mat4 jointTransform = jointTransforms[jointIndices[i]];
+	// float sum = 0;
+	// for(int i = 0; i < MAX_WEIGHTS; i++) { sum += jointWeights[i]; }
+
+	// if (sum > 1.01 || sum < 0.99) {
+	// 	sum = 0;
+	// }
+	Color = vec4(1, 0, 0, 0);
+
+	for(int i = 0; i < 1; i++){
+		int jointIndex = jointIndices[i];
+
+		// mat4 jointTransform = jointTransforms[0];
+		mat4 jointTransform = jointTransforms[jointIndex];
 		vec4 posePosition = jointTransform * vec4(aPos, 1.0);
 		totalLocalPos += posePosition * jointWeights[i];
 

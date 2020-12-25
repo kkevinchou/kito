@@ -1,7 +1,6 @@
 package animation
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -53,7 +52,7 @@ func NewMesh(c *ModelSpecification, maxWeights int) *Mesh {
 	)
 	vertexCount := len(vertexAttributes) / totalAttributeSize
 	configureGeometryVertexAttributes(vertexAttributes, totalAttributeSize)
-	configureJointVertexAttributes(c.JointWeightsSourceData, c.JointIDs, c.JointWeights, vertexCount, maxWeights)
+	configureJointVertexAttributes(c.TriIndices, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, vertexCount, maxWeights)
 	configureIndexBuffer(vertexCount)
 
 	return &Mesh{
@@ -134,58 +133,30 @@ func configureGeometryVertexAttributes(vertexAttributes []float32, totalAttribut
 	gl.EnableVertexAttribArray(3)
 }
 
-func configureJointVertexAttributes(jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int) {
-	// for i := 0; i < len(triIndices); i += 4 {
-	// 	vertexIndex := positionSourceData[triIndices[i]]
-	// 	normal := normalSourceData[triIndices[i+1]]
-	// 	texture := textureSourceData[triIndices[i+2]]
-	// 	// color := colorSourceData[i]
-
-	// 	color := mgl32.Vec3{0, 0, 0}
-
-	// 	vertexAttributes = append(vertexAttributes, position.X(), position.Y(), position.Z())
-	// 	vertexAttributes = append(vertexAttributes, normal.X(), normal.Y(), normal.Z())
-	// 	vertexAttributes = append(vertexAttributes, texture.X(), texture.Y())
-	// 	vertexAttributes = append(vertexAttributes, color.X(), color.Y(), color.Z())
-	// }
-
+func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int) {
 	jointIDsAttribute := []int{}
 	jointWeightsAttribute := []float32{}
 
-	for i := 0; i < len(jointIDs); i++ {
-		ids, weights := FillWeights(jointIDs[i], jointWeights[i], jointWeightsSourceData, maxWeights)
-		for j := 0; j < maxWeights; j++ {
-			// fmt.Println(ids)
-			// fmt.Println(weights)
-			jointIDsAttribute = append(jointIDsAttribute, ids...)
-			jointWeightsAttribute = append(jointWeightsAttribute, weights...)
-		}
+	for i := 0; i < len(triIndices); i += 4 {
+		vertexIndex := triIndices[i]
+		ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
+		jointIDsAttribute = append(jointIDsAttribute, ids...)
+		jointWeightsAttribute = append(jointWeightsAttribute, weights...)
 	}
-
-	fmt.Println(len(jointIDs))
-	fmt.Println(vertexCount)
 
 	var vboJointIDs, vboJointWeights uint32
 
 	gl.GenBuffers(1, &vboJointIDs)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointIDs)
-	gl.BufferData(gl.ARRAY_BUFFER, len(jointIDs)*maxWeights*4, gl.Ptr(jointIDsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(4, int32(maxWeights), gl.INT, false, int32(maxWeights)*4, nil)
+	gl.BufferData(gl.ARRAY_BUFFER, len(jointIDsAttribute)*4, gl.Ptr(jointIDsAttribute), gl.STATIC_DRAW)
+	gl.VertexAttribIPointer(4, int32(maxWeights), gl.INT, int32(maxWeights)*4, nil)
 	gl.EnableVertexAttribArray(4)
 
 	gl.GenBuffers(1, &vboJointWeights)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
-	gl.BufferData(gl.ARRAY_BUFFER, len(jointIDs)*maxWeights*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
 	gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
 	gl.EnableVertexAttribArray(5)
-}
-
-func copySliceSliceInt(data [][]int) [][]int {
-	result := [][]int{}
-	for _, slice := range data {
-		result = append(result, slice[:])
-	}
-	return result
 }
 
 // if we exceed maxWeights, drop the weakest weights and normalize

@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec3 Normal;  
 in vec3 FragPos;
 in vec2 TexCoord;
+in vec4 Color;
 
 // uniform vec3 lightPos; 
 // uniform vec3 lightColor;
@@ -26,4 +27,5 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     FragColor = vec4((ambient + diffuse) * texture(ourTexture, TexCoord).xyz, 1.0);
+    // FragColor = Color;
 }
