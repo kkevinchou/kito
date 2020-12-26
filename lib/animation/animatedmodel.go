@@ -67,8 +67,8 @@ func NewMesh(c *ModelSpecification, maxWeights int) *Mesh {
 	)
 	vertexCount := len(vertexAttributes) / totalAttributeSize
 	configureGeometryVertexAttributes(vertexAttributes, totalAttributeSize)
-	configureJointVertexAttributes(c.TriIndices, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, vertexCount, maxWeights, c.PositionSourceData)
-	configureIndexBuffer(vertexCount)
+	jointIDsAttribute := configureJointVertexAttributes(c.TriIndices, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, vertexCount, maxWeights, c.PositionSourceData)
+	configureIndexBuffer(vertexCount, vertexAttributes, jointIDsAttribute)
 	return &Mesh{
 		vao:         vao,
 		vertexCount: vertexCount,
@@ -134,15 +134,13 @@ func configureGeometryVertexAttributes(vertexAttributes []float32, totalAttribut
 	gl.EnableVertexAttribArray(3)
 }
 
-func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int, positionSourceData []mgl32.Vec3) {
+func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int, positionSourceData []mgl32.Vec3) []int {
 	jointIDsAttribute := []int{}
 	jointWeightsAttribute := []float32{}
 
 	// seen := map[int]bool{}
 	// var maxZ float32
 	// var minZ float32 = 100
-
-	fmt.Println(len(triIndices) / 4)
 
 	for i := 0; i < len(triIndices); i += 4 {
 		vertexIndex := triIndices[i]
@@ -170,6 +168,14 @@ func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []f
 		if len(ids) != 3 || len(weights) != 3 {
 			panic("wat")
 		}
+
+		if i/4 == 2520 || i/4 == 2521 || i/4 == 2522 {
+			fmt.Println(ids)
+		} else if i/4 < 1260 {
+			ids = []int{1, 1, 1}
+			weights = []float32{0, 0, 0}
+		}
+
 		jointIDsAttribute = append(jointIDsAttribute, ids...)
 		// if len(jointIDsAttribute)/3 == 3*843 {
 		// 	fmt.Println(jointIDsAttribute[3*840:])
@@ -177,17 +183,18 @@ func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []f
 		// }
 		jointWeightsAttribute = append(jointWeightsAttribute, weights...)
 
-		if i/4 == 2520 { // 3*840
-			fmt.Println(ids)
-		}
+		// if i/4 == 2520 { // 3*840
+		// 	fmt.Println(ids)
+		// }
 
-		if i/4 == 2522 {
-			fmt.Println(jointIDsAttribute[3*2520:3*2523], jointWeightsAttribute[3*2520:3*2523])
-			// fmt.Println(len(jointIDsAttribute) / 3)
-			// fmt.Println(len(jointIDsAttribute))
-		}
+		// if i/4 == 2522 {
+		// 	fmt.Println(jointIDsAttribute[3*2520:3*2523], jointWeightsAttribute[3*2520:3*2523])
+		// 	// fmt.Println(len(jointIDsAttribute) / 3)
+		// 	// fmt.Println(len(jointIDsAttribute))
+		// }
 
 	}
+	// fmt.Println(jointIDsAttribute[3*2520:3*2523], jointWeightsAttribute[3*2520:3*2523])
 
 	// for i := 0; i < len(triIndices); i += 4 {
 	// 	vertexIndex := triIndices[i]
@@ -211,9 +218,10 @@ func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []f
 	// gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
 	// gl.EnableVertexAttribArray(5)
 
+	return jointIDsAttribute
 }
 
-func configureIndexBuffer(vertexCount int) {
+func configureIndexBuffer(vertexCount int, vertexAttributes []float32, jointIDsAttributes []int) {
 	var ebo uint32
 	gl.GenBuffers(1, &ebo)
 
@@ -221,7 +229,15 @@ func configureIndexBuffer(vertexCount int) {
 	for i := 0; i < vertexCount; i++ {
 		indices = append(indices, uint32(i))
 	}
+	fmt.Println(len(indices))
 	indices = indices[3*840 : 3*841]
+	fmt.Println("INDICES", indices)
+
+	fmt.Println(len(vertexAttributes))
+	fmt.Println("vertexAttributes", vertexAttributes[11*(3*840):11*(3*840)+20])
+
+	fmt.Println(len(jointIDsAttributes))
+	fmt.Println("jointIDsAttributes", jointIDsAttributes[3*(3*840):3*(3*840)+20])
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)

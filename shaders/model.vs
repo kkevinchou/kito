@@ -41,6 +41,9 @@ void main() {
 		// } else if (jointIndex >=10 && jointIndex <= 15) {
 		// 	Color = vec4(0, 1, 0, 0);
 		// }
+		if (jointIndex == 1) {
+			Color = vec4(0, 1, 0, 0);
+		}
 
 		if (jointIndex == 15) {
 			Color = vec4(1, 0, 0, 0);
