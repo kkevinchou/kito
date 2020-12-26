@@ -40,13 +40,14 @@ func (a *Animator) ApplyPoseToJoints(joint *Joint, parentTransform mgl32.Mat4, p
 	for _, child := range joint.Children {
 		a.ApplyPoseToJoints(child, poseTransform, pose)
 	}
-	if joint.Name == "Foot_R" {
-		// fmt.Println(joint.ID, joint.Name)
-		joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
-		// joint.AnimationTransform = mgl32.Ident4()
-	} else {
-		joint.AnimationTransform = mgl32.Ident4()
-	}
+	// if joint.Name == "Foot_R" {
+	// 	// fmt.Println(joint.ID, joint.Name)
+	// 	joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
+	// 	// joint.AnimationTransform = mgl32.Ident4()
+	// } else {
+	// 	joint.AnimationTransform = mgl32.Ident4()
+	// }
+	joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
 	// joint.AnimationTransform = mgl32.Ident4()
 	// fmt.Println(joint.ID, joint.Name, "===============================")
 	// fmt.Println(localTransform)
@@ -68,19 +69,6 @@ func (a *Animator) collectAnimationTransforms(joint *Joint, transforms map[int]m
 	transforms[joint.ID] = joint.AnimationTransform
 	for _, child := range joint.Children {
 		a.collectAnimationTransforms(child, transforms)
-	}
-}
-
-func (a *Animator) CollectBindPoseAnimationTransforms() map[int]mgl32.Mat4 {
-	transforms := map[int]mgl32.Mat4{}
-	a.collectBindPoseAnimationTransforms(a.AnimatedModel.RootJoint, transforms)
-	return transforms
-}
-
-func (a *Animator) collectBindPoseAnimationTransforms(joint *Joint, transforms map[int]mgl32.Mat4) {
-	transforms[joint.ID] = joint.LocalBindTransform
-	for _, child := range joint.Children {
-		a.collectBindPoseAnimationTransforms(child, transforms)
 	}
 }
 

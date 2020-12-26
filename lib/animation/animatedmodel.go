@@ -134,8 +134,8 @@ func configureGeometryVertexAttributes(vertexAttributes []float32, totalAttribut
 	gl.EnableVertexAttribArray(3)
 }
 
-func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int, positionSourceData []mgl32.Vec3) []int {
-	jointIDsAttribute := []int{}
+func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int, positionSourceData []mgl32.Vec3) []int32 {
+	jointIDsAttribute := []int32{}
 	jointWeightsAttribute := []float32{}
 
 	// seen := map[int]bool{}
@@ -169,14 +169,16 @@ func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []f
 			panic("wat")
 		}
 
-		if i/4 == 2520 || i/4 == 2521 || i/4 == 2522 {
-			fmt.Println(ids)
-		} else if i/4 < 1260 {
-			ids = []int{1, 1, 1}
-			weights = []float32{0, 0, 0}
-		}
+		// if i/4 == 2520 || i/4 == 2521 || i/4 == 2522 {
+		// 	fmt.Println(ids)
+		// } else if i/4 < 1260 {
+		// 	ids = []int{1, 1, 1}
+		// 	weights = []float32{0, 0, 0}
+		// }
 
-		jointIDsAttribute = append(jointIDsAttribute, ids...)
+		for _, id := range ids {
+			jointIDsAttribute = append(jointIDsAttribute, int32(id))
+		}
 		// if len(jointIDsAttribute)/3 == 3*843 {
 		// 	fmt.Println(jointIDsAttribute[3*840:])
 		// 	// os.Exit(1)
@@ -211,17 +213,17 @@ func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []f
 	gl.VertexAttribIPointer(4, int32(maxWeights), gl.INT, int32(maxWeights)*4, nil)
 	gl.EnableVertexAttribArray(4)
 
-	// var vboJointWeights uint32
-	// gl.GenBuffers(1, &vboJointWeights)
-	// gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
-	// gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
-	// gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
-	// gl.EnableVertexAttribArray(5)
+	var vboJointWeights uint32
+	gl.GenBuffers(1, &vboJointWeights)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
+	gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
+	gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
+	gl.EnableVertexAttribArray(5)
 
 	return jointIDsAttribute
 }
 
-func configureIndexBuffer(vertexCount int, vertexAttributes []float32, jointIDsAttributes []int) {
+func configureIndexBuffer(vertexCount int, vertexAttributes []float32, jointIDsAttributes []int32) {
 	var ebo uint32
 	gl.GenBuffers(1, &ebo)
 
@@ -229,15 +231,15 @@ func configureIndexBuffer(vertexCount int, vertexAttributes []float32, jointIDsA
 	for i := 0; i < vertexCount; i++ {
 		indices = append(indices, uint32(i))
 	}
-	fmt.Println(len(indices))
-	indices = indices[3*840 : 3*841]
-	fmt.Println("INDICES", indices)
+	// fmt.Println(len(indices))
+	// // indices = indices[3*840 : 3*841]
+	// fmt.Println("INDICES", indices)
 
-	fmt.Println(len(vertexAttributes))
-	fmt.Println("vertexAttributes", vertexAttributes[11*(3*840):11*(3*840)+20])
+	// fmt.Println(len(vertexAttributes))
+	// fmt.Println("vertexAttributes", vertexAttributes[11*(3*840):11*(3*840)+20])
 
-	fmt.Println(len(jointIDsAttributes))
-	fmt.Println("jointIDsAttributes", jointIDsAttributes[3*(3*840):3*(3*840)+20])
+	// fmt.Println(len(jointIDsAttributes))
+	// fmt.Println("jointIDsAttributes", jointIDsAttributes[3*(3*840):3*(3*840)+20])
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)

@@ -28,8 +28,7 @@ void main()
 
     FragColor = vec4((ambient + diffuse) * texture(ourTexture, TexCoord).xyz, 1.0);
     // FragColor = texture(ourTexture, TexCoord);
-
-    FragColor = Color;
+    // FragColor = Color;
 
 
     // // solid color debugging

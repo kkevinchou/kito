@@ -24,7 +24,7 @@ void main() {
     vec4 totalLocalPos = vec4(0.0);
 	vec4 totalNormal = vec4(0.0);
 
-	Color = vec4(0, 0, 0, 0);
+	Color = vec4(1, 0, 0, 0);
 
 	// float sum = 0;
 	// for(int i = 0; i < MAX_WEIGHTS; i++) { sum += jointWeights[i]; }
@@ -41,25 +41,26 @@ void main() {
 		// } else if (jointIndex >=10 && jointIndex <= 15) {
 		// 	Color = vec4(0, 1, 0, 0);
 		// }
-		if (jointIndex == 1) {
-			Color = vec4(0, 1, 0, 0);
-		}
+		// if (jointIndex == 1) {
+		// 	Color = vec4(0, 1, 0, 0);
+		// }
 
-		if (jointIndex == 15) {
-			Color = vec4(1, 0, 0, 0);
-		}
+		// if (jointIndex == 15) {
+		// 	Color = vec4(1, 0, 0, 0);
+		// }
 
-		// // mat4 jointTransform = jointTransforms[0];
-		// mat4 jointTransform = jointTransforms[jointIndex];
-		// vec4 posePosition = jointTransform * vec4(aPos, 1.0);
-		// totalLocalPos += posePosition * jointWeights[i];
+		mat4 jointTransform = jointTransforms[jointIndex];
+		vec4 posePosition = jointTransform * vec4(aPos, 1.0);
+		totalLocalPos += posePosition * jointWeights[i];
 
-		// vec4 worldNormal = jointTransform * vec4(aNormal, 0.0);
-		// totalNormal += worldNormal * jointWeights[i];
+		vec4 worldNormal = jointTransform * vec4(aNormal, 0.0);
+		totalNormal += worldNormal * jointWeights[i];
 	}
 
-	totalLocalPos = vec4(aPos, 1);
-	totalNormal = vec4(aNormal, 1);
+	// Color = vec4(jointWeights, 0);
+
+	// totalLocalPos = vec4(aPos, 1);
+	// totalNormal = vec4(aNormal, 1);
 
     FragPos = vec3(model * totalLocalPos);
     // TODO: the normal matrix is expensive to calculate and should be passed in as a uniform

@@ -90,6 +90,8 @@ func drawMesh(r *RenderSystem, texture uint32, shader *shaders.Shader, modelMatr
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
 
 	animationTransforms := r.animator.CollectAnimationTransforms()
+	// fmt.Println(animationTransforms)
+	// os.Exit(1)
 
 	for i := 0; i < len(animationTransforms); i++ {
 		shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
