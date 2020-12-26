@@ -66,15 +66,7 @@ func (a *Animator) PlayAnimation(animation *Animation) {
 func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 	var startKeyFrame *KeyFrame
 	var endKeyFrame *KeyFrame
-	// for i := 0; i < len(a.Animation.KeyFrames)-1; i++ {
-	// 	keyFrame := a.Animation.KeyFrames[i]
-	// 	nextKeyFrame := a.Animation.KeyFrames[i+1]
-	// 	if a.ElapsedTime >= keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
-	// 		startKeyFrame = keyFrame
-	// 		endKeyFrame = nextKeyFrame
-	// 		break
-	// 	}
-	// }
+	var progression float32
 
 	// iterate backwards looking for the starting keyframe
 	for i := len(a.Animation.KeyFrames) - 1; i >= 0; i-- {
@@ -83,15 +75,18 @@ func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 			startKeyFrame = keyFrame
 			if i < len(a.Animation.KeyFrames)-1 {
 				endKeyFrame = a.Animation.KeyFrames[i+1]
+				progression = float32((a.ElapsedTime - startKeyFrame.Start).Milliseconds()) / float32((endKeyFrame.Start - startKeyFrame.Start).Milliseconds())
 			} else {
 				// interpolate towards the first kf
 				endKeyFrame = a.Animation.KeyFrames[0]
+				progression = 0
 			}
 			break
 		}
 	}
 
-	return InterpolatePoses(startKeyFrame, endKeyFrame, 0)
+	_ = progression
+	return InterpolatePoses(startKeyFrame, endKeyFrame, progression)
 }
 
 // TODO fill in actual interpolation.
@@ -104,17 +99,21 @@ func InterpolateJointTransform(t1 *JointTransform, t2 *JointTransform) *JointTra
 func CalculateJointTransformMatrix(t *JointTransform) mgl32.Mat4 {
 	translationMatrix := mgl32.Translate3D(t.Translation.X(), t.Translation.Y(), t.Translation.Z())
 	transformMatrix := translationMatrix.Mul4(t.Rotation.Mat4())
+
 	return transformMatrix
 }
 
 // TODO fill in actual interpolation. This just keeps the first keyframe
-func InterpolatePoses(k1, k2 *KeyFrame, progression float64) map[int]mgl32.Mat4 {
+func InterpolatePoses(k1, k2 *KeyFrame, progression float32) map[int]mgl32.Mat4 {
 	interpolatedPose := map[int]mgl32.Mat4{}
-	for jointID, jointTransform := range k1.Pose {
-		// interpolatedPose[jointID] = CalculateJointTransformMatrix(jointTransform)
-		// BUG: my self extracted translations and rotations don't recompute the transform matrix properly
-		// for now, using the transform matrix directly from the collada document
+	for jointID := range k1.Pose {
+		k1JointTransform := k1.Pose[jointID]
+		k2JointTransform := k2.Pose[jointID]
 
+		rotation := mgl32.QuatLerp(k1JointTransform.Rotation, k2JointTransform.Rotation, progression).Mat4()
+		translation := k1JointTransform.Translation.Add(k2JointTransform.Translation.Sub(k1JointTransform.Translation).Mul(progression))
+
+		interpolatedPose[jointID] = mgl32.Translate3D(translation.X(), translation.Y(), translation.Z()).Mul4(rotation)
 		// if jointID == 0 {
 		// 	if CalculateJointTransformMatrix(jointTransform) != jointTransform.Transform {
 		// 		fmt.Println(jointID)
@@ -127,7 +126,7 @@ func InterpolatePoses(k1, k2 *KeyFrame, progression float64) map[int]mgl32.Mat4 
 		// 		fmt.Println("OKAY", jointID)
 		// 	}
 		// }
-		interpolatedPose[jointID] = jointTransform.Transform
+		// interpolatedPose[jointID] = jointTransform.Transform
 	}
 	return interpolatedPose
 }

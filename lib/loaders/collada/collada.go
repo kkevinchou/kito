@@ -201,9 +201,8 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 			}
 
 			timeStampToPose[timeStamp][jointID] = &animation.JointTransform{
-				Translation: mgl32.Vec3{transform[3], transform[7], transform[11]},
+				Translation: transform.Col(3).Vec3(),
 				Rotation:    mgl32.Mat4ToQuat(transform),
-				Transform:   transform,
 			}
 		}
 	}

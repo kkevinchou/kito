@@ -208,7 +208,7 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
-	r.animator.Update(delta)
+	r.animator.Update(time.Duration(delta.Milliseconds()/10) * time.Millisecond)
 
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()
@@ -240,7 +240,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	)
 	drawMesh(r, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
-	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
+	// drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 
 	for _, renderable := range r.renderables {
 		renderData := renderable.GetRenderData()
