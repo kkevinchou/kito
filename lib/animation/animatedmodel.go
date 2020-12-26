@@ -39,6 +39,7 @@ func printHierarchy(j *Joint, level int) {
 
 func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	joint := JointSpecToJoint(c.Root)
+	printHierarchy(joint, 0)
 
 	mesh := NewMesh(c, maxWeights)
 	return &AnimatedModel{

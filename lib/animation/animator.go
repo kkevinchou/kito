@@ -114,19 +114,6 @@ func InterpolatePoses(k1, k2 *KeyFrame, progression float32) map[int]mgl32.Mat4 
 		translation := k1JointTransform.Translation.Add(k2JointTransform.Translation.Sub(k1JointTransform.Translation).Mul(progression))
 
 		interpolatedPose[jointID] = mgl32.Translate3D(translation.X(), translation.Y(), translation.Z()).Mul4(rotation)
-		// if jointID == 0 {
-		// 	if CalculateJointTransformMatrix(jointTransform) != jointTransform.Transform {
-		// 		fmt.Println(jointID)
-		// 		fmt.Println(jointTransform.Translation)
-		// 		fmt.Println(jointTransform.Rotation)
-		// 		fmt.Println(CalculateJointTransformMatrix(jointTransform))
-		// 		fmt.Println(jointTransform.Transform)
-		// 		panic("WHOA")
-		// 	} else {
-		// 		fmt.Println("OKAY", jointID)
-		// 	}
-		// }
-		// interpolatedPose[jointID] = jointTransform.Transform
 	}
 	return interpolatedPose
 }

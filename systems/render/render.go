@@ -120,7 +120,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
-	// gl.Enable(gl.CULL_FACE)
+	gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
 
 	parsedCollada, err := collada.ParseCollada("_assets/collada/model.dae")
