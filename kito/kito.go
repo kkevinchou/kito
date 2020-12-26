@@ -30,7 +30,7 @@ const (
 
 var (
 	fps                 = 60.0
-	viewerStartPosition = vector.Vector3{X: 0, Y: 40, Z: 40}
+	viewerStartPosition = vector.Vector3{X: 0, Y: 5, Z: 20}
 	viewerStartView     = vector.Vector{X: 10, Y: 0}
 )
 

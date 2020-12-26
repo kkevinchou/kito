@@ -27,5 +27,13 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     FragColor = vec4((ambient + diffuse) * texture(ourTexture, TexCoord).xyz, 1.0);
-    // FragColor = Color;
+    // FragColor = texture(ourTexture, TexCoord);
+
+    FragColor = Color;
+
+
+    // // solid color debugging
+    // vec3 objectColor = vec3(0.51, 0.85, 1.0);
+    // vec3 result = (ambient + diffuse) * objectColor;
+    // FragColor = vec4(result, 1.0);
 }

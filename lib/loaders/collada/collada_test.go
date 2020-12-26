@@ -1,6 +1,7 @@
 package collada_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -36,6 +37,35 @@ func TestJointHierarchy(t *testing.T) {
 	if len(transforms) != 16 {
 		t.Fatalf("expected 16 transforms but intead got %d", len(transforms))
 	}
+}
+
+func TestJointHierarchy2(t *testing.T) {
+	c, err := collada.ParseCollada("sample/model.dae")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var maxZ float32
+	verticesAffectedByJoint := []int{}
+	for i, ids := range c.JointIDs {
+		if c.PositionSourceData[i].Z() > maxZ {
+			maxZ = c.PositionSourceData[i].Z()
+			fmt.Println(maxZ)
+		}
+		for _, id := range ids {
+			if id == 15 {
+				verticesAffectedByJoint = append(verticesAffectedByJoint, i)
+			}
+		}
+	}
+
+	for _, index := range verticesAffectedByJoint {
+		v := c.PositionSourceData[index]
+		fmt.Println(index, v)
+	}
+
+	// fmt.Println(verticesAffectedByJoint)
+	t.Fail()
 }
 
 func collectBindPoseAnimationTransforms(joint *animation.JointSpecification, transforms map[int]mgl32.Mat4) {

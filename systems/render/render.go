@@ -224,7 +224,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
 
 	floorModelMatrix := createModelMatrix(
-		mgl32.Scale3D(200, 200, 200),
+		// mgl32.Scale3D(10, 10, 10),
+		mgl32.Scale3D(1, 1, 1),
 		mgl32.Ident4(),
 		mgl32.Ident4(),
 	)
@@ -236,14 +237,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
 
 	meshModelMatrix := createModelMatrix(
-		mgl32.Scale3D(3, 3, 3),
+		// mgl32.Scale3D(3, 3, 3),
+		mgl32.Ident4(),
 		horizontalViewRotationMatrix,
 		// horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
 		mgl32.Ident4(),
 	)
 	drawMesh(r, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
-	// drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
+	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
 
 	for _, renderable := range r.renderables {
 		renderData := renderable.GetRenderData()

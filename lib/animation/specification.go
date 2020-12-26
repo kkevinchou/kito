@@ -4,6 +4,7 @@ import "github.com/go-gl/mathgl/mgl32"
 
 type JointSpecification struct {
 	ID            int
+	Name          string
 	BindTransform mgl32.Mat4
 	Children      []*JointSpecification
 }
@@ -19,6 +20,7 @@ type ModelSpecification struct {
 
 	// Controllers
 
+	// sorted by vertex order
 	JointIDs     [][]int
 	JointWeights [][]int
 

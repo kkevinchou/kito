@@ -1,6 +1,7 @@
 package animation
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -18,18 +19,32 @@ type AnimatedModel struct {
 }
 
 func JointSpecToJoint(js *JointSpecification) *Joint {
-	j := NewJoint(js.ID, js.BindTransform)
+	j := NewJoint(js.ID, js.Name, js.BindTransform)
 	for _, c := range js.Children {
 		j.Children = append(j.Children, JointSpecToJoint(c))
 	}
 	return j
 }
 
+func visit(j *Joint, level int) {
+	indentation := ""
+	for i := 0; i < level; i++ {
+		indentation += "    "
+	}
+	fmt.Println(indentation + j.Name + fmt.Sprintf(" %d", j.ID))
+	for _, c := range j.Children {
+		visit(c, level+1)
+	}
+}
+
 func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
+	joint := JointSpecToJoint(c.Root)
+	visit(joint, 0)
+
 	mesh := NewMesh(c, maxWeights)
 	return &AnimatedModel{
 		Mesh:      mesh,
-		RootJoint: JointSpecToJoint(c.Root),
+		RootJoint: joint,
 	}
 }
 
@@ -52,9 +67,8 @@ func NewMesh(c *ModelSpecification, maxWeights int) *Mesh {
 	)
 	vertexCount := len(vertexAttributes) / totalAttributeSize
 	configureGeometryVertexAttributes(vertexAttributes, totalAttributeSize)
-	configureJointVertexAttributes(c.TriIndices, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, vertexCount, maxWeights)
+	configureJointVertexAttributes(c.TriIndices, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, vertexCount, maxWeights, c.PositionSourceData)
 	configureIndexBuffer(vertexCount)
-
 	return &Mesh{
 		vao:         vao,
 		vertexCount: vertexCount,
@@ -100,19 +114,6 @@ func constructGeometryVertexAttributes(
 	return vertexAttributes, totalAttributeSize
 }
 
-func configureIndexBuffer(vertexCount int) {
-	var ebo uint32
-	gl.GenBuffers(1, &ebo)
-
-	indices := []uint32{}
-	for i := 0; i < vertexCount; i++ {
-		indices = append(indices, uint32(i))
-	}
-
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
-}
-
 func configureGeometryVertexAttributes(vertexAttributes []float32, totalAttributeSize int) {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
@@ -133,18 +134,69 @@ func configureGeometryVertexAttributes(vertexAttributes []float32, totalAttribut
 	gl.EnableVertexAttribArray(3)
 }
 
-func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int) {
+func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int, positionSourceData []mgl32.Vec3) {
 	jointIDsAttribute := []int{}
 	jointWeightsAttribute := []float32{}
 
+	// seen := map[int]bool{}
+	// var maxZ float32
+	// var minZ float32 = 100
+
+	fmt.Println(len(triIndices) / 4)
+
 	for i := 0; i < len(triIndices); i += 4 {
 		vertexIndex := triIndices[i]
+
 		ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
+
+		// if _, ok := seen[vertexIndex]; !ok {
+		// 	for j := range ids {
+		// 		if ids[j] == 15 {
+		// 			fmt.Println("AFFECTED BY JOINT 15", vertexIndex, positionSourceData[vertexIndex])
+		// 		}
+		// 	}
+		// 	// if positionSourceData[vertexIndex].Z() > maxZ {
+		// 	// 	maxZ = positionSourceData[vertexIndex].Z()
+		// 	// 	fmt.Println("MAX", vertexIndex, maxZ)
+		// 	// }
+
+		// 	if positionSourceData[vertexIndex].Z() < 1 {
+		// 		// minZ = positionSourceData[vertexIndex].Z()
+		// 		fmt.Println(vertexIndex, positionSourceData[vertexIndex].Z())
+		// 	}
+		// 	seen[vertexIndex] = true
+		// }
+
+		if len(ids) != 3 || len(weights) != 3 {
+			panic("wat")
+		}
 		jointIDsAttribute = append(jointIDsAttribute, ids...)
+		// if len(jointIDsAttribute)/3 == 3*843 {
+		// 	fmt.Println(jointIDsAttribute[3*840:])
+		// 	// os.Exit(1)
+		// }
 		jointWeightsAttribute = append(jointWeightsAttribute, weights...)
+
+		if i/4 == 2520 { // 3*840
+			fmt.Println(ids)
+		}
+
+		if i/4 == 2522 {
+			fmt.Println(jointIDsAttribute[3*2520:3*2523], jointWeightsAttribute[3*2520:3*2523])
+			// fmt.Println(len(jointIDsAttribute) / 3)
+			// fmt.Println(len(jointIDsAttribute))
+		}
+
 	}
 
-	var vboJointIDs, vboJointWeights uint32
+	// for i := 0; i < len(triIndices); i += 4 {
+	// 	vertexIndex := triIndices[i]
+	// 	ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
+	// 	jointIDsAttribute = append(jointIDsAttribute, ids...)
+	// 	jointWeightsAttribute = append(jointWeightsAttribute, weights...)
+	// }
+
+	var vboJointIDs uint32
 
 	gl.GenBuffers(1, &vboJointIDs)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointIDs)
@@ -152,11 +204,27 @@ func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []f
 	gl.VertexAttribIPointer(4, int32(maxWeights), gl.INT, int32(maxWeights)*4, nil)
 	gl.EnableVertexAttribArray(4)
 
-	gl.GenBuffers(1, &vboJointWeights)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
-	gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
-	gl.EnableVertexAttribArray(5)
+	// var vboJointWeights uint32
+	// gl.GenBuffers(1, &vboJointWeights)
+	// gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
+	// gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
+	// gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
+	// gl.EnableVertexAttribArray(5)
+
+}
+
+func configureIndexBuffer(vertexCount int) {
+	var ebo uint32
+	gl.GenBuffers(1, &ebo)
+
+	indices := []uint32{}
+	for i := 0; i < vertexCount; i++ {
+		indices = append(indices, uint32(i))
+	}
+	indices = indices[3*840 : 3*841]
+
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
 }
 
 // if we exceed maxWeights, drop the weakest weights and normalize

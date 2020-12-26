@@ -10,6 +10,7 @@ var (
 
 type Joint struct {
 	ID       int
+	Name     string
 	Children []*Joint
 
 	LocalBindTransform   mgl32.Mat4
@@ -18,9 +19,10 @@ type Joint struct {
 	AnimationTransform mgl32.Mat4 // calculated by the animator
 }
 
-func NewJoint(id int, localBindTransform mgl32.Mat4) *Joint {
+func NewJoint(id int, name string, localBindTransform mgl32.Mat4) *Joint {
 	joint := Joint{
 		ID:                 id,
+		Name:               name,
 		Children:           []*Joint{},
 		LocalBindTransform: localBindTransform,
 	}
@@ -30,10 +32,6 @@ func NewJoint(id int, localBindTransform mgl32.Mat4) *Joint {
 
 func (j *Joint) AddChild(child *Joint) {
 	j.Children = append(j.Children, child)
-}
-
-func (j *Joint) GetInverseBindTransform() mgl32.Mat4 {
-	return j.InverseBindTransform
 }
 
 func (j *Joint) CalculateInverseBindTransform(parentBindTransform mgl32.Mat4) {

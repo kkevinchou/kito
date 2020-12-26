@@ -98,7 +98,11 @@ func drawMesh(r *RenderSystem, texture uint32, shader *shaders.Shader, modelMatr
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 	gl.BindVertexArray(mesh.VAO())
+
+	// gl.DrawElements(gl.TRIANGLES, 3*850, gl.UNSIGNED_INT, nil)
 	gl.DrawElements(gl.TRIANGLES, int32(mesh.VertexCount()), gl.UNSIGNED_INT, nil)
+	// gl.DrawElements(gl.TRIANGLES, int32(mesh.VertexCount())/2, gl.UNSIGNED_INT, nil)
+	// gl.DrawArrays(gl.TRIANGLES, int32(i*6), 6)
 }
 
 func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl32.Mat4) mgl32.Mat4 {

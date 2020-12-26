@@ -40,7 +40,18 @@ func (a *Animator) ApplyPoseToJoints(joint *Joint, parentTransform mgl32.Mat4, p
 	for _, child := range joint.Children {
 		a.ApplyPoseToJoints(child, poseTransform, pose)
 	}
-	joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
+	if joint.Name == "Foot_R" {
+		// fmt.Println(joint.ID, joint.Name)
+		joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
+		// joint.AnimationTransform = mgl32.Ident4()
+	} else {
+		joint.AnimationTransform = mgl32.Ident4()
+	}
+	// joint.AnimationTransform = mgl32.Ident4()
+	// fmt.Println(joint.ID, joint.Name, "===============================")
+	// fmt.Println(localTransform)
+	// fmt.Println(joint.InverseBindTransform)
+	// fmt.Println(joint.AnimationTransform)
 }
 
 // CollectAnimationTransforms recursively collects all of the animation transforms

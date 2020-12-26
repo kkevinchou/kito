@@ -253,6 +253,7 @@ func parseJointElement(node *Node, jointsToIndex map[string]int) *animation.Join
 	bindTransform := parseMatrixArrayString(node.Matrix[0].V)
 	joint := &animation.JointSpecification{
 		ID:            jointsToIndex[string(node.Id)],
+		Name:          string(node.Id),
 		BindTransform: bindTransform,
 		Children:      children,
 	}
