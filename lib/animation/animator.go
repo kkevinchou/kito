@@ -110,10 +110,39 @@ func InterpolatePoses(k1, k2 *KeyFrame, progression float32) map[int]mgl32.Mat4 
 		k1JointTransform := k1.Pose[jointID]
 		k2JointTransform := k2.Pose[jointID]
 
-		rotation := mgl32.QuatLerp(k1JointTransform.Rotation, k2JointTransform.Rotation, progression).Mat4()
+		// WTF - this lerp doesn't look right when interpolating keyframes???
+		// rotationQuat := mgl32.QuatLerp(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
+
+		rotationQuat := qinterpolate(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
+		rotation := rotationQuat.Mat4()
+
 		translation := k1JointTransform.Translation.Add(k2JointTransform.Translation.Sub(k1JointTransform.Translation).Mul(progression))
 
 		interpolatedPose[jointID] = mgl32.Translate3D(translation.X(), translation.Y(), translation.Z()).Mul4(rotation)
 	}
 	return interpolatedPose
+}
+
+// reimplemented from: https://github.com/TheThinMatrix/OpenGL-Animation/blob/dde792fe29767192bcb60d30ac3e82d6bcff1110/Animation/animation/Quaternion.java#L158
+func qinterpolate(a, b mgl32.Quat, blend float32) mgl32.Quat {
+	var result mgl32.Quat = mgl32.Quat{}
+	var dot float32 = a.W*b.W + a.V.X()*b.V.X() + a.V.Y()*b.V.Y() + a.V.Z()*b.V.Z()
+	blendI := float32(1) - blend
+	if dot < 0 {
+		result.W = blendI*a.W + blend*-b.W
+		result.V = mgl32.Vec3{
+			blendI*a.V.X() + blend*-b.V.X(),
+			blendI*a.V.Y() + blend*-b.V.Y(),
+			blendI*a.V.Z() + blend*-b.V.Z(),
+		}
+	} else {
+		result.W = blendI*a.W + blend*b.W
+		result.V = mgl32.Vec3{
+			blendI*a.V.X() + blend*b.V.X(),
+			blendI*a.V.Y() + blend*b.V.Y(),
+			blendI*a.V.Z() + blend*b.V.Z(),
+		}
+	}
+	result.Normalize()
+	return result
 }
