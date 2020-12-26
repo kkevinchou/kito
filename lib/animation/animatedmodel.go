@@ -26,20 +26,19 @@ func JointSpecToJoint(js *JointSpecification) *Joint {
 	return j
 }
 
-func visit(j *Joint, level int) {
+func printHierarchy(j *Joint, level int) {
 	indentation := ""
 	for i := 0; i < level; i++ {
 		indentation += "    "
 	}
 	fmt.Println(indentation + j.Name + fmt.Sprintf(" %d", j.ID))
 	for _, c := range j.Children {
-		visit(c, level+1)
+		printHierarchy(c, level+1)
 	}
 }
 
 func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	joint := JointSpecToJoint(c.Root)
-	visit(joint, 0)
 
 	mesh := NewMesh(c, maxWeights)
 	return &AnimatedModel{
@@ -67,7 +66,7 @@ func NewMesh(c *ModelSpecification, maxWeights int) *Mesh {
 	)
 	vertexCount := len(vertexAttributes) / totalAttributeSize
 	configureGeometryVertexAttributes(vertexAttributes, totalAttributeSize)
-	jointIDsAttribute := configureJointVertexAttributes(c.TriIndices, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, vertexCount, maxWeights, c.PositionSourceData)
+	jointIDsAttribute := configureJointVertexAttributes(c.TriIndices, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, maxWeights)
 	configureIndexBuffer(vertexCount, vertexAttributes, jointIDsAttribute)
 	return &Mesh{
 		vao:         vao,
@@ -134,7 +133,7 @@ func configureGeometryVertexAttributes(vertexAttributes []float32, totalAttribut
 	gl.EnableVertexAttribArray(3)
 }
 
-func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, vertexCount, maxWeights int, positionSourceData []mgl32.Vec3) []int32 {
+func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, maxWeights int) []int32 {
 	jointIDsAttribute := []int32{}
 	jointWeightsAttribute := []float32{}
 

@@ -207,14 +207,9 @@ func (r *RenderSystem) Register(renderable Renderable) {
 	r.renderables = append(r.renderables, renderable)
 }
 
-var updateOnce bool
-
 func (r *RenderSystem) Update(delta time.Duration) {
-	if !updateOnce {
-		r.animator.Update(delta)
-		updateOnce = true
-	}
-	// r.viewer.UpdateView(vector.Vector{X: 5, Y: 0})
+	r.animator.Update(delta)
+
 	viewerPosition := r.viewer.Position()
 	viewerView := r.viewer.View()
 
@@ -224,8 +219,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
 
 	floorModelMatrix := createModelMatrix(
-		// mgl32.Scale3D(10, 10, 10),
-		mgl32.Scale3D(1, 1, 1),
+		mgl32.Scale3D(100, 100, 100),
+		// mgl32.Scale3D(1, 1, 1),
 		mgl32.Ident4(),
 		mgl32.Ident4(),
 	)

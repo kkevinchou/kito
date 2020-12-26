@@ -218,7 +218,7 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	keyFrames := []*animation.KeyFrame{}
 	for _, timeStamp := range timeStamps {
 		keyFrames = append(keyFrames, &animation.KeyFrame{
-			Start: time.Duration(int(timeStamp*1000)) * time.Second,
+			Start: time.Duration(int(timeStamp*1000)) * time.Millisecond,
 			Pose:  timeStampToPose[timeStamp],
 		})
 	}

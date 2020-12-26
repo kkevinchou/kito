@@ -27,8 +27,8 @@ func (a *Animator) Init() {
 
 func (a *Animator) Update(delta time.Duration) {
 	a.ElapsedTime += delta
-	if a.ElapsedTime.Milliseconds() > a.Animation.Length.Milliseconds() {
-		a.ElapsedTime = 0
+	for a.ElapsedTime.Milliseconds() > a.Animation.Length.Milliseconds() {
+		a.ElapsedTime = time.Duration(a.ElapsedTime.Milliseconds()-a.Animation.Length.Milliseconds()) * time.Millisecond
 	}
 	pose := a.calculateCurrentAnimationPose()
 	a.ApplyPoseToJoints(a.AnimatedModel.RootJoint, mgl32.Ident4(), pose)
@@ -66,12 +66,27 @@ func (a *Animator) PlayAnimation(animation *Animation) {
 func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 	var startKeyFrame *KeyFrame
 	var endKeyFrame *KeyFrame
-	for i := 0; i < len(a.Animation.KeyFrames)-1; i++ {
+	// for i := 0; i < len(a.Animation.KeyFrames)-1; i++ {
+	// 	keyFrame := a.Animation.KeyFrames[i]
+	// 	nextKeyFrame := a.Animation.KeyFrames[i+1]
+	// 	if a.ElapsedTime >= keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
+	// 		startKeyFrame = keyFrame
+	// 		endKeyFrame = nextKeyFrame
+	// 		break
+	// 	}
+	// }
+
+	// iterate backwards looking for the starting keyframe
+	for i := len(a.Animation.KeyFrames) - 1; i >= 0; i-- {
 		keyFrame := a.Animation.KeyFrames[i]
-		nextKeyFrame := a.Animation.KeyFrames[i+1]
-		if a.ElapsedTime >= keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
+		if a.ElapsedTime >= keyFrame.Start {
 			startKeyFrame = keyFrame
-			endKeyFrame = nextKeyFrame
+			if i < len(a.Animation.KeyFrames)-1 {
+				endKeyFrame = a.Animation.KeyFrames[i+1]
+			} else {
+				// interpolate towards the first kf
+				endKeyFrame = a.Animation.KeyFrames[0]
+			}
 			break
 		}
 	}
