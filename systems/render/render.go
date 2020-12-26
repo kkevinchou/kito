@@ -239,8 +239,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	meshModelMatrix := createModelMatrix(
 		// mgl32.Scale3D(3, 3, 3),
 		mgl32.Ident4(),
-		horizontalViewRotationMatrix,
-		// horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
+		// horizontalViewRotationMatrix,
+		horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
 		mgl32.Ident4(),
 	)
 	drawMesh(r, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
