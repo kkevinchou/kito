@@ -40,25 +40,11 @@ func (a *Animator) ApplyPoseToJoints(joint *Joint, parentTransform mgl32.Mat4, p
 	for _, child := range joint.Children {
 		a.ApplyPoseToJoints(child, poseTransform, pose)
 	}
-	// if joint.Name == "Foot_R" {
-	// 	// fmt.Println(joint.ID, joint.Name)
-	// 	joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
-	// 	// joint.AnimationTransform = mgl32.Ident4()
-	// } else {
-	// 	joint.AnimationTransform = mgl32.Ident4()
-	// }
 	joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
-	// joint.AnimationTransform = mgl32.Ident4()
-	// fmt.Println(joint.ID, joint.Name, "===============================")
-	// fmt.Println(localTransform)
-	// fmt.Println(joint.InverseBindTransform)
-	// fmt.Println(joint.AnimationTransform)
 }
 
 // CollectAnimationTransforms recursively collects all of the animation transforms
 // which are used for transforming joints from their bind pose to the animation position
-
-// this should technically be a dictionary by jointID
 func (a *Animator) CollectAnimationTransforms() map[int]mgl32.Mat4 {
 	transforms := map[int]mgl32.Mat4{}
 	a.collectAnimationTransforms(a.AnimatedModel.RootJoint, transforms)
@@ -78,29 +64,19 @@ func (a *Animator) PlayAnimation(animation *Animation) {
 }
 
 func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
-	// need some logic here for wrapping around, do i know how long
-	// a key frame is for?
-	// lastKeyFrame := a.Animation.KeyFrames[len(a.Animation.KeyFrames)-1]
-	// if a.ElapsedTime > lastKeyFrame.
+	var startKeyFrame *KeyFrame
+	var endKeyFrame *KeyFrame
+	for i := 0; i < len(a.Animation.KeyFrames)-1; i++ {
+		keyFrame := a.Animation.KeyFrames[i]
+		nextKeyFrame := a.Animation.KeyFrames[i+1]
+		if a.ElapsedTime >= keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
+			startKeyFrame = keyFrame
+			endKeyFrame = nextKeyFrame
+			break
+		}
+	}
 
-	// var startKeyFrame *KeyFrame
-	// var endKeyFrame *KeyFrame
-	// for i := 0; i < len(a.Animation.KeyFrames)-1; i++ {
-	// 	keyFrame := a.Animation.KeyFrames[i]
-	// 	nextKeyFrame := a.Animation.KeyFrames[i+1]
-	// 	if a.ElapsedTime >= keyFrame.Start && a.ElapsedTime < nextKeyFrame.Start {
-	// 		startKeyFrame = keyFrame
-	// 		endKeyFrame = nextKeyFrame
-	// 		break
-	// 	}
-	// }
-
-	// if a.ElapsedTime > 400*time.Millisecond {
-	// 	return InterpolatePoses(a.Animation.KeyFrames[2], a.Animation.KeyFrames[3], 0)
-	// }
-
-	// return InterpolatePoses(startKeyFrame, endKeyFrame, 0)
-	return InterpolatePoses(a.Animation.KeyFrames[0], a.Animation.KeyFrames[1], 0)
+	return InterpolatePoses(startKeyFrame, endKeyFrame, 0)
 }
 
 // TODO fill in actual interpolation.
