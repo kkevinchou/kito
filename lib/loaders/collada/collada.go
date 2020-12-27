@@ -54,8 +54,17 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	// parse geometry
 	mesh := rawCollada.LibraryGeometries[0].Geometry[0].Mesh
 
+	// var normalSourceID, textureSourceID Uri
+	// for _, input := range mesh.Polylist[0].Input {
+	// 	if input.Semantic == string(SemanticNormal) {
+	// 		normalSourceID = input.Source[1:] // remove leading "#"
+	// 	} else if input.Semantic == string(SemanticTexCoord) {
+	// 		textureSourceID = input.Source[1:] // remove leading "#"
+	// 	}
+	// }
+
 	var normalSourceID, textureSourceID Uri
-	for _, input := range mesh.Polylist[0].Input {
+	for _, input := range mesh.Triangles[0].Input {
 		if input.Semantic == string(SemanticNormal) {
 			normalSourceID = input.Source[1:] // remove leading "#"
 		} else if input.Semantic == string(SemanticTexCoord) {
@@ -98,16 +107,20 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	normalSource := ParseVec3Array(normalSourceElement)     // looks at <geometries>
 	textureSource := ParseVec2Array(textureSourceElement)   // looks at <geometries>
 
-	triVertices := parseIntArrayString(mesh.Polylist[0].P.V)
+	// triVertices := parseIntArrayString(mesh.Polylist[0].P.V)
+	triVertices := parseIntArrayString(mesh.Triangles[0].P.V)
 
 	// parse skinning information, joint weights
 	skin := rawCollada.LibraryControllers[0].Controller.Skin
+	controllerName := rawCollada.LibraryControllers[0].Controller.Name
 
 	var joints []string
 	var weights []float32
 	for _, source := range skin.Source {
 		if source.TechniqueCommon.Accessor.Param.Name == TechniqueJoint.String() {
-			joints = strings.Split(source.NameArray.V, " ")
+			for _, j := range strings.Split(source.NameArray.V, " ") {
+				joints = append(joints, fmt.Sprintf("%s_%s", controllerName, j))
+			}
 		} else if source.TechniqueCommon.Accessor.Param.Name == TechniqueTransform.String() {
 		} else if source.TechniqueCommon.Accessor.Param.Name == TechniqueWeight.String() {
 			weights = parseFloatArrayString(source.FloatArray.Floats.V)
@@ -152,7 +165,7 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	// parse animations
 	timeStampToPose := map[float32]map[int]*animation.JointTransform{}
 
-	for _, animationElement := range rawCollada.LibraryAnimations[0].Animations {
+	for _, animationElement := range rawCollada.LibraryAnimations[0].RootAnimations[0].Animations {
 		// get the input/output sources
 		var inputSource Uri
 		var outputSource Uri
@@ -175,7 +188,7 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		target := animationElement.Channel.Target
 		jointName := strings.Split(target, "/")[0] // guessing the sample i'm looking at looks like: "Torso/transform"
 		if _, ok := jointsToIndex[jointName]; !ok {
-			panic(fmt.Sprintf("couldn't find joint name %s in joint listing", jointName))
+			panic(fmt.Sprintf("couldn't find joint name %s in joint listing. available joins: %v", jointName, jointsToIndex))
 		}
 		jointID := jointsToIndex[jointName]
 

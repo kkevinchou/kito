@@ -123,7 +123,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
 
-	parsedCollada, err := collada.ParseCollada("_assets/collada/model.dae")
+	parsedCollada, err := collada.ParseCollada("_assets/collada/model2.dae")
 	if err != nil {
 		panic(err)
 	}

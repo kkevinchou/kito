@@ -14,7 +14,8 @@ type VertexWeights struct {
 
 //Controller categorizes the declaration of generic control information.
 type Controller struct {
-	Skin Skin `xml:"skin"`
+	Skin Skin   `xml:"skin"`
+	Name string `xml:"name,attr,omitempty"`
 }
 
 //LibraryControllers provides a library in which to place <controller> elements.
@@ -43,10 +44,14 @@ type Accessor struct {
 
 //LibraryAnimations provides a library in which to place <animation> elements.
 type LibraryAnimations struct {
-	Animations []*Animation `xml:"animation"`
+	RootAnimations []*RootAnimation `xml:"animation"`
 }
 
 //Animation ategorizes the declaration of animation information.
+type RootAnimation struct {
+	Animations []*Animation `xml:"animation"`
+}
+
 type Animation struct {
 	Source  []*Source `xml:"source"`
 	Sampler Sampler   `xml:"sampler"`

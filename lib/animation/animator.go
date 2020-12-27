@@ -71,7 +71,7 @@ func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 	// iterate backwards looking for the starting keyframe
 	for i := len(a.Animation.KeyFrames) - 1; i >= 0; i-- {
 		keyFrame := a.Animation.KeyFrames[i]
-		if a.ElapsedTime >= keyFrame.Start {
+		if a.ElapsedTime >= keyFrame.Start || i == 0 {
 			startKeyFrame = keyFrame
 			if i < len(a.Animation.KeyFrames)-1 {
 				endKeyFrame = a.Animation.KeyFrames[i+1]
@@ -85,7 +85,6 @@ func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 		}
 	}
 
-	_ = progression
 	return InterpolatePoses(startKeyFrame, endKeyFrame, progression)
 }
 
