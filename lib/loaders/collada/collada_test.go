@@ -1,6 +1,7 @@
 package collada_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -9,12 +10,19 @@ import (
 )
 
 func TestCollada(t *testing.T) {
-	_, err := collada.ParseCollada("sample/model2.dae")
+	c, err := collada.ParseCollada("sample/cube2.dae")
+	printKeyFrames(c)
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	t.Fail()
+}
+
+func printKeyFrames(c *animation.ModelSpecification) {
+	for _, kf := range c.Animation.KeyFrames {
+		fmt.Println(kf.Start, kf.Pose)
+	}
+	fmt.Println(c.Animation.Length)
 }
 
 func TestJointHierarchy(t *testing.T) {

@@ -50,6 +50,7 @@ type LibraryAnimations struct {
 //Animation ategorizes the declaration of animation information.
 type RootAnimation struct {
 	Animations []*Animation `xml:"animation"`
+	Name       string       `xml:"name,attr,omitempty"`
 }
 
 type Animation struct {

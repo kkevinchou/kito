@@ -2,6 +2,7 @@ package kito
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
@@ -25,11 +26,12 @@ import (
 )
 
 const (
-	gameUpdateDelta = 10 * time.Millisecond
+	fps                  float64 = 60
+	simulationsPerSecond float64 = 100
+	maxTimeStep          float64 = 250 // in milliseconds
 )
 
 var (
-	fps                 = 60.0
 	viewerStartPosition = vector.Vector3{X: 0, Y: 10, Z: 30}
 	viewerStartView     = vector.Vector{X: 0, Y: 0}
 )
@@ -101,58 +103,38 @@ func (g *Game) update(delta time.Duration) {
 func (g *Game) Start(pollInputFunc InputPoller) {
 	rand.Seed(time.Now().Unix())
 
-	previousTime := time.Now()
-	var accumulator time.Duration
-	var renderAccumulator time.Duration
-	var debugAccumulator time.Duration
+	var accumulator float64
+	var renderAccumulator float64
 
-	msPerFrame := time.Duration(1000000.0/fps) * time.Microsecond
+	msPerFrame := float64(1000) / fps
+	msPerSimulation := float64(1000) / simulationsPerSecond
 	directory := directory.GetDirectory()
 	renderSystem := directory.RenderSystem()
 
+	previousTimeStamp := float64(time.Now().UnixNano()) / 1000000
 	for g.gameOver != true {
-		now := time.Now()
-		delta := time.Since(previousTime)
-		if delta > 250*time.Millisecond {
-			delta = 250 * time.Millisecond
-		}
-		previousTime = now
+		now := float64(time.Now().UnixNano()) / 1000000
+		delta := math.Min(now-previousTimeStamp, maxTimeStep)
+		previousTimeStamp = now
 
 		accumulator += delta
 		renderAccumulator += delta
-		debugAccumulator += delta
 
-		if debugAccumulator > time.Duration(1*time.Second) {
-			// fmt.Println("LOOP START")
-		}
-
-		for accumulator >= gameUpdateDelta {
-			// input is handled once per frame
+		for accumulator >= msPerSimulation {
+			// input is handled once per simulation frame
 			inputList := pollInputFunc()
 			for _, input := range inputList {
 				g.HandleInput(input)
 			}
-			g.update(gameUpdateDelta)
-			accumulator -= gameUpdateDelta
+			g.update(time.Duration(msPerSimulation) * time.Millisecond)
+			accumulator -= msPerSimulation
 		}
-
-		// Temporary update to not lose physics time, is this needed? was in a weird
-		// case where the game updates weren't running since we would always set accumulation to zero
-		// if accumulator > 0 {
-		// 	g.update(accumulator)
-		// 	accumulator = 0
-		// }
 
 		if renderAccumulator >= msPerFrame {
-			renderSystem.Update(msPerFrame)
-		}
-		for renderAccumulator > msPerFrame {
-			renderAccumulator -= msPerFrame
-		}
-
-		if debugAccumulator > time.Duration(1*time.Second) {
-			// fmt.Println("LOOP END")
-			debugAccumulator = 0
+			renderSystem.Update(time.Duration(renderAccumulator) * time.Millisecond)
+			for renderAccumulator >= msPerFrame {
+				renderAccumulator -= msPerFrame
+			}
 		}
 	}
 }

@@ -77,7 +77,7 @@ func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 				endKeyFrame = a.Animation.KeyFrames[i+1]
 				progression = float32((a.ElapsedTime - startKeyFrame.Start).Milliseconds()) / float32((endKeyFrame.Start - startKeyFrame.Start).Milliseconds())
 			} else {
-				// interpolate towards the first kf
+				// interpolate towards the first kf, assume looping animations
 				endKeyFrame = a.Animation.KeyFrames[0]
 				progression = 0
 			}

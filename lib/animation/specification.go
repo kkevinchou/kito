@@ -11,7 +11,8 @@ type JointSpecification struct {
 
 type ModelSpecification struct {
 	// Geometry
-	TriIndices []int // vertex indices in triangle order. Each triplet defines a face
+	TriIndices       []int // vertex indices in triangle order. Each triplet defines a face
+	TriIndicesStride int
 
 	PositionSourceData []mgl32.Vec3
 	NormalSourceData   []mgl32.Vec3

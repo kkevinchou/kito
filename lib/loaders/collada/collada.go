@@ -43,6 +43,7 @@ const (
 	NodeJoint NodeType = "JOINT"
 
 	ArmatureNodeID = "Armature"
+	ArmatureName   = "Armature"
 )
 
 func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
@@ -131,6 +132,7 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	for i, name := range joints {
 		jointsToIndex[name] = i
 	}
+	jointsToIndex["Armature"] = 0
 
 	vcount := parseIntArrayString(skin.VertexWeights.VCount)
 	v := parseIntArrayString(skin.VertexWeights.V)
@@ -165,7 +167,20 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	// parse animations
 	timeStampToPose := map[float32]map[int]*animation.JointTransform{}
 
-	for _, animationElement := range rawCollada.LibraryAnimations[0].RootAnimations[0].Animations {
+	var armatureRootAnimation *RootAnimation
+
+	for _, rootAnimation := range rawCollada.LibraryAnimations[0].RootAnimations {
+		if rootAnimation.Name == ArmatureName {
+			armatureRootAnimation = rootAnimation
+			break
+		}
+	}
+
+	if armatureRootAnimation == nil {
+		panic("failed to find root animation for armature")
+	}
+
+	for _, animationElement := range armatureRootAnimation.Animations {
 		// get the input/output sources
 		var inputSource Uri
 		var outputSource Uri
@@ -187,8 +202,9 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 
 		target := animationElement.Channel.Target
 		jointName := strings.Split(target, "/")[0] // guessing the sample i'm looking at looks like: "Torso/transform"
+
 		if _, ok := jointsToIndex[jointName]; !ok {
-			panic(fmt.Sprintf("couldn't find joint name %s in joint listing. available joins: %v", jointName, jointsToIndex))
+			panic(fmt.Sprintf("couldn't find joint name \"%s\" in joint listing. available joints: %v", jointName, jointsToIndex))
 		}
 		jointID := jointsToIndex[jointName]
 
@@ -233,10 +249,13 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 			Start: time.Duration(int(timeStamp*1000)) * time.Millisecond,
 			Pose:  timeStampToPose[timeStamp],
 		})
+
+		// fmt.Println(timeStamp, timeStampToPose[timeStamp][0])
 	}
 
 	result := &animation.ModelSpecification{
-		TriIndices: triVertices,
+		TriIndices:       triVertices,
+		TriIndicesStride: len(mesh.Triangles[0].Input),
 
 		PositionSourceData: positionSource,
 		NormalSourceData:   normalSource,

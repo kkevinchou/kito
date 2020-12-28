@@ -60,14 +60,16 @@ func NewMesh(c *ModelSpecification, maxWeights int) *Mesh {
 
 	vertexAttributes, totalAttributeSize := constructGeometryVertexAttributes(
 		c.TriIndices,
+		c.TriIndicesStride,
 		c.PositionSourceData,
 		c.NormalSourceData,
 		c.ColorSourceData,
 		c.TextureSourceData,
 	)
+
 	vertexCount := len(vertexAttributes) / totalAttributeSize
 	configureGeometryVertexAttributes(vertexAttributes, totalAttributeSize)
-	jointIDsAttribute := configureJointVertexAttributes(c.TriIndices, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, maxWeights)
+	jointIDsAttribute := configureJointVertexAttributes(c.TriIndices, c.TriIndicesStride, c.JointWeightsSourceData, c.JointIDs, c.JointWeights, maxWeights)
 	configureIndexBuffer(vertexCount, vertexAttributes, jointIDsAttribute)
 	return &Mesh{
 		vao:         vao,
@@ -85,30 +87,39 @@ func (m *Mesh) VertexCount() int {
 
 func constructGeometryVertexAttributes(
 	triIndices []int,
+	triIndicesStride int,
 	positionSourceData []mgl32.Vec3,
 	normalSourceData []mgl32.Vec3,
 	colorSourceData []mgl32.Vec3,
 	textureSourceData []mgl32.Vec2,
 ) ([]float32, int) {
 	vertexAttributes := []float32{}
-	totalAttributeSize := len(positionSourceData[0]) + len(normalSourceData[0]) + len(textureSourceData[0]) + len(colorSourceData[0])
+
+	totalAttributeSize := len(positionSourceData[0]) + len(normalSourceData[0]) + len(textureSourceData[0])
+
+	colorPresent := colorSourceData != nil
+	if colorPresent {
+		totalAttributeSize += len(colorSourceData[0])
+	}
+
 	// TODO: i'm still ordering vertex attributes by the face order, rather than keeping the original exported source order
 	// this current way will repeat data since i explicity store data for every vertex, rather than using indicies for lookup
 	// in the future, i should refactor this to store the data in source data order then use an index buffer for VAO creation
 
 	// triIndicies format: position, normal, texture, color
-	for i := 0; i < len(triIndices); i += 4 {
+	for i := 0; i < len(triIndices); i += triIndicesStride {
 		position := positionSourceData[triIndices[i]]
 		normal := normalSourceData[triIndices[i+1]]
 		texture := textureSourceData[triIndices[i+2]]
-		// color := colorSourceData[triIndices[i+3]]
-
-		color := mgl32.Vec3{0, 0, 0}
 
 		vertexAttributes = append(vertexAttributes, position.X(), position.Y(), position.Z())
 		vertexAttributes = append(vertexAttributes, normal.X(), normal.Y(), normal.Z())
 		vertexAttributes = append(vertexAttributes, texture.X(), texture.Y())
-		vertexAttributes = append(vertexAttributes, color.X(), color.Y(), color.Z())
+
+		if colorPresent {
+			color := colorSourceData[triIndices[i+3]]
+			vertexAttributes = append(vertexAttributes, color.X(), color.Y(), color.Z())
+		}
 	}
 
 	return vertexAttributes, totalAttributeSize
@@ -134,11 +145,11 @@ func configureGeometryVertexAttributes(vertexAttributes []float32, totalAttribut
 	gl.EnableVertexAttribArray(3)
 }
 
-func configureJointVertexAttributes(triIndices []int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, maxWeights int) []int32 {
+func configureJointVertexAttributes(triIndices []int, triIndicesStride int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, maxWeights int) []int32 {
 	jointIDsAttribute := []int32{}
 	jointWeightsAttribute := []float32{}
 
-	for i := 0; i < len(triIndices); i += 4 {
+	for i := 0; i < len(triIndices); i += triIndicesStride {
 		vertexIndex := triIndices[i]
 
 		ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
