@@ -1,4 +1,4 @@
-package viewer
+package camera
 
 import (
 	"time"
@@ -9,15 +9,15 @@ import (
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
-type ViewerImpl struct {
+type CameraImpl struct {
 	*physics.PhysicsComponent
 	*components.PositionComponent
 	*components.TopDownViewComponent
 	*components.ControllerComponent
 }
 
-func New(position mgl64.Vec3, view vector.Vector) *ViewerImpl {
-	entity := &ViewerImpl{}
+func New(position mgl64.Vec3, view vector.Vector) *CameraImpl {
+	entity := &CameraImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}
 	entity.PhysicsComponent.Init(entity, 50, 10)
@@ -33,6 +33,6 @@ func New(position mgl64.Vec3, view vector.Vector) *ViewerImpl {
 	return entity
 }
 
-func (e *ViewerImpl) Update(delta time.Duration) {
+func (e *CameraImpl) Update(delta time.Duration) {
 	e.PhysicsComponent.Update(delta)
 }

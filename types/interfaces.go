@@ -54,8 +54,8 @@ type Controllable interface {
 	Controlled() bool
 }
 
-// Viewer is a controllable entity who's perspective can be rendered from the render system
-type Viewer interface {
+// Camera is a controllable entity who's perspective can be rendered from the render system
+type Camera interface {
 	Controllable
 
 	Forward() mgl64.Vec3

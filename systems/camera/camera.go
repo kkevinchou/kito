@@ -21,7 +21,7 @@ type Singleton interface {
 
 type World interface {
 	GetSingleton() types.Singleton
-	GetCamera() types.Viewer
+	GetCamera() types.Camera
 }
 
 type CameraSystem struct {

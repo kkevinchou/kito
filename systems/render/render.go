@@ -23,7 +23,7 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-type Viewer interface {
+type Camera interface {
 	UpdateView(vector.Vector)
 	Position() mgl64.Vec3
 	View() vector.Vector
@@ -59,7 +59,7 @@ type Renderables []Renderable
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	window       *sdl.Window
-	viewer       Viewer
+	camera       Camera
 	assetManager *lib.AssetManager
 	renderables  Renderables
 	textureMap   map[string]uint32
@@ -85,7 +85,7 @@ func initFont() *ttf.Font {
 	return font
 }
 
-func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *RenderSystem {
+func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(fmt.Sprintf("Failed to init SDL", err))
 	}
@@ -107,7 +107,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, viewer Viewer) *
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,
-		viewer:       viewer,
+		camera:       camera,
 		game:         game,
 		skybox:       NewSkyBox(300),
 		floor:        NewQuad(nil),
@@ -212,13 +212,13 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	// r.animator.Update(time.Duration(delta.Milliseconds()/10) * time.Millisecond)
 	r.animator.Update(delta)
 
-	viewerPosition := r.viewer.Position()
-	viewerView := r.viewer.View()
+	cameraPosition := r.camera.Position()
+	cameraView := r.camera.View()
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
-	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(viewerView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
+	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
+	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
 
 	floorModelMatrix := createModelMatrix(
 		mgl32.Scale3D(100, 100, 100),
@@ -228,7 +228,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	)
 	floorModelMatrix = horizontalViewRotationMatrix.Mul4(floorModelMatrix)
 
-	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X()), float32(-viewerPosition.Y()), float32(-viewerPosition.Z()))
+	viewTranslationMatrix := mgl32.Translate3D(float32(-cameraPosition.X()), float32(-cameraPosition.Y()), float32(-cameraPosition.Z()))
 	viewMatrix := verticalViewRotationMatrix.Mul4(viewTranslationMatrix)
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
@@ -241,7 +241,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		mgl32.Ident4(),
 	)
 
-	vPosition := mgl32.Vec3{float32(viewerPosition[0]), float32(viewerPosition[1]), float32(viewerPosition[2])}
+	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
 
 	drawMesh(r, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)

@@ -10,10 +10,10 @@ import (
 	"github.com/kkevinchou/kito/systems/animation"
 
 	"github.com/kkevinchou/kito/directory"
+	cameraEntity "github.com/kkevinchou/kito/entities/camera"
 	"github.com/kkevinchou/kito/entities/food"
 	"github.com/kkevinchou/kito/entities/grass"
 	"github.com/kkevinchou/kito/entities/singleton"
-	"github.com/kkevinchou/kito/entities/viewer"
 	"github.com/kkevinchou/kito/entities/worker"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/geometry"
@@ -33,8 +33,8 @@ const (
 )
 
 var (
-	viewerStartPosition = mgl64.Vec3{0, 10, 30}
-	viewerStartView     = vector.Vector{X: 0, Y: 0}
+	cameraStartPosition = mgl64.Vec3{0, 10, 30}
+	cameraStartView     = vector.Vector{X: 0, Y: 0}
 )
 
 type System interface {
@@ -49,7 +49,7 @@ type Game struct {
 	worker         *worker.WorkerImpl
 	pathIndex      int
 	gameOver       bool
-	viewer         types.Viewer
+	camera         types.Camera
 	gameMode       types.GameMode
 	viewControlled bool
 
@@ -62,11 +62,11 @@ func NewGame() *Game {
 	fmt.Println(fmt.Sprintf("Game Initializing with seed %d ...", seed))
 	rand.Seed(seed)
 
-	viewer := viewer.New(viewerStartPosition, viewerStartView)
-	fmt.Println("Viewer initialized at position", viewer.Position(), "and view", viewer.View())
+	camera := cameraEntity.New(cameraStartPosition, cameraStartView)
+	fmt.Println("Camera initialized at position", camera.Position(), "and view", camera.View())
 
 	g := &Game{
-		viewer:    viewer,
+		camera:    camera,
 		gameMode:  types.GameModePlaying,
 		singleton: singleton.New(),
 	}
@@ -95,7 +95,7 @@ func (g *Game) update(delta time.Duration) {
 		}
 	}
 
-	g.viewer.Update(delta)
+	g.camera.Update(delta)
 	for _, system := range g.systems {
 		system.Update(delta)
 	}
@@ -140,8 +140,8 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 	}
 }
 
-func (g *Game) GetCamera() types.Viewer {
-	return g.viewer
+func (g *Game) GetCamera() types.Camera {
+	return g.camera
 }
 
 func (g *Game) GetSingleton() types.Singleton {
@@ -157,7 +157,7 @@ func (g *Game) setupSystems() *directory.Directory {
 	pathManager := path.NewManager()
 	assetManager := lib.NewAssetManager(nil, "_assets")
 
-	renderSystem := render.NewRenderSystem(g, assetManager, g.viewer)
+	renderSystem := render.NewRenderSystem(g, assetManager, g.camera)
 	movementSystem := movement.NewMovementSystem()
 	cameraSystem := camera.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
