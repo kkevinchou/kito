@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/math"
+	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -60,7 +60,7 @@ func (c *PhysicsComponent) ApplyImpulse(name string, impulse *types.Impulse) {
 }
 
 func (c *PhysicsComponent) Update(delta time.Duration) {
-	if !math.Vec3IsZero(c.velocity) {
+	if !utils.Vec3IsZero(c.velocity) {
 		c.heading = c.velocity
 	}
 

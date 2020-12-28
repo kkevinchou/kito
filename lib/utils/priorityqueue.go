@@ -1,4 +1,4 @@
-package priorityqueue
+package utils
 
 import "container/heap"
 
@@ -37,7 +37,7 @@ type PriorityQueue struct {
 	h *Heap
 }
 
-func New() *PriorityQueue {
+func NewPriorityQueue() *PriorityQueue {
 	pq := PriorityQueue{h: &Heap{}}
 	heap.Init(pq.h)
 	return &pq

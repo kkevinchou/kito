@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/math"
+	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -83,7 +83,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 			panic(fmt.Sprintf("unexpected mousewheel value %v", mouseInput.MouseWheel))
 		}
 	}
-	if math.Vec3IsZero(controlVector) && zoomValue == 0 {
+	if utils.Vec3IsZero(controlVector) && zoomValue == 0 {
 		return
 	}
 
@@ -97,7 +97,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	rightVector = rightVector.Mul(-controlVector.X())
 
 	impulse := &types.Impulse{}
-	if !math.Vec3IsZero(controlVector) {
+	if !utils.Vec3IsZero(controlVector) {
 		impulse.Vector = forwardVector.Add(rightVector).Add(mgl64.Vec3{0, controlVector.Y(), 0}).Normalize().Mul(moveSpeed)
 		impulse.DecayRate = 2.5
 		camera.ApplyImpulse("cameraMove", impulse)

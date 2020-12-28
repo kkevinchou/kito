@@ -3,8 +3,7 @@ package pathing
 import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/geometry"
-	kmath "github.com/kkevinchou/kito/lib/math"
-	priorityqueue "github.com/kkevinchou/kito/lib/util"
+	"github.com/kkevinchou/kito/lib/utils"
 )
 
 func getPoints(path []NavNode) []geometry.Point {
@@ -69,7 +68,7 @@ func (p *Planner) findPortals(path []NavNode) []Portal {
 
 func (p *Planner) findPath(start geometry.Point, goal geometry.Point) []NavNode {
 	// Initialize
-	frontier := priorityqueue.New()
+	frontier := utils.NewPriorityQueue()
 	cameFrom := map[NavNode]NavNode{}
 	costSoFar := map[NavNode]float64{}
 
@@ -195,7 +194,7 @@ func orderPortalPoints(portals []Portal) []geometry.Point {
 		rightVec := nextRight.Vector3().Sub(prevRight.Vector3())
 
 		// TODO: handle Cross
-		if kmath.Cross2D(rightVec, leftVec) > 0 {
+		if utils.Cross2D(rightVec, leftVec) > 0 {
 			nextLeft, nextRight = nextRight, nextLeft
 		}
 		// TODO: handle where they're == 0
@@ -211,13 +210,13 @@ func orderPortalPoints(portals []Portal) []geometry.Point {
 
 // Returns true if v is to left of reference
 func vecOnLeft(reference, v mgl64.Vec3) bool {
-	return kmath.Cross2D(reference, v) < floatEpsilon
+	return utils.Cross2D(reference, v) < floatEpsilon
 	// return reference.Cross(v) < 0
 }
 
 // Returns true if v is to the right of reference
 func vecOnRight(reference, v mgl64.Vec3) bool {
-	return kmath.Cross2D(reference, v) > -1*floatEpsilon
+	return utils.Cross2D(reference, v) > -1*floatEpsilon
 	// return reference.Cross(v) > 0
 }
 

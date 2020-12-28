@@ -1,4 +1,4 @@
-package priorityqueue
+package utils_test
 
 import "testing"
 

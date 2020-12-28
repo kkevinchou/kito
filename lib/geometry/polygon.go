@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/go-gl/mathgl/mgl64"
-	kmath "github.com/kkevinchou/kito/lib/math"
+	"github.com/kkevinchou/kito/lib/utils"
 )
 
 const (
@@ -66,7 +66,7 @@ func (p *Polygon) ContainsPoint(point Point) bool {
 		affineSegment := nextPoint.Vector3().Sub(vector)
 		affinePoint := point.Vector3().Sub(vector)
 
-		if kmath.Cross2D(affineSegment, affinePoint) > 0 {
+		if utils.Cross2D(affineSegment, affinePoint) > 0 {
 			return false
 		}
 	}

@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/go-gl/mathgl/mgl64"
-	kmath "github.com/kkevinchou/kito/lib/math"
+	"github.com/kkevinchou/kito/lib/utils"
 )
 
 const (
@@ -71,7 +71,7 @@ func (c *TopDownViewComponent) Right() mgl64.Vec3 {
 	v2 := mgl64.Vec3{x, 0, z}
 	v3 := v1.Cross(v2)
 
-	if kmath.Vec3IsZero(v3) {
+	if utils.Vec3IsZero(v3) {
 		v3 = mgl64.Vec3{v2.Z(), 0, -v2.X()}
 	}
 
