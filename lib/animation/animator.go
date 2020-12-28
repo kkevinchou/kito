@@ -88,21 +88,6 @@ func (a *Animator) calculateCurrentAnimationPose() map[int]mgl32.Mat4 {
 	return InterpolatePoses(startKeyFrame, endKeyFrame, progression)
 }
 
-// TODO fill in actual interpolation.
-// it's kinda confusing that this constructs joint transforms, should probably be some other
-// data type since normally JointTransforms are immutable
-func InterpolateJointTransform(t1 *JointTransform, t2 *JointTransform) *JointTransform {
-	return &JointTransform{Translation: t1.Translation, Rotation: t1.Rotation}
-}
-
-func CalculateJointTransformMatrix(t *JointTransform) mgl32.Mat4 {
-	translationMatrix := mgl32.Translate3D(t.Translation.X(), t.Translation.Y(), t.Translation.Z())
-	transformMatrix := translationMatrix.Mul4(t.Rotation.Mat4())
-
-	return transformMatrix
-}
-
-// TODO fill in actual interpolation. This just keeps the first keyframe
 func InterpolatePoses(k1, k2 *KeyFrame, progression float32) map[int]mgl32.Mat4 {
 	interpolatedPose := map[int]mgl32.Mat4{}
 	for jointID := range k1.Pose {
@@ -112,7 +97,7 @@ func InterpolatePoses(k1, k2 *KeyFrame, progression float32) map[int]mgl32.Mat4 
 		// WTF - this lerp doesn't look right when interpolating keyframes???
 		// rotationQuat := mgl32.QuatLerp(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
 
-		rotationQuat := qinterpolate(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
+		rotationQuat := qInterpolate(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
 		rotation := rotationQuat.Mat4()
 
 		translation := k1JointTransform.Translation.Add(k2JointTransform.Translation.Sub(k1JointTransform.Translation).Mul(progression))
@@ -122,8 +107,8 @@ func InterpolatePoses(k1, k2 *KeyFrame, progression float32) map[int]mgl32.Mat4 
 	return interpolatedPose
 }
 
-// reimplemented from: https://github.com/TheThinMatrix/OpenGL-Animation/blob/dde792fe29767192bcb60d30ac3e82d6bcff1110/Animation/animation/Quaternion.java#L158
-func qinterpolate(a, b mgl32.Quat, blend float32) mgl32.Quat {
+// Quaternion interpolation, reimplemented from: https://github.com/TheThinMatrix/OpenGL-Animation/blob/dde792fe29767192bcb60d30ac3e82d6bcff1110/Animation/animation/Quaternion.java#L158
+func qInterpolate(a, b mgl32.Quat, blend float32) mgl32.Quat {
 	var result mgl32.Quat = mgl32.Quat{}
 	var dot float32 = a.W*b.W + a.V.X()*b.V.X() + a.V.Y()*b.V.Y() + a.V.Z()*b.V.Z()
 	blendI := float32(1) - blend

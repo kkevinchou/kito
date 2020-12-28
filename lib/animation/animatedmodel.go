@@ -48,12 +48,7 @@ func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *Animate
 	}
 }
 
-//  1420 faces
-//  4260 individual vertices (vertices can be counted multiple times)
-//  740 distinct vertices
 func NewMesh(c *ModelSpecification, maxWeights int) *Mesh {
-	// maxJoints := 50
-
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)

@@ -13,7 +13,6 @@ import (
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/loaders/collada"
-	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/pathing"
 	"github.com/kkevinchou/kito/lib/shaders"
@@ -62,14 +61,12 @@ type RenderSystem struct {
 	assetManager *lib.AssetManager
 	renderables  Renderables
 	textureMap   map[string]uint32
-	modelMap     map[string]*models.Model
 	game         Game
 	lights       []*Light
 	shaders      map[string]*shaders.Shader
 	skybox       *SkyBox
 	floor        *Quad
-
-	animator *animation.Animator
+	animator     *animation.Animator
 }
 
 func initFont() *ttf.Font {
@@ -103,6 +100,12 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 		panic(fmt.Sprintf("Failed to init OpenGL %s", err))
 	}
 
+	parsedCollada, err := collada.ParseCollada("_assets/collada/cube2.dae")
+	if err != nil {
+		panic(err)
+	}
+	animatedModel := animation.NewAnimatedModel(parsedCollada, 50, 3)
+
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,
@@ -110,6 +113,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 		game:         game,
 		skybox:       NewSkyBox(300),
 		floor:        NewQuad(nil),
+		animator:     animation.NewAnimator(animatedModel, parsedCollada.Animation),
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -122,13 +126,6 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
-
-	parsedCollada, err := collada.ParseCollada("_assets/collada/cube2.dae")
-	if err != nil {
-		panic(err)
-	}
-	animatedModel := animation.NewAnimatedModel(parsedCollada, 50, 3)
-	renderSystem.animator = animation.NewAnimator(animatedModel, parsedCollada.Animation)
 
 	_ = initFont()
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")
@@ -156,27 +153,6 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 		"top":    topTexture,
 		"bottom": bottomTexture,
 		"cowboy": cowboyTexture,
-	}
-
-	oak, err := models.NewModel("_assets/obj/Oak_Green_01.obj")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load oak model %s", err))
-	}
-
-	torus, err := models.NewModel("_assets/obj/torus.obj")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load oak model %s", err))
-	}
-
-	land, err := models.NewModel("_assets/obj/land.obj")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load oak model %s", err))
-	}
-
-	renderSystem.modelMap = map[string]*models.Model{
-		"oak":   oak,
-		"torus": torus,
-		"land":  land,
 	}
 
 	basicShader, err := shaders.NewShader("shaders/basic.vs", "shaders/basic.fs")
@@ -208,9 +184,7 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
-	// r.animator.Update(time.Duration(delta.Milliseconds()/10) * time.Millisecond)
 	r.animator.Update(delta)
-
 	cameraPosition := r.camera.Position()
 	cameraView := r.camera.View()
 

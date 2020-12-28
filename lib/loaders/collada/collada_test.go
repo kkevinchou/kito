@@ -9,6 +9,11 @@ import (
 	"github.com/kkevinchou/kito/lib/loaders/collada"
 )
 
+// cowboy model
+// 1420 faces
+// 4260 individual vertices (vertices can be counted multiple times)
+// 740 distinct vertices
+
 func TestCollada(t *testing.T) {
 	c, err := collada.ParseCollada("sample/cube2.dae")
 	printKeyFrames(c)
