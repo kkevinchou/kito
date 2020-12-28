@@ -13,7 +13,6 @@ import (
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/loaders/collada"
-	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/models"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/pathing"
@@ -24,9 +23,9 @@ import (
 )
 
 type Camera interface {
-	UpdateView(vector.Vector)
+	UpdateView(mgl64.Vec2)
 	Position() mgl64.Vec3
-	View() vector.Vector
+	View() mgl64.Vec2
 }
 
 const (
@@ -217,8 +216,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.X)), mgl32.Vec3{1, 0, 0}).Mat4()
-	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.Y)), mgl32.Vec3{0, 1, 0}).Mat4()
+	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.X())), mgl32.Vec3{1, 0, 0}).Mat4()
+	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.Y())), mgl32.Vec3{0, 1, 0}).Mat4()
 
 	floorModelMatrix := createModelMatrix(
 		mgl32.Scale3D(100, 100, 100),

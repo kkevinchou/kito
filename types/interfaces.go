@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type Item interface {
@@ -64,9 +63,9 @@ type Camera interface {
 	MaxSpeed() float64
 
 	Update(delta time.Duration)
-	UpdateView(vector vector.Vector)
+	UpdateView(vector mgl64.Vec2)
 	Position() mgl64.Vec3
-	View() vector.Vector
+	View() mgl64.Vec2
 	ApplyImpulse(name string, impulse *Impulse)
 }
 

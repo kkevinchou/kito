@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/math"
-	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -71,7 +70,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	if singleton.GetMouseInput() != nil {
 		mouseInput := *singleton.GetMouseInput()
 		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
-			camera.UpdateView(vector.Vector{X: mouseInput.MouseMotionEvent.XRel, Y: mouseInput.MouseMotionEvent.YRel})
+			camera.UpdateView(mgl64.Vec2{mouseInput.MouseMotionEvent.XRel, mouseInput.MouseMotionEvent.YRel})
 		}
 
 		if mouseInput.MouseWheel == types.MouseWheelDirectionNeutral {

@@ -4,38 +4,37 @@ import (
 	"math"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type FreeViewComponent struct {
-	view vector.Vector
+	view mgl64.Vec2
 }
 
-func (c *FreeViewComponent) View() vector.Vector {
+func (c *FreeViewComponent) View() mgl64.Vec2 {
 	return c.view
 }
 
-func (c *FreeViewComponent) SetView(view vector.Vector) {
+func (c *FreeViewComponent) SetView(view mgl64.Vec2) {
 	c.view = view
 }
 
-func (c *FreeViewComponent) UpdateView(delta vector.Vector) {
-	c.view.X += delta.Y * ySensitivity
-	c.view.Y += delta.X * xSensitivity
+func (c *FreeViewComponent) UpdateView(delta mgl64.Vec2) {
+	c.view[0] += delta.Y() * ySensitivity
+	c.view[1] += delta.X() * xSensitivity
 
-	if c.view.X < -cameraRotationXMax {
-		c.view.X = -cameraRotationXMax
-	} else if c.view.X > cameraRotationXMax {
-		c.view.X = cameraRotationXMax
+	if c.view.X() < -cameraRotationXMax {
+		c.view[0] = -cameraRotationXMax
+	} else if c.view.X() > cameraRotationXMax {
+		c.view[0] = cameraRotationXMax
 	}
 }
 
 func (c *FreeViewComponent) Forward() mgl64.Vec3 {
-	xRadianAngle := -toRadians(c.view.X)
+	xRadianAngle := -toRadians(c.view.X())
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
-	yRadianAngle := -(toRadians(c.view.Y) - (math.Pi / 2))
+	yRadianAngle := -(toRadians(c.view.Y()) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
 	}
@@ -47,11 +46,11 @@ func (c *FreeViewComponent) Forward() mgl64.Vec3 {
 }
 
 func (c *FreeViewComponent) Right() mgl64.Vec3 {
-	xRadianAngle := -toRadians(c.view.X)
+	xRadianAngle := -toRadians(c.view.X())
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
-	yRadianAngle := -(toRadians(c.view.Y) - (math.Pi / 2))
+	yRadianAngle := -(toRadians(c.view.Y()) - (math.Pi / 2))
 	if yRadianAngle < 0 {
 		yRadianAngle += 2 * math.Pi
 	}

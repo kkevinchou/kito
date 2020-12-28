@@ -6,7 +6,6 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/components/physics"
-	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type CameraImpl struct {
@@ -16,7 +15,7 @@ type CameraImpl struct {
 	*components.ControllerComponent
 }
 
-func New(position mgl64.Vec3, view vector.Vector) *CameraImpl {
+func New(position mgl64.Vec3, view mgl64.Vec2) *CameraImpl {
 	entity := &CameraImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}

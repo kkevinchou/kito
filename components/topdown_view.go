@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	kmath "github.com/kkevinchou/kito/lib/math"
-	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 const (
@@ -16,20 +15,20 @@ const (
 )
 
 type TopDownViewComponent struct {
-	view vector.Vector
+	view mgl64.Vec2
 }
 
-func (c *TopDownViewComponent) View() vector.Vector {
+func (c *TopDownViewComponent) View() mgl64.Vec2 {
 	return c.view
 }
 
-func (c *TopDownViewComponent) SetView(view vector.Vector) {
+func (c *TopDownViewComponent) SetView(view mgl64.Vec2) {
 	c.view = view
 }
 
-func (c *TopDownViewComponent) UpdateView(delta vector.Vector) {
-	c.view.Y += delta.X * xSensitivity
-	c.view.X += delta.Y * ySensitivity
+func (c *TopDownViewComponent) UpdateView(delta mgl64.Vec2) {
+	c.view[1] += delta.X() * xSensitivity
+	c.view[0] += delta.Y() * ySensitivity
 	// if c.view.Y > 360 {
 	// 	c.view.Y -= 360
 	// }
@@ -39,7 +38,7 @@ func (c *TopDownViewComponent) UpdateView(delta vector.Vector) {
 }
 
 func (c *TopDownViewComponent) Forward() mgl64.Vec3 {
-	xRadianAngle := -toRadians(c.view.X)
+	xRadianAngle := -toRadians(c.view.X())
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}
@@ -57,7 +56,7 @@ func (c *TopDownViewComponent) Forward() mgl64.Vec3 {
 }
 
 func (c *TopDownViewComponent) Right() mgl64.Vec3 {
-	xRadianAngle := -toRadians(c.view.X)
+	xRadianAngle := -toRadians(c.view.X())
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
 	}

@@ -17,7 +17,6 @@ import (
 	"github.com/kkevinchou/kito/entities/worker"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/geometry"
-	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
 	"github.com/kkevinchou/kito/systems/camera"
@@ -34,7 +33,7 @@ const (
 
 var (
 	cameraStartPosition = mgl64.Vec3{0, 10, 30}
-	cameraStartView     = vector.Vector{X: 0, Y: 0}
+	cameraStartView     = mgl64.Vec2{0, 0}
 )
 
 type System interface {

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 // Source: https://gist.github.com/davemackintosh/67959fa9dfd9018d79a4
@@ -20,13 +19,13 @@ type Face struct {
 
 type FaceVertex struct {
 	Vertex  *mgl64.Vec3
-	Texture *vector.Vector
+	Texture *mgl64.Vec2
 	Normal  *mgl64.Vec3
 }
 
 type Model struct {
 	normals   []*mgl64.Vec3
-	textures  []*vector.Vector
+	textures  []*mgl64.Vec2
 	verticies []*mgl64.Vec3
 	Faces     []*Face
 }
@@ -67,7 +66,7 @@ func NewModel(file string) (*Model, error) {
 			if y, err = strconv.ParseFloat(split[2], 64); err != nil {
 				return nil, err
 			}
-			model.textures = append(model.textures, &vector.Vector{X: x, Y: y})
+			model.textures = append(model.textures, &mgl64.Vec2{x, y})
 		} else if strings.HasPrefix(line, "vn") {
 			var err error
 			var v *mgl64.Vec3
@@ -138,7 +137,7 @@ func (model *Model) getVertexNormal(i int) *mgl64.Vec3 {
 	return model.normals[i-1]
 }
 
-func (model *Model) getVertexTextures(i int) *vector.Vector {
+func (model *Model) getVertexTextures(i int) *mgl64.Vec2 {
 	return model.textures[i-1]
 }
 
