@@ -3,7 +3,8 @@ package physics
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/math"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -12,11 +13,11 @@ const (
 )
 
 type PhysicsComponent struct {
-	velocity vector.Vector3
+	velocity mgl64.Vec3
 	mass     float64
 	maxSpeed float64
 	entity   types.Positionable
-	heading  vector.Vector3
+	heading  mgl64.Vec3
 
 	// impulses have a name that can be reset or overwritten
 	impulses map[string]*types.Impulse
@@ -26,15 +27,15 @@ func (c *PhysicsComponent) Init(entity types.Positionable, maxSpeed, mass float6
 	c.entity = entity
 	c.maxSpeed = maxSpeed
 	c.mass = mass
-	c.heading = vector.Vector3{X: 0, Y: 0, Z: -1}
+	c.heading = mgl64.Vec3{0, 0, -1}
 	c.impulses = map[string]*types.Impulse{}
 }
 
-func (c *PhysicsComponent) Velocity() vector.Vector3 {
+func (c *PhysicsComponent) Velocity() mgl64.Vec3 {
 	return c.velocity
 }
 
-func (c *PhysicsComponent) SetVelocity(v vector.Vector3) {
+func (c *PhysicsComponent) SetVelocity(v mgl64.Vec3) {
 	c.velocity = v
 }
 
@@ -59,11 +60,11 @@ func (c *PhysicsComponent) ApplyImpulse(name string, impulse *types.Impulse) {
 }
 
 func (c *PhysicsComponent) Update(delta time.Duration) {
-	if !c.velocity.IsZero() {
+	if !math.Vec3IsZero(c.velocity) {
 		c.heading = c.velocity
 	}
 
-	var totalImpulse vector.Vector3
+	var totalImpulse mgl64.Vec3
 	for name := range c.impulses {
 		impulse := c.impulses[name]
 		impulse.ElapsedTime = impulse.ElapsedTime + delta
@@ -75,16 +76,16 @@ func (c *PhysicsComponent) Update(delta time.Duration) {
 		if decayRatio < fullDecayThreshold {
 			delete(c.impulses, name)
 		} else {
-			realImpulse := impulse.Vector.Scale(decayRatio)
+			realImpulse := impulse.Vector.Mul(decayRatio)
 			totalImpulse = totalImpulse.Add(realImpulse)
 		}
 	}
 
 	velocity := c.velocity.Add(totalImpulse)
-	newPos := c.entity.Position().Add(velocity.Scale(float64(delta.Seconds())))
+	newPos := c.entity.Position().Add(velocity.Mul(delta.Seconds()))
 	c.entity.SetPosition(newPos)
 }
 
-func (c *PhysicsComponent) Heading() vector.Vector3 {
+func (c *PhysicsComponent) Heading() mgl64.Vec3 {
 	return c.heading
 }

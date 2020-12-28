@@ -3,8 +3,8 @@ package behavior
 import (
 	"time"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/behavior"
-	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type Position struct {
@@ -13,7 +13,7 @@ type Position struct {
 }
 
 type Positionable interface {
-	Position() vector.Vector3
+	Position() mgl64.Vec3
 }
 
 func (p *Position) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {

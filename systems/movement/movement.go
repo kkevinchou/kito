@@ -3,16 +3,16 @@ package movement
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/types"
 )
 
 type Mover interface {
 	Update(time.Duration)
-	Velocity() vector.Vector3
-	SetVelocity(vector.Vector3)
+	Velocity() mgl64.Vec3
+	SetVelocity(mgl64.Vec3)
 	MaxSpeed() float64
-	CalculateSteeringVelocity() vector.Vector3
+	CalculateSteeringVelocity() mgl64.Vec3
 	MovementType() types.MovementType
 }
 
@@ -34,7 +34,10 @@ func (m *MovementSystem) Update(delta time.Duration) {
 	for _, mover := range m.movers {
 		if mover.MovementType() == types.MovementTypeSteering {
 			steeringVelocity := mover.CalculateSteeringVelocity()
-			mover.SetVelocity(mover.Velocity().Add(steeringVelocity).Clamp(mover.MaxSpeed()))
+			mover.SetVelocity(mover.Velocity().Add(steeringVelocity))
+			if mover.Velocity().Len() > mover.MaxSpeed() {
+				mover.SetVelocity(mover.Velocity().Normalize().Mul(mover.MaxSpeed()))
+			}
 			mover.Update(delta)
 		}
 	}

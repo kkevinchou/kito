@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/math"
 	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/types"
 )
@@ -43,26 +45,26 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	keyboardInput := *singleton.GetKeyboardInputSet()
 
-	var controlVector vector.Vector3
+	var controlVector mgl64.Vec3
 	if key, ok := keyboardInput[types.KeyboardKeyW]; ok && key.Event == types.KeyboardEventDown {
-		controlVector.Z--
+		controlVector[2]--
 	}
 	if key, ok := keyboardInput[types.KeyboardKeyS]; ok && key.Event == types.KeyboardEventDown {
-		controlVector.Z++
+		controlVector[2]++
 	}
 	// Left
 	if key, ok := keyboardInput[types.KeyboardKeyA]; ok && key.Event == types.KeyboardEventDown {
-		controlVector.X--
+		controlVector[0]--
 	}
 	// Right
 	if key, ok := keyboardInput[types.KeyboardKeyD]; ok && key.Event == types.KeyboardEventDown {
-		controlVector.X++
+		controlVector[0]++
 	}
 	if key, ok := keyboardInput[types.KeyboardKeyLShift]; ok && key.Event == types.KeyboardEventDown {
-		controlVector.Y--
+		controlVector[1]--
 	}
 	if key, ok := keyboardInput[types.KeyboardKeySpace]; ok && key.Event == types.KeyboardEventDown {
-		controlVector.Y++
+		controlVector[1]++
 	}
 
 	zoomValue := 0
@@ -82,28 +84,28 @@ func (s *CameraSystem) Update(delta time.Duration) {
 			panic(fmt.Sprintf("unexpected mousewheel value %v", mouseInput.MouseWheel))
 		}
 	}
-	if controlVector.IsZero() && zoomValue == 0 {
+	if math.Vec3IsZero(controlVector) && zoomValue == 0 {
 		return
 	}
 
 	forwardVector := camera.Forward()
-	zoomVector := forwardVector.Scale(float64(zoomValue))
+	zoomVector := forwardVector.Mul(float64(zoomValue))
 
-	forwardVector = forwardVector.Scale(controlVector.Z)
-	forwardVector.Y = 0
+	forwardVector = forwardVector.Mul(controlVector.Z())
+	forwardVector[1] = 0
 
 	rightVector := camera.Right()
-	rightVector = rightVector.Scale(-controlVector.X)
+	rightVector = rightVector.Mul(-controlVector.X())
 
 	impulse := &types.Impulse{}
-	if !controlVector.IsZero() {
-		impulse.Vector = forwardVector.Add(rightVector).Add(vector.Vector3{X: 0, Y: controlVector.Y, Z: 0}).Normalize().Scale(moveSpeed)
+	if !math.Vec3IsZero(controlVector) {
+		impulse.Vector = forwardVector.Add(rightVector).Add(mgl64.Vec3{0, controlVector.Y(), 0}).Normalize().Mul(moveSpeed)
 		impulse.DecayRate = 2.5
 		camera.ApplyImpulse("cameraMove", impulse)
 	}
 
 	if zoomValue != 0 {
-		impulse.Vector = zoomVector.Scale(zoomSpeed)
+		impulse.Vector = zoomVector.Mul(zoomSpeed)
 		impulse.DecayRate = 2.5
 		camera.ApplyImpulse("cameraZoom", impulse)
 	}

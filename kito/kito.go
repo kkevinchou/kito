@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/systems/animation"
 
 	"github.com/kkevinchou/kito/directory"
@@ -32,7 +33,7 @@ const (
 )
 
 var (
-	viewerStartPosition = vector.Vector3{X: 0, Y: 10, Z: 30}
+	viewerStartPosition = mgl64.Vec3{0, 10, 30}
 	viewerStartView     = vector.Vector{X: 0, Y: 0}
 )
 
@@ -74,7 +75,7 @@ func NewGame() *Game {
 	// setupGrass()
 	// food.New(0, 0, 0)
 	// g.worker = worker.New()
-	// g.worker.SetPosition(vector.Vector3{X: 19, Y: 12, Z: -10})
+	// g.worker.SetPosition(mgl64.Vec3{X: 19, Y: 12, Z: -10})
 	// g.camera.Follow(g.worker)
 
 	return g
@@ -82,14 +83,14 @@ func NewGame() *Game {
 
 func (g *Game) update(delta time.Duration) {
 	if g.path != nil {
-		if g.worker.Position().Sub(g.path[g.pathIndex].Vector3()).Length() <= 2 {
+		if g.worker.Position().Sub(g.path[g.pathIndex].MglVector3()).Len() <= 2 {
 			g.pathIndex++
 			if g.pathIndex == len(g.path) {
 				g.path = nil
 				g.worker.SetSeekActive(false)
-				g.worker.SetVelocity(vector.Vector3{})
+				g.worker.SetVelocity(mgl64.Vec3{})
 			} else {
-				g.worker.SetTarget(g.path[g.pathIndex].Vector3())
+				g.worker.SetTarget(g.path[g.pathIndex].MglVector3())
 			}
 		}
 	}

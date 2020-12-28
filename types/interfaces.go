@@ -3,6 +3,7 @@ package types
 import (
 	"time"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
@@ -27,8 +28,8 @@ type ItemGiverReceiver interface {
 }
 
 type Positionable interface {
-	Position() vector.Vector3
-	SetPosition(position vector.Vector3)
+	Position() mgl64.Vec3
+	SetPosition(position mgl64.Vec3)
 }
 
 type IDable interface {
@@ -43,9 +44,9 @@ type Ownable interface {
 
 type Worker interface {
 	ItemGiverReceiver
-	SetTarget(vector.Vector3)
-	Velocity() vector.Vector3
-	Heading() vector.Vector3
+	SetTarget(mgl64.Vec3)
+	Velocity() mgl64.Vec3
+	Heading() mgl64.Vec3
 }
 
 // Controllable is an entity that can be controlled
@@ -57,14 +58,14 @@ type Controllable interface {
 type Viewer interface {
 	Controllable
 
-	Forward() vector.Vector3
-	Right() vector.Vector3
-	SetVelocity(vector vector.Vector3)
+	Forward() mgl64.Vec3
+	Right() mgl64.Vec3
+	SetVelocity(vector mgl64.Vec3)
 	MaxSpeed() float64
 
 	Update(delta time.Duration)
 	UpdateView(vector vector.Vector)
-	Position() vector.Vector3
+	Position() mgl64.Vec3
 	View() vector.Vector
 	ApplyImpulse(name string, impulse *Impulse)
 }

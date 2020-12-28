@@ -74,20 +74,20 @@ func (nm *NavMesh) AddPolygon(polygon *geometry.Polygon) {
 
 			// Make a deterministically ordered Portal for consistent lookups
 			portal := Portal{Point1: point1, Point2: point2}
-			if point1.X != point2.X {
-				if point1.X > point2.X {
+			if point1[0] != point2[0] {
+				if point1[0] > point2[0] {
 					portal = Portal{Point1: point1, Point2: point2}
 				} else {
 					portal = Portal{Point1: point2, Point2: point1}
 				}
-			} else if point1.Y != point2.Y {
-				if point1.Y > point2.Y {
+			} else if point1[1] != point2[1] {
+				if point1[1] > point2[1] {
 					portal = Portal{Point1: point1, Point2: point2}
 				} else {
 					portal = Portal{Point1: point2, Point2: point1}
 				}
-			} else if point1.Z != point2.Z {
-				if point1.Z > point2.Z {
+			} else if point1[2] != point2[2] {
+				if point1[2] > point2[2] {
 					portal = Portal{Point1: point1, Point2: point2}
 				} else {
 					portal = Portal{Point1: point2, Point2: point1}
@@ -164,10 +164,10 @@ func (nm *NavMesh) Cost(from, to geometry.Point) float64 {
 	var length float64
 	// TODO: do i need to do this equality check? seems like .Length
 	// will already return 0
-	if (v1.X == v2.X) && (v1.Y == v2.Y) && (v1.Z == v2.Z) {
+	if (v1[0] == v2[0]) && (v1[1] == v2[1]) && (v1[2] == v2[2]) {
 		length = 0
 	} else {
-		length = v1.Sub(v2).Length()
+		length = v1.Sub(v2).Len()
 	}
 
 	return length

@@ -10,7 +10,6 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/lib/shaders"
 )
 
@@ -71,23 +70,23 @@ func drawSkyBox(sb *SkyBox, shader *shaders.Shader, textureMap map[string]uint32
 	}
 }
 
-func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition vector.Vector3) {
+func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition mgl32.Vec3) {
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
-	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
+	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X()), float32(viewerPosition.Y()), float32(viewerPosition.Z())})
 	gl.BindVertexArray(q.VAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(r *RenderSystem, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition vector.Vector3) {
+func drawMesh(r *RenderSystem, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, viewerPosition mgl32.Vec3) {
 	mesh := r.animator.AnimatedModel.Mesh
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
-	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X), float32(viewerPosition.Y), float32(viewerPosition.Z)})
+	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(viewerPosition.X()), float32(viewerPosition.Y()), float32(viewerPosition.Z())})
 
 	animationTransforms := r.animator.CollectAnimationTransforms()
 
@@ -155,8 +154,8 @@ func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl32.Mat4
 // 		p1 := polygon.Points()[1]
 // 		p2 := polygon.Points()[2]
 
-// 		a := vector.Vector3{X: p1.X - p0.X, Y: p1.Y - p0.Y, Z: p1.Z - p0.Z}
-// 		b := vector.Vector3{X: p2.X - p0.X, Y: p2.Y - p0.Y, Z: p2.Z - p0.Z}
+// 		a := mgl32.Vec3{X: p1.X - p0.X, Y: p1.Y - p0.Y, Z: p1.Z - p0.Z}
+// 		b := mgl32.Vec3{X: p2.X - p0.X, Y: p2.Y - p0.Y, Z: p2.Z - p0.Z}
 
 // 		// normal always points "up"
 // 		normal := a.Cross(b).Normalize()
@@ -182,7 +181,7 @@ func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl32.Mat4
 // 	}
 // }
 
-// func drawLine(start, end vector.Vector3) {
+// func drawLine(start, end mgl32.Vec3) {
 // 	gl.LineWidth(2.5)
 // 	gl.Color3f(1.0, 0.0, 0.0)
 // 	gl.Begin(gl.LINES)

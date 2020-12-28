@@ -5,13 +5,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/go-gl/mathgl/mgl64"
 )
 
 type Material struct {
-	Ambient  *vector.Vector3
-	Diffuse  *vector.Vector3
-	Specular *vector.Vector3
+	Ambient  *mgl64.Vec3
+	Diffuse  *mgl64.Vec3
+	Specular *mgl64.Vec3
 }
 
 func parseMaterials(file string) (map[string]*Material, error) {
@@ -35,7 +35,7 @@ func parseMaterials(file string) (map[string]*Material, error) {
 			materials[split[1]] = currentMaterial
 		} else if strings.HasPrefix(line, "Ka") {
 			var err error
-			var v *vector.Vector3
+			var v *mgl64.Vec3
 			if v, err = parseVector(line[3:]); err != nil {
 				return nil, err
 			}
@@ -43,7 +43,7 @@ func parseMaterials(file string) (map[string]*Material, error) {
 			currentMaterial.Ambient = v
 		} else if strings.HasPrefix(line, "Kd") {
 			var err error
-			var v *vector.Vector3
+			var v *mgl64.Vec3
 			if v, err = parseVector(line[3:]); err != nil {
 				return nil, err
 			}
@@ -51,7 +51,7 @@ func parseMaterials(file string) (map[string]*Material, error) {
 			currentMaterial.Diffuse = v
 		} else if strings.HasPrefix(line, "Ks") {
 			var err error
-			var v *vector.Vector3
+			var v *mgl64.Vec3
 			if v, err = parseVector(line[3:]); err != nil {
 				return nil, err
 			}

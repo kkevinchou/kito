@@ -3,6 +3,8 @@ package components
 import (
 	"math"
 
+	"github.com/go-gl/mathgl/mgl64"
+	kmath "github.com/kkevinchou/kito/lib/math"
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
@@ -36,7 +38,7 @@ func (c *TopDownViewComponent) UpdateView(delta vector.Vector) {
 	// }
 }
 
-func (c *TopDownViewComponent) Forward() vector.Vector3 {
+func (c *TopDownViewComponent) Forward() mgl64.Vec3 {
 	xRadianAngle := -toRadians(c.view.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
@@ -51,10 +53,10 @@ func (c *TopDownViewComponent) Forward() vector.Vector3 {
 	y := math.Sin(xRadianAngle)
 	z := -math.Sin(yRadianAngle) * math.Cos(xRadianAngle)
 
-	return vector.Vector3{X: x, Y: y, Z: z}.Scale(-1)
+	return mgl64.Vec3{x, y, z}.Mul(-1)
 }
 
-func (c *TopDownViewComponent) Right() vector.Vector3 {
+func (c *TopDownViewComponent) Right() mgl64.Vec3 {
 	xRadianAngle := -toRadians(c.view.X)
 	if xRadianAngle < 0 {
 		xRadianAngle += 2 * math.Pi
@@ -66,12 +68,12 @@ func (c *TopDownViewComponent) Right() vector.Vector3 {
 
 	x, y, z := math.Cos(yRadianAngle), math.Sin(xRadianAngle), -math.Sin(yRadianAngle)
 
-	v1 := vector.Vector3{X: x, Y: math.Abs(y), Z: z}
-	v2 := vector.Vector3{X: x, Y: 0, Z: z}
+	v1 := mgl64.Vec3{x, math.Abs(y), z}
+	v2 := mgl64.Vec3{x, 0, z}
 	v3 := v1.Cross(v2)
 
-	if v3.IsZero() {
-		v3 = vector.Vector3{X: v2.Z, Y: 0, Z: -v2.X}
+	if kmath.Vec3IsZero(v3) {
+		v3 = mgl64.Vec3{v2.Z(), 0, -v2.X()}
 	}
 
 	return v3.Normalize()

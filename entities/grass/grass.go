@@ -1,9 +1,9 @@
 package grass
 
 import (
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
-	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -33,7 +33,7 @@ func New(x, y, z float64) *GrassImpl {
 	renderSystem := directory.GetDirectory().RenderSystem()
 	renderSystem.Register(entity)
 
-	entity.SetPosition(vector.Vector3{X: x, Y: y, Z: z})
+	entity.SetPosition(mgl64.Vec3{x, y, z})
 
 	return entity
 }

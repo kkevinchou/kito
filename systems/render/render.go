@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/animation"
@@ -24,7 +25,7 @@ import (
 
 type Viewer interface {
 	UpdateView(vector.Vector)
-	Position() vector.Vector3
+	Position() mgl64.Vec3
 	View() vector.Vector
 }
 
@@ -227,7 +228,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	)
 	floorModelMatrix = horizontalViewRotationMatrix.Mul4(floorModelMatrix)
 
-	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X), float32(-viewerPosition.Y), float32(-viewerPosition.Z))
+	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X()), float32(-viewerPosition.Y()), float32(-viewerPosition.Z()))
 	viewMatrix := verticalViewRotationMatrix.Mul4(viewTranslationMatrix)
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
@@ -239,9 +240,12 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
 		mgl32.Ident4(),
 	)
-	drawMesh(r, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
+
+	vPosition := mgl32.Vec3{float32(viewerPosition[0]), float32(viewerPosition[1]), float32(viewerPosition[2])}
+
+	drawMesh(r, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
-	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, viewerPosition)
+	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
 
 	for _, renderable := range r.renderables {
 		renderData := renderable.GetRenderData()
@@ -268,8 +272,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		}
 
 		// temp code, force rendering oak tree
-		// r.renderModel(r.modelMap["oak"], vector.Vector3{X: 0, Y: 0, Z: 0})
-		// r.renderModel(r.modelMap["land"], vector.Vector3{X: 0, Y: 0, Z: 0})
+		// r.renderModel(r.modelMap["oak"], mgl32.Vec3{X: 0, Y: 0, Z: 0})
+		// r.renderModel(r.modelMap["land"], mgl32.Vec3{X: 0, Y: 0, Z: 0})
 
 		// width := float32(len(noiseMap[0]))
 		// height := float32(len(noiseMap))
@@ -283,7 +287,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 }
 
 // // x, y represents the x,y coordinate on the window. The output is a 3d position in world coordinates
-// func (r *RenderSystem) GetWorldPoint(x, y float64) vector.Vector3 {
+// func (r *RenderSystem) GetWorldPoint(x, y float64) mgl32.Vec3 {
 // 	// Get the projection matrix
 // 	pMatrixValues := make([]float32, 16)
 // 	gl.GetFloatv(gl.PROJECTION_MATRIX, &pMatrixValues[0])
@@ -303,7 +307,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 // 	worldPoint = mgl32.Vec4{worldPoint[0] / worldPoint[3], worldPoint[1] / worldPoint[3], worldPoint[2] / worldPoint[3], 1}
 
 // 	// Extract the 3D vector
-// 	worldPointVector := vector.Vector3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
+// 	worldPointVector := mgl32.Vec3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
 
 // 	return worldPointVector
 // }

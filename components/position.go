@@ -1,15 +1,17 @@
 package components
 
-import "github.com/kkevinchou/kito/lib/math/vector"
+import (
+	"github.com/go-gl/mathgl/mgl64"
+)
 
 type PositionComponent struct {
-	position vector.Vector3
+	position mgl64.Vec3
 }
 
-func (c *PositionComponent) Position() vector.Vector3 {
+func (c *PositionComponent) Position() mgl64.Vec3 {
 	return c.position
 }
 
-func (c *PositionComponent) SetPosition(position vector.Vector3) {
+func (c *PositionComponent) SetPosition(position mgl64.Vec3) {
 	c.position = position
 }

@@ -3,7 +3,8 @@ package geometry
 import (
 	"math"
 
-	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/go-gl/mathgl/mgl64"
+	kmath "github.com/kkevinchou/kito/lib/math"
 )
 
 const (
@@ -14,10 +15,14 @@ const (
 // Counter clock-wise winding order of vertices
 // Polygons are convex (in the future we will ensure this by splitting nonconvex polygons)
 
-type Point vector.Vector3
+type Point mgl64.Vec3
 
-func (p Point) Vector3() vector.Vector3 {
-	return vector.Vector3{X: p.X, Y: p.Y, Z: p.Z}
+func (p Point) Vector3() mgl64.Vec3 {
+	return mgl64.Vec3{p[0], p[1], p[2]}
+}
+
+func (p Point) MglVector3() mgl64.Vec3 {
+	return mgl64.Vec3{p[0], p[1], p[2]}
 }
 
 type Edge struct {
@@ -61,7 +66,7 @@ func (p *Polygon) ContainsPoint(point Point) bool {
 		affineSegment := nextPoint.Vector3().Sub(vector)
 		affinePoint := point.Vector3().Sub(vector)
 
-		if affineSegment.Cross2D(affinePoint) > 0 {
+		if kmath.Cross2D(affineSegment, affinePoint) > 0 {
 			return false
 		}
 	}

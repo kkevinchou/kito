@@ -3,17 +3,17 @@ package behavior
 import (
 	"time"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/lib/behavior"
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/lib/logger"
-	"github.com/kkevinchou/kito/lib/math/vector"
 	"github.com/kkevinchou/kito/types"
 )
 
 type Mover interface {
 	types.Positionable
-	SetTarget(target vector.Vector3)
+	SetTarget(target mgl64.Vec3)
 }
 
 type Move struct {
@@ -26,10 +26,10 @@ func (m *Move) Tick(input interface{}, state behavior.AIState, delta time.Durati
 	logger.Debug("Move - ENTER")
 
 	if m.path == nil {
-		var target vector.Vector3
+		var target mgl64.Vec3
 		var ok bool
 
-		if target, ok = input.(vector.Vector3); !ok {
+		if target, ok = input.(mgl64.Vec3); !ok {
 			logger.Debug("Move - FAIL")
 			return nil, behavior.FAILURE
 		}
@@ -38,14 +38,14 @@ func (m *Move) Tick(input interface{}, state behavior.AIState, delta time.Durati
 		position := m.Entity.Position()
 
 		path := pathManager.FindPath(
-			geometry.Point{X: position.X, Y: position.Y, Z: position.Z},
-			geometry.Point{X: target.X, Y: target.Y, Z: target.Z},
+			geometry.Point{float64(position.X()), float64(position.Y()), float64(position.Z())},
+			geometry.Point{float64(target.X()), float64(target.Y()), float64(target.Z())},
 		)
 
 		if path != nil {
 			m.path = path
 			m.pathIndex = 1
-			m.Entity.SetTarget(m.path[m.pathIndex].Vector3())
+			m.Entity.SetTarget(m.path[m.pathIndex].MglVector3())
 		}
 	}
 
@@ -59,10 +59,10 @@ func (m *Move) Tick(input interface{}, state behavior.AIState, delta time.Durati
 		return nil, behavior.SUCCESS
 	}
 
-	if m.Entity.Position().Sub(m.path[m.pathIndex].Vector3()).Length() <= 0.1 {
+	if m.Entity.Position().Sub(m.path[m.pathIndex].MglVector3()).Len() <= 0.1 {
 		m.pathIndex++
 		if m.pathIndex < len(m.path) {
-			m.Entity.SetTarget(m.path[m.pathIndex].Vector3())
+			m.Entity.SetTarget(m.path[m.pathIndex].MglVector3())
 		}
 	}
 

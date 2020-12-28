@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
@@ -18,21 +19,21 @@ type Face struct {
 }
 
 type FaceVertex struct {
-	Vertex  *vector.Vector3
+	Vertex  *mgl64.Vec3
 	Texture *vector.Vector
-	Normal  *vector.Vector3
+	Normal  *mgl64.Vec3
 }
 
 type Model struct {
-	normals   []*vector.Vector3
+	normals   []*mgl64.Vec3
 	textures  []*vector.Vector
-	verticies []*vector.Vector3
+	verticies []*mgl64.Vec3
 	Faces     []*Face
 }
 
 type InternalVertex struct {
 	Material *Material
-	Value    *vector.Vector3
+	Value    *mgl64.Vec3
 }
 
 // NewModel reads an OBJ model file and creates a Model from its contents
@@ -69,7 +70,7 @@ func NewModel(file string) (*Model, error) {
 			model.textures = append(model.textures, &vector.Vector{X: x, Y: y})
 		} else if strings.HasPrefix(line, "vn") {
 			var err error
-			var v *vector.Vector3
+			var v *mgl64.Vec3
 
 			if v, err = parseVector(line[3:]); err != nil {
 				return nil, err
@@ -77,7 +78,7 @@ func NewModel(file string) (*Model, error) {
 			model.normals = append(model.normals, v)
 		} else if strings.HasPrefix(line, "v") {
 			var err error
-			var v *vector.Vector3
+			var v *mgl64.Vec3
 
 			if v, err = parseVector(line[2:]); err != nil {
 				return nil, err
@@ -129,11 +130,11 @@ func NewModel(file string) (*Model, error) {
 	return &model, nil
 }
 
-func (model *Model) getVertex(i int) *vector.Vector3 {
+func (model *Model) getVertex(i int) *mgl64.Vec3 {
 	return model.verticies[i-1]
 }
 
-func (model *Model) getVertexNormal(i int) *vector.Vector3 {
+func (model *Model) getVertexNormal(i int) *mgl64.Vec3 {
 	return model.normals[i-1]
 }
 
@@ -142,7 +143,7 @@ func (model *Model) getVertexTextures(i int) *vector.Vector {
 }
 
 // Parse a vector (space separated floats) from a string
-func parseVector(str string) (*vector.Vector3, error) {
+func parseVector(str string) (*mgl64.Vec3, error) {
 	var err error
 	var x, y, z float64
 
@@ -157,5 +158,5 @@ func parseVector(str string) (*vector.Vector3, error) {
 		return nil, err
 	}
 
-	return &vector.Vector3{X: x, Y: y, Z: z}, nil
+	return &mgl64.Vec3{x, y, z}, nil
 }

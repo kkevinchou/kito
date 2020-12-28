@@ -7,39 +7,39 @@ import (
 
 func sqWithOffset(size, xOffset, yOffset, zOffset float64) *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: xOffset*size - (size / 2), Y: yOffset, Z: zOffset*size - (size / 2)},
-		geometry.Point{X: xOffset*size - (size / 2), Y: yOffset, Z: zOffset*size + (size / 2)},
-		geometry.Point{X: xOffset*size + (size / 2), Y: yOffset, Z: zOffset*size + (size / 2)},
-		geometry.Point{X: xOffset*size + (size / 2), Y: yOffset, Z: zOffset*size - (size / 2)},
+		geometry.Point{xOffset*size - (size / 2), yOffset, zOffset*size - (size / 2)},
+		geometry.Point{xOffset*size - (size / 2), yOffset, zOffset*size + (size / 2)},
+		geometry.Point{xOffset*size + (size / 2), yOffset, zOffset*size + (size / 2)},
+		geometry.Point{xOffset*size + (size / 2), yOffset, zOffset*size - (size / 2)},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func southRampUpWithOffset(size, elevation, xOffset, yOffset, zOffset float64) *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: xOffset*size - (size / 2), Y: yOffset, Z: zOffset*size - (size / 2)},
-		geometry.Point{X: xOffset*size - (size / 2), Y: yOffset + elevation, Z: zOffset*size + (size / 2)},
-		geometry.Point{X: xOffset*size + (size / 2), Y: yOffset + elevation, Z: zOffset*size + (size / 2)},
-		geometry.Point{X: xOffset*size + (size / 2), Y: yOffset, Z: zOffset*size - (size / 2)},
+		geometry.Point{xOffset*size - (size / 2), yOffset, zOffset*size - (size / 2)},
+		geometry.Point{xOffset*size - (size / 2), yOffset + elevation, zOffset*size + (size / 2)},
+		geometry.Point{xOffset*size + (size / 2), yOffset + elevation, zOffset*size + (size / 2)},
+		geometry.Point{xOffset*size + (size / 2), yOffset, zOffset*size - (size / 2)},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func funkyShape1() *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: 180, Y: 0, Z: 360},
-		geometry.Point{X: 180, Y: 0, Z: 420},
-		geometry.Point{X: 600, Y: 0, Z: 560},
-		geometry.Point{X: 400, Y: 0, Z: 120},
+		geometry.Point{180, 0, 360},
+		geometry.Point{180, 0, 420},
+		geometry.Point{600, 0, 560},
+		geometry.Point{400, 0, 120},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func funkyShape2() *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: 500, Y: 0, Z: 50},
-		geometry.Point{X: 300, Y: 0, Z: 100},
-		geometry.Point{X: 400, Y: 0, Z: 100},
+		geometry.Point{500, 0, 50},
+		geometry.Point{300, 0, 100},
+		geometry.Point{400, 0, 100},
 	}
 	return geometry.NewPolygon(points)
 }

@@ -3,6 +3,7 @@ package viewer
 import (
 	"time"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/components/physics"
 	"github.com/kkevinchou/kito/lib/math/vector"
@@ -15,7 +16,7 @@ type ViewerImpl struct {
 	*components.ControllerComponent
 }
 
-func New(position vector.Vector3, view vector.Vector) *ViewerImpl {
+func New(position mgl64.Vec3, view vector.Vector) *ViewerImpl {
 	entity := &ViewerImpl{}
 
 	entity.PhysicsComponent = &physics.PhysicsComponent{}

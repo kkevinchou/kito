@@ -3,11 +3,11 @@ package types
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/lib/math/vector"
+	"github.com/go-gl/mathgl/mgl64"
 )
 
 type Impulse struct {
-	Vector      vector.Vector3
+	Vector      mgl64.Vec3
 	ElapsedTime time.Duration
 
 	// the decay fraction per second for an impulse

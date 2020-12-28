@@ -1,8 +1,8 @@
 package pathing
 
 import (
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
-	"github.com/kkevinchou/kito/lib/math/vector"
 )
 
 type NavMeshRenderData struct {
@@ -22,9 +22,9 @@ func (r *RenderComponent) GetRenderData() components.RenderData {
 	return r.RenderData
 }
 
-func (n *RenderComponent) Position() vector.Vector3 {
-	return vector.Vector3{}
+func (n *RenderComponent) Position() mgl64.Vec3 {
+	return mgl64.Vec3{}
 }
 
-func (n *RenderComponent) SetPosition(v vector.Vector3) {
+func (n *RenderComponent) SetPosition(v mgl64.Vec3) {
 }
