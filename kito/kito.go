@@ -27,7 +27,7 @@ import (
 
 const (
 	fps                  float64 = 60
-	simulationsPerSecond float64 = 100
+	simulationsPerSecond float64 = 60
 	maxTimeStep          float64 = 250 // in milliseconds
 )
 
