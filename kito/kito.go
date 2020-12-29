@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/systems/animation"
 	"github.com/kkevinchou/kito/systems/camera"
 
 	"github.com/kkevinchou/kito/directory"
-	"github.com/kkevinchou/kito/entities/bob"
 	cameraEntity "github.com/kkevinchou/kito/entities/camera"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib"
@@ -83,15 +83,13 @@ func NewGame() *Game {
 	d.RegisterItemManager(itemManager)
 	d.RegisterPathManager(pathManager)
 
-	// renderSystem.Register(pathManager.NavMesh())
-
 	g.systems = append(g.systems, cameraSystem)
 	g.systems = append(g.systems, movementSystem)
 	g.systems = append(g.systems, animationSystem)
 
-	b := bob.NewBob()
+	b := entities.NewBob()
 	animationSystem.RegisterEntity(b)
-	renderSystem.Register(b)
+	renderSystem.RegisterEntity(b)
 
 	return g
 }

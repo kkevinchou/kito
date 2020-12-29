@@ -4,43 +4,36 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/animation"
 )
 
 type World interface{}
 
-type EntityType interface {
-	GetAnimationComponent() *components.AnimationComponent
-}
-
-type Entity struct {
-	AnimationComponent *components.AnimationComponent
-}
-
 type AnimationSystem struct {
 	world    World
-	entities []*Entity
+	entities []entities.Entity
 }
 
 func NewAnimationSystem(world World) *AnimationSystem {
 	return &AnimationSystem{
 		world:    world,
-		entities: []*Entity{},
+		entities: []entities.Entity{},
 	}
 }
 
-func (s *AnimationSystem) RegisterEntity(candidate interface{}) {
-	externalEntity := candidate.(EntityType)
-	entity := &Entity{
-		AnimationComponent: externalEntity.GetAnimationComponent(),
+func (s *AnimationSystem) RegisterEntity(entity entities.Entity) {
+	componentContainer := entity.GetComponentContainer()
+
+	if componentContainer.AnimationComponent != nil {
+		s.entities = append(s.entities, entity)
 	}
-	s.entities = append(s.entities, entity)
 }
 
 func (s *AnimationSystem) Update(delta time.Duration) {
 	for _, entity := range s.entities {
-		animationComponent := entity.AnimationComponent
+		componentContainer := entity.GetComponentContainer()
+		animationComponent := componentContainer.AnimationComponent
 
 		animationComponent.ElapsedTime += delta
 		for animationComponent.ElapsedTime.Milliseconds() > animationComponent.Animation.Length.Milliseconds() {

@@ -10,11 +10,10 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/noise"
-	"github.com/kkevinchou/kito/lib/pathing"
 	"github.com/kkevinchou/kito/lib/shaders"
-	"github.com/kkevinchou/kito/types"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -45,26 +44,19 @@ var (
 type Game interface {
 }
 
-type Renderable interface {
-	types.Positionable
-	GetRenderData() components.RenderData
-	GetAnimationComponent() *components.AnimationComponent
-}
-
-type Renderables []Renderable
-
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	window       *sdl.Window
 	camera       Camera
 	assetManager *lib.AssetManager
-	renderables  Renderables
 	textureMap   map[string]uint32
 	game         Game
 	lights       []*Light
 	shaders      map[string]*shaders.Shader
 	skybox       *SkyBox
 	floor        *Quad
+
+	entities []entities.Entity
 }
 
 func initFont() *ttf.Font {
@@ -170,8 +162,12 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 	return &renderSystem
 }
 
-func (r *RenderSystem) Register(renderable Renderable) {
-	r.renderables = append(r.renderables, renderable)
+func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
+	componentContainer := entity.GetComponentContainer()
+
+	if componentContainer.RenderComponent != nil {
+		s.entities = append(s.entities, entity)
+	}
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
@@ -209,32 +205,19 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
 	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
 
-	for _, renderable := range r.renderables {
-		renderData := renderable.GetRenderData()
+	for _, entity := range r.entities {
+		componentContainer := entity.GetComponentContainer()
+		renderData := componentContainer.RenderComponent.GetRenderData()
+
 		if !renderData.IsVisible() {
 			continue
 		}
-		if rData, ok := renderData.(*components.TextureRenderData); ok {
-			_ = rData
-			// position := renderable.Position()
-			// texture := r.textureMap[rData.ID]
-			// drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
-		} else if rData, ok := renderData.(*components.ItemRenderData); ok {
-			_ = rData
-			// position := renderable.Position()
-			// texture := r.textureMap[rData.ID]
-			// drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
-		} else if rData, ok := renderData.(*components.ModelRenderData); ok {
+
+		if rData, ok := renderData.(*components.ModelRenderData); ok {
 			if rData.Animated {
-				animationComponent := renderable.GetAnimationComponent()
+				animationComponent := componentContainer.AnimationComponent
 				drawMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
 			}
-		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
-			// if navMesh, ok := renderable.(*pathing.NavMesh); ok {
-			// 	RenderNavMesh(navMesh)
-			// } else {
-			// 	panic("FAILED TO CAST NAVMESH")
-			// }
 		}
 	}
 

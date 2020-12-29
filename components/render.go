@@ -41,3 +41,7 @@ type RenderComponent struct {
 func (r *RenderComponent) GetRenderData() RenderData {
 	return r.RenderData
 }
+
+func (c *RenderComponent) AddToComponentContainer(container *ComponentContainer) {
+	container.RenderComponent = c
+}

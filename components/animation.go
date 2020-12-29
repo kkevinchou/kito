@@ -19,3 +19,7 @@ type AnimationComponent struct {
 func (c *AnimationComponent) GetAnimationComponent() *AnimationComponent {
 	return c
 }
+
+func (c *AnimationComponent) AddToComponentContainer(container *ComponentContainer) {
+	container.AnimationComponent = c
+}
