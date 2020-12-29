@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/types"
 )
@@ -20,7 +21,7 @@ type Singleton interface {
 
 type World interface {
 	GetSingleton() types.Singleton
-	GetCamera() types.Camera
+	GetCamera() entities.Entity
 }
 
 type CameraSystem struct {
@@ -37,7 +38,12 @@ func NewCameraSystem(world World) *CameraSystem {
 func (s *CameraSystem) Update(delta time.Duration) {
 	camera := s.world.GetCamera()
 
-	if !camera.Controlled() {
+	componentContainer := camera.GetComponentContainer()
+	controllerComponent := componentContainer.ControllerComponent
+	physicsComponent := componentContainer.PhysicsComponent
+	topDownViewComponent := componentContainer.TopDownViewComponent
+
+	if !controllerComponent.Controlled() {
 		return
 	}
 
@@ -70,7 +76,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	if singleton.GetMouseInput() != nil {
 		mouseInput := *singleton.GetMouseInput()
 		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
-			camera.UpdateView(mgl64.Vec2{mouseInput.MouseMotionEvent.XRel, mouseInput.MouseMotionEvent.YRel})
+			topDownViewComponent.UpdateView(mgl64.Vec2{mouseInput.MouseMotionEvent.XRel, mouseInput.MouseMotionEvent.YRel})
 		}
 
 		if mouseInput.MouseWheel == types.MouseWheelDirectionNeutral {
@@ -87,25 +93,25 @@ func (s *CameraSystem) Update(delta time.Duration) {
 		return
 	}
 
-	forwardVector := camera.Forward()
+	forwardVector := topDownViewComponent.Forward()
 	zoomVector := forwardVector.Mul(float64(zoomValue))
 
 	forwardVector = forwardVector.Mul(controlVector.Z())
 	forwardVector[1] = 0
 
-	rightVector := camera.Right()
+	rightVector := topDownViewComponent.Right()
 	rightVector = rightVector.Mul(-controlVector.X())
 
 	impulse := &types.Impulse{}
 	if !utils.Vec3IsZero(controlVector) {
 		impulse.Vector = forwardVector.Add(rightVector).Add(mgl64.Vec3{0, controlVector.Y(), 0}).Normalize().Mul(moveSpeed)
 		impulse.DecayRate = 2.5
-		camera.ApplyImpulse("cameraMove", impulse)
+		physicsComponent.ApplyImpulse("cameraMove", impulse)
 	}
 
 	if zoomValue != 0 {
 		impulse.Vector = zoomVector.Mul(zoomSpeed)
 		impulse.DecayRate = 2.5
-		camera.ApplyImpulse("cameraZoom", impulse)
+		physicsComponent.ApplyImpulse("cameraZoom", impulse)
 	}
 }

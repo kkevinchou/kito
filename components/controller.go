@@ -16,3 +16,7 @@ func (c *ControllerComponent) SetControlled(controlled bool) {
 func (c *ControllerComponent) Controlled() bool {
 	return c.controlled
 }
+
+func (c *ControllerComponent) AddToComponentContainer(container *ComponentContainer) {
+	container.ControllerComponent = c
+}

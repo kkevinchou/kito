@@ -9,15 +9,15 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/systems/animation"
-	"github.com/kkevinchou/kito/systems/camera"
+	"github.com/kkevinchou/kito/systems/physics"
 
 	"github.com/kkevinchou/kito/directory"
-	cameraEntity "github.com/kkevinchou/kito/entities/camera"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
+	camerasys "github.com/kkevinchou/kito/systems/camera"
 	"github.com/kkevinchou/kito/systems/movement"
 	"github.com/kkevinchou/kito/systems/render"
 	"github.com/kkevinchou/kito/types"
@@ -45,7 +45,7 @@ type Game struct {
 	path           []geometry.Point
 	pathIndex      int
 	gameOver       bool
-	camera         types.Camera
+	camera         entities.Entity
 	gameMode       types.GameMode
 	viewControlled bool
 
@@ -58,11 +58,13 @@ func NewGame() *Game {
 	fmt.Println(fmt.Sprintf("Game Initializing with seed %d ...", seed))
 	rand.Seed(seed)
 
-	c := cameraEntity.New(cameraStartPosition, cameraStartView)
-	fmt.Println("Camera initialized at position", c.Position(), "and view", c.View())
+	camera := entities.NewCamera(cameraStartPosition, cameraStartView)
+	componentContainer := camera.GetComponentContainer()
+
+	fmt.Println("Camera initialized at position", componentContainer.PositionComponent.Position, "and view", componentContainer.TopDownViewComponent.View())
 
 	g := &Game{
-		camera:    c,
+		camera:    camera,
 		gameMode:  types.GameModePlaying,
 		singleton: singleton.New(),
 	}
@@ -73,8 +75,9 @@ func NewGame() *Game {
 
 	renderSystem := render.NewRenderSystem(g, assetManager, g.camera)
 	movementSystem := movement.NewMovementSystem()
-	cameraSystem := camera.NewCameraSystem(g)
+	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
+	physicsSystem := physics.NewPhysicsSystem(g)
 
 	d := directory.GetDirectory()
 	d.RegisterRenderSystem(renderSystem)
@@ -83,19 +86,21 @@ func NewGame() *Game {
 	d.RegisterItemManager(itemManager)
 	d.RegisterPathManager(pathManager)
 
-	g.systems = append(g.systems, cameraSystem)
+	g.systems = append(g.systems, physicsSystem)
 	g.systems = append(g.systems, movementSystem)
+	g.systems = append(g.systems, cameraSystem)
 	g.systems = append(g.systems, animationSystem)
 
 	b := entities.NewBob()
+
 	animationSystem.RegisterEntity(b)
 	renderSystem.RegisterEntity(b)
+	physicsSystem.RegisterEntity(camera)
 
 	return g
 }
 
 func (g *Game) update(delta time.Duration) {
-	g.camera.Update(delta)
 	for _, system := range g.systems {
 		system.Update(delta)
 	}
@@ -140,7 +145,7 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 	}
 }
 
-func (g *Game) GetCamera() types.Camera {
+func (g *Game) GetCamera() entities.Entity {
 	return g.camera
 }
 

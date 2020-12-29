@@ -47,7 +47,7 @@ type Game interface {
 type RenderSystem struct {
 	renderer     *sdl.Renderer
 	window       *sdl.Window
-	camera       Camera
+	camera       entities.Entity
 	assetManager *lib.AssetManager
 	textureMap   map[string]uint32
 	game         Game
@@ -71,7 +71,7 @@ func initFont() *ttf.Font {
 	return font
 }
 
-func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *RenderSystem {
+func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera entities.Entity) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(fmt.Sprintf("Failed to init SDL", err))
 	}
@@ -171,8 +171,12 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
-	cameraPosition := r.camera.Position()
-	cameraView := r.camera.View()
+	componentContainer := r.camera.GetComponentContainer()
+	positionComponent := componentContainer.PositionComponent
+	topDownViewComponent := componentContainer.TopDownViewComponent
+
+	cameraPosition := positionComponent.Position
+	cameraView := topDownViewComponent.View()
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 

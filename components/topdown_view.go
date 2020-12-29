@@ -81,3 +81,7 @@ func (c *TopDownViewComponent) Right() mgl64.Vec3 {
 func toRadians(degrees float64) float64 {
 	return degrees / 180 * math.Pi
 }
+
+func (c *TopDownViewComponent) AddToComponentContainer(container *ComponentContainer) {
+	container.TopDownViewComponent = c
+}

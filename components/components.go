@@ -1,9 +1,12 @@
 package components
 
 type ComponentContainer struct {
-	AnimationComponent *AnimationComponent
-	RenderComponent    *RenderComponent
-	PositionComponent  *PositionComponent
+	AnimationComponent   *AnimationComponent
+	RenderComponent      *RenderComponent
+	PositionComponent    *PositionComponent
+	PhysicsComponent     *PhysicsComponent
+	TopDownViewComponent *TopDownViewComponent
+	ControllerComponent  *ControllerComponent
 }
 
 type Component interface {
