@@ -15,8 +15,6 @@ type Joint struct {
 
 	LocalBindTransform   mgl32.Mat4
 	InverseBindTransform mgl32.Mat4
-
-	AnimationTransform mgl32.Mat4 // calculated by the animator
 }
 
 func NewJoint(id int, name string, localBindTransform mgl32.Mat4) *Joint {

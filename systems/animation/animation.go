@@ -46,31 +46,27 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 		for animationComponent.ElapsedTime.Milliseconds() > animationComponent.Animation.Length.Milliseconds() {
 			animationComponent.ElapsedTime = time.Duration(animationComponent.ElapsedTime.Milliseconds()-animationComponent.Animation.Length.Milliseconds()) * time.Millisecond
 		}
+
 		pose := calculateCurrentAnimationPose(animationComponent.ElapsedTime, animationComponent.Animation.KeyFrames)
-		applyPoseToJoints(animationComponent.AnimatedModel.RootJoint, mgl32.Ident4(), pose)
-
-		animationTransforms := map[int]mgl32.Mat4{}
-		collectAnimationTransforms(animationComponent.AnimatedModel.RootJoint, animationTransforms)
-
+		animationTransforms := applyPoseToJoints(animationComponent.AnimatedModel.RootJoint, pose)
 		animationComponent.AnimationTransforms = animationTransforms
 	}
 }
 
-// TODO: return the animation transforms so that we dont need to mutate joints PogChamp
-func applyPoseToJoints(joint *animation.Joint, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4) {
+// applyPoseToJoints returns the set of transforms that move the joint from the bind pose to the given pose
+func applyPoseToJoints(joint *animation.Joint, pose map[int]mgl32.Mat4) map[int]mgl32.Mat4 {
+	animationTransforms := map[int]mgl32.Mat4{}
+	applyPoseToJointsHelper(joint, mgl32.Ident4(), pose, animationTransforms)
+	return animationTransforms
+}
+
+func applyPoseToJointsHelper(joint *animation.Joint, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4) {
 	localTransform := pose[joint.ID]
 	poseTransform := parentTransform.Mul4(localTransform) // model-space relative to the origin
 	for _, child := range joint.Children {
-		applyPoseToJoints(child, poseTransform, pose)
+		applyPoseToJointsHelper(child, poseTransform, pose, transforms)
 	}
-	joint.AnimationTransform = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
-}
-
-func collectAnimationTransforms(joint *animation.Joint, transforms map[int]mgl32.Mat4) {
-	transforms[joint.ID] = joint.AnimationTransform
-	for _, child := range joint.Children {
-		collectAnimationTransforms(child, transforms)
-	}
+	transforms[joint.ID] = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
 }
 
 func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*animation.KeyFrame) map[int]mgl32.Mat4 {
