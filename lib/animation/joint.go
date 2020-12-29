@@ -27,15 +27,3 @@ func NewJoint(id int, name string, localBindTransform mgl32.Mat4) *Joint {
 
 	return &joint
 }
-
-func (j *Joint) AddChild(child *Joint) {
-	j.Children = append(j.Children, child)
-}
-
-func (j *Joint) CalculateInverseBindTransform(parentBindTransform mgl32.Mat4) {
-	bindTransform := parentBindTransform.Mul4(j.LocalBindTransform) // model-space relative to the origin
-	j.InverseBindTransform = bindTransform.Inv()
-	for _, child := range j.Children {
-		child.CalculateInverseBindTransform(bindTransform)
-	}
-}

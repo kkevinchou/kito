@@ -1,7 +1,6 @@
 package bob
 
 import (
-	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/lib/animation"
@@ -38,7 +37,6 @@ func NewBob() *BobImpl {
 		panic(err)
 	}
 	animatedModel := animation.NewAnimatedModel(parsedCollada, 50, 3)
-	animatedModel.RootJoint.CalculateInverseBindTransform(mgl32.Ident4())
 
 	entity.AnimationComponent = &components.AnimationComponent{
 		AnimatedModel: animatedModel, // potentially shared across many entities

@@ -18,25 +18,6 @@ type AnimatedModel struct {
 	Mesh      *Mesh
 }
 
-func JointSpecToJoint(js *JointSpecification) *Joint {
-	j := NewJoint(js.ID, js.Name, js.BindTransform)
-	for _, c := range js.Children {
-		j.Children = append(j.Children, JointSpecToJoint(c))
-	}
-	return j
-}
-
-func printHierarchy(j *Joint, level int) {
-	indentation := ""
-	for i := 0; i < level; i++ {
-		indentation += "    "
-	}
-	fmt.Println(indentation + j.Name + fmt.Sprintf(" %d", j.ID))
-	for _, c := range j.Children {
-		printHierarchy(c, level+1)
-	}
-}
-
 func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	joint := JointSpecToJoint(c.Root)
 	printHierarchy(joint, 0)
@@ -245,4 +226,33 @@ func (s byWeights) Swap(i, j int) {
 }
 func (s byWeights) Less(i, j int) bool {
 	return s[i].Weight < s[j].Weight
+}
+
+func JointSpecToJoint(js *JointSpecification) *Joint {
+	j := NewJoint(js.ID, js.Name, js.BindTransform)
+	for _, c := range js.Children {
+		j.Children = append(j.Children, JointSpecToJoint(c))
+	}
+	calculateInverseBindTransform(j, mgl32.Ident4())
+
+	return j
+}
+
+func calculateInverseBindTransform(joint *Joint, parentBindTransform mgl32.Mat4) {
+	bindTransform := parentBindTransform.Mul4(joint.LocalBindTransform) // model-space relative to the origin
+	joint.InverseBindTransform = bindTransform.Inv()
+	for _, child := range joint.Children {
+		calculateInverseBindTransform(child, bindTransform)
+	}
+}
+
+func printHierarchy(j *Joint, level int) {
+	indentation := ""
+	for i := 0; i < level; i++ {
+		indentation += "    "
+	}
+	fmt.Println(indentation + j.Name + fmt.Sprintf(" %d", j.ID))
+	for _, c := range j.Children {
+		printHierarchy(c, level+1)
+	}
 }
