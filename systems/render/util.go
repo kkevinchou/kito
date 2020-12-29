@@ -88,11 +88,6 @@ func drawMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, text
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(cameraPosition.X()), float32(cameraPosition.Y()), float32(cameraPosition.Z())})
 
-	// mesh := r.animator.AnimatedModel.Mesh
-	// animationTransforms := r.animator.CollectAnimationTransforms()
-	// var animationTransforms map[int]mgl32.Mat4
-	// var mesh *animation.Mesh
-
 	for i := 0; i < len(animationTransforms); i++ {
 		shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
 	}

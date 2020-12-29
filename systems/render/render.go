@@ -234,44 +234,9 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			// 	panic("FAILED TO CAST NAVMESH")
 			// }
 		}
-
-		// temp code, force rendering oak tree
-		// r.renderModel(r.modelMap["oak"], mgl32.Vec3{X: 0, Y: 0, Z: 0})
-		// r.renderModel(r.modelMap["land"], mgl32.Vec3{X: 0, Y: 0, Z: 0})
-
-		// width := float32(len(noiseMap[0]))
-		// height := float32(len(noiseMap))
-		// var edgeLength float32 = 1
-		// RenderNoiseMap(noiseMap, -(width*edgeLength)/2, -(height*edgeLength)/2, edgeLength)
 	}
 
 	gl.UseProgram(0)
 
 	r.window.GLSwap()
 }
-
-// // x, y represents the x,y coordinate on the window. The output is a 3d position in world coordinates
-// func (r *RenderSystem) GetWorldPoint(x, y float64) mgl32.Vec3 {
-// 	// Get the projection matrix
-// 	pMatrixValues := make([]float32, 16)
-// 	gl.GetFloatv(gl.PROJECTION_MATRIX, &pMatrixValues[0])
-
-// 	// Get the model view matrix
-// 	mvMatrixValues := make([]float32, 16)
-// 	gl.GetFloatv(gl.MODELVIEW, &mvMatrixValues[0])
-
-// 	mvMatrix := matrix.Mat4FromValues(mvMatrixValues)
-// 	pMatrix := matrix.Mat4FromValues(pMatrixValues)
-
-// 	// Convert the screen coordinate to normalised device coordinates
-// 	NDCPoint := mgl32.Vec4{(2.0*float32(x))/width - 1, 1 - (2.0*float32(y))/height, -1, 1}
-// 	worldPoint := pMatrix.Mul4(mvMatrix).Inv().Mul4x1(NDCPoint)
-
-// 	// Normalize on W
-// 	worldPoint = mgl32.Vec4{worldPoint[0] / worldPoint[3], worldPoint[1] / worldPoint[3], worldPoint[2] / worldPoint[3], 1}
-
-// 	// Extract the 3D vector
-// 	worldPointVector := mgl32.Vec3{X: float64(worldPoint[0]), Y: float64(worldPoint[1]), Z: float64(worldPoint[2])}
-
-// 	return worldPointVector
-// }
