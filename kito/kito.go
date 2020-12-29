@@ -13,10 +13,7 @@ import (
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities/bob"
 	cameraEntity "github.com/kkevinchou/kito/entities/camera"
-	"github.com/kkevinchou/kito/entities/food"
-	"github.com/kkevinchou/kito/entities/grass"
 	"github.com/kkevinchou/kito/entities/singleton"
-	"github.com/kkevinchou/kito/entities/worker"
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/managers/item"
@@ -46,7 +43,6 @@ type InputPoller func() []Input
 
 type Game struct {
 	path           []geometry.Point
-	worker         *worker.WorkerImpl
 	pathIndex      int
 	gameOver       bool
 	camera         types.Camera
@@ -97,29 +93,10 @@ func NewGame() *Game {
 	animationSystem.RegisterEntity(b)
 	renderSystem.Register(b)
 
-	// setupGrass()
-	// food.New(0, 0, 0)
-	// g.worker = worker.New()
-	// g.worker.SetPosition(mgl64.Vec3{X: 19, Y: 12, Z: -10})
-	// g.camera.Follow(g.worker)
-
 	return g
 }
 
 func (g *Game) update(delta time.Duration) {
-	if g.path != nil {
-		if g.worker.Position().Sub(g.path[g.pathIndex].MglVector3()).Len() <= 2 {
-			g.pathIndex++
-			if g.pathIndex == len(g.path) {
-				g.path = nil
-				g.worker.SetSeekActive(false)
-				g.worker.SetVelocity(mgl64.Vec3{})
-			} else {
-				g.worker.SetTarget(g.path[g.pathIndex].MglVector3())
-			}
-		}
-	}
-
 	g.camera.Update(delta)
 	for _, system := range g.systems {
 		system.Update(delta)
@@ -171,17 +148,4 @@ func (g *Game) GetCamera() types.Camera {
 
 func (g *Game) GetSingleton() types.Singleton {
 	return g.singleton
-}
-
-func (g *Game) PlaceFood(x, y float64) {
-	food.New(x, 0, y)
-}
-
-func setupGrass() {
-	grass.New(5, 0, 4)
-	grass.New(2, 0, 2)
-	grass.New(6, 0, 1)
-	grass.New(6, 0, 7)
-	grass.New(4, 0, 2)
-	// grass.New(0, 0, 0)
 }
