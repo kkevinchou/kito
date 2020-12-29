@@ -7,17 +7,13 @@ import (
 
 type PhysicsComponent struct {
 	Velocity mgl64.Vec3
-	Mass     float64
-	MaxSpeed float64
 	Heading  mgl64.Vec3
 
 	// impulses have a name that can be reset or overwritten
 	Impulses map[string]*types.Impulse
 }
 
-func (c *PhysicsComponent) Init(mass, maxSpeed float64) {
-	c.MaxSpeed = maxSpeed
-	c.Mass = mass
+func (c *PhysicsComponent) Init() {
 	c.Impulses = map[string]*types.Impulse{}
 }
 

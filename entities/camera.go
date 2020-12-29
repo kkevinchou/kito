@@ -7,7 +7,7 @@ import (
 
 func NewCamera(position mgl64.Vec3, view mgl64.Vec2) *EntityImpl {
 	physicsComponent := &components.PhysicsComponent{}
-	physicsComponent.Init(10, 50)
+	physicsComponent.Init()
 
 	positionComponent := &components.PositionComponent{Position: position}
 
