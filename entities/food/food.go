@@ -34,8 +34,8 @@ func New(x, y, z float64) *FoodImpl {
 	entity.RenderComponent = &components.RenderComponent{
 		RenderData: renderData,
 	}
-	renderSystem := directory.GetDirectory().RenderSystem()
-	renderSystem.Register(entity)
+	// renderSystem := directory.GetDirectory().RenderSystem()
+	// renderSystem.Register(entity)
 
 	itemManager := directory.GetDirectory().ItemManager()
 	itemManager.Register(entity)

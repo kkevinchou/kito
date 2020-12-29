@@ -37,8 +37,8 @@ func New() *WorkerImpl {
 		RenderData: renderData,
 	}
 
-	renderSystem := directory.GetDirectory().RenderSystem()
-	renderSystem.Register(entity)
+	// renderSystem := directory.GetDirectory().RenderSystem()
+	// renderSystem.Register(entity)
 
 	movementSystem := directory.GetDirectory().MovementSystem()
 	movementSystem.Register(entity)

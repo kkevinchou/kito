@@ -15,15 +15,6 @@ func (t *TextureRenderData) IsVisible() bool {
 	return t.Visible
 }
 
-type ModelRenderData struct {
-	ID      string
-	Visible bool
-}
-
-func (m *ModelRenderData) IsVisible() bool {
-	return m.Visible
-}
-
 type ItemRenderData struct {
 	ID     string
 	Entity types.Ownable
@@ -31,6 +22,15 @@ type ItemRenderData struct {
 
 func (t *ItemRenderData) IsVisible() bool {
 	return !t.Entity.Owned()
+}
+
+type ModelRenderData struct {
+	ID      string
+	Visible bool
+}
+
+func (m *ModelRenderData) IsVisible() bool {
+	return m.Visible
 }
 
 type RenderComponent struct {

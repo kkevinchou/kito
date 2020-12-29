@@ -11,8 +11,6 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/lib"
-	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/lib/loaders/collada"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/pathing"
 	"github.com/kkevinchou/kito/lib/shaders"
@@ -50,6 +48,7 @@ type Game interface {
 type Renderable interface {
 	types.Positionable
 	GetRenderData() components.RenderData
+	GetAnimationComponent() *components.AnimationComponent
 }
 
 type Renderables []Renderable
@@ -66,7 +65,6 @@ type RenderSystem struct {
 	shaders      map[string]*shaders.Shader
 	skybox       *SkyBox
 	floor        *Quad
-	animator     *animation.Animator
 }
 
 func initFont() *ttf.Font {
@@ -100,12 +98,6 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 		panic(fmt.Sprintf("Failed to init OpenGL %s", err))
 	}
 
-	parsedCollada, err := collada.ParseCollada("_assets/collada/cube2.dae")
-	if err != nil {
-		panic(err)
-	}
-	animatedModel := animation.NewAnimatedModel(parsedCollada, 50, 3)
-
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,
@@ -113,7 +105,6 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera Camera) *
 		game:         game,
 		skybox:       NewSkyBox(300),
 		floor:        NewQuad(nil),
-		animator:     animation.NewAnimator(animatedModel, parsedCollada.Animation),
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -184,7 +175,6 @@ func (r *RenderSystem) Register(renderable Renderable) {
 }
 
 func (r *RenderSystem) Update(delta time.Duration) {
-	r.animator.Update(delta)
 	cameraPosition := r.camera.Position()
 	cameraView := r.camera.View()
 
@@ -216,7 +206,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
 
-	drawMesh(r, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
 	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
 
@@ -236,6 +225,8 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			// texture := r.textureMap[rData.ID]
 			// drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
 		} else if _, ok := renderData.(*components.ModelRenderData); ok {
+			animationComponent := renderable.GetAnimationComponent()
+			drawMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
 		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
 			// if navMesh, ok := renderable.(*pathing.NavMesh); ok {
 			// 	RenderNavMesh(navMesh)

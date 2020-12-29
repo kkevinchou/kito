@@ -8,8 +8,10 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/systems/animation"
+	"github.com/kkevinchou/kito/systems/camera"
 
 	"github.com/kkevinchou/kito/directory"
+	"github.com/kkevinchou/kito/entities/bob"
 	cameraEntity "github.com/kkevinchou/kito/entities/camera"
 	"github.com/kkevinchou/kito/entities/food"
 	"github.com/kkevinchou/kito/entities/grass"
@@ -19,7 +21,6 @@ import (
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
-	"github.com/kkevinchou/kito/systems/camera"
 	"github.com/kkevinchou/kito/systems/movement"
 	"github.com/kkevinchou/kito/systems/render"
 	"github.com/kkevinchou/kito/types"
@@ -61,16 +62,41 @@ func NewGame() *Game {
 	fmt.Println(fmt.Sprintf("Game Initializing with seed %d ...", seed))
 	rand.Seed(seed)
 
-	camera := cameraEntity.New(cameraStartPosition, cameraStartView)
-	fmt.Println("Camera initialized at position", camera.Position(), "and view", camera.View())
+	c := cameraEntity.New(cameraStartPosition, cameraStartView)
+	fmt.Println("Camera initialized at position", c.Position(), "and view", c.View())
 
 	g := &Game{
-		camera:    camera,
+		camera:    c,
 		gameMode:  types.GameModePlaying,
 		singleton: singleton.New(),
 	}
 
-	g.setupSystems()
+	itemManager := item.NewManager()
+	pathManager := path.NewManager()
+	assetManager := lib.NewAssetManager(nil, "_assets")
+
+	renderSystem := render.NewRenderSystem(g, assetManager, g.camera)
+	movementSystem := movement.NewMovementSystem()
+	cameraSystem := camera.NewCameraSystem(g)
+	animationSystem := animation.NewAnimationSystem(g)
+
+	d := directory.GetDirectory()
+	d.RegisterRenderSystem(renderSystem)
+	d.RegisterMovementSystem(movementSystem)
+	d.RegisterAssetManager(assetManager)
+	d.RegisterItemManager(itemManager)
+	d.RegisterPathManager(pathManager)
+
+	// renderSystem.Register(pathManager.NavMesh())
+
+	g.systems = append(g.systems, cameraSystem)
+	g.systems = append(g.systems, movementSystem)
+	g.systems = append(g.systems, animationSystem)
+
+	b := bob.NewBob()
+	animationSystem.RegisterEntity(b)
+	renderSystem.Register(b)
+
 	// setupGrass()
 	// food.New(0, 0, 0)
 	// g.worker = worker.New()
@@ -149,32 +175,6 @@ func (g *Game) GetSingleton() types.Singleton {
 
 func (g *Game) PlaceFood(x, y float64) {
 	food.New(x, 0, y)
-}
-
-func (g *Game) setupSystems() *directory.Directory {
-	itemManager := item.NewManager()
-	pathManager := path.NewManager()
-	assetManager := lib.NewAssetManager(nil, "_assets")
-
-	renderSystem := render.NewRenderSystem(g, assetManager, g.camera)
-	movementSystem := movement.NewMovementSystem()
-	cameraSystem := camera.NewCameraSystem(g)
-	animationSystem := animation.NewAnimationSystem(g)
-
-	d := directory.GetDirectory()
-	d.RegisterRenderSystem(renderSystem)
-	d.RegisterMovementSystem(movementSystem)
-	d.RegisterAssetManager(assetManager)
-	d.RegisterItemManager(itemManager)
-	d.RegisterPathManager(pathManager)
-
-	renderSystem.Register(pathManager.NavMesh())
-
-	g.systems = append(g.systems, cameraSystem)
-	g.systems = append(g.systems, movementSystem)
-	g.systems = append(g.systems, animationSystem)
-
-	return d
 }
 
 func setupGrass() {

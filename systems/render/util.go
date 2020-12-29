@@ -10,6 +10,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/shaders"
 )
 
@@ -80,16 +81,17 @@ func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projecti
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(r *RenderSystem, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
+func drawMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(cameraPosition.X()), float32(cameraPosition.Y()), float32(cameraPosition.Z())})
 
-	mesh := r.animator.AnimatedModel.Mesh
-	animationTransforms := r.animator.CollectAnimationTransforms()
-	// var animationTransforms map[string]mgl32.Mat4
+	// mesh := r.animator.AnimatedModel.Mesh
+	// animationTransforms := r.animator.CollectAnimationTransforms()
+	// var animationTransforms map[int]mgl32.Mat4
+	// var mesh *animation.Mesh
 
 	for i := 0; i < len(animationTransforms); i++ {
 		shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
