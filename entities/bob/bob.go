@@ -20,8 +20,9 @@ func NewBob() *BobImpl {
 	entity.PositionComponent = &components.PositionComponent{}
 
 	renderData := &components.ModelRenderData{
-		Visible: true,
-		ID:      "bob",
+		Visible:  true,
+		ID:       "bob",
+		Animated: true,
 	}
 
 	entity.RenderComponent = &components.RenderComponent{

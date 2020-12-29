@@ -224,9 +224,11 @@ func (r *RenderSystem) Update(delta time.Duration) {
 			// position := renderable.Position()
 			// texture := r.textureMap[rData.ID]
 			// drawCube(texture, float32(position.X), float32(position.Y), float32(position.Z), 1, true)
-		} else if _, ok := renderData.(*components.ModelRenderData); ok {
-			animationComponent := renderable.GetAnimationComponent()
-			drawMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
+		} else if rData, ok := renderData.(*components.ModelRenderData); ok {
+			if rData.Animated {
+				animationComponent := renderable.GetAnimationComponent()
+				drawMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
+			}
 		} else if _, ok := renderData.(*pathing.NavMeshRenderData); ok {
 			// if navMesh, ok := renderable.(*pathing.NavMesh); ok {
 			// 	RenderNavMesh(navMesh)
