@@ -76,6 +76,11 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera entities.
 		panic(fmt.Sprintf("Failed to init SDL", err))
 	}
 
+	// Enable hints for multisampling which allows opengl to use the default
+	// multisampling algorithms implemented by the OpenGL rasterizer
+	sdl.GLSetAttribute(sdl.GL_MULTISAMPLEBUFFERS, 1)
+	sdl.GLSetAttribute(sdl.GL_MULTISAMPLESAMPLES, 4)
+
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to create window", err))
@@ -109,6 +114,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera entities.
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW)
+	gl.Enable(gl.MULTISAMPLE)
 
 	_ = initFont()
 	highGrassTexture := newTexture("_assets/icons/high-grass.png")

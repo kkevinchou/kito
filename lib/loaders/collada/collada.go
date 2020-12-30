@@ -113,26 +113,6 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 
 	// parse skinning information, joint weights
 	skin := rawCollada.LibraryControllers[0].Controller.Skin
-	controllerName := rawCollada.LibraryControllers[0].Controller.Name
-
-	var joints []string
-	var weights []float32
-	for _, source := range skin.Source {
-		if source.TechniqueCommon.Accessor.Param.Name == TechniqueJoint.String() {
-			for _, j := range strings.Split(source.NameArray.V, " ") {
-				joints = append(joints, fmt.Sprintf("%s_%s", controllerName, j))
-			}
-		} else if source.TechniqueCommon.Accessor.Param.Name == TechniqueTransform.String() {
-		} else if source.TechniqueCommon.Accessor.Param.Name == TechniqueWeight.String() {
-			weights = parseFloatArrayString(source.FloatArray.Floats.V)
-		}
-	}
-
-	jointsToIndex := map[string]int{}
-	for i, name := range joints {
-		jointsToIndex[name] = i
-	}
-	jointsToIndex["Armature"] = 0
 
 	vcount := parseIntArrayString(skin.VertexWeights.VCount)
 	v := parseIntArrayString(skin.VertexWeights.V)
@@ -155,31 +135,37 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		vIndex += (numWeights * 2)
 	}
 
+	// visualSceneNode := rawCollada.LibraryVisualScenes[0].VisualScene[0].Node[0]
+
 	// parse joint hierarchy
-	var rootJoint *animation.JointSpecification
-	for _, node := range rawCollada.LibraryVisualScenes[0].VisualScene[0].Node {
-		if string(node.Id) == ArmatureNodeID {
-			rootNode := node.Node[0]
-			rootJoint = parseJointElement(rootNode, jointsToIndex)
+	visualSceneNode := rawCollada.LibraryVisualScenes[0].VisualScene[0].Node[0]
+	armatureID := visualSceneNode.Id
+
+	var joints []string
+	var weights []float32
+	for _, source := range skin.Source {
+		if source.TechniqueCommon.Accessor.Param.Name == TechniqueJoint.String() {
+			for _, j := range strings.Split(source.NameArray.V, " ") {
+				joints = append(joints, fmt.Sprintf("%s_%s", string(armatureID), j))
+			}
+		} else if source.TechniqueCommon.Accessor.Param.Name == TechniqueTransform.String() {
+		} else if source.TechniqueCommon.Accessor.Param.Name == TechniqueWeight.String() {
+			weights = parseFloatArrayString(source.FloatArray.Floats.V)
 		}
 	}
+
+	jointsToIndex := map[string]int{}
+	for i, name := range joints {
+		jointsToIndex[name] = i
+	}
+
+	rootNode := visualSceneNode.Node[0]
+	rootJoint := parseJointElement(rootNode, jointsToIndex)
 
 	// parse animations
 	timeStampToPose := map[float32]map[int]*animation.JointTransform{}
 
-	var armatureRootAnimation *RootAnimation
-
-	for _, rootAnimation := range rawCollada.LibraryAnimations[0].RootAnimations {
-		if rootAnimation.Name == ArmatureName {
-			armatureRootAnimation = rootAnimation
-			break
-		}
-	}
-
-	if armatureRootAnimation == nil {
-		panic(fmt.Sprintf("failed to find root animation with name %s", ArmatureName))
-	}
-
+	armatureRootAnimation := rawCollada.LibraryAnimations[0].RootAnimations[0]
 	for _, animationElement := range armatureRootAnimation.Animations {
 		// get the input/output sources
 		var inputSource Uri
