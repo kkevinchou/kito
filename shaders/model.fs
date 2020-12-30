@@ -32,7 +32,7 @@ void main()
 
 
     // // solid color debugging
-    vec3 objectColor = vec3(0.51, 0.85, 1.0);
+    vec3 objectColor = vec3(0.7, 0.0, 0.05);
     vec3 result = (ambient + diffuse) * objectColor;
     FragColor = vec4(result, 1.0);
 }
