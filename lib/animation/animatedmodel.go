@@ -15,17 +15,30 @@ type Mesh struct {
 
 type AnimatedModel struct {
 	RootJoint *Joint
+	JointMap  map[int]*Joint
 	Mesh      *Mesh
+}
+
+func getJointMap(joint *Joint, jointMap map[int]*Joint) map[int]*Joint {
+	jointMap[joint.ID] = joint
+	for _, c := range joint.Children {
+		getJointMap(c, jointMap)
+	}
+	return jointMap
 }
 
 func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	joint := JointSpecToJoint(c.Root)
+
 	printHierarchy(joint, 0)
+
+	jointMap := map[int]*Joint{}
 
 	mesh := NewMesh(c, maxWeights)
 	return &AnimatedModel{
 		Mesh:      mesh,
 		RootJoint: joint,
+		JointMap:  getJointMap(joint, jointMap),
 	}
 }
 
@@ -128,6 +141,12 @@ func configureJointVertexAttributes(triIndices []int, triIndicesStride int, join
 	for i := 0; i < len(triIndices); i += triIndicesStride {
 		vertexIndex := triIndices[i]
 
+		// fmt.Println("------------------------------")
+		// fmt.Println("------------------------------")
+		// fmt.Println("------------------------------")
+		// fmt.Println(vertexIndex)
+		// fmt.Println(jointIDs)
+		// fmt.Println(jointWeights)
 		ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
 		for _, id := range ids {
 			jointIDsAttribute = append(jointIDsAttribute, int32(id))

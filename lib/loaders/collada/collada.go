@@ -177,7 +177,7 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	}
 
 	if armatureRootAnimation == nil {
-		panic("failed to find root animation for armature")
+		panic(fmt.Sprintf("failed to find root animation with name %s", ArmatureName))
 	}
 
 	for _, animationElement := range armatureRootAnimation.Animations {

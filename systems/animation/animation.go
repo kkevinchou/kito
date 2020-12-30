@@ -42,6 +42,7 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 
 		pose := calculateCurrentAnimationPose(animationComponent.ElapsedTime, animationComponent.Animation.KeyFrames)
 		animationTransforms := applyPoseToJoints(animationComponent.AnimatedModel.RootJoint, pose)
+
 		animationComponent.AnimationTransforms = animationTransforms
 	}
 }
@@ -55,6 +56,14 @@ func applyPoseToJoints(joint *animation.Joint, pose map[int]mgl32.Mat4) map[int]
 
 func applyPoseToJointsHelper(joint *animation.Joint, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4) {
 	localTransform := pose[joint.ID]
+
+	// TODO: is this what i actually want to do? probably need to refactor this
+	// when we start keyframing joints at different frames
+	if _, ok := pose[joint.ID]; !ok {
+		localTransform = joint.LocalBindTransform
+	}
+
+	// localTransform = joint.LocalBindTransform
 	poseTransform := parentTransform.Mul4(localTransform) // model-space relative to the origin
 	for _, child := range joint.Children {
 		applyPoseToJointsHelper(child, poseTransform, pose, transforms)

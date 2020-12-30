@@ -19,7 +19,7 @@ func NewBob() *EntityImpl {
 	}
 
 	// TODO: get this garbage out of here
-	parsedCollada, err := collada.ParseCollada("_assets/collada/cube2.dae")
+	parsedCollada, err := collada.ParseCollada("_assets/collada/bob.dae")
 	if err != nil {
 		panic(err)
 	}
@@ -34,7 +34,7 @@ func NewBob() *EntityImpl {
 		ComponentContainer: components.NewComponentContainer(
 			positionComponent,
 			renderComponent,
-			animationComponent,
+			animationComponent,jj
 		),
 	}
 

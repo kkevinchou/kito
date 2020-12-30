@@ -15,11 +15,13 @@ import (
 // 740 distinct vertices
 
 func TestCollada(t *testing.T) {
-	c, err := collada.ParseCollada("sample/cube2.dae")
-	printKeyFrames(c)
+	c, err := collada.ParseCollada("sample/bob.dae")
+	// printKeyFrames(c)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	fmt.Println(c)
 	t.Fail()
 }
 
