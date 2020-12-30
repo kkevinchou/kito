@@ -18,7 +18,6 @@ import (
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
 	camerasys "github.com/kkevinchou/kito/systems/camera"
-	"github.com/kkevinchou/kito/systems/movement"
 	"github.com/kkevinchou/kito/systems/render"
 	"github.com/kkevinchou/kito/types"
 )
@@ -74,20 +73,17 @@ func NewGame() *Game {
 	assetManager := lib.NewAssetManager(nil, "_assets")
 
 	renderSystem := render.NewRenderSystem(g, assetManager, g.camera)
-	movementSystem := movement.NewMovementSystem()
 	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 
 	d := directory.GetDirectory()
 	d.RegisterRenderSystem(renderSystem)
-	d.RegisterMovementSystem(movementSystem)
 	d.RegisterAssetManager(assetManager)
 	d.RegisterItemManager(itemManager)
 	d.RegisterPathManager(pathManager)
 
 	g.systems = append(g.systems, physicsSystem)
-	g.systems = append(g.systems, movementSystem)
 	g.systems = append(g.systems, cameraSystem)
 	g.systems = append(g.systems, animationSystem)
 
