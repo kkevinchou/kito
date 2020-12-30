@@ -34,7 +34,7 @@ func NewBob() *EntityImpl {
 		ComponentContainer: components.NewComponentContainer(
 			positionComponent,
 			renderComponent,
-			animationComponent,jj
+			animationComponent,
 		),
 	}
 
