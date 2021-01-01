@@ -8,7 +8,7 @@ import (
 )
 
 func NewBob() *EntityImpl {
-	positionComponent := &components.PositionComponent{
+	transformComponent := &components.TransformComponent{
 		View: mgl64.Vec3{0, 0, -1},
 	}
 
@@ -43,7 +43,7 @@ func NewBob() *EntityImpl {
 	entity := NewEntity(
 		"bob",
 		components.NewComponentContainer(
-			positionComponent,
+			transformComponent,
 			renderComponent,
 			animationComponent,
 			controllerComponent,

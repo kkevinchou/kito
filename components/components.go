@@ -3,7 +3,7 @@ package components
 type ComponentContainer struct {
 	AnimationComponent   *AnimationComponent
 	RenderComponent      *RenderComponent
-	PositionComponent    *PositionComponent
+	TransformComponent   *TransformComponent
 	PhysicsComponent     *PhysicsComponent
 	TopDownViewComponent *TopDownViewComponent
 	ControllerComponent  *ControllerComponent

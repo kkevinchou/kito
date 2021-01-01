@@ -182,10 +182,10 @@ func (s *RenderSystem) SetCamera(camera entities.Entity) {
 
 func (r *RenderSystem) Update(delta time.Duration) {
 	componentContainer := r.camera.GetComponentContainer()
-	positionComponent := componentContainer.PositionComponent
+	transformComponent := componentContainer.TransformComponent
 
-	cameraPosition := positionComponent.Position
-	cameraViewDirection := positionComponent.View
+	cameraPosition := transformComponent.Position
+	cameraViewDirection := transformComponent.View
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -218,7 +218,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	for _, entity := range r.entities {
 		componentContainer := entity.GetComponentContainer()
 		renderData := componentContainer.RenderComponent.GetRenderData()
-		entityPosition := componentContainer.PositionComponent.Position
+		entityPosition := componentContainer.TransformComponent.Position
 
 		if !renderData.IsVisible() {
 			continue

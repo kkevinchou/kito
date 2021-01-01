@@ -9,7 +9,7 @@ func NewCamera(position mgl64.Vec3, view mgl64.Vec2) *EntityImpl {
 	physicsComponent := &components.PhysicsComponent{}
 	physicsComponent.Init()
 
-	positionComponent := &components.PositionComponent{
+	transformComponent := &components.TransformComponent{
 		Position: position,
 		View:     mgl64.Vec3{0, 0, -1},
 	}
@@ -22,7 +22,7 @@ func NewCamera(position mgl64.Vec3, view mgl64.Vec2) *EntityImpl {
 	entity := NewEntity(
 		"camera",
 		components.NewComponentContainer(
-			positionComponent,
+			transformComponent,
 			topDownViewComponent,
 			physicsComponent,
 			controllerComponent,
@@ -33,7 +33,7 @@ func NewCamera(position mgl64.Vec3, view mgl64.Vec2) *EntityImpl {
 }
 
 func NewThirdPersonCamera(followTarget int, positionOffset mgl64.Vec3, view mgl64.Vec2) *EntityImpl {
-	positionComponent := &components.PositionComponent{
+	transformComponent := &components.TransformComponent{
 		View: mgl64.Vec3{0, 0, -10},
 		// View: mgl64.Vec3{0, -1, -10},
 	}
@@ -44,7 +44,7 @@ func NewThirdPersonCamera(followTarget int, positionOffset mgl64.Vec3, view mgl6
 	entity := NewEntity(
 		"camera",
 		components.NewComponentContainer(
-			positionComponent,
+			transformComponent,
 			// physicsComponent,
 			controllerComponent,
 			followComponent,

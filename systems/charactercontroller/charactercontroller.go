@@ -27,7 +27,7 @@ func NewCharacterControllerSystem(world World) *CharacterControllerSystem {
 func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 
-	if componentContainer.PhysicsComponent != nil && componentContainer.PositionComponent != nil && componentContainer.ControllerComponent != nil {
+	if componentContainer.PhysicsComponent != nil && componentContainer.TransformComponent != nil && componentContainer.ControllerComponent != nil {
 		if !componentContainer.ControllerComponent.IsCharacter {
 			return
 		}

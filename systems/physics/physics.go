@@ -28,7 +28,7 @@ func NewPhysicsSystem(world World) *PhysicsSystem {
 func (s *PhysicsSystem) RegisterEntity(entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 
-	if componentContainer.PhysicsComponent != nil && componentContainer.PositionComponent != nil {
+	if componentContainer.PhysicsComponent != nil && componentContainer.TransformComponent != nil {
 		s.entities = append(s.entities, entity)
 	}
 }
@@ -37,7 +37,7 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
 		physicsComponent := componentContainer.PhysicsComponent
-		positionComponent := componentContainer.PositionComponent
+		transformComponent := componentContainer.TransformComponent
 
 		var totalImpulse mgl64.Vec3
 		for name := range physicsComponent.Impulses {
@@ -57,7 +57,7 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 		}
 
 		velocity := physicsComponent.Velocity.Add(totalImpulse)
-		newPos := positionComponent.Position.Add(velocity.Mul(delta.Seconds()))
-		positionComponent.Position = newPos
+		newPos := transformComponent.Position.Add(velocity.Mul(delta.Seconds()))
+		transformComponent.Position = newPos
 	}
 }
