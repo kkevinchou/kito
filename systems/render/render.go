@@ -71,7 +71,7 @@ func initFont() *ttf.Font {
 	return font
 }
 
-func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera entities.Entity) *RenderSystem {
+func NewRenderSystem(game Game, assetManager *lib.AssetManager) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(fmt.Sprintf("Failed to init SDL", err))
 	}
@@ -98,7 +98,6 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager, camera entities.
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,
-		camera:       camera,
 		game:         game,
 		skybox:       NewSkyBox(300),
 		floor:        NewQuad(nil),
@@ -176,13 +175,18 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 	}
 }
 
+func (s *RenderSystem) SetCamera(camera entities.Entity) {
+	s.camera = camera
+}
+
 func (r *RenderSystem) Update(delta time.Duration) {
 	componentContainer := r.camera.GetComponentContainer()
 	positionComponent := componentContainer.PositionComponent
-	topDownViewComponent := componentContainer.TopDownViewComponent
+	// topDownViewComponent := componentContainer.TopDownViewComponent
 
 	cameraPosition := positionComponent.Position
-	cameraView := topDownViewComponent.View()
+	// cameraView := topDownViewComponent.View()
+	cameraView := mgl32.Vec2{}
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -201,20 +205,15 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
 
-	meshModelMatrix := createModelMatrix(
-		mgl32.Ident4(),
-		horizontalViewRotationMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4()),
-		mgl32.Ident4(),
-	)
-
 	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
 
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
-	drawQuad(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
+	drawMesh(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
 
 	for _, entity := range r.entities {
 		componentContainer := entity.GetComponentContainer()
 		renderData := componentContainer.RenderComponent.GetRenderData()
+		entityPosition := componentContainer.PositionComponent.Position
 
 		if !renderData.IsVisible() {
 			continue
@@ -222,9 +221,20 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 		if rData, ok := renderData.(*components.ModelRenderData); ok {
 			if rData.Animated {
+
+				xr := mgl32.QuatRotate(mgl32.DegToRad(90), mgl32.Vec3{1, 0, 0}).Mat4()
+				yr := mgl32.QuatRotate(mgl32.DegToRad(180), mgl32.Vec3{0, 1, 0}).Mat4()
+
+				meshModelMatrix := createModelMatrix(
+					mgl32.Ident4(),
+					horizontalViewRotationMatrix.Mul4(xr.Mul4(yr)),
+					mgl32.Translate3D(float32(entityPosition.X()), float32(entityPosition.Y()), float32(entityPosition.Z())),
+				)
+
 				animationComponent := componentContainer.AnimationComponent
-				drawMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
+				drawAnimatedMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
 			}
+		} else if _, ok := renderData.(*components.BlockRenderData); ok {
 		}
 	}
 

@@ -71,17 +71,17 @@ func drawSkyBox(sb *SkyBox, shader *shaders.Shader, textureMap map[string]uint32
 	}
 }
 
-func drawQuad(q *Quad, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
+func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(cameraPosition.X()), float32(cameraPosition.Y()), float32(cameraPosition.Z())})
-	gl.BindVertexArray(q.VAO())
+	gl.BindVertexArray(mesh.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
+func drawAnimatedMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)

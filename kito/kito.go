@@ -18,7 +18,7 @@ import (
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
 	camerasys "github.com/kkevinchou/kito/systems/camera"
-	"github.com/kkevinchou/kito/systems/movement"
+	"github.com/kkevinchou/kito/systems/charactercontroller"
 	"github.com/kkevinchou/kito/systems/render"
 	"github.com/kkevinchou/kito/types"
 )
@@ -51,6 +51,7 @@ type Game struct {
 
 	singleton *singleton.Singleton
 	systems   []System
+	entities  map[int]entities.Entity
 }
 
 func NewGame() *Game {
@@ -58,13 +59,7 @@ func NewGame() *Game {
 	fmt.Println(fmt.Sprintf("Game Initializing with seed %d ...", seed))
 	rand.Seed(seed)
 
-	camera := entities.NewCamera(cameraStartPosition, cameraStartView)
-	componentContainer := camera.GetComponentContainer()
-
-	fmt.Println("Camera initialized at position", componentContainer.PositionComponent.Position, "and view", componentContainer.TopDownViewComponent.View())
-
 	g := &Game{
-		camera:    camera,
 		gameMode:  types.GameModePlaying,
 		singleton: singleton.New(),
 	}
@@ -73,29 +68,54 @@ func NewGame() *Game {
 	pathManager := path.NewManager()
 	assetManager := lib.NewAssetManager(nil, "_assets")
 
-	renderSystem := render.NewRenderSystem(g, assetManager, g.camera)
-	movementSystem := movement.NewMovementSystem()
+	// System Setup
+
+	renderSystem := render.NewRenderSystem(g, assetManager)
 	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
+	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 
 	d := directory.GetDirectory()
 	d.RegisterRenderSystem(renderSystem)
-	d.RegisterMovementSystem(movementSystem)
 	d.RegisterAssetManager(assetManager)
 	d.RegisterItemManager(itemManager)
 	d.RegisterPathManager(pathManager)
 
+	g.systems = append(g.systems, characterControllerSystem)
 	g.systems = append(g.systems, physicsSystem)
-	g.systems = append(g.systems, movementSystem)
 	g.systems = append(g.systems, cameraSystem)
 	g.systems = append(g.systems, animationSystem)
 
-	b := entities.NewBob()
+	// Entity Setup
 
-	animationSystem.RegisterEntity(b)
-	renderSystem.RegisterEntity(b)
-	physicsSystem.RegisterEntity(camera)
+	bob := entities.NewBob()
+
+	// camera := entities.NewCamera(cameraStartPosition, cameraStartView)
+	camera := entities.NewThirdPersonCamera(bob.GetID(), cameraStartPosition, cameraStartView)
+	componentContainer := camera.GetComponentContainer()
+	// fmt.Println("Camera initialized at position", componentContainer.PositionComponent.Position, "and view", componentContainer.TopDownViewComponent.View())
+	fmt.Println("Camera initialized at position", componentContainer.PositionComponent.Position)
+	g.camera = camera
+	renderSystem.SetCamera(camera)
+
+	worldEntities := []entities.Entity{
+		bob,
+		camera,
+		entities.NewBlock(),
+	}
+
+	g.entities = map[int]entities.Entity{}
+	for _, entity := range worldEntities {
+		g.entities[entity.GetID()] = entity
+	}
+
+	for _, entity := range worldEntities {
+		animationSystem.RegisterEntity(entity)
+		renderSystem.RegisterEntity(entity)
+		physicsSystem.RegisterEntity(entity)
+		characterControllerSystem.RegisterEntity(entity)
+	}
 
 	return g
 }
@@ -151,4 +171,12 @@ func (g *Game) GetCamera() entities.Entity {
 
 func (g *Game) GetSingleton() types.Singleton {
 	return g.singleton
+}
+
+func (g *Game) GetEntityByID(id int) (entities.Entity, error) {
+	if entity, ok := g.entities[id]; ok {
+		return entity, nil
+	}
+
+	return nil, fmt.Errorf("failed to find entity with ID %d", id)
 }

@@ -6,16 +6,14 @@ import (
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
-	"github.com/kkevinchou/kito/systems/movement"
 	"github.com/kkevinchou/kito/systems/render"
 )
 
 type Directory struct {
-	renderSystem   *render.RenderSystem
-	movementSystem *movement.MovementSystem
-	assetManager   *lib.AssetManager
-	itemManager    *item.Manager
-	pathManager    *path.Manager
+	renderSystem *render.RenderSystem
+	assetManager *lib.AssetManager
+	itemManager  *item.Manager
+	pathManager  *path.Manager
 }
 
 var instance *Directory
@@ -34,14 +32,6 @@ func (d *Directory) RegisterRenderSystem(system *render.RenderSystem) {
 
 func (d *Directory) RenderSystem() *render.RenderSystem {
 	return d.renderSystem
-}
-
-func (d *Directory) RegisterMovementSystem(system *movement.MovementSystem) {
-	d.movementSystem = system
-}
-
-func (d *Directory) MovementSystem() *movement.MovementSystem {
-	return d.movementSystem
 }
 
 func (d *Directory) RegisterAssetManager(manager *lib.AssetManager) {

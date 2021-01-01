@@ -39,6 +39,6 @@ func NewQuad(vertixAttributes []float32) *Quad {
 	return &q
 }
 
-func (q *Quad) VAO() uint32 {
+func (q *Quad) GetVAO() uint32 {
 	return q.vao
 }

@@ -46,11 +46,6 @@ type Worker interface {
 	Heading() mgl64.Vec3
 }
 
-// Controllable is an entity that can be controlled
-type Controllable interface {
-	Controlled() bool
-}
-
 type Singleton interface {
 	GetKeyboardInputSet() *KeyboardInput
 	SetKeyboardInputSet(input *KeyboardInput)
