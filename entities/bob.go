@@ -1,13 +1,16 @@
 package entities
 
 import (
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/loaders/collada"
 )
 
 func NewBob() *EntityImpl {
-	positionComponent := &components.PositionComponent{}
+	transformComponent := &components.TransformComponent{
+		View: mgl64.Vec3{0, 0, -1},
+	}
 
 	renderData := &components.ModelRenderData{
 		Visible:  true,
@@ -40,7 +43,7 @@ func NewBob() *EntityImpl {
 	entity := NewEntity(
 		"bob",
 		components.NewComponentContainer(
-			positionComponent,
+			transformComponent,
 			renderComponent,
 			animationComponent,
 			controllerComponent,

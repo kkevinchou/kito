@@ -6,7 +6,9 @@ import (
 )
 
 func NewBlock() *EntityImpl {
-	positionComponent := &components.PositionComponent{}
+	transformComponent := &components.TransformComponent{
+		View: mgl64.Vec3{0, 0, -1},
+	}
 
 	renderData := &components.BlockRenderData{
 		Visible: true,
@@ -19,7 +21,7 @@ func NewBlock() *EntityImpl {
 	entity := NewEntity(
 		"block",
 		components.NewComponentContainer(
-			positionComponent,
+			transformComponent,
 			renderComponent,
 		),
 	)

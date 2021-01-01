@@ -94,8 +94,8 @@ func NewGame() *Game {
 	// camera := entities.NewCamera(cameraStartPosition, cameraStartView)
 	camera := entities.NewThirdPersonCamera(bob.GetID(), cameraStartPosition, cameraStartView)
 	componentContainer := camera.GetComponentContainer()
-	// fmt.Println("Camera initialized at position", componentContainer.PositionComponent.Position, "and view", componentContainer.TopDownViewComponent.View())
-	fmt.Println("Camera initialized at position", componentContainer.PositionComponent.Position)
+	// fmt.Println("Camera initialized at position", componentContainer.TransformComponent.Position, "and view", componentContainer.TopDownViewComponent.View())
+	fmt.Println("Camera initialized at position", componentContainer.TransformComponent.Position)
 	g.camera = camera
 	renderSystem.SetCamera(camera)
 

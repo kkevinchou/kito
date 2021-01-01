@@ -60,7 +60,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 // putting this here for now until more than just cameras need to follow a target
 func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.ComponentContainer) {
 	followComponent := componentContainer.FollowComponent
-	positionComponent := componentContainer.PositionComponent
+	transformComponent := componentContainer.TransformComponent
 
 	if followComponent == nil || followComponent.FollowTargetEntityID == nil {
 		return
@@ -73,10 +73,10 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 
 	targetComponentContainer := entity.GetComponentContainer()
 
-	targetPosition := targetComponentContainer.PositionComponent.Position
-	positionComponent.Position = targetPosition
-	positionComponent.Position[1] += 10
-	positionComponent.Position[2] += 40
+	targetPosition := targetComponentContainer.TransformComponent.Position
+	transformComponent.Position = targetPosition
+	transformComponent.Position[1] += 10
+	transformComponent.Position[2] += 20
 }
 
 func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {
