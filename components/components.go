@@ -7,6 +7,7 @@ type ComponentContainer struct {
 	PhysicsComponent     *PhysicsComponent
 	TopDownViewComponent *TopDownViewComponent
 	ControllerComponent  *ControllerComponent
+	FollowComponent      *FollowComponent
 }
 
 type Component interface {

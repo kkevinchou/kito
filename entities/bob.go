@@ -11,7 +11,6 @@ func NewBob() *EntityImpl {
 
 	renderData := &components.ModelRenderData{
 		Visible:  true,
-		ID:       "bob",
 		Animated: true,
 	}
 	renderComponent := &components.RenderComponent{
@@ -30,13 +29,24 @@ func NewBob() *EntityImpl {
 		Animation:     parsedCollada.Animation,
 	}
 
-	entity := &EntityImpl{
-		ComponentContainer: components.NewComponentContainer(
+	controllerComponent := &components.ControllerComponent{
+		Controlled:  true,
+		IsCharacter: true,
+	}
+
+	physicsComponent := &components.PhysicsComponent{}
+	physicsComponent.Init()
+
+	entity := NewEntity(
+		"bob",
+		components.NewComponentContainer(
 			positionComponent,
 			renderComponent,
 			animationComponent,
+			controllerComponent,
+			physicsComponent,
 		),
-	}
+	)
 
 	return entity
 }

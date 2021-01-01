@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/kkevinchou/kito/components"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/utils"
+	"github.com/kkevinchou/kito/systems/sysutils"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -22,6 +25,7 @@ type Singleton interface {
 type World interface {
 	GetSingleton() types.Singleton
 	GetCamera() entities.Entity
+	GetEntityByID(id int) (entities.Entity, error)
 }
 
 type CameraSystem struct {
@@ -40,37 +44,48 @@ func (s *CameraSystem) Update(delta time.Duration) {
 
 	componentContainer := camera.GetComponentContainer()
 	controllerComponent := componentContainer.ControllerComponent
-	physicsComponent := componentContainer.PhysicsComponent
-	topDownViewComponent := componentContainer.TopDownViewComponent
 
-	if !controllerComponent.Controlled() {
+	if controllerComponent.Controlled {
+		s.handleControlledCamera(componentContainer)
 		return
 	}
 
+	if controllerComponent == nil || !controllerComponent.Controlled {
+		s.handleUncontrolledCamera(componentContainer)
+	}
+
+}
+
+// this might belong in some kind of movement or pathfinding system that handles "following" logic.
+// putting this here for now until more than just cameras need to follow a target
+func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.ComponentContainer) {
+	followComponent := componentContainer.FollowComponent
+	positionComponent := componentContainer.PositionComponent
+
+	if followComponent == nil || followComponent.FollowTargetEntityID == nil {
+		return
+	}
+
+	entity, err := s.world.GetEntityByID(*followComponent.FollowTargetEntityID)
+	if err != nil {
+		panic(err)
+	}
+
+	targetComponentContainer := entity.GetComponentContainer()
+
+	targetPosition := targetComponentContainer.PositionComponent.Position
+	positionComponent.Position = targetPosition
+	positionComponent.Position[1] += 10
+	positionComponent.Position[2] += 40
+}
+
+func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {
+	physicsComponent := componentContainer.PhysicsComponent
+	topDownViewComponent := componentContainer.TopDownViewComponent
+
 	singleton := s.world.GetSingleton()
 	keyboardInput := *singleton.GetKeyboardInputSet()
-
-	var controlVector mgl64.Vec3
-	if key, ok := keyboardInput[types.KeyboardKeyW]; ok && key.Event == types.KeyboardEventDown {
-		controlVector[2]--
-	}
-	if key, ok := keyboardInput[types.KeyboardKeyS]; ok && key.Event == types.KeyboardEventDown {
-		controlVector[2]++
-	}
-	// Left
-	if key, ok := keyboardInput[types.KeyboardKeyA]; ok && key.Event == types.KeyboardEventDown {
-		controlVector[0]--
-	}
-	// Right
-	if key, ok := keyboardInput[types.KeyboardKeyD]; ok && key.Event == types.KeyboardEventDown {
-		controlVector[0]++
-	}
-	if key, ok := keyboardInput[types.KeyboardKeyLShift]; ok && key.Event == types.KeyboardEventDown {
-		controlVector[1]--
-	}
-	if key, ok := keyboardInput[types.KeyboardKeySpace]; ok && key.Event == types.KeyboardEventDown {
-		controlVector[1]++
-	}
+	controlVector := sysutils.GetControlVector(keyboardInput)
 
 	zoomValue := 0
 	if singleton.GetMouseInput() != nil {
@@ -89,6 +104,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 			panic(fmt.Sprintf("unexpected mousewheel value %v", mouseInput.MouseWheel))
 		}
 	}
+
 	if utils.Vec3IsZero(controlVector) && zoomValue == 0 {
 		return
 	}
