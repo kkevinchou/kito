@@ -6,7 +6,9 @@ import (
 )
 
 func NewBlock() *EntityImpl {
-	positionComponent := &components.PositionComponent{}
+	positionComponent := &components.PositionComponent{
+		View: mgl64.Vec3{0, 0, -1},
+	}
 
 	renderData := &components.BlockRenderData{
 		Visible: true,

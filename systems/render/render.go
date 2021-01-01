@@ -14,6 +14,7 @@ import (
 	"github.com/kkevinchou/kito/lib"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/shaders"
+	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -182,32 +183,36 @@ func (s *RenderSystem) SetCamera(camera entities.Entity) {
 func (r *RenderSystem) Update(delta time.Duration) {
 	componentContainer := r.camera.GetComponentContainer()
 	positionComponent := componentContainer.PositionComponent
-	// topDownViewComponent := componentContainer.TopDownViewComponent
 
 	cameraPosition := positionComponent.Position
-	// cameraView := topDownViewComponent.View()
-	cameraView := mgl32.Vec2{}
+	cameraViewDirection := positionComponent.View
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.X())), mgl32.Vec3{1, 0, 0}).Mat4()
-	horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.Y())), mgl32.Vec3{0, 1, 0}).Mat4()
+	// verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.X())), mgl32.Vec3{1, 0, 0}).Mat4()
+	// horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.Y())), mgl32.Vec3{0, 1, 0}).Mat4()
+
+	cameraViewQuaternion := mgl32.QuatBetweenVectors(mgl32.Vec3{0, 0, -1}, utils.Vec3ToVec2(cameraViewDirection))
+
+	// We use the inverse to move the universe in the opposite direction of where the camera is looking
+	cameraViewMatrix := cameraViewQuaternion.Inverse().Mat4()
 
 	floorModelMatrix := createModelMatrix(
 		mgl32.Scale3D(100, 100, 100),
 		mgl32.Ident4(),
 		mgl32.Ident4(),
 	)
-	floorModelMatrix = horizontalViewRotationMatrix.Mul4(floorModelMatrix)
 
 	viewTranslationMatrix := mgl32.Translate3D(float32(-cameraPosition.X()), float32(-cameraPosition.Y()), float32(-cameraPosition.Z()))
-	viewMatrix := verticalViewRotationMatrix.Mul4(viewTranslationMatrix)
+	viewMatrix := cameraViewMatrix.Mul4(viewTranslationMatrix)
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
 
 	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
+	_ = floorModelMatrix
+	_ = vPosition
 
-	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), verticalViewRotationMatrix.Mul4(horizontalViewRotationMatrix), projectionMatrix)
+	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), cameraViewMatrix, projectionMatrix)
 	drawMesh(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
 
 	for _, entity := range r.entities {
@@ -227,7 +232,7 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 				meshModelMatrix := createModelMatrix(
 					mgl32.Ident4(),
-					horizontalViewRotationMatrix.Mul4(xr.Mul4(yr)),
+					xr.Mul4(yr),
 					mgl32.Translate3D(float32(entityPosition.X()), float32(entityPosition.Y()), float32(entityPosition.Z())),
 				)
 

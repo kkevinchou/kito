@@ -76,7 +76,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	targetPosition := targetComponentContainer.PositionComponent.Position
 	positionComponent.Position = targetPosition
 	positionComponent.Position[1] += 10
-	positionComponent.Position[2] += 40
+	positionComponent.Position[2] += 20
 }
 
 func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {
