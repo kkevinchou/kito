@@ -1,7 +1,7 @@
 package components
 
 type FollowComponent struct {
-	FollowTargetEntityID *int
+	FollowTargetEntityID int
 	FollowDistance       float64
 }
 

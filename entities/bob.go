@@ -32,13 +32,12 @@ func NewBob() *EntityImpl {
 		Animation:     parsedCollada.Animation,
 	}
 
-	controllerComponent := &components.ControllerComponent{
-		Controlled:  true,
-		IsCharacter: true,
-	}
-
 	physicsComponent := &components.PhysicsComponent{}
 	physicsComponent.Init()
+
+	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{
+		Controlled: true,
+	}
 
 	entity := NewEntity(
 		"bob",
@@ -46,8 +45,8 @@ func NewBob() *EntityImpl {
 			transformComponent,
 			renderComponent,
 			animationComponent,
-			controllerComponent,
 			physicsComponent,
+			thirdPersonControllerComponent,
 		),
 	)
 
