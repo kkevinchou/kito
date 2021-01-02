@@ -184,18 +184,12 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	componentContainer := r.camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
 
-	cameraPosition := transformComponent.Position
-	cameraViewDirection := transformComponent.View
-
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	// verticalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.X())), mgl32.Vec3{1, 0, 0}).Mat4()
-	// horizontalViewRotationMatrix := mgl32.QuatRotate(mgl32.DegToRad(float32(cameraView.Y())), mgl32.Vec3{0, 1, 0}).Mat4()
-
-	cameraViewQuaternion := mgl32.QuatBetweenVectors(mgl32.Vec3{0, 0, -1}, utils.Vec3ToVec2(cameraViewDirection))
-
 	// We use the inverse to move the universe in the opposite direction of where the camera is looking
+	cameraViewQuaternion := utils.QuatF64ToQuatF32(transformComponent.ViewQuaternion)
 	cameraViewMatrix := cameraViewQuaternion.Inverse().Mat4()
+	cameraPosition := transformComponent.Position
 
 	floorModelMatrix := createModelMatrix(
 		mgl32.Scale3D(100, 100, 100),
@@ -209,8 +203,6 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
 
 	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
-	_ = floorModelMatrix
-	_ = vPosition
 
 	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), cameraViewMatrix, projectionMatrix)
 	drawMesh(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)

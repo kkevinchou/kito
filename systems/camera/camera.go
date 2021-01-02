@@ -2,6 +2,7 @@ package camera
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/kkevinchou/kito/components"
@@ -72,11 +73,58 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	}
 
 	targetComponentContainer := entity.GetComponentContainer()
-
 	targetPosition := targetComponentContainer.TransformComponent.Position
-	transformComponent.Position = targetPosition
-	transformComponent.Position[1] += 10
-	transformComponent.Position[2] += 20
+
+	var xRel, yRel float64
+
+	singleton := s.world.GetSingleton()
+	if singleton.GetMouseInput() != nil {
+		mouseInput := *singleton.GetMouseInput()
+		var mouseSensitivity float64 = 0.005
+		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
+			xRel += -mouseInput.MouseMotionEvent.XRel * mouseSensitivity
+			yRel += -mouseInput.MouseMotionEvent.YRel * mouseSensitivity
+		}
+	}
+
+	if singleton.GetKeyboardInputSet() != nil {
+		keyboardInput := *singleton.GetKeyboardInputSet()
+		var keyboardSensitivity float64 = 0.01
+		if key, ok := keyboardInput[types.KeyboardKeyRight]; ok && key.Event == types.KeyboardEventDown {
+			xRel += keyboardSensitivity
+		}
+		if key, ok := keyboardInput[types.KeyboardKeyLeft]; ok && key.Event == types.KeyboardEventDown {
+			xRel += -keyboardSensitivity
+		}
+		if key, ok := keyboardInput[types.KeyboardKeyUp]; ok && key.Event == types.KeyboardEventDown {
+			yRel += -keyboardSensitivity
+		}
+		if key, ok := keyboardInput[types.KeyboardKeyDown]; ok && key.Event == types.KeyboardEventDown {
+			yRel += keyboardSensitivity
+		}
+	}
+
+	forwardVector := transformComponent.ViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
+	rightVector := forwardVector.Cross(transformComponent.UpVector)
+	transformComponent.Position = targetPosition.Add(forwardVector.Mul(-1).Mul(followComponent.FollowDistance))
+
+	deltaRotationX := mgl64.QuatRotate(yRel, rightVector)         // pitch
+	deltaRotationY := mgl64.QuatRotate(xRel, mgl64.Vec3{0, 1, 0}) // yaw
+	deltaRotation := deltaRotationY.Mul(deltaRotationX)
+
+	targetToCamera := transformComponent.Position.Sub(targetPosition)
+
+	nextViewQuaternion := deltaRotation.Mul(transformComponent.ViewQuaternion)
+	nextForwardVector := nextViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
+
+	// if we're nearly pointing directly downwards or upwards - stop camera movement
+	if mgl64.FloatEqualThreshold(math.Abs(nextForwardVector[1]), 1, 0.001) {
+		return
+	}
+
+	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera).Normalize().Mul(followComponent.FollowDistance))
+	transformComponent.ViewQuaternion = nextViewQuaternion
+	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
 }
 
 func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {
