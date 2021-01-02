@@ -33,18 +33,17 @@ func NewCamera(position mgl64.Vec3, view mgl64.Vec2) *EntityImpl {
 
 func NewThirdPersonCamera(followTarget int, positionOffset mgl64.Vec3, view mgl64.Vec2) *EntityImpl {
 	// TODO: sync initial position from transform compnoent from follow component
-	initialPosition := mgl64.Vec3{0, 0, 40}
 
 	transformComponent := &components.TransformComponent{
 		ViewQuaternion: mgl64.QuatIdent(),
-		Position:       initialPosition,
+		Position:       mgl64.Vec3{0, 0, 1},
 		UpVector:       mgl64.Vec3{0, 1, 0},
 	}
 	controllerComponent := &components.ControllerComponent{Controlled: false}
 
 	followComponent := &components.FollowComponent{
 		FollowTargetEntityID: &followTarget,
-		InitialOffset:        initialPosition,
+		FollowDistance:       40,
 	}
 
 	entity := NewEntity(

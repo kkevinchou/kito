@@ -184,13 +184,12 @@ func (r *RenderSystem) Update(delta time.Duration) {
 	componentContainer := r.camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
 
-	cameraPosition := transformComponent.Position
-
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	// We use the inverse to move the universe in the opposite direction of where the camera is looking
 	cameraViewQuaternion := utils.QuatF64ToQuatF32(transformComponent.ViewQuaternion)
 	cameraViewMatrix := cameraViewQuaternion.Inverse().Mat4()
+	cameraPosition := transformComponent.Position
 
 	floorModelMatrix := createModelMatrix(
 		mgl32.Scale3D(100, 100, 100),

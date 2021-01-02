@@ -62,7 +62,6 @@ func (s *CameraSystem) Update(delta time.Duration) {
 func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.ComponentContainer) {
 	followComponent := componentContainer.FollowComponent
 	transformComponent := componentContainer.TransformComponent
-	position := transformComponent.Position
 
 	if followComponent == nil || followComponent.FollowTargetEntityID == nil {
 		return
@@ -83,7 +82,6 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 		mouseInput := *singleton.GetMouseInput()
 		var mouseSensitivity float64 = 0.005
 		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
-			fmt.Println(mouseInput.MouseMotionEvent.XRel, mouseInput.MouseMotionEvent.YRel)
 			xRel += -mouseInput.MouseMotionEvent.XRel * mouseSensitivity
 			yRel += -mouseInput.MouseMotionEvent.YRel * mouseSensitivity
 		}
@@ -108,12 +106,13 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 
 	forwardVector := transformComponent.ViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
 	rightVector := forwardVector.Cross(transformComponent.UpVector)
+	transformComponent.Position = targetPosition.Add(forwardVector.Mul(-1).Mul(followComponent.FollowDistance))
 
 	deltaRotationX := mgl64.QuatRotate(yRel, rightVector)         // pitch
 	deltaRotationY := mgl64.QuatRotate(xRel, mgl64.Vec3{0, 1, 0}) // yaw
 	deltaRotation := deltaRotationY.Mul(deltaRotationX)
 
-	targetToCamera := position.Sub(targetPosition)
+	targetToCamera := transformComponent.Position.Sub(targetPosition)
 
 	nextViewQuaternion := deltaRotation.Mul(transformComponent.ViewQuaternion)
 	nextForwardVector := nextViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
@@ -123,7 +122,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 		return
 	}
 
-	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera))
+	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera).Normalize().Mul(followComponent.FollowDistance))
 	transformComponent.ViewQuaternion = nextViewQuaternion
 	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
 }

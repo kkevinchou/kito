@@ -1,10 +1,8 @@
 package components
 
-import "github.com/go-gl/mathgl/mgl64"
-
 type FollowComponent struct {
 	FollowTargetEntityID *int
-	InitialOffset        mgl64.Vec3
+	FollowDistance       float64
 }
 
 func (c *FollowComponent) AddToComponentContainer(container *ComponentContainer) {
