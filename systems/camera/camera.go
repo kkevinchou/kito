@@ -61,6 +61,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.ComponentContainer) {
 	followComponent := componentContainer.FollowComponent
 	transformComponent := componentContainer.TransformComponent
+	position := transformComponent.Position
 
 	if followComponent == nil || followComponent.FollowTargetEntityID == nil {
 		return
@@ -72,11 +73,42 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	}
 
 	targetComponentContainer := entity.GetComponentContainer()
-
 	targetPosition := targetComponentContainer.TransformComponent.Position
-	transformComponent.Position = targetPosition
-	transformComponent.Position[1] += 10
-	transformComponent.Position[2] += 20
+
+	singleton := s.world.GetSingleton()
+	if singleton.GetMouseInput() != nil {
+		mouseInput := *singleton.GetMouseInput()
+		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
+			followComponent.CurrentOffsetDelta[0] += -mouseInput.MouseMotionEvent.XRel
+			followComponent.CurrentOffsetDelta[1] += -mouseInput.MouseMotionEvent.YRel // motion event is negative going up and positive going down
+		}
+	}
+
+	var xRel float64
+	if singleton.GetKeyboardInputSet() != nil {
+		var arrowKeyScale float64 = 1
+		keyboardInput := *singleton.GetKeyboardInputSet()
+		if key, ok := keyboardInput[types.KeyboardKeyRight]; ok && key.Event == types.KeyboardEventDown {
+			xRel += arrowKeyScale
+			followComponent.CurrentOffsetDelta[0] += arrowKeyScale
+		}
+		if key, ok := keyboardInput[types.KeyboardKeyLeft]; ok && key.Event == types.KeyboardEventDown {
+			xRel += -arrowKeyScale
+			followComponent.CurrentOffsetDelta[0] += -arrowKeyScale
+		}
+		if key, ok := keyboardInput[types.KeyboardKeyUp]; ok && key.Event == types.KeyboardEventDown {
+			followComponent.CurrentOffsetDelta[1] += -arrowKeyScale
+		}
+		if key, ok := keyboardInput[types.KeyboardKeyDown]; ok && key.Event == types.KeyboardEventDown {
+			followComponent.CurrentOffsetDelta[1] += arrowKeyScale
+		}
+	}
+
+	positionVector := position.Sub(targetPosition)
+	deltaRotation := mgl64.QuatRotate(xRel*0.01, mgl64.Vec3{0, 1, 0})
+	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(positionVector))
+
+	transformComponent.ViewQuaternion = deltaRotation.Mul(transformComponent.ViewQuaternion)
 }
 
 func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {

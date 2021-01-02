@@ -30,6 +30,11 @@ const (
 	KeyboardKeyS KeyboardKey = "S"
 	KeyboardKeyD KeyboardKey = "D"
 
+	KeyboardKeyUp    KeyboardKey = "Up"
+	KeyboardKeyDown  KeyboardKey = "Down"
+	KeyboardKeyLeft  KeyboardKey = "Left"
+	KeyboardKeyRight KeyboardKey = "Right"
+
 	KeyboardKeyLShift KeyboardKey = "Left Shift"
 	KeyboardKeySpace  KeyboardKey = "Space"
 	KeyboardKeyEscape KeyboardKey = "Escape"
