@@ -2,6 +2,7 @@ package camera
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/kkevinchou/kito/components"
@@ -75,40 +76,56 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	targetComponentContainer := entity.GetComponentContainer()
 	targetPosition := targetComponentContainer.TransformComponent.Position
 
+	var xRel, yRel float64
+
 	singleton := s.world.GetSingleton()
 	if singleton.GetMouseInput() != nil {
 		mouseInput := *singleton.GetMouseInput()
+		var mouseSensitivity float64 = 0.005
 		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
-			followComponent.CurrentOffsetDelta[0] += -mouseInput.MouseMotionEvent.XRel
-			followComponent.CurrentOffsetDelta[1] += -mouseInput.MouseMotionEvent.YRel // motion event is negative going up and positive going down
+			fmt.Println(mouseInput.MouseMotionEvent.XRel, mouseInput.MouseMotionEvent.YRel)
+			xRel += -mouseInput.MouseMotionEvent.XRel * mouseSensitivity
+			yRel += -mouseInput.MouseMotionEvent.YRel * mouseSensitivity
 		}
 	}
 
-	var xRel float64
 	if singleton.GetKeyboardInputSet() != nil {
-		var arrowKeyScale float64 = 1
 		keyboardInput := *singleton.GetKeyboardInputSet()
+		var keyboardSensitivity float64 = 0.01
 		if key, ok := keyboardInput[types.KeyboardKeyRight]; ok && key.Event == types.KeyboardEventDown {
-			xRel += arrowKeyScale
-			followComponent.CurrentOffsetDelta[0] += arrowKeyScale
+			xRel += keyboardSensitivity
 		}
 		if key, ok := keyboardInput[types.KeyboardKeyLeft]; ok && key.Event == types.KeyboardEventDown {
-			xRel += -arrowKeyScale
-			followComponent.CurrentOffsetDelta[0] += -arrowKeyScale
+			xRel += -keyboardSensitivity
 		}
 		if key, ok := keyboardInput[types.KeyboardKeyUp]; ok && key.Event == types.KeyboardEventDown {
-			followComponent.CurrentOffsetDelta[1] += -arrowKeyScale
+			yRel += -keyboardSensitivity
 		}
 		if key, ok := keyboardInput[types.KeyboardKeyDown]; ok && key.Event == types.KeyboardEventDown {
-			followComponent.CurrentOffsetDelta[1] += arrowKeyScale
+			yRel += keyboardSensitivity
 		}
 	}
 
-	positionVector := position.Sub(targetPosition)
-	deltaRotation := mgl64.QuatRotate(xRel*0.01, mgl64.Vec3{0, 1, 0})
-	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(positionVector))
+	forwardVector := transformComponent.ViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
+	rightVector := forwardVector.Cross(transformComponent.UpVector)
 
-	transformComponent.ViewQuaternion = deltaRotation.Mul(transformComponent.ViewQuaternion)
+	deltaRotationX := mgl64.QuatRotate(yRel, rightVector)         // pitch
+	deltaRotationY := mgl64.QuatRotate(xRel, mgl64.Vec3{0, 1, 0}) // yaw
+	deltaRotation := deltaRotationY.Mul(deltaRotationX)
+
+	targetToCamera := position.Sub(targetPosition)
+
+	nextViewQuaternion := deltaRotation.Mul(transformComponent.ViewQuaternion)
+	nextForwardVector := nextViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
+
+	// if we're nearly pointing directly downwards or upwards - stop camera movement
+	if mgl64.FloatEqualThreshold(math.Abs(nextForwardVector[1]), 1, 0.001) {
+		return
+	}
+
+	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera))
+	transformComponent.ViewQuaternion = nextViewQuaternion
+	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
 }
 
 func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {

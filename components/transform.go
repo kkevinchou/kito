@@ -7,6 +7,7 @@ import (
 type TransformComponent struct {
 	Position       mgl64.Vec3
 	ViewQuaternion mgl64.Quat
+	UpVector       mgl64.Vec3
 }
 
 func (c *TransformComponent) AddToComponentContainer(container *ComponentContainer) {
