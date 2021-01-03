@@ -3,6 +3,8 @@ package physics
 import (
 	"time"
 
+	"github.com/kkevinchou/kito/lib/utils"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
 )
@@ -59,5 +61,11 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 		velocity := physicsComponent.Velocity.Add(totalImpulse)
 		newPos := transformComponent.Position.Add(velocity.Mul(delta.Seconds()))
 		transformComponent.Position = newPos
+
+		if !utils.Vec3IsZero(velocity) {
+			// transformComponent.ViewQuaternion = mgl64.QuatBetweenVectors(transformComponent.ForwardVector, velocity).Mul(transformComponent.ViewQuaternion)
+			transformComponent.ForwardVector = velocity.Normalize()
+			transformComponent.ViewQuaternion = utils.QuatLookAt(mgl64.Vec3{0, 0, 0}, transformComponent.ForwardVector, mgl64.Vec3{0, 1, 0})
+		}
 	}
 }

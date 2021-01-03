@@ -1,9 +1,13 @@
 package utils_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/kkevinchou/kito/lib/utils"
+)
 
 func TestPriorityQueue(t *testing.T) {
-	pq := New()
+	pq := utils.NewPriorityQueue()
 	pq.Push("zuko", 3)
 	pq.Push("aang", 0)
 	pq.Push("katara", 1)

@@ -209,6 +209,7 @@ func (s *RenderSystem) Update(delta time.Duration) {
 		componentContainer := entity.GetComponentContainer()
 		renderData := componentContainer.RenderComponent.GetRenderData()
 		entityPosition := componentContainer.TransformComponent.Position
+		rotation := componentContainer.TransformComponent.ViewQuaternion
 
 		if !renderData.IsVisible() {
 			continue
@@ -217,12 +218,13 @@ func (s *RenderSystem) Update(delta time.Duration) {
 		if rData, ok := renderData.(*components.ModelRenderData); ok {
 			if rData.Animated {
 
+				// accounting for blender change of axis
 				xr := mgl32.QuatRotate(mgl32.DegToRad(90), mgl32.Vec3{1, 0, 0}).Mat4()
 				yr := mgl32.QuatRotate(mgl32.DegToRad(180), mgl32.Vec3{0, 1, 0}).Mat4()
 
 				meshModelMatrix := createModelMatrix(
 					mgl32.Ident4(),
-					xr.Mul4(yr),
+					utils.QuatF64ToQuatF32(rotation).Mat4().Mul4(xr.Mul4(yr)),
 					mgl32.Translate3D(float32(entityPosition.X()), float32(entityPosition.Y()), float32(entityPosition.Z())),
 				)
 

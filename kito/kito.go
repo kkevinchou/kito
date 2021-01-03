@@ -84,8 +84,8 @@ func NewGame() *Game {
 
 	g.systems = append(g.systems, characterControllerSystem)
 	g.systems = append(g.systems, physicsSystem)
-	g.systems = append(g.systems, cameraSystem)
 	g.systems = append(g.systems, animationSystem)
+	g.systems = append(g.systems, cameraSystem)
 
 	// Entity Setup
 
@@ -113,10 +113,10 @@ func NewGame() *Game {
 	}
 
 	for _, entity := range worldEntities {
-		animationSystem.RegisterEntity(entity)
-		renderSystem.RegisterEntity(entity)
-		physicsSystem.RegisterEntity(entity)
 		characterControllerSystem.RegisterEntity(entity)
+		physicsSystem.RegisterEntity(entity)
+		animationSystem.RegisterEntity(entity) // animation system should render at the same rate as the render system
+		renderSystem.RegisterEntity(entity)
 	}
 
 	return g

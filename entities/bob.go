@@ -10,6 +10,8 @@ import (
 func NewBob() *EntityImpl {
 	transformComponent := &components.TransformComponent{
 		ViewQuaternion: mgl64.QuatIdent(),
+		ForwardVector:  mgl64.Vec3{0, 0, -1},
+		UpVector:       mgl64.Vec3{0, 1, 0},
 	}
 
 	renderData := &components.ModelRenderData{
