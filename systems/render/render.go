@@ -42,7 +42,8 @@ var (
 	noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
 )
 
-type Game interface {
+type World interface {
+	GetCamera() entities.Entity
 }
 
 type RenderSystem struct {
@@ -51,7 +52,7 @@ type RenderSystem struct {
 	camera       entities.Entity
 	assetManager *lib.AssetManager
 	textureMap   map[string]uint32
-	game         Game
+	world        World
 	lights       []*Light
 	shaders      map[string]*shaders.Shader
 	skybox       *SkyBox
@@ -72,7 +73,7 @@ func initFont() *ttf.Font {
 	return font
 }
 
-func NewRenderSystem(game Game, assetManager *lib.AssetManager) *RenderSystem {
+func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(fmt.Sprintf("Failed to init SDL", err))
 	}
@@ -99,7 +100,7 @@ func NewRenderSystem(game Game, assetManager *lib.AssetManager) *RenderSystem {
 	renderSystem := RenderSystem{
 		assetManager: assetManager,
 		window:       window,
-		game:         game,
+		world:        world,
 		skybox:       NewSkyBox(300),
 		floor:        NewQuad(nil),
 	}
@@ -176,12 +177,9 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 	}
 }
 
-func (s *RenderSystem) SetCamera(camera entities.Entity) {
-	s.camera = camera
-}
-
-func (r *RenderSystem) Update(delta time.Duration) {
-	componentContainer := r.camera.GetComponentContainer()
+func (s *RenderSystem) Update(delta time.Duration) {
+	camera := s.world.GetCamera()
+	componentContainer := camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
 
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -204,13 +202,14 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
 
-	drawSkyBox(r.skybox, r.shaders["skybox"], r.textureMap, mgl32.Ident4(), cameraViewMatrix, projectionMatrix)
-	drawMesh(r.floor, r.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
+	drawSkyBox(s.skybox, s.shaders["skybox"], s.textureMap, mgl32.Ident4(), cameraViewMatrix, projectionMatrix)
+	drawMesh(s.floor, s.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
 
-	for _, entity := range r.entities {
+	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
 		renderData := componentContainer.RenderComponent.GetRenderData()
 		entityPosition := componentContainer.TransformComponent.Position
+		rotation := componentContainer.TransformComponent.ViewQuaternion
 
 		if !renderData.IsVisible() {
 			continue
@@ -219,17 +218,18 @@ func (r *RenderSystem) Update(delta time.Duration) {
 		if rData, ok := renderData.(*components.ModelRenderData); ok {
 			if rData.Animated {
 
+				// accounting for blender change of axis
 				xr := mgl32.QuatRotate(mgl32.DegToRad(90), mgl32.Vec3{1, 0, 0}).Mat4()
 				yr := mgl32.QuatRotate(mgl32.DegToRad(180), mgl32.Vec3{0, 1, 0}).Mat4()
 
 				meshModelMatrix := createModelMatrix(
 					mgl32.Ident4(),
-					xr.Mul4(yr),
+					utils.QuatF64ToQuatF32(rotation).Mat4().Mul4(xr.Mul4(yr)),
 					mgl32.Translate3D(float32(entityPosition.X()), float32(entityPosition.Y()), float32(entityPosition.Z())),
 				)
 
 				animationComponent := componentContainer.AnimationComponent
-				drawAnimatedMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, r.textureMap["cowboy"], r.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
+				drawAnimatedMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, s.textureMap["cowboy"], s.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
 			}
 		} else if _, ok := renderData.(*components.BlockRenderData); ok {
 		}
@@ -237,5 +237,5 @@ func (r *RenderSystem) Update(delta time.Duration) {
 
 	gl.UseProgram(0)
 
-	r.window.GLSwap()
+	s.window.GLSwap()
 }

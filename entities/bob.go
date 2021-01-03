@@ -10,6 +10,8 @@ import (
 func NewBob() *EntityImpl {
 	transformComponent := &components.TransformComponent{
 		ViewQuaternion: mgl64.QuatIdent(),
+		ForwardVector:  mgl64.Vec3{0, 0, -1},
+		UpVector:       mgl64.Vec3{0, 1, 0},
 	}
 
 	renderData := &components.ModelRenderData{
@@ -32,13 +34,12 @@ func NewBob() *EntityImpl {
 		Animation:     parsedCollada.Animation,
 	}
 
-	controllerComponent := &components.ControllerComponent{
-		Controlled:  true,
-		IsCharacter: true,
-	}
-
 	physicsComponent := &components.PhysicsComponent{}
 	physicsComponent.Init()
+
+	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{
+		Controlled: true,
+	}
 
 	entity := NewEntity(
 		"bob",
@@ -46,8 +47,8 @@ func NewBob() *EntityImpl {
 			transformComponent,
 			renderComponent,
 			animationComponent,
-			controllerComponent,
 			physicsComponent,
+			thirdPersonControllerComponent,
 		),
 	)
 

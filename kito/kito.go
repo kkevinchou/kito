@@ -84,20 +84,22 @@ func NewGame() *Game {
 
 	g.systems = append(g.systems, characterControllerSystem)
 	g.systems = append(g.systems, physicsSystem)
-	g.systems = append(g.systems, cameraSystem)
 	g.systems = append(g.systems, animationSystem)
+	g.systems = append(g.systems, cameraSystem)
 
 	// Entity Setup
 
 	bob := entities.NewBob()
+	camera := entities.NewThirdPersonCamera(cameraStartPosition, cameraStartView)
 
-	// camera := entities.NewCamera(cameraStartPosition, cameraStartView)
-	camera := entities.NewThirdPersonCamera(bob.GetID(), cameraStartPosition, cameraStartView)
-	componentContainer := camera.GetComponentContainer()
-	// fmt.Println("Camera initialized at position", componentContainer.TransformComponent.Position, "and view", componentContainer.TopDownViewComponent.View())
-	fmt.Println("Camera initialized at position", componentContainer.TransformComponent.Position)
+	cameraComponentContainer := camera.GetComponentContainer()
+	cameraComponentContainer.FollowComponent.FollowTargetEntityID = bob.GetID()
+	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
+
+	bobComponentContainer := bob.GetComponentContainer()
+	bobComponentContainer.ThirdPersonControllerComponent.CameraID = camera.GetID()
+
 	g.camera = camera
-	renderSystem.SetCamera(camera)
 
 	worldEntities := []entities.Entity{
 		bob,
@@ -111,10 +113,10 @@ func NewGame() *Game {
 	}
 
 	for _, entity := range worldEntities {
-		animationSystem.RegisterEntity(entity)
-		renderSystem.RegisterEntity(entity)
-		physicsSystem.RegisterEntity(entity)
 		characterControllerSystem.RegisterEntity(entity)
+		physicsSystem.RegisterEntity(entity)
+		animationSystem.RegisterEntity(entity) // animation system should render at the same rate as the render system
+		renderSystem.RegisterEntity(entity)
 	}
 
 	return g

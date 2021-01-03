@@ -20,3 +20,26 @@ func Vec3F64ToVec3F32(v mgl64.Vec3) mgl32.Vec3 {
 func QuatF64ToQuatF32(q mgl64.Quat) mgl32.Quat {
 	return mgl32.Quat{W: float32(q.W), V: Vec3F64ToVec3F32(q.V)}
 }
+
+func QuatLookAt(eye, center, up mgl64.Vec3) mgl64.Quat {
+	// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#I_need_an_equivalent_of_gluLookAt__How_do_I_orient_an_object_towards_a_point__
+	// https://bitbucket.org/sinbad/ogre/src/d2ef494c4a2f5d6e2f0f17d3bfb9fd936d5423bb/OgreMain/src/OgreCamera.cpp?at=default#cl-161
+
+	// fmt.Println("----")
+	direction := center.Sub(eye).Normalize()
+
+	// Find the rotation between the front of the object (that we assume towards Z-,
+	// but this depends on your model) and the desired direction
+	rotDir := mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, -1}, direction)
+
+	// Because of the 1st rotation, the up is probably completely screwed up.
+	// Find the rotation between the "up" of the rotated object, and the desired up
+	newNormal := rotDir.Rotate(mgl64.Vec3{0, 1, 0})
+	// fmt.Println("upCur", upCur)
+	rotUp := mgl64.QuatBetweenVectors(newNormal, up)
+	// fmt.Println("rotUp", rotUp)
+
+	rotTarget := rotUp.Mul(rotDir) // remember, in reverse order.
+	// fmt.Println("rotTarget", rotTarget)
+	return rotTarget
+}

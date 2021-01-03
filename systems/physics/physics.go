@@ -3,6 +3,8 @@ package physics
 import (
 	"time"
 
+	"github.com/kkevinchou/kito/lib/utils"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
 )
@@ -59,5 +61,13 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 		velocity := physicsComponent.Velocity.Add(totalImpulse)
 		newPos := transformComponent.Position.Add(velocity.Mul(delta.Seconds()))
 		transformComponent.Position = newPos
+
+		if !utils.Vec3IsZero(velocity) {
+			transformComponent.ForwardVector = velocity.Normalize()
+			// Note, this will bug out if we look directly up or directly down. This
+			// is due to issues looking at objects that are along our "up" vector.
+			// I believe this is due to us losing sense of what a "right" vector is.
+			transformComponent.ViewQuaternion = utils.QuatLookAt(mgl64.Vec3{0, 0, 0}, transformComponent.ForwardVector, mgl64.Vec3{0, 1, 0})
+		}
 	}
 }

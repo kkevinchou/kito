@@ -42,19 +42,8 @@ func NewCameraSystem(world World) *CameraSystem {
 
 func (s *CameraSystem) Update(delta time.Duration) {
 	camera := s.world.GetCamera()
-
 	componentContainer := camera.GetComponentContainer()
-	controllerComponent := componentContainer.ControllerComponent
-
-	if controllerComponent.Controlled {
-		s.handleControlledCamera(componentContainer)
-		return
-	}
-
-	if controllerComponent == nil || !controllerComponent.Controlled {
-		s.handleUncontrolledCamera(componentContainer)
-	}
-
+	s.handleUncontrolledCamera(componentContainer)
 }
 
 // this might belong in some kind of movement or pathfinding system that handles "following" logic.
@@ -63,11 +52,11 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	followComponent := componentContainer.FollowComponent
 	transformComponent := componentContainer.TransformComponent
 
-	if followComponent == nil || followComponent.FollowTargetEntityID == nil {
+	if followComponent == nil {
 		return
 	}
 
-	entity, err := s.world.GetEntityByID(*followComponent.FollowTargetEntityID)
+	entity, err := s.world.GetEntityByID(followComponent.FollowTargetEntityID)
 	if err != nil {
 		panic(err)
 	}
@@ -78,6 +67,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	var xRel, yRel float64
 
 	singleton := s.world.GetSingleton()
+
 	if singleton.GetMouseInput() != nil {
 		mouseInput := *singleton.GetMouseInput()
 		var mouseSensitivity float64 = 0.005
@@ -118,6 +108,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	nextForwardVector := nextViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
 
 	// if we're nearly pointing directly downwards or upwards - stop camera movement
+	// TODO: do this in a better way
 	if mgl64.FloatEqualThreshold(math.Abs(nextForwardVector[1]), 1, 0.001) {
 		return
 	}
