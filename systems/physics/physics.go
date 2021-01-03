@@ -63,8 +63,10 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 		transformComponent.Position = newPos
 
 		if !utils.Vec3IsZero(velocity) {
-			// transformComponent.ViewQuaternion = mgl64.QuatBetweenVectors(transformComponent.ForwardVector, velocity).Mul(transformComponent.ViewQuaternion)
 			transformComponent.ForwardVector = velocity.Normalize()
+			// Note, this will bug out if we look directly up or directly down. This
+			// is due to issues looking at objects that are along our "up" vector.
+			// I believe this is due to us losing sense of what a "right" vector is.
 			transformComponent.ViewQuaternion = utils.QuatLookAt(mgl64.Vec3{0, 0, 0}, transformComponent.ForwardVector, mgl64.Vec3{0, 1, 0})
 		}
 	}
