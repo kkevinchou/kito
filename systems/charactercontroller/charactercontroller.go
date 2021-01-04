@@ -79,7 +79,7 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 
 		if controlVector.Y() > 0 {
 			impulse := types.Impulse{
-				Vector:    mgl64.Vec3{0, 15, 0},
+				Vector:    mgl64.Vec3{0, 40, 0},
 				DecayRate: 1,
 			}
 			physicsComponent.ApplyImpulse("jumper", impulse)
