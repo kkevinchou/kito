@@ -5,10 +5,12 @@ import (
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/loaders/collada"
+	"github.com/kkevinchou/kito/types"
 )
 
-func NewBob() *EntityImpl {
+func NewBob(position mgl64.Vec3) *EntityImpl {
 	transformComponent := &components.TransformComponent{
+		Position:       position,
 		ViewQuaternion: mgl64.QuatIdent(),
 		ForwardVector:  mgl64.Vec3{0, 0, -1},
 		UpVector:       mgl64.Vec3{0, 1, 0},
@@ -34,8 +36,9 @@ func NewBob() *EntityImpl {
 		Animation:     parsedCollada.Animation,
 	}
 
-	physicsComponent := &components.PhysicsComponent{}
-	physicsComponent.Init()
+	physicsComponent := &components.PhysicsComponent{
+		Impulses: map[string]types.Impulse{},
+	}
 
 	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{
 		Controlled: true,

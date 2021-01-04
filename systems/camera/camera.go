@@ -157,7 +157,7 @@ func (s *CameraSystem) handleControlledCamera(componentContainer *components.Com
 	rightVector := topDownViewComponent.Right()
 	rightVector = rightVector.Mul(-controlVector.X())
 
-	impulse := &types.Impulse{}
+	impulse := types.Impulse{}
 	if !utils.Vec3IsZero(controlVector) {
 		impulse.Vector = forwardVector.Add(rightVector).Add(mgl64.Vec3{0, controlVector.Y(), 0}).Normalize().Mul(moveSpeed)
 		impulse.DecayRate = 2.5
