@@ -89,7 +89,7 @@ func NewGame() *Game {
 
 	// Entity Setup
 
-	bob := entities.NewBob()
+	bob := entities.NewBob(mgl64.Vec3{0, 15, 0})
 	camera := entities.NewThirdPersonCamera(cameraStartPosition, cameraStartView)
 
 	cameraComponentContainer := camera.GetComponentContainer()
@@ -99,13 +99,31 @@ func NewGame() *Game {
 	bobComponentContainer := bob.GetComponentContainer()
 	bobComponentContainer.ThirdPersonControllerComponent.CameraID = camera.GetID()
 
+	// offset := 5
+	// bobDimension := 20
+	// var bobs []entities.Entity
+	// for i := 0; i < bobDimension; i++ {
+	// 	for j := 0; j < bobDimension; j++ {
+	// 		x := i - bobDimension/2
+	// 		z := j - bobDimension/2
+	// 		bobGuy := entities.NewBob(mgl64.Vec3{float64(x * offset), 0, float64(z * offset)})
+	// 		container := bobGuy.GetComponentContainer()
+	// 		container.ThirdPersonControllerComponent.CameraID = camera.GetID()
+	// 		bobs = append(bobs, bobGuy)
+	// 	}
+	// }
+
 	g.camera = camera
 
 	worldEntities := []entities.Entity{
 		bob,
+	}
+	// worldEntities = append(worldEntities, bobs...)
+	worldEntities = append(
+		worldEntities,
 		camera,
 		entities.NewBlock(),
-	}
+	)
 
 	g.entities = map[int]entities.Entity{}
 	for _, entity := range worldEntities {
@@ -139,7 +157,10 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 	directory := directory.GetDirectory()
 	renderSystem := directory.RenderSystem()
 
+	var fpsAccumulator float64
+
 	previousTimeStamp := float64(time.Now().UnixNano()) / 1000000
+	frameCount := 0
 	for g.gameOver != true {
 		now := float64(time.Now().UnixNano()) / 1000000
 		delta := math.Min(now-previousTimeStamp, maxTimeStep)
@@ -159,10 +180,18 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 		}
 
 		if renderAccumulator >= msPerFrame {
+			frameCount++
 			renderSystem.Update(time.Duration(renderAccumulator) * time.Millisecond)
 			for renderAccumulator >= msPerFrame {
 				renderAccumulator -= msPerFrame
 			}
+		}
+
+		fpsAccumulator += delta
+		if fpsAccumulator > 1000 {
+			fmt.Println(fmt.Sprintf("%d frames rendered last second", frameCount))
+			frameCount = 0
+			fpsAccumulator -= 1000
 		}
 	}
 }
