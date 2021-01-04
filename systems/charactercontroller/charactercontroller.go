@@ -41,7 +41,6 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 		keyboardInput := *singleton.GetKeyboardInputSet()
 
 		controlVector := sysutils.GetControlVector(keyboardInput)
-		controlVector[1] = 0
 
 		forwardVector := mgl64.Vec3{0, 0, -1}
 		rightVector := mgl64.Vec3{1, 0, 0}
@@ -52,23 +51,38 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 				panic(err)
 			}
 			cameraComponentContainer := camera.GetComponentContainer()
+
 			forwardVector = cameraComponentContainer.TransformComponent.ViewQuaternion.Rotate(forwardVector)
+			// forwardVector = cameraComponentContainer.TransformComponent.ForwardVector
 			forwardVector[1] = 0
 			forwardVector = forwardVector.Normalize()
+
 			rightVector = cameraComponentContainer.TransformComponent.ViewQuaternion.Rotate(rightVector)
+			// rightVector = forwardVector.Cross(cameraComponentContainer.TransformComponent.UpVector)
 			rightVector[1] = 0
 			rightVector.Normalize()
 		}
 
 		forwardVector = forwardVector.Mul(controlVector.Z())
 		rightVector = rightVector.Mul(controlVector.X())
+		movementVector := forwardVector.Add(rightVector)
 		var moveSpeed float64 = 20
 
-		impulse := &types.Impulse{}
-		if !utils.Vec3IsZero(controlVector) {
-			impulse.Vector = forwardVector.Add(rightVector).Normalize().Mul(moveSpeed)
-			impulse.DecayRate = 5
+		if !utils.Vec3IsZero(movementVector) {
+			normalizedMovementVector := movementVector.Normalize()
+			impulse := types.Impulse{
+				Vector:    normalizedMovementVector.Mul(moveSpeed),
+				DecayRate: 5,
+			}
 			physicsComponent.ApplyImpulse("controllerMove", impulse)
+		}
+
+		if controlVector.Y() > 0 {
+			impulse := types.Impulse{
+				Vector:    mgl64.Vec3{0, 15, 0},
+				DecayRate: 1,
+			}
+			physicsComponent.ApplyImpulse("jumper", impulse)
 		}
 	}
 }

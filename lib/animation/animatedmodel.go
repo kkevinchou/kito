@@ -30,7 +30,7 @@ func getJointMap(joint *Joint, jointMap map[int]*Joint) map[int]*Joint {
 func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	joint := JointSpecToJoint(c.Root)
 
-	printHierarchy(joint, 0)
+	// printHierarchy(joint, 0)
 
 	jointMap := map[int]*Joint{}
 
