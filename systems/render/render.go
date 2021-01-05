@@ -199,18 +199,18 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 var asdfdepthMapFBO, asdfdepthTexture uint32
 
 func (s *RenderSystem) renderToDepthMap() {
-	shader := s.shaders["depth"]
+	// shader := s.shaders["depth"]
 
-	var near float32 = 1
-	var far float32 = 7.5
+	// var near float32 = 1
+	// var far float32 = 7.5
 
-	lightProjectionMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
-	lightViewMatrix := utils.QuatF64ToQuatF32(utils.QuatLookAt(mgl64.Vec3{-2, 4, -1}, mgl64.Vec3{0, -1, -1}, mgl64.Vec3{0, 1, 0})).Mat4()
-	lightSpaceMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
+	// lightProjectionMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
+	// lightViewMatrix := utils.QuatF64ToQuatF32(utils.QuatLookAt(mgl64.Vec3{-2, 4, -1}, mgl64.Vec3{0, -1, -1}, mgl64.Vec3{0, 1, 0})).Mat4()
+	// lightSpaceMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
 
-	shader.Use()
-	shader.SetUniformMat4("lightSpaceMatrix", lightSpaceMatrix)
-	shader.SetUniformMat4("model", mgl32.Translate3D(0, 3, 0))
+	// shader.Use()
+	// shader.SetUniformMat4("lightSpaceMatrix", lightSpaceMatrix)
+	// shader.SetUniformMat4("model", mgl32.Translate3D(0, 3, 0))
 
 	gl.Viewport(0, 0, width, height)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, asdfdepthMapFBO)
@@ -220,30 +220,10 @@ func (s *RenderSystem) renderToDepthMap() {
 	// gl.BindVertexArray(q.GetVAO())
 	// gl.DrawArrays(gl.TRIANGLES, 0, 6)
 
-	camera := s.world.GetCamera()
-	componentContainer := camera.GetComponentContainer()
-	transformComponent := componentContainer.TransformComponent
-
-	// We use the inverse to move the universe in the opposite direction of where the camera is looking
-	cameraViewQuaternion := utils.QuatF64ToQuatF32(transformComponent.ViewQuaternion)
-	cameraViewMatrix := cameraViewQuaternion.Inverse().Mat4()
-	cameraPosition := transformComponent.Position
-
-	floorModelMatrix := createModelMatrix(
-		mgl32.Scale3D(100, 100, 100),
-		mgl32.Ident4(),
-		mgl32.Ident4(),
-	)
-
-	viewTranslationMatrix := mgl32.Translate3D(float32(-cameraPosition.X()), float32(-cameraPosition.Y()), float32(-cameraPosition.Z()))
-	viewMatrix := cameraViewMatrix.Mul4(viewTranslationMatrix)
-
-	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
-	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
-
-	drawMesh(s.floor, s.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
+	s.renderScene()
 
 	gl.BindVertexArray(0)
+	gl.UseProgram(0)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 }
 
@@ -256,6 +236,16 @@ func (s *RenderSystem) Update(delta time.Duration) {
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
+	s.renderScene()
+
+	gl.BindVertexArray(0)
+	gl.UseProgram(0)
+	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
+
+	s.window.GLSwap()
+}
+
+func (s *RenderSystem) renderScene() {
 	camera := s.world.GetCamera()
 	componentContainer := camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
@@ -311,8 +301,4 @@ func (s *RenderSystem) Update(delta time.Duration) {
 		} else if _, ok := renderData.(*components.BlockRenderData); ok {
 		}
 	}
-
-	gl.UseProgram(0)
-
-	s.window.GLSwap()
 }
