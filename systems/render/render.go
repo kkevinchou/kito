@@ -220,7 +220,8 @@ func (s *RenderSystem) renderToDepthMap() {
 	// gl.BindVertexArray(q.GetVAO())
 	// gl.DrawArrays(gl.TRIANGLES, 0, 6)
 
-	s.renderScene()
+	lightProjectionMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
+	s.renderScene(lightProjectionMatrix)
 
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
@@ -236,7 +237,8 @@ func (s *RenderSystem) Update(delta time.Duration) {
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	s.renderScene()
+	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
+	s.renderScene(projectionMatrix)
 
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
@@ -245,7 +247,7 @@ func (s *RenderSystem) Update(delta time.Duration) {
 	s.window.GLSwap()
 }
 
-func (s *RenderSystem) renderScene() {
+func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4) {
 	camera := s.world.GetCamera()
 	componentContainer := camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
@@ -264,13 +266,11 @@ func (s *RenderSystem) renderScene() {
 	viewTranslationMatrix := mgl32.Translate3D(float32(-cameraPosition.X()), float32(-cameraPosition.Y()), float32(-cameraPosition.Z()))
 	viewMatrix := cameraViewMatrix.Mul4(viewTranslationMatrix)
 
-	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
-
 	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
 
-	drawTextureToQuad(s.shaders["depthValue"], asdfdepthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, projectionMatrix)
-	drawSkyBox(s.skybox, s.shaders["skybox"], s.textureMap, mgl32.Ident4(), cameraViewMatrix, projectionMatrix)
-	drawMesh(s.floor, s.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
+	drawTextureToQuad(s.shaders["depthValue"], asdfdepthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, perspectiveMatrix)
+	drawSkyBox(s.skybox, s.shaders["skybox"], s.textureMap, mgl32.Ident4(), cameraViewMatrix, perspectiveMatrix)
+	drawMesh(s.floor, s.shaders["basic"], floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition)
 
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
@@ -296,7 +296,7 @@ func (s *RenderSystem) renderScene() {
 				)
 
 				animationComponent := componentContainer.AnimationComponent
-				drawAnimatedMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, s.textureMap["cowboy"], s.shaders["model"], meshModelMatrix, viewMatrix, projectionMatrix, vPosition)
+				drawAnimatedMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, s.textureMap["cowboy"], s.shaders["model"], meshModelMatrix, viewMatrix, perspectiveMatrix, vPosition)
 			}
 		} else if _, ok := renderData.(*components.BlockRenderData); ok {
 		}
