@@ -208,6 +208,7 @@ func (s *RenderSystem) renderToDepthMap() {
 	lightViewMatrix := utils.QuatF64ToQuatF32(utils.QuatLookAt(mgl64.Vec3{-2, 4, -1}, mgl64.Vec3{0, 0, 0}, mgl64.Vec3{0, 1, 0})).Mat4()
 	lightSpaceMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
 
+	fmt.Println(asdfdepthMapFBO, asdfdepthTexture)
 	shader.Use()
 	shader.SetUniformMat4("lightSpaceMatrix", lightSpaceMatrix)
 	shader.SetUniformMat4("model", mgl32.Scale3D(25, 0, 25))
