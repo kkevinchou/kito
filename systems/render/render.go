@@ -32,8 +32,10 @@ const (
 	renderDistance            = 500.0
 	skyboxSize                = 500
 
-	aspectRatio = float32(width) / float32(height)
-	fovy        = float32(90.0 / aspectRatio)
+	aspectRatio         = float32(width) / float32(height)
+	fovy                = float32(90.0 / aspectRatio)
+	near        float32 = 1
+	far         float32 = 1000
 )
 
 var (
@@ -160,10 +162,27 @@ func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem 
 		panic(fmt.Sprintf("Failed to load model shader %s", err))
 	}
 
+	depthShader, err := shaders.NewShader("shaders/depth.vs", "shaders/depth.fs")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load depth shader %s", err))
+	}
+
+	depthValueShader, err := shaders.NewShader("shaders/basictexture.vs", "shaders/depthvalue.fs")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load texture test shader %s", err))
+	}
+
 	renderSystem.shaders = map[string]*shaders.Shader{
-		"basic":  basicShader,
-		"skybox": skyBoxShader,
-		"model":  modelShader,
+		"basic":      basicShader,
+		"skybox":     skyBoxShader,
+		"model":      modelShader,
+		"depth":      depthShader,
+		"depthValue": depthValueShader,
+	}
+
+	asdfdepthMapFBO, asdfdepthTexture, err = initializeShadowMap(width, height)
+	if err != nil {
+		panic(err)
 	}
 
 	return &renderSystem
@@ -177,12 +196,44 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 	}
 }
 
+var asdfdepthMapFBO, asdfdepthTexture uint32
+
+func (s *RenderSystem) renderToDepthMap() {
+	shader := s.shaders["depth"]
+
+	var near float32 = 1
+	var far float32 = 7.5
+
+	lightProjectionMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
+	lightViewMatrix := utils.QuatF64ToQuatF32(utils.QuatLookAt(mgl64.Vec3{-2, 4, -1}, mgl64.Vec3{0, 0, 0}, mgl64.Vec3{0, 1, 0})).Mat4()
+	lightSpaceMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
+
+	shader.Use()
+	shader.SetUniformMat4("lightSpaceMatrix", lightSpaceMatrix)
+	shader.SetUniformMat4("model", mgl32.Scale3D(25, 0, 25))
+
+	gl.Viewport(0, 0, width, height)
+	gl.BindFramebuffer(gl.FRAMEBUFFER, asdfdepthMapFBO)
+	gl.Clear(gl.DEPTH_BUFFER_BIT)
+
+	gl.BindVertexArray(s.floor.GetVAO())
+	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+	gl.BindVertexArray(0)
+	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
+}
+
 func (s *RenderSystem) Update(delta time.Duration) {
+	// render depth map
+	s.renderToDepthMap()
+
+	// regular render
+	gl.Viewport(0, 0, width, height)
+	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
 	camera := s.world.GetCamera()
 	componentContainer := camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
-
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	// We use the inverse to move the universe in the opposite direction of where the camera is looking
 	cameraViewQuaternion := utils.QuatF64ToQuatF32(transformComponent.ViewQuaternion)
@@ -198,10 +249,11 @@ func (s *RenderSystem) Update(delta time.Duration) {
 	viewTranslationMatrix := mgl32.Translate3D(float32(-cameraPosition.X()), float32(-cameraPosition.Y()), float32(-cameraPosition.Z()))
 	viewMatrix := cameraViewMatrix.Mul4(viewTranslationMatrix)
 
-	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, 1, 1000)
+	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
 
 	vPosition := mgl32.Vec3{float32(cameraPosition[0]), float32(cameraPosition[1]), float32(cameraPosition[2])}
 
+	drawTextureToQuad(s.shaders["depthValue"], asdfdepthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, projectionMatrix)
 	drawSkyBox(s.skybox, s.shaders["skybox"], s.textureMap, mgl32.Ident4(), cameraViewMatrix, projectionMatrix)
 	drawMesh(s.floor, s.shaders["basic"], floorModelMatrix, viewMatrix, projectionMatrix, vPosition)
 

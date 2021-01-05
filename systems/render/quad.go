@@ -8,8 +8,8 @@ type Quad struct {
 	vao uint32
 }
 
-func NewQuad(vertixAttributes []float32) *Quad {
-	vertixAttributes = []float32{
+func NewQuad(vertexAttributes []float32) *Quad {
+	vertexAttributes = []float32{
 		// bottom
 		-0.5, 0, -0.5, 0, 1, 0,
 		0.5, 0, 0.5, 0, 1, 0,
@@ -25,7 +25,7 @@ func NewQuad(vertixAttributes []float32) *Quad {
 
 	gl.BindVertexArray(vao)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertixAttributes)*4, gl.Ptr(vertixAttributes), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertexAttributes)*4, gl.Ptr(vertexAttributes), gl.STATIC_DRAW)
 
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, nil)
 	gl.EnableVertexAttribArray(0)
