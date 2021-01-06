@@ -8,17 +8,27 @@ type Quad struct {
 	vao uint32
 }
 
-func NewQuad(vertexAttributes []float32) *Quad {
-	vertexAttributes = []float32{
-		// bottom
-		-0.5, 0, -0.5, 0, 1, 0,
-		0.5, 0, 0.5, 0, 1, 0,
-		0.5, 0, -0.5, 0, 1, 0,
-		0.5, 0, 0.5, 0, 1, 0,
-		-0.5, 0, -0.5, 0, 1, 0,
-		-0.5, 0, 0.5, 0, 1, 0,
-	}
+var quadZeroY = []float32{
+	// bottom
+	-0.5, 0, -0.5, 0, 1, 0,
+	0.5, 0, 0.5, 0, 1, 0,
+	0.5, 0, -0.5, 0, 1, 0,
+	0.5, 0, 0.5, 0, 1, 0,
+	-0.5, 0, -0.5, 0, 1, 0,
+	-0.5, 0, 0.5, 0, 1, 0,
+}
 
+var quadZeroZ = []float32{
+	// bottom
+	-0.5, -0.5, 0, 0, 0, 1,
+	0.5, -0.5, 0, 0, 0, 1,
+	0.5, 0.5, 0, 0, 0, 1,
+	0.5, 0.5, 0, 0, 0, 1,
+	-0.5, 0.5, 0, 0, 0, 1,
+	-0.5, -0.5, 0, 0, 0, 1,
+}
+
+func NewQuad(vertexAttributes []float32) *Quad {
 	var vbo, vao uint32
 	gl.GenBuffers(1, &vbo)
 	gl.GenVertexArrays(1, &vao)

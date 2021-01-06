@@ -104,7 +104,7 @@ func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem 
 		window:       window,
 		world:        world,
 		skybox:       NewSkyBox(300),
-		floor:        NewQuad(nil),
+		floor:        NewQuad(quadZeroY),
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -199,7 +199,6 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 var asdfdepthMapFBO, asdfdepthTexture uint32
 
 func (s *RenderSystem) renderToDepthMap() {
-	// shader := s.shaders["depth"]
 
 	// var near float32 = 1
 	// var far float32 = 7.5
@@ -216,12 +215,8 @@ func (s *RenderSystem) renderToDepthMap() {
 	gl.BindFramebuffer(gl.FRAMEBUFFER, asdfdepthMapFBO)
 	gl.Clear(gl.DEPTH_BUFFER_BIT)
 
-	// q := NewQuad(nil)
-	// gl.BindVertexArray(q.GetVAO())
-	// gl.DrawArrays(gl.TRIANGLES, 0, 6)
-
-	lightProjectionMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
-	s.renderScene(lightProjectionMatrix)
+	orthoMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
+	s.renderScene(orthoMatrix)
 
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
@@ -237,14 +232,38 @@ func (s *RenderSystem) Update(delta time.Duration) {
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
-	s.renderScene(projectionMatrix)
+	// projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
+	orthoMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
+	s.renderSceneTest(orthoMatrix)
 
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 
 	s.window.GLSwap()
+}
+
+func (s *RenderSystem) renderSceneTest(perspectiveMatrix mgl32.Mat4) {
+	shader := s.shaders["depth"]
+
+	// lightViewMatrix := utils.QuatF64ToQuatF32(utils.QuatLookAt(mgl64.Vec3{-2, 4, -1}, mgl64.Vec3{0, -1, -1}, mgl64.Vec3{0, 1, 0})).Mat4()
+	// lightSpaceMatrix := perspectiveMatrix.Mul4(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4())
+	// fmt.Println(mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Rotate(mgl32.Vec3{0, 0, -1}))
+
+	// shader.Use()
+	// shader.SetUniformMat4("lightSpaceMatrix", lightSpaceMatrix)
+	// shader.SetUniformMat4("model", mgl32.Translate3D(0, 2, 0))
+	// _ = lightSpaceMatrix
+
+	shader.Use()
+	shader.SetUniformMat4("lightSpaceMatrix", perspectiveMatrix)
+	shader.SetUniformMat4("model", mgl32.Translate3D(0, 0, -1).Mul4(mgl32.Scale3D(10, 10, 10)))
+
+	// fmt.Println(lightSpaceMatrix.Mul4x1(mgl32.Vec4{-0.5, 0, -0.5, 1.0}))
+
+	q := NewQuad(quadZeroZ)
+	gl.BindVertexArray(q.GetVAO())
+	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
 func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4) {
