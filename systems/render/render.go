@@ -169,15 +169,21 @@ func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem 
 
 	depthDebugShader, err := shaders.NewShader("shaders/basictexture.vs", "shaders/depthvalue.fs")
 	if err != nil {
-		panic(fmt.Sprintf("Failed to load texture test shader %s", err))
+		panic(fmt.Sprintf("Failed to load depth debug shader %s", err))
+	}
+
+	basicShadowShader, err := shaders.NewShader("shaders/basicshadow.vs", "shaders/basicshadow.fs")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load basic shadow shader %s", err))
 	}
 
 	renderSystem.shaders = map[string]*shaders.Shader{
-		"basic":      basicShader,
-		"skybox":     skyBoxShader,
-		"model":      modelShader,
-		"depth":      depthShader,
-		"depthDebug": depthDebugShader,
+		"basic":       basicShader,
+		"basicShadow": basicShadowShader,
+		"skybox":      skyBoxShader,
+		"model":       modelShader,
+		"depth":       depthShader,
+		"depthDebug":  depthDebugShader,
 	}
 
 	asdfdepthMapFBO, asdfdepthTexture, err = initializeShadowMap(width, height)
@@ -198,35 +204,37 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 
 var asdfdepthMapFBO, asdfdepthTexture uint32
 
-func (s *RenderSystem) renderToDepthMap() {
+func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	shader := s.shaders["depth"]
 
-	lightPosition := mgl64.Vec3{0, 100, 150}
-	lightViewQuaternion := mgl64.QuatRotate(mgl64.DegToRad(-29), mgl64.Vec3{1, 0, 0})
+	lightPosition := mgl64.Vec3{0, 40, 40}
+	lightViewQuaternion := mgl64.QuatRotate(mgl64.DegToRad(-30), mgl64.Vec3{1, 0, 0})
 
 	orthoMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
+	// orthoMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightViewQuaternion.Mat4()).Inv()
 
 	shader.Use()
 	shader.SetUniformMat4("lightPerspective", orthoMatrix)
 	shader.SetUniformMat4("view", utils.Mat4F64ToMat4F32(lightViewMatrix))
-	shader.SetUniformMat4("model", mgl32.Translate3D(0, -2, 0).Mul4(mgl32.Scale3D(10, 10, 10)))
+	shader.SetUniformMat4("model", mgl32.Ident4())
 
 	gl.Viewport(0, 0, width, height)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, asdfdepthMapFBO)
 	gl.Clear(gl.DEPTH_BUFFER_BIT)
 
-	s.renderScene(orthoMatrix, lightPosition, lightViewQuaternion)
+	s.renderScene(orthoMatrix, lightPosition, lightViewQuaternion, lightViewMatrix)
 
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 
+	return mgl64.Ortho(-10, 10, -10, 10, float64(near), float64(far)).Mul4(lightViewMatrix)
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {
 	// render depth map
-	s.renderToDepthMap()
+	lightViewMatrix := s.renderToDepthMap()
 
 	// regular render
 	gl.Viewport(0, 0, width, height)
@@ -238,7 +246,7 @@ func (s *RenderSystem) Update(delta time.Duration) {
 	transformComponent := componentContainer.TransformComponent
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
-	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.ViewQuaternion)
+	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.ViewQuaternion, lightViewMatrix)
 
 	// orthoMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
 	// s.renderSceneTest(orthoMatrix)
@@ -250,7 +258,7 @@ func (s *RenderSystem) Update(delta time.Duration) {
 	s.window.GLSwap()
 }
 
-func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition mgl64.Vec3, viewerQuaternion mgl64.Quat) {
+func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition mgl64.Vec3, viewerQuaternion mgl64.Quat, lightSpaceMatrix mgl64.Mat4) {
 	// We use the inverse to move the universe in the opposite direction of where the camera is looking
 	viewerViewQuaternion := utils.QuatF64ToQuatF32(viewerQuaternion)
 	viewerViewMatrix := viewerViewQuaternion.Inverse().Mat4()
@@ -268,7 +276,7 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 
 	drawTextureToQuad(s.shaders["depthDebug"], asdfdepthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, perspectiveMatrix)
 	drawSkyBox(s.skybox, s.shaders["skybox"], s.textureMap, mgl32.Ident4(), viewerViewMatrix, perspectiveMatrix)
-	drawMesh(s.floor, s.shaders["basic"], floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition)
+	drawMesh(s.floor, s.shaders["basicShadow"], floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition, lightSpaceMatrix, asdfdepthTexture)
 
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()

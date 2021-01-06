@@ -7,9 +7,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/kkevinchou/kito/lib/utils"
+
 	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/shaders"
 )
@@ -109,12 +112,15 @@ func drawTextureToQuad(shader *shaders.Shader, texture uint32, modelMatrix, view
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
+func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3, lightSpaceMatrix mgl64.Mat4, texture uint32) {
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(cameraPosition.X()), float32(cameraPosition.Y()), float32(cameraPosition.Z())})
+	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToMat4F32(lightSpaceMatrix))
 	gl.BindVertexArray(mesh.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
