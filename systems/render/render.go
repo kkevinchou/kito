@@ -210,7 +210,7 @@ func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	lightPosition := mgl64.Vec3{0, 40, 40}
 	lightViewQuaternion := mgl64.QuatRotate(mgl64.DegToRad(-30), mgl64.Vec3{1, 0, 0})
 
-	orthoMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
+	orthoMatrix := mgl32.Ortho(-100, 100, -100, 100, near, far)
 	// orthoMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightViewQuaternion.Mat4()).Inv()
 
@@ -229,7 +229,7 @@ func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	gl.UseProgram(0)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 
-	return mgl64.Ortho(-10, 10, -10, 10, float64(near), float64(far)).Mul4(lightViewMatrix)
+	return mgl64.Ortho(-100, 100, -100, 100, float64(near), float64(far)).Mul4(lightViewMatrix)
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {
