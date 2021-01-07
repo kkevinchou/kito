@@ -7,9 +7,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/kkevinchou/kito/lib/utils"
+
 	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/shaders"
 )
@@ -71,12 +74,53 @@ func drawSkyBox(sb *SkyBox, shader *shaders.Shader, textureMap map[string]uint32
 	}
 }
 
-func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
+func drawTextureToQuad(shader *shaders.Shader, texture uint32, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
+	// texture coords top left = 0,0 | bottom right = 1,1
+	var skyboxVertices []float32 = []float32{
+		// front
+		-5, -5, -5, 0.0, 0.0,
+		5, -5, -5, 1.0, 0.0,
+		5, 5, -5, 1.0, 1.0,
+		5, 5, -5, 1.0, 1.0,
+		-5, 5, -5, 0.0, 1.0,
+		-5, -5, -5, 0.0, 0.0,
+	}
+
+	var vbo, vao uint32
+	gl.GenBuffers(1, &vbo)
+	gl.GenVertexArrays(1, &vao)
+
+	gl.BindVertexArray(vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(skyboxVertices)*4, gl.Ptr(skyboxVertices), gl.STATIC_DRAW)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
+	gl.EnableVertexAttribArray(0)
+
+	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+	gl.EnableVertexAttribArray(1)
+
+	gl.BindVertexArray(vao)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+
+	shader.Use()
+	shader.SetUniformMat4("model", modelMatrix)
+	shader.SetUniformMat4("view", viewMatrix)
+	shader.SetUniformMat4("projection", projectionMatrix)
+	shader.SetUniformInt("depthMap", 0)
+
+	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+}
+
+func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3, lightSpaceMatrix mgl64.Mat4, texture uint32) {
+	gl.BindTexture(gl.TEXTURE_2D, texture)
+
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(cameraPosition.X()), float32(cameraPosition.Y()), float32(cameraPosition.Z())})
+	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToMat4F32(lightSpaceMatrix))
 	gl.BindVertexArray(mesh.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
