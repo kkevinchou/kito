@@ -7,14 +7,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/kkevinchou/kito/lib/utils"
-
 	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/shaders"
+	"github.com/kkevinchou/kito/lib/utils"
 )
 
 func newTexture(file string) uint32 {

@@ -60,6 +60,9 @@ type RenderSystem struct {
 	skybox       *SkyBox
 	floor        *Quad
 
+	depthMapFBO  uint32
+	depthTexture uint32
+
 	entities []entities.Entity
 }
 
@@ -186,10 +189,13 @@ func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem 
 		"depthDebug":  depthDebugShader,
 	}
 
-	asdfdepthMapFBO, asdfdepthTexture, err = initializeShadowMap(width, height)
+	depthMapFBO, depthTexture, err := initializeShadowMap(width, height)
 	if err != nil {
 		panic(err)
 	}
+
+	renderSystem.depthMapFBO = depthMapFBO
+	renderSystem.depthTexture = depthTexture
 
 	return &renderSystem
 }
@@ -201,8 +207,6 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 		s.entities = append(s.entities, entity)
 	}
 }
-
-var asdfdepthMapFBO, asdfdepthTexture uint32
 
 func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	shader := s.shaders["depth"]
@@ -220,7 +224,7 @@ func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	shader.SetUniformMat4("model", mgl32.Ident4())
 
 	gl.Viewport(0, 0, width, height)
-	gl.BindFramebuffer(gl.FRAMEBUFFER, asdfdepthMapFBO)
+	gl.BindFramebuffer(gl.FRAMEBUFFER, s.depthMapFBO)
 	gl.Clear(gl.DEPTH_BUFFER_BIT)
 
 	s.renderScene(orthoMatrix, lightPosition, lightViewQuaternion, lightViewMatrix)
@@ -274,9 +278,9 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 
 	vPosition := mgl32.Vec3{float32(viewerPosition[0]), float32(viewerPosition[1]), float32(viewerPosition[2])}
 
-	drawTextureToQuad(s.shaders["depthDebug"], asdfdepthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, perspectiveMatrix)
+	drawTextureToQuad(s.shaders["depthDebug"], s.depthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, perspectiveMatrix)
 	drawSkyBox(s.skybox, s.shaders["skybox"], s.textureMap, mgl32.Ident4(), viewerViewMatrix, perspectiveMatrix)
-	drawMesh(s.floor, s.shaders["basicShadow"], floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition, lightSpaceMatrix, asdfdepthTexture)
+	drawMesh(s.floor, s.shaders["basicShadow"], floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition, lightSpaceMatrix, s.depthTexture)
 
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()

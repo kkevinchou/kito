@@ -17,8 +17,9 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
+
     // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    float closestDepth = texture(shadowMap, projCoords.xy).r; // QUESTION: why is it .r? is it because it's a grayscale texture?
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
@@ -33,7 +34,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 
 void main()
 {           
-    vec3 color =  vec3(0.51, 0.85, 1.0);
+    vec3 color =  vec3(0.91, 0.85, 1.0);
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(1.0, 1.0, 1.0);
     vec3 lightPos = vec3(0, 40.0, 40.0);
