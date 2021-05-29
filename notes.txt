@@ -2,6 +2,7 @@ CONTEXT
 
 cleaning up camera perspective rendering code and ray casting.  looks like i don't need
 to store the MV matrix in the camera each rendering frame FacePalm
+shadowmapping only exists for basicshadow shaders. should make this more modular so that it can be imported into many shaders
 
 TODO
 

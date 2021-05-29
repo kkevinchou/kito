@@ -28,6 +28,8 @@ type Camera interface {
 const (
 	width               int32 = 1024
 	height              int32 = 760
+	depthBufferWidth    int32 = 2048
+	depthBufferHeight   int32 = 1520
 	floorPanelDimension       = 1
 	renderDistance            = 500.0
 	skyboxSize                = 500
@@ -119,6 +121,7 @@ func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Enable(gl.CULL_FACE)
+	gl.CullFace(gl.BACK)
 	gl.FrontFace(gl.CCW)
 	gl.Enable(gl.MULTISAMPLE)
 
@@ -189,7 +192,7 @@ func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem 
 		"depthDebug":  depthDebugShader,
 	}
 
-	depthMapFBO, depthTexture, err := initializeShadowMap(width, height)
+	depthMapFBO, depthTexture, err := initializeShadowMap(depthBufferWidth, depthBufferHeight)
 	if err != nil {
 		panic(err)
 	}
@@ -223,7 +226,8 @@ func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	shader.SetUniformMat4("view", utils.Mat4F64ToMat4F32(lightViewMatrix))
 	shader.SetUniformMat4("model", mgl32.Ident4())
 
-	gl.Viewport(0, 0, width, height)
+	gl.CullFace(gl.FRONT)
+	gl.Viewport(0, 0, depthBufferWidth, depthBufferHeight)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, s.depthMapFBO)
 	gl.Clear(gl.DEPTH_BUFFER_BIT)
 
@@ -232,6 +236,7 @@ func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
+	gl.CullFace(gl.BACK)
 
 	return mgl64.Ortho(-100, 100, -100, 100, float64(near), float64(far)).Mul4(lightViewMatrix)
 }
