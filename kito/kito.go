@@ -97,7 +97,9 @@ func NewGame() *Game {
 	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
 
 	bobComponentContainer := bob.GetComponentContainer()
-	bobComponentContainer.ThirdPersonControllerComponent.CameraID = camera.GetID()
+	if bobComponentContainer.ThirdPersonControllerComponent != nil {
+		bobComponentContainer.ThirdPersonControllerComponent.CameraID = camera.GetID()
+	}
 
 	// offset := 5
 	// bobDimension := 20
