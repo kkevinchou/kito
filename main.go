@@ -23,8 +23,8 @@ func NewInputPoller() *InputPoller {
 	return &InputPoller{}
 }
 
-func (i *InputPoller) PollInput() []kito.Input {
-	inputList := []kito.Input{}
+func (i *InputPoller) PollInput() []interface{} {
+	inputList := []interface{}{}
 
 	keyboardInput := types.KeyboardInput{}
 	mouseInput := types.MouseInput{

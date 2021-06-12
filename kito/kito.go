@@ -38,9 +38,6 @@ type System interface {
 	Update(delta time.Duration)
 }
 
-type Input interface{}
-type InputPoller func() []Input
-
 type Game struct {
 	path           []geometry.Point
 	pathIndex      int
