@@ -3,7 +3,7 @@ package directory
 import (
 	"sync"
 
-	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
 	"github.com/kkevinchou/kito/systems/render"
@@ -11,7 +11,7 @@ import (
 
 type Directory struct {
 	renderSystem *render.RenderSystem
-	assetManager *lib.AssetManager
+	assetManager *assets.AssetManager
 	itemManager  *item.Manager
 	pathManager  *path.Manager
 }
@@ -34,11 +34,11 @@ func (d *Directory) RenderSystem() *render.RenderSystem {
 	return d.renderSystem
 }
 
-func (d *Directory) RegisterAssetManager(manager *lib.AssetManager) {
+func (d *Directory) RegisterAssetManager(manager *assets.AssetManager) {
 	d.assetManager = manager
 }
 
-func (d *Directory) AssetManager() *lib.AssetManager {
+func (d *Directory) AssetManager() *assets.AssetManager {
 	return d.assetManager
 }
 

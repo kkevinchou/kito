@@ -12,6 +12,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/utils"
 )
@@ -57,8 +58,8 @@ func newTexture(file string) uint32 {
 	return texture
 }
 
-func drawSkyBox(sb *SkyBox, shader *shaders.Shader, textureMap map[string]uint32, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
-	textures := []uint32{textureMap["front"], textureMap["top"], textureMap["left"], textureMap["right"], textureMap["bottom"], textureMap["back"]}
+func drawSkyBox(sb *SkyBox, shader *shaders.Shader, frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture *assets.Texture, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
+	textures := []*assets.Texture{frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture}
 
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindVertexArray(sb.VAO())
@@ -68,7 +69,7 @@ func drawSkyBox(sb *SkyBox, shader *shaders.Shader, textureMap map[string]uint32
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	for i := 0; i < 6; i++ {
-		gl.BindTexture(gl.TEXTURE_2D, textures[i])
+		gl.BindTexture(gl.TEXTURE_2D, textures[i].ID)
 		gl.DrawArrays(gl.TRIANGLES, int32(i*6), 6)
 	}
 }
@@ -124,7 +125,7 @@ func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projec
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawAnimatedMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture uint32, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
+func drawAnimatedMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture *assets.Texture, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
@@ -135,7 +136,7 @@ func drawAnimatedMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Ma
 		shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
 	}
 	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
+	gl.BindTexture(gl.TEXTURE_2D, texture.ID)
 	gl.BindVertexArray(mesh.VAO())
 
 	gl.DrawElements(gl.TRIANGLES, int32(mesh.VertexCount()), gl.UNSIGNED_INT, nil)
