@@ -3,7 +3,6 @@ package render
 import (
 	"fmt"
 	_ "image/png"
-	"log"
 	"time"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -11,12 +10,11 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/entities"
-	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/veandco/go-sdl2/sdl"
-	"github.com/veandco/go-sdl2/ttf"
 )
 
 type Camera interface {
@@ -41,8 +39,6 @@ const (
 )
 
 var (
-	textureMap map[string]uint32
-
 	noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
 )
 
@@ -54,8 +50,7 @@ type RenderSystem struct {
 	renderer     *sdl.Renderer
 	window       *sdl.Window
 	camera       entities.Entity
-	assetManager *lib.AssetManager
-	textureMap   map[string]uint32
+	assetManager *assets.AssetManager
 	world        World
 	lights       []*Light
 	shaders      map[string]*shaders.Shader
@@ -68,19 +63,11 @@ type RenderSystem struct {
 	entities []entities.Entity
 }
 
-func initFont() *ttf.Font {
-	ttf.Init()
-
-	font, err := ttf.OpenFont("_assets/fonts/courier_new.ttf", 30)
-	if err != nil {
-		fmt.Println(err)
-		log.Fatal("Font not found")
-	}
-
-	return font
+func (r *RenderSystem) SetAssetManager(assetManager *assets.AssetManager) {
+	r.assetManager = assetManager
 }
 
-func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem {
+func NewRenderSystem(world World) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(fmt.Sprintf("Failed to init SDL", err))
 	}
@@ -105,11 +92,10 @@ func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem 
 	}
 
 	renderSystem := RenderSystem{
-		assetManager: assetManager,
-		window:       window,
-		world:        world,
-		skybox:       NewSkyBox(300),
-		floor:        NewQuad(quadZeroY),
+		window: window,
+		world:  world,
+		skybox: NewSkyBox(300),
+		floor:  NewQuad(quadZeroY),
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -124,34 +110,6 @@ func NewRenderSystem(world World, assetManager *lib.AssetManager) *RenderSystem 
 	gl.CullFace(gl.BACK)
 	gl.FrontFace(gl.CCW)
 	gl.Enable(gl.MULTISAMPLE)
-
-	_ = initFont()
-	highGrassTexture := newTexture("_assets/icons/high-grass.png")
-	mushroomGilsTexture := newTexture("_assets/icons/mushroom-gills.png")
-	workerTexture := newTexture("_assets/icons/worker.png")
-	lightTexture := newTexture("_assets/icons/light.png")
-	leftTexture := newTexture("_assets/images/left.png")
-	rightTexture := newTexture("_assets/images/right.png")
-	frontTexture := newTexture("_assets/images/front.png")
-	backTexture := newTexture("_assets/images/back.png")
-	topTexture := newTexture("_assets/images/top.png")
-	bottomTexture := newTexture("_assets/images/bottom.png")
-	cowboyTexture := newTexture("_assets/collada/diffuse.png")
-	renderSystem.textureMap = map[string]uint32{
-		"high-grass":     highGrassTexture,
-		"mushroom-gills": mushroomGilsTexture,
-		"worker":         workerTexture,
-		"light":          lightTexture,
-
-		// skybox
-		"left":   leftTexture,
-		"right":  rightTexture,
-		"front":  frontTexture,
-		"back":   backTexture,
-		"top":    topTexture,
-		"bottom": bottomTexture,
-		"cowboy": cowboyTexture,
-	}
 
 	basicShader, err := shaders.NewShader("shaders/basic.vs", "shaders/basic.fs")
 	if err != nil {
@@ -284,7 +242,19 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 	vPosition := mgl32.Vec3{float32(viewerPosition[0]), float32(viewerPosition[1]), float32(viewerPosition[2])}
 
 	drawTextureToQuad(s.shaders["depthDebug"], s.depthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, perspectiveMatrix)
-	drawSkyBox(s.skybox, s.shaders["skybox"], s.textureMap, mgl32.Ident4(), viewerViewMatrix, perspectiveMatrix)
+	drawSkyBox(
+		s.skybox,
+		s.shaders["skybox"],
+		s.assetManager.GetTexture("front"),
+		s.assetManager.GetTexture("top"),
+		s.assetManager.GetTexture("left"),
+		s.assetManager.GetTexture("right"),
+		s.assetManager.GetTexture("bottom"),
+		s.assetManager.GetTexture("back"),
+		mgl32.Ident4(),
+		viewerViewMatrix,
+		perspectiveMatrix,
+	)
 	drawMesh(s.floor, s.shaders["basicShadow"], floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition, lightSpaceMatrix, s.depthTexture)
 
 	for _, entity := range s.entities {
@@ -311,7 +281,16 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 				)
 
 				animationComponent := componentContainer.AnimationComponent
-				drawAnimatedMesh(animationComponent.AnimatedModel.Mesh, animationComponent.AnimationTransforms, s.textureMap["cowboy"], s.shaders["model"], meshModelMatrix, viewMatrix, perspectiveMatrix, vPosition)
+				drawAnimatedMesh(
+					animationComponent.AnimatedModel.Mesh,
+					animationComponent.AnimationTransforms,
+					s.assetManager.GetTexture("diffuse"),
+					s.shaders["model"],
+					meshModelMatrix,
+					viewMatrix,
+					perspectiveMatrix,
+					vPosition,
+				)
 			}
 		} else if _, ok := renderData.(*components.BlockRenderData); ok {
 		}

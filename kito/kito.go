@@ -13,7 +13,7 @@ import (
 
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities/singleton"
-	"github.com/kkevinchou/kito/lib"
+	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/geometry"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
@@ -37,9 +37,6 @@ var (
 type System interface {
 	Update(delta time.Duration)
 }
-
-type Input interface{}
-type InputPoller func() []Input
 
 type Game struct {
 	path           []geometry.Point
@@ -66,11 +63,16 @@ func NewGame() *Game {
 
 	itemManager := item.NewManager()
 	pathManager := path.NewManager()
-	assetManager := lib.NewAssetManager(nil, "_assets")
 
 	// System Setup
 
-	renderSystem := render.NewRenderSystem(g, assetManager)
+	renderSystem := render.NewRenderSystem(g)
+
+	// TODO: asset manager creation has to happen after the render system is set up
+	// because it depends on GL initializations
+	assetManager := assets.NewAssetManager(nil, "_assets")
+	renderSystem.SetAssetManager(assetManager)
+
 	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
@@ -97,7 +99,9 @@ func NewGame() *Game {
 	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
 
 	bobComponentContainer := bob.GetComponentContainer()
-	bobComponentContainer.ThirdPersonControllerComponent.CameraID = camera.GetID()
+	if bobComponentContainer.ThirdPersonControllerComponent != nil {
+		bobComponentContainer.ThirdPersonControllerComponent.CameraID = camera.GetID()
+	}
 
 	// offset := 5
 	// bobDimension := 20
