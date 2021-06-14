@@ -1,13 +1,10 @@
-package assets
+package gltextures
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"log"
 	"os"
-	"path"
-	"path/filepath"
 
 	_ "image/png"
 
@@ -15,12 +12,7 @@ import (
 	"github.com/go-gl/gl/v4.6-core/gl"
 )
 
-type AssetMetaData struct {
-	Name string
-	Path string
-}
-
-func newTexture(file string) uint32 {
+func NewTexture(file string) uint32 {
 	imgFile, err := os.Open(file)
 	if err != nil {
 		log.Fatalf("texture %q not found on disk: %v\n", file, err)
@@ -59,35 +51,4 @@ func newTexture(file string) uint32 {
 		gl.Ptr(rgba.Pix))
 
 	return texture
-}
-
-func getAssetMetaData(directory string, subDirectories []string, extensions map[string]interface{}) []AssetMetaData {
-	var subPaths []string
-	for _, subDir := range subDirectories {
-		subPaths = append(subPaths, path.Join(directory, subDir))
-	}
-
-	var metaDataCollection []AssetMetaData
-
-	for _, subDir := range subPaths {
-		files, err := os.ReadDir(subDir)
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
-
-		for _, file := range files {
-			extension := filepath.Ext(file.Name())
-			if _, ok := extensions[extension]; !ok {
-				continue
-			}
-
-			path := filepath.Join(subDir, file.Name())
-			name := file.Name()[0 : len(file.Name())-len(extension)]
-
-			metaDataCollection = append(metaDataCollection, AssetMetaData{Name: name, Path: path})
-		}
-	}
-
-	return metaDataCollection
 }
