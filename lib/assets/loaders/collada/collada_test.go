@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/lib/loaders/collada"
+	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
 )
 
 // cowboy model

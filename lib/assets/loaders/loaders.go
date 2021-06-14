@@ -15,7 +15,7 @@ func LoadTextures(directory string) map[string]*textures.Texture {
 	}
 
 	textureMap := map[string]*textures.Texture{}
-	assetMetaData := getAssetMetaData(directory, subDirectories, extensions)
+	assetMetaData := GetAssetMetaData(directory, subDirectories, extensions)
 
 	for _, metaData := range assetMetaData {
 		textureID := gltextures.NewTexture(metaData.Path)
@@ -33,7 +33,7 @@ func LoadAnimatedModels(directory string) map[string]*animation.ModelSpecificati
 	}
 
 	animationMap := map[string]*animation.ModelSpecification{}
-	assetMetaData := getAssetMetaData(directory, subDirectories, extensions)
+	assetMetaData := GetAssetMetaData(directory, subDirectories, extensions)
 
 	for _, metaData := range assetMetaData {
 		parsedCollada, err := collada.ParseCollada(metaData.Path)

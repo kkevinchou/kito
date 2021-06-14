@@ -14,13 +14,16 @@ type AssetMetaData struct {
 	Path string
 }
 
-func getAssetMetaData(directory string, subDirectories []string, extensions map[string]interface{}) []AssetMetaData {
+func GetAssetMetaData(directory string, subDirectories []string, extensions map[string]interface{}) map[string]AssetMetaData {
 	var subPaths []string
 	for _, subDir := range subDirectories {
 		subPaths = append(subPaths, path.Join(directory, subDir))
 	}
+	if len(subPaths) == 0 {
+		subPaths = append(subPaths, directory)
+	}
 
-	var metaDataCollection []AssetMetaData
+	var metaDataCollection map[string]AssetMetaData
 
 	for _, subDir := range subPaths {
 		files, err := os.ReadDir(subDir)
@@ -38,7 +41,7 @@ func getAssetMetaData(directory string, subDirectories []string, extensions map[
 			path := filepath.Join(subDir, file.Name())
 			name := file.Name()[0 : len(file.Name())-len(extension)]
 
-			metaDataCollection = append(metaDataCollection, AssetMetaData{Name: name, Path: path})
+			metaDataCollection[name] = AssetMetaData{Name: name, Path: path}
 		}
 	}
 
