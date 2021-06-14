@@ -3,12 +3,14 @@ package entities
 import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/lib/loaders/collada"
 	"github.com/kkevinchou/kito/types"
 )
 
 func NewBob(position mgl64.Vec3) *EntityImpl {
+	assetManager := directory.GetDirectory().AssetManager()
+
 	transformComponent := &components.TransformComponent{
 		Position:       position,
 		ViewQuaternion: mgl64.QuatIdent(),
@@ -24,16 +26,12 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 		RenderData: renderData,
 	}
 
-	// TODO: get this garbage out of here
-	parsedCollada, err := collada.ParseCollada("_assets/collada/bob.dae")
-	if err != nil {
-		panic(err)
-	}
-	animatedModel := animation.NewAnimatedModel(parsedCollada, 50, 3)
+	modelSpec := assetManager.GetAnimatedModel("bob")
+	animatedModel := animation.NewAnimatedModel(modelSpec, 50, 3)
 
 	animationComponent := &components.AnimationComponent{
 		AnimatedModel: animatedModel, // potentially shared across many entities
-		Animation:     parsedCollada.Animation,
+		Animation:     modelSpec.Animation,
 	}
 
 	physicsComponent := &components.PhysicsComponent{

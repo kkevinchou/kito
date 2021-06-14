@@ -2,41 +2,38 @@ package assets
 
 import (
 	"fmt"
-	"log"
 
-	"github.com/veandco/go-sdl2/sdl"
+	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/types"
 	"github.com/veandco/go-sdl2/ttf"
 )
 
 type AssetManager struct {
-	textures map[string]*Texture
+	textures       map[string]*types.Texture
+	animatedModels map[string]*animation.ModelSpecification
 }
 
-func NewAssetManager(renderer *sdl.Renderer, directory string) *AssetManager {
-	_ = initFont()
+func NewAssetManager(directory string) *AssetManager {
+	ttf.Init()
 
 	assetManager := AssetManager{
-		textures: loadTextures(directory, renderer),
+		textures:       loadTextures(directory),
+		animatedModels: loadAnimatedModels(directory),
 	}
 
 	return &assetManager
 }
 
-func (a *AssetManager) GetTexture(name string) *Texture {
+func (a *AssetManager) GetTexture(name string) *types.Texture {
 	if _, ok := a.textures[name]; !ok {
 		panic(fmt.Sprintf("could not find texture %s", name))
 	}
 	return a.textures[name]
 }
 
-func initFont() *ttf.Font {
-	ttf.Init()
-
-	font, err := ttf.OpenFont("_assets/fonts/courier_new.ttf", 30)
-	if err != nil {
-		fmt.Println(err)
-		log.Fatal("Font not found")
+func (a *AssetManager) GetAnimatedModel(name string) *animation.ModelSpecification {
+	if _, ok := a.animatedModels[name]; !ok {
+		panic(fmt.Sprintf("could not find animatedm odel %s", name))
 	}
-
-	return font
+	return a.animatedModels[name]
 }

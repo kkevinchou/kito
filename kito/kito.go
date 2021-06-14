@@ -24,9 +24,9 @@ import (
 )
 
 const (
-	fps                  float64 = 60
-	simulationsPerSecond float64 = 60
-	maxTimeStep          float64 = 250 // in milliseconds
+	fps               float64 = 60
+	msPerCommandFrame float64 = 16
+	maxTimeStep       float64 = 250 // in milliseconds
 )
 
 var (
@@ -51,7 +51,7 @@ type Game struct {
 	entities  map[int]entities.Entity
 }
 
-func NewGame() *Game {
+func NewGame(assetsDirectory string) *Game {
 	seed := int64(time.Now().Nanosecond())
 	fmt.Println(fmt.Sprintf("Game Initializing with seed %d ...", seed))
 	rand.Seed(seed)
@@ -70,7 +70,7 @@ func NewGame() *Game {
 
 	// TODO: asset manager creation has to happen after the render system is set up
 	// because it depends on GL initializations
-	assetManager := assets.NewAssetManager(nil, "_assets")
+	assetManager := assets.NewAssetManager(assetsDirectory)
 	renderSystem.SetAssetManager(assetManager)
 
 	cameraSystem := camerasys.NewCameraSystem(g)
@@ -157,7 +157,6 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 	var renderAccumulator float64
 
 	msPerFrame := float64(1000) / fps
-	msPerSimulation := float64(1000) / simulationsPerSecond
 	directory := directory.GetDirectory()
 	renderSystem := directory.RenderSystem()
 
@@ -173,14 +172,14 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 		accumulator += delta
 		renderAccumulator += delta
 
-		for accumulator >= msPerSimulation {
-			// input is handled once per simulation frame
+		for accumulator >= msPerCommandFrame {
+			// input is handled once per command frame
 			inputList := pollInputFunc()
 			for _, input := range inputList {
 				g.HandleInput(input)
 			}
-			g.update(time.Duration(msPerSimulation) * time.Millisecond)
-			accumulator -= msPerSimulation
+			g.update(time.Duration(msPerCommandFrame) * time.Millisecond)
+			accumulator -= msPerCommandFrame
 		}
 
 		if renderAccumulator >= msPerFrame {
