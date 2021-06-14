@@ -111,7 +111,7 @@ func (i *InputPoller) PollInput() []interface{} {
 }
 
 func main() {
-	game := kito.NewGame()
+	game := kito.NewGame("_assets")
 	inputPoller := NewInputPoller()
 	game.Start(inputPoller.PollInput)
 	sdl.Quit()

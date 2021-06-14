@@ -2,16 +2,26 @@ package directory
 
 import (
 	"sync"
+	"time"
 
-	"github.com/kkevinchou/kito/lib/assets"
+	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/types"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
-	"github.com/kkevinchou/kito/systems/render"
 )
 
+type IAssetManager interface {
+	GetTexture(name string) *types.Texture
+	GetAnimatedModel(name string) *animation.ModelSpecification
+}
+
+type IRenderSystem interface {
+	Update(time.Duration)
+}
+
 type Directory struct {
-	renderSystem *render.RenderSystem
-	assetManager *assets.AssetManager
+	renderSystem IRenderSystem
+	assetManager IAssetManager
 	itemManager  *item.Manager
 	pathManager  *path.Manager
 }
@@ -26,19 +36,19 @@ func GetDirectory() *Directory {
 	return instance
 }
 
-func (d *Directory) RegisterRenderSystem(system *render.RenderSystem) {
+func (d *Directory) RegisterRenderSystem(system IRenderSystem) {
 	d.renderSystem = system
 }
 
-func (d *Directory) RenderSystem() *render.RenderSystem {
+func (d *Directory) RenderSystem() IRenderSystem {
 	return d.renderSystem
 }
 
-func (d *Directory) RegisterAssetManager(manager *assets.AssetManager) {
+func (d *Directory) RegisterAssetManager(manager IAssetManager) {
 	d.assetManager = manager
 }
 
-func (d *Directory) AssetManager() *assets.AssetManager {
+func (d *Directory) AssetManager() IAssetManager {
 	return d.assetManager
 }
 

@@ -12,8 +12,8 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/shaders"
+	"github.com/kkevinchou/kito/lib/types"
 	"github.com/kkevinchou/kito/lib/utils"
 )
 
@@ -58,8 +58,8 @@ func newTexture(file string) uint32 {
 	return texture
 }
 
-func drawSkyBox(sb *SkyBox, shader *shaders.Shader, frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture *assets.Texture, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
-	textures := []*assets.Texture{frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture}
+func drawSkyBox(sb *SkyBox, shader *shaders.Shader, frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture *types.Texture, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
+	textures := []*types.Texture{frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture}
 
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindVertexArray(sb.VAO())
@@ -125,7 +125,7 @@ func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projec
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawAnimatedMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture *assets.Texture, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
+func drawAnimatedMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture *types.Texture, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)
