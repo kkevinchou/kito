@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/lib/types"
+	"github.com/kkevinchou/kito/lib/assets/loaders"
+	"github.com/kkevinchou/kito/lib/textures"
 	"github.com/veandco/go-sdl2/ttf"
 )
 
 type AssetManager struct {
-	textures       map[string]*types.Texture
+	textures       map[string]*textures.Texture
 	animatedModels map[string]*animation.ModelSpecification
 }
 
@@ -17,14 +18,14 @@ func NewAssetManager(directory string) *AssetManager {
 	ttf.Init()
 
 	assetManager := AssetManager{
-		textures:       loadTextures(directory),
-		animatedModels: loadAnimatedModels(directory),
+		textures:       loaders.LoadTextures(directory),
+		animatedModels: loaders.LoadAnimatedModels(directory),
 	}
 
 	return &assetManager
 }
 
-func (a *AssetManager) GetTexture(name string) *types.Texture {
+func (a *AssetManager) GetTexture(name string) *textures.Texture {
 	if _, ok := a.textures[name]; !ok {
 		panic(fmt.Sprintf("could not find texture %s", name))
 	}

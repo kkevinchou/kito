@@ -1,30 +1,31 @@
-package assets
+package loaders
 
 import (
 	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/lib/loaders/collada"
-	"github.com/kkevinchou/kito/lib/types"
+	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
+	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
+	"github.com/kkevinchou/kito/lib/textures"
 )
 
-func loadTextures(directory string) map[string]*types.Texture {
+func LoadTextures(directory string) map[string]*textures.Texture {
 	var subDirectories []string = []string{"images", "collada", "icons"}
 
 	extensions := map[string]interface{}{
 		".png": nil,
 	}
 
-	textureMap := map[string]*types.Texture{}
+	textureMap := map[string]*textures.Texture{}
 	assetMetaData := getAssetMetaData(directory, subDirectories, extensions)
 
 	for _, metaData := range assetMetaData {
-		textureID := newTexture(metaData.Path)
-		textureMap[metaData.Name] = &types.Texture{ID: textureID}
+		textureID := gltextures.NewTexture(metaData.Path)
+		textureMap[metaData.Name] = &textures.Texture{ID: textureID}
 	}
 
 	return textureMap
 }
 
-func loadAnimatedModels(directory string) map[string]*animation.ModelSpecification {
+func LoadAnimatedModels(directory string) map[string]*animation.ModelSpecification {
 	var subDirectories []string = []string{"collada"}
 
 	extensions := map[string]interface{}{

@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/lib/types"
+	"github.com/kkevinchou/kito/lib/textures"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
 )
 
 type IAssetManager interface {
-	GetTexture(name string) *types.Texture
+	GetTexture(name string) *textures.Texture
 	GetAnimatedModel(name string) *animation.ModelSpecification
 }
 
