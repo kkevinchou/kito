@@ -69,7 +69,7 @@ func (r *RenderSystem) SetAssetManager(assetManager *assets.AssetManager) {
 
 func NewRenderSystem(world World) *RenderSystem {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		panic(fmt.Sprintf("Failed to init SDL", err))
+		panic(fmt.Sprintf("Failed to init SDL %s", err))
 	}
 
 	// Enable hints for multisampling which allows opengl to use the default
@@ -79,12 +79,12 @@ func NewRenderSystem(world World) *RenderSystem {
 
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to create window", err))
+		panic(fmt.Sprintf("Failed to create window %s", err))
 	}
 
 	_, err = window.GLCreateContext()
 	if err != nil {
-		panic(fmt.Sprintf("Failed to create context", err))
+		panic(fmt.Sprintf("Failed to create context %s", err))
 	}
 
 	if err := gl.Init(); err != nil {
