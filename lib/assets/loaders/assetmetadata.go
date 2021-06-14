@@ -23,7 +23,7 @@ func GetAssetMetaData(directory string, subDirectories []string, extensions map[
 		subPaths = append(subPaths, directory)
 	}
 
-	var metaDataCollection map[string]AssetMetaData
+	metaDataCollection := map[string]AssetMetaData{}
 
 	for _, subDir := range subPaths {
 		files, err := os.ReadDir(subDir)
