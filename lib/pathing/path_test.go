@@ -8,36 +8,36 @@ import (
 
 func tri1() *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: 11, Y: 0, Z: 4},
-		geometry.Point{X: 13, Y: 0, Z: 10},
-		geometry.Point{X: 17, Y: 0, Z: 8},
+		geometry.Point{11, 0, 4},
+		geometry.Point{13, 0, 10},
+		geometry.Point{17, 0, 8},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func tri2() *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: 13, Y: 0, Z: 10},
-		geometry.Point{X: 12, Y: 0, Z: 13},
-		geometry.Point{X: 17, Y: 0, Z: 8},
+		geometry.Point{13, 0, 10},
+		geometry.Point{12, 0, 13},
+		geometry.Point{17, 0, 8},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func tri3() *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: 17, Y: 0, Z: 8},
-		geometry.Point{X: 12, Y: 0, Z: 13},
-		geometry.Point{X: 21, Y: 0, Z: 7},
+		geometry.Point{17, 0, 8},
+		geometry.Point{12, 0, 13},
+		geometry.Point{21, 0, 7},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func tri4() *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: 17, Y: 0, Z: 2},
-		geometry.Point{X: 17, Y: 0, Z: 8},
-		geometry.Point{X: 21, Y: 0, Z: 7},
+		geometry.Point{17, 0, 2},
+		geometry.Point{17, 0, 8},
+		geometry.Point{21, 0, 7},
 	}
 	return geometry.NewPolygon(points)
 }
@@ -54,8 +54,8 @@ func TestWithNewApex(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 13, Y: 0, Z: 7}, geometry.Point{X: 18, Y: 0, Z: 5})
-	expectedPath := []geometry.Point{geometry.Point{X: 13, Y: 0, Z: 7}, geometry.Point{X: 17, Y: 0, Z: 8}, geometry.Point{X: 18, Y: 0, Z: 5}}
+	path := p.FindPath(geometry.Point{13, 0, 7}, geometry.Point{18, 0, 5})
+	expectedPath := []geometry.Point{geometry.Point{13, 0, 7}, geometry.Point{17, 0, 8}, geometry.Point{18, 0, 5}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -71,8 +71,8 @@ func TestSmoothing(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 1, Y: 0, Z: 1}, geometry.Point{X: 17, Y: 0, Z: 5})
-	expectedPath := []geometry.Point{geometry.Point{X: 1, Y: 0, Z: 1}, geometry.Point{X: 17, Y: 0, Z: 5}}
+	path := p.FindPath(geometry.Point{1, 0, 1}, geometry.Point{17, 0, 5})
+	expectedPath := []geometry.Point{geometry.Point{1, 0, 1}, geometry.Point{17, 0, 5}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -93,8 +93,8 @@ func TestTwoApexes(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 110, Y: 0, Z: 69})
-	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0}, geometry.Point{X: 60, Y: 0, Z: 30}, geometry.Point{X: 90, Y: 0, Z: 60}, geometry.Point{X: 110, Y: 0, Z: 69}}
+	path := p.FindPath(geometry.Point{0, 0, 0}, geometry.Point{110, 0, 69})
+	expectedPath := []geometry.Point{geometry.Point{0, 0}, geometry.Point{60, 0, 30}, geometry.Point{90, 0, 60}, geometry.Point{110, 0, 69}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -108,8 +108,8 @@ func TestStartNodeOverlapsNode(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 50, Y: 0, Z: 20})
-	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 50, Y: 0, Z: 20}}
+	path := p.FindPath(geometry.Point{0, 0, 0}, geometry.Point{50, 0, 20})
+	expectedPath := []geometry.Point{geometry.Point{0, 0, 0}, geometry.Point{50, 0, 20}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -123,8 +123,8 @@ func TestGoalNodeOverlapsNode(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 1, Y: 0, Z: 1}, geometry.Point{X: 30, Y: 0, Z: 30})
-	expectedPath := []geometry.Point{geometry.Point{X: 1, Y: 0, Z: 1}, geometry.Point{X: 30, Y: 0, Z: 30}}
+	path := p.FindPath(geometry.Point{1, 0, 1}, geometry.Point{30, 0, 30})
+	expectedPath := []geometry.Point{geometry.Point{1, 0, 1}, geometry.Point{30, 0, 30}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -139,8 +139,8 @@ func TestStartAndGoalNodeOverlapsNode(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 30, Y: 0, Z: 60})
-	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 30, Y: 0, Z: 30}, geometry.Point{X: 30, Y: 0, Z: 60}}
+	path := p.FindPath(geometry.Point{0, 0, 0}, geometry.Point{30, 0, 60})
+	expectedPath := []geometry.Point{geometry.Point{0, 0, 0}, geometry.Point{30, 0, 30}, geometry.Point{30, 0, 60}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -157,8 +157,8 @@ func TestReverseC(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 0}, geometry.Point{X: 20, Y: 0, Z: 140})
-	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0}, geometry.Point{X: 60, Y: 0, Z: 60}, geometry.Point{X: 60, Y: 0, Z: 120}, geometry.Point{X: 20, Y: 0, Z: 140}}
+	path := p.FindPath(geometry.Point{0, 0, 0}, geometry.Point{20, 0, 140})
+	expectedPath := []geometry.Point{geometry.Point{0, 0}, geometry.Point{60, 0, 60}, geometry.Point{60, 0, 120}, geometry.Point{20, 0, 140}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -175,8 +175,8 @@ func TestC(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 80, Y: 0, Z: 20}, geometry.Point{X: 80, Y: 0, Z: 140})
-	expectedPath := []geometry.Point{geometry.Point{X: 80, Y: 0, Z: 20}, geometry.Point{X: 60, Y: 0, Z: 60}, geometry.Point{X: 60, Y: 0, Z: 120}, geometry.Point{X: 80, Y: 0, Z: 140}}
+	path := p.FindPath(geometry.Point{80, 0, 20}, geometry.Point{80, 0, 140})
+	expectedPath := []geometry.Point{geometry.Point{80, 0, 20}, geometry.Point{60, 0, 60}, geometry.Point{60, 0, 120}, geometry.Point{80, 0, 140}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -191,8 +191,8 @@ func TestOnEdgeToApex(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: -20, Y: 0, Z: 60})
-	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: 0, Y: 0, Z: 60}, geometry.Point{X: -20, Y: 0, Z: 60}}
+	path := p.FindPath(geometry.Point{0, 0, 30}, geometry.Point{-20, 0, 60})
+	expectedPath := []geometry.Point{geometry.Point{0, 0, 30}, geometry.Point{0, 0, 60}, geometry.Point{-20, 0, 60}}
 	assertPathEq(t, expectedPath, path)
 }
 
@@ -206,7 +206,7 @@ func TestPathDoesNotExist(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: 61, Y: 0, Z: 0})
+	path := p.FindPath(geometry.Point{0, 0, 30}, geometry.Point{61, 0, 0})
 	assertPathEq(t, nil, path)
 }
 
@@ -219,27 +219,27 @@ func TestStartEqualsGoal(t *testing.T) {
 	p := Planner{}
 	p.SetNavMesh(navmesh)
 
-	path := p.FindPath(geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: 0, Y: 0, Z: 30})
-	expectedPath := []geometry.Point{geometry.Point{X: 0, Y: 0, Z: 30}, geometry.Point{X: 0, Y: 0, Z: 30}}
+	path := p.FindPath(geometry.Point{0, 0, 30}, geometry.Point{0, 0, 30})
+	expectedPath := []geometry.Point{geometry.Point{0, 0, 30}, geometry.Point{0, 0, 30}}
 	assertPathEq(t, expectedPath, path)
 }
 
 func sqWithOffset(size, xOffset, yOffset float64) *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: xOffset * size, Y: 0, Z: yOffset * size},
-		geometry.Point{X: xOffset * size, Y: 0, Z: yOffset*size + size},
-		geometry.Point{X: xOffset*size + size, Y: 0, Z: yOffset*size + size},
-		geometry.Point{X: xOffset*size + size, Y: 0, Z: yOffset * size},
+		geometry.Point{xOffset * size, 0, yOffset * size},
+		geometry.Point{xOffset * size, 0, yOffset*size + size},
+		geometry.Point{xOffset*size + size, 0, yOffset*size + size},
+		geometry.Point{xOffset*size + size, 0, yOffset * size},
 	}
 	return geometry.NewPolygon(points)
 }
 
 func sqWithXOffset(offset float64) *geometry.Polygon {
 	points := []geometry.Point{
-		geometry.Point{X: offset + 0, Y: 0, Z: 0},
-		geometry.Point{X: offset + 0, Y: 0, Z: 6},
-		geometry.Point{X: offset + 6, Y: 0, Z: 6},
-		geometry.Point{X: offset + 6, Y: 0, Z: 0},
+		geometry.Point{offset + 0, 0, 0},
+		geometry.Point{offset + 0, 0, 6},
+		geometry.Point{offset + 6, 0, 6},
+		geometry.Point{offset + 6, 0, 0},
 	}
 	return geometry.NewPolygon(points)
 }
