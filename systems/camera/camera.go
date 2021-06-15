@@ -102,8 +102,6 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	deltaRotationY := mgl64.QuatRotate(xRel, mgl64.Vec3{0, 1, 0}) // yaw
 	deltaRotation := deltaRotationY.Mul(deltaRotationX)
 
-	targetToCamera := transformComponent.Position.Sub(targetPosition)
-
 	nextViewQuaternion := deltaRotation.Mul(transformComponent.ViewQuaternion)
 	nextForwardVector := nextViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
 
@@ -113,6 +111,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 		return
 	}
 
+	targetToCamera := transformComponent.Position.Sub(targetPosition)
 	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera).Normalize().Mul(followComponent.FollowDistance))
 	transformComponent.ViewQuaternion = nextViewQuaternion
 	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
