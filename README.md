@@ -15,7 +15,7 @@ Here are a couple of things I've built for kito:
 
 # Development Setup
 
-Install SDL2 following the instructions at https://github.com/veandco/
+Install SDL2 following the instructions at https://github.com/veandco/go-sdl2
 
 # Running kito
 > go run main.go
