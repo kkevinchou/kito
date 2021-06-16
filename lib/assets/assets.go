@@ -34,7 +34,7 @@ func (a *AssetManager) GetTexture(name string) *textures.Texture {
 
 func (a *AssetManager) GetAnimatedModel(name string) *animation.ModelSpecification {
 	if _, ok := a.animatedModels[name]; !ok {
-		panic(fmt.Sprintf("could not find animatedm odel %s", name))
+		panic(fmt.Sprintf("could not find animated model %s", name))
 	}
 	return a.animatedModels[name]
 }
