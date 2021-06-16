@@ -58,7 +58,7 @@ func newTexture(file string) uint32 {
 	return texture
 }
 
-func drawSkyBox(sb *SkyBox, shader *shaders.Shader, frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture *textures.Texture, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
+func drawSkyBox(sb *SkyBox, shader *shaders.ShaderProgram, frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture *textures.Texture, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
 	textures := []*textures.Texture{frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture}
 
 	gl.ActiveTexture(gl.TEXTURE0)
@@ -74,7 +74,7 @@ func drawSkyBox(sb *SkyBox, shader *shaders.Shader, frontTexture, topTexture, le
 	}
 }
 
-func drawTextureToQuad(shader *shaders.Shader, texture uint32, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
+func drawTextureToQuad(shader *shaders.ShaderProgram, texture uint32, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
 	// texture coords top left = 0,0 | bottom right = 1,1
 	var skyboxVertices []float32 = []float32{
 		// front
@@ -112,7 +112,7 @@ func drawTextureToQuad(shader *shaders.Shader, texture uint32, modelMatrix, view
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3, lightSpaceMatrix mgl64.Mat4, texture uint32) {
+func drawMesh(mesh Mesh, shader *shaders.ShaderProgram, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3, lightSpaceMatrix mgl64.Mat4, texture uint32) {
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
 	shader.Use()
@@ -125,7 +125,7 @@ func drawMesh(mesh Mesh, shader *shaders.Shader, modelMatrix, viewMatrix, projec
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawAnimatedMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture *textures.Texture, shader *shaders.Shader, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
+func drawAnimatedMesh(mesh *animation.Mesh, animationTransforms map[int]mgl32.Mat4, texture *textures.Texture, shader *shaders.ShaderProgram, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3) {
 	shader.Use()
 	shader.SetUniformMat4("model", modelMatrix)
 	shader.SetUniformMat4("view", viewMatrix)

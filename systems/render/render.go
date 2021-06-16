@@ -9,10 +9,10 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/noise"
-	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -53,7 +53,6 @@ type RenderSystem struct {
 	assetManager *assets.AssetManager
 	world        World
 	lights       []*Light
-	shaders      map[string]*shaders.Shader
 	skybox       *SkyBox
 	floor        *Quad
 
@@ -111,45 +110,6 @@ func NewRenderSystem(world World) *RenderSystem {
 	gl.FrontFace(gl.CCW)
 	gl.Enable(gl.MULTISAMPLE)
 
-	basicShader, err := shaders.NewShader("shaders/basic.vs", "shaders/basic.fs")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load basic shader %s", err))
-	}
-
-	skyBoxShader, err := shaders.NewShader("shaders/skybox.vs", "shaders/skybox.fs")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load skybox shader %s", err))
-	}
-
-	modelShader, err := shaders.NewShader("shaders/model.vs", "shaders/model.fs")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load model shader %s", err))
-	}
-
-	depthShader, err := shaders.NewShader("shaders/depth.vs", "shaders/depth.fs")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load depth shader %s", err))
-	}
-
-	depthDebugShader, err := shaders.NewShader("shaders/basictexture.vs", "shaders/depthvalue.fs")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load depth debug shader %s", err))
-	}
-
-	basicShadowShader, err := shaders.NewShader("shaders/basicshadow.vs", "shaders/basicshadow.fs")
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load basic shadow shader %s", err))
-	}
-
-	renderSystem.shaders = map[string]*shaders.Shader{
-		"basic":       basicShader,
-		"basicShadow": basicShadowShader,
-		"skybox":      skyBoxShader,
-		"model":       modelShader,
-		"depth":       depthShader,
-		"depthDebug":  depthDebugShader,
-	}
-
 	depthMapFBO, depthTexture, err := initializeShadowMap(depthBufferWidth, depthBufferHeight)
 	if err != nil {
 		panic(err)
@@ -170,7 +130,10 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
-	shader := s.shaders["depth"]
+	d := directory.GetDirectory()
+	shaderManager := d.ShaderManager()
+
+	shader := shaderManager.GetShaderProgram("depth")
 
 	lightPosition := mgl64.Vec3{0, 40, 40}
 	lightViewQuaternion := mgl64.QuatRotate(mgl64.DegToRad(-30), mgl64.Vec3{1, 0, 0})
@@ -226,6 +189,9 @@ func (s *RenderSystem) Update(delta time.Duration) {
 }
 
 func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition mgl64.Vec3, viewerQuaternion mgl64.Quat, lightSpaceMatrix mgl64.Mat4) {
+	d := directory.GetDirectory()
+	shaderManager := d.ShaderManager()
+
 	// We use the inverse to move the universe in the opposite direction of where the camera is looking
 	viewerViewQuaternion := utils.QuatF64ToQuatF32(viewerQuaternion)
 	viewerViewMatrix := viewerViewQuaternion.Inverse().Mat4()
@@ -241,10 +207,10 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 
 	vPosition := mgl32.Vec3{float32(viewerPosition[0]), float32(viewerPosition[1]), float32(viewerPosition[2])}
 
-	drawTextureToQuad(s.shaders["depthDebug"], s.depthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, perspectiveMatrix)
+	drawTextureToQuad(shaderManager.GetShaderProgram("depthDebug"), s.depthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, perspectiveMatrix)
 	drawSkyBox(
 		s.skybox,
-		s.shaders["skybox"],
+		shaderManager.GetShaderProgram("skybox"),
 		s.assetManager.GetTexture("front"),
 		s.assetManager.GetTexture("top"),
 		s.assetManager.GetTexture("left"),
@@ -255,7 +221,7 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 		viewerViewMatrix,
 		perspectiveMatrix,
 	)
-	drawMesh(s.floor, s.shaders["basicShadow"], floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition, lightSpaceMatrix, s.depthTexture)
+	drawMesh(s.floor, shaderManager.GetShaderProgram("basicShadow"), floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition, lightSpaceMatrix, s.depthTexture)
 
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
@@ -285,7 +251,7 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 					animationComponent.AnimatedModel.Mesh,
 					animationComponent.AnimationTransforms,
 					s.assetManager.GetTexture("diffuse"),
-					s.shaders["model"],
+					shaderManager.GetShaderProgram("model"),
 					meshModelMatrix,
 					viewMatrix,
 					perspectiveMatrix,
@@ -298,7 +264,9 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 }
 
 func (s *RenderSystem) renderSceneTest(perspectiveMatrix mgl32.Mat4) {
-	shader := s.shaders["depth"]
+	d := directory.GetDirectory()
+	shaderManager := d.ShaderManager()
+	shader := shaderManager.GetShaderProgram("depth")
 
 	lightViewMatrix := mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4().Inv()
 

@@ -111,7 +111,7 @@ func (i *InputPoller) PollInput() []interface{} {
 }
 
 func main() {
-	game := kito.NewGame("_assets")
+	game := kito.NewGame("_assets", "shaders")
 	inputPoller := NewInputPoller()
 	game.Start(inputPoller.PollInput)
 	sdl.Quit()

@@ -5,6 +5,7 @@ import (
 	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
 	"github.com/kkevinchou/kito/lib/textures"
+	"github.com/kkevinchou/kito/lib/utils"
 )
 
 func LoadTextures(directory string) map[string]*textures.Texture {
@@ -15,9 +16,9 @@ func LoadTextures(directory string) map[string]*textures.Texture {
 	}
 
 	textureMap := map[string]*textures.Texture{}
-	assetMetaData := GetAssetMetaData(directory, subDirectories, extensions)
+	fileMetaData := utils.GetFileMetaData(directory, subDirectories, extensions)
 
-	for _, metaData := range assetMetaData {
+	for _, metaData := range fileMetaData {
 		textureID := gltextures.NewTexture(metaData.Path)
 		textureMap[metaData.Name] = &textures.Texture{ID: textureID}
 	}
@@ -33,9 +34,9 @@ func LoadAnimatedModels(directory string) map[string]*animation.ModelSpecificati
 	}
 
 	animationMap := map[string]*animation.ModelSpecification{}
-	assetMetaData := GetAssetMetaData(directory, subDirectories, extensions)
+	fileMetaData := utils.GetFileMetaData(directory, subDirectories, extensions)
 
-	for _, metaData := range assetMetaData {
+	for _, metaData := range fileMetaData {
 		parsedCollada, err := collada.ParseCollada(metaData.Path)
 		if err != nil {
 			panic(err)

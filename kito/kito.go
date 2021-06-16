@@ -15,6 +15,7 @@ import (
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/geometry"
+	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
 	camerasys "github.com/kkevinchou/kito/systems/camera"
@@ -51,7 +52,7 @@ type Game struct {
 	entities  map[int]entities.Entity
 }
 
-func NewGame(assetsDirectory string) *Game {
+func NewGame(assetsDirectory string, shaderDirectory string) *Game {
 	seed := int64(time.Now().Nanosecond())
 	fmt.Println(fmt.Sprintf("Game Initializing with seed %d ...", seed))
 	rand.Seed(seed)
@@ -73,6 +74,8 @@ func NewGame(assetsDirectory string) *Game {
 	assetManager := assets.NewAssetManager(assetsDirectory)
 	renderSystem.SetAssetManager(assetManager)
 
+	shaderManager := shaders.NewShaderManager(shaderDirectory)
+
 	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
@@ -81,6 +84,7 @@ func NewGame(assetsDirectory string) *Game {
 	d := directory.GetDirectory()
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterAssetManager(assetManager)
+	d.RegisterShaderManager(shaderManager)
 	d.RegisterItemManager(itemManager)
 	d.RegisterPathManager(pathManager)
 
@@ -88,6 +92,15 @@ func NewGame(assetsDirectory string) *Game {
 	g.systems = append(g.systems, physicsSystem)
 	g.systems = append(g.systems, animationSystem)
 	g.systems = append(g.systems, cameraSystem)
+
+	// Shader Compilation
+
+	shaderManager.CompileShaderProgram("basic", "basic", "basic")
+	shaderManager.CompileShaderProgram("basicShadow", "basicshadow", "basicshadow")
+	shaderManager.CompileShaderProgram("skybox", "skybox", "skybox")
+	shaderManager.CompileShaderProgram("model", "model", "model")
+	shaderManager.CompileShaderProgram("depth", "depth", "depth")
+	shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue")
 
 	// Entity Setup
 

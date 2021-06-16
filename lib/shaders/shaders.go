@@ -7,92 +7,123 @@ import (
 
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/lib/utils"
 )
 
-type Shader struct {
+type ShaderProgram struct {
 	ID uint32
 }
 
-func NewShader(vertexShaderPath, fragmentShaderPath string) (*Shader, error) {
-	vertexShaderSource, err := ioutil.ReadFile(vertexShaderPath)
-	if err != nil {
-		return nil, err
+const (
+	vertexShaderExtension   = ".vs"
+	fragmentShaderExtension = ".fs"
+)
+
+type ShaderManager struct {
+	vertexShaders   map[string]uint32
+	fragmentShaders map[string]uint32
+	shaderPrograms  map[string]*ShaderProgram
+}
+
+func NewShaderManager(directory string) *ShaderManager {
+	shaderManager := ShaderManager{
+		vertexShaders:   loadShaders(directory, gl.VERTEX_SHADER, vertexShaderExtension),
+		fragmentShaders: loadShaders(directory, gl.FRAGMENT_SHADER, fragmentShaderExtension),
+		shaderPrograms:  map[string]*ShaderProgram{},
 	}
 
-	fragmentShaderSource, err := ioutil.ReadFile(fragmentShaderPath)
-	if err != nil {
-		return nil, err
-	}
+	return &shaderManager
+}
 
-	vertexShader := gl.CreateShader(gl.VERTEX_SHADER)
-	csource, free := gl.Strs(string(vertexShaderSource) + "\x00")
-	gl.ShaderSource(vertexShader, 1, csource, nil)
-	free()
-
-	gl.CompileShader(vertexShader)
-
-	var status int32
-	gl.GetShaderiv(vertexShader, gl.COMPILE_STATUS, &status)
-	if status == gl.FALSE {
-		var logLength int32
-		gl.GetShaderiv(vertexShader, gl.INFO_LOG_LENGTH, &logLength)
-		log := strings.Repeat("\x00", int(logLength+1))
-		gl.GetShaderInfoLog(vertexShader, logLength, nil, gl.Str(log))
-		panic("Failed to compile vertex shader:\n" + log)
-	}
-
-	fragmentShader := gl.CreateShader(gl.FRAGMENT_SHADER)
-	csource, free = gl.Strs(string(fragmentShaderSource) + "\x00")
-	gl.ShaderSource(fragmentShader, 1, csource, nil)
-	free()
-
-	gl.CompileShader(fragmentShader)
-
-	gl.GetShaderiv(fragmentShader, gl.COMPILE_STATUS, &status)
-	if status == gl.FALSE {
-		var logLength int32
-		gl.GetShaderiv(fragmentShader, gl.INFO_LOG_LENGTH, &logLength)
-		log := strings.Repeat("\x00", int(logLength+1))
-		gl.GetShaderInfoLog(fragmentShader, logLength, nil, gl.Str(log))
-		panic("Failed to compile fragment shader:\n" + log)
-	}
-
+func (s *ShaderManager) CompileShaderProgram(name, vertexShader, fragmentShader string) error {
 	shaderProgram := gl.CreateProgram()
-	gl.AttachShader(shaderProgram, vertexShader)
-	gl.AttachShader(shaderProgram, fragmentShader)
+	gl.AttachShader(shaderProgram, s.vertexShaders[vertexShader])
+	gl.AttachShader(shaderProgram, s.fragmentShaders[fragmentShader])
 	gl.LinkProgram(shaderProgram)
 
+	var status int32
 	gl.GetProgramiv(shaderProgram, gl.LINK_STATUS, &status)
 	if status == gl.FALSE {
 		var logLength int32
 		gl.GetProgramiv(shaderProgram, gl.INFO_LOG_LENGTH, &logLength)
 		log := strings.Repeat("\x00", int(logLength+1))
 		gl.GetProgramInfoLog(shaderProgram, logLength, nil, gl.Str(log))
-		panic("Failed to link program:\n" + log)
+		return fmt.Errorf("failed to link shader program:\n%s", log)
 	}
 
-	gl.DeleteShader(vertexShader)
-	gl.DeleteShader(fragmentShader)
+	// gl.DeleteShader(vertexShader)
+	// gl.DeleteShader(fragmentShader)
 
-	return &Shader{ID: shaderProgram}, nil
+	s.shaderPrograms[name] = &ShaderProgram{ID: shaderProgram}
+
+	return nil
 }
 
-func (s *Shader) SetUniformMat4(uniform string, value mgl32.Mat4) {
+func (s *ShaderManager) GetShaderProgram(name string) *ShaderProgram {
+	return s.shaderPrograms[name]
+}
+
+func loadShaders(directory string, shaderType uint32, extension string) map[string]uint32 {
+	extensions := map[string]interface{}{
+		extension: nil,
+	}
+
+	shaderMap := map[string]uint32{}
+	fileMetaData := utils.GetFileMetaData(directory, nil, extensions)
+
+	for _, metaData := range fileMetaData {
+		shader, err := compileShader(metaData.Path, shaderType)
+		if err != nil {
+			panic(err)
+		}
+		shaderMap[metaData.Name] = shader
+	}
+
+	return shaderMap
+}
+
+func compileShader(shaderPath string, shaderType uint32) (uint32, error) {
+	shaderSource, err := ioutil.ReadFile(shaderPath)
+	if err != nil {
+		return 0, err
+	}
+
+	shader := gl.CreateShader(shaderType)
+	csource, free := gl.Strs(string(shaderSource) + "\x00")
+	gl.ShaderSource(shader, 1, csource, nil)
+	free()
+
+	gl.CompileShader(shader)
+
+	var status int32
+	gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status)
+	if status == gl.FALSE {
+		var logLength int32
+		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
+		log := strings.Repeat("\x00", int(logLength+1))
+		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
+		return 0, fmt.Errorf("failed to compile shader:\n%s", log)
+	}
+
+	return shader, nil
+}
+
+func (s *ShaderProgram) SetUniformMat4(uniform string, value mgl32.Mat4) {
 	uniformLocation := gl.GetUniformLocation(s.ID, gl.Str(fmt.Sprintf("%s\x00", uniform)))
 	gl.UniformMatrix4fv(uniformLocation, 1, false, &value[0])
 }
 
-func (s *Shader) SetUniformVec3(uniform string, value mgl32.Vec3) {
+func (s *ShaderProgram) SetUniformVec3(uniform string, value mgl32.Vec3) {
 	floats := []float32{value.X(), value.Y(), value.Z()}
 	uniformLocation := gl.GetUniformLocation(s.ID, gl.Str(fmt.Sprintf("%s\x00", uniform)))
 	gl.Uniform3fv(uniformLocation, 1, &floats[0])
 }
 
-func (s *Shader) SetUniformInt(uniform string, value int32) {
+func (s *ShaderProgram) SetUniformInt(uniform string, value int32) {
 	uniformLocation := gl.GetUniformLocation(s.ID, gl.Str(fmt.Sprintf("%s\x00", uniform)))
 	gl.Uniform1i(uniformLocation, value)
 }
 
-func (s *Shader) Use() {
+func (s *ShaderProgram) Use() {
 	gl.UseProgram(s.ID)
 }
