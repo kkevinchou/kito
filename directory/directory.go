@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
@@ -19,11 +20,17 @@ type IRenderSystem interface {
 	Update(time.Duration)
 }
 
+type IShaderManager interface {
+	CompileShaderProgram(name, vertexShader, fragmentShader string) error
+	GetShaderProgram(name string) *shaders.ShaderProgram
+}
+
 type Directory struct {
-	renderSystem IRenderSystem
-	assetManager IAssetManager
-	itemManager  *item.Manager
-	pathManager  *path.Manager
+	renderSystem  IRenderSystem
+	assetManager  IAssetManager
+	itemManager   *item.Manager
+	pathManager   *path.Manager
+	shaderManager IShaderManager
 }
 
 var instance *Directory
@@ -66,4 +73,12 @@ func (d *Directory) RegisterPathManager(manager *path.Manager) {
 
 func (d *Directory) PathManager() *path.Manager {
 	return d.pathManager
+}
+
+func (d *Directory) RegisterShaderManager(manager IShaderManager) {
+	d.shaderManager = manager
+}
+
+func (d *Directory) ShaderManager() IShaderManager {
+	return d.shaderManager
 }

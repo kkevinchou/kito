@@ -1,4 +1,4 @@
-package loaders
+package utils
 
 import (
 	"fmt"
@@ -9,12 +9,13 @@ import (
 	_ "image/png"
 )
 
-type AssetMetaData struct {
-	Name string
-	Path string
+type FileMetaData struct {
+	Name      string
+	Path      string
+	Extension string
 }
 
-func GetAssetMetaData(directory string, subDirectories []string, extensions map[string]interface{}) map[string]AssetMetaData {
+func GetFileMetaData(directory string, subDirectories []string, extensions map[string]interface{}) map[string]FileMetaData {
 	var subPaths []string
 	for _, subDir := range subDirectories {
 		subPaths = append(subPaths, path.Join(directory, subDir))
@@ -23,7 +24,7 @@ func GetAssetMetaData(directory string, subDirectories []string, extensions map[
 		subPaths = append(subPaths, directory)
 	}
 
-	metaDataCollection := map[string]AssetMetaData{}
+	metaDataCollection := map[string]FileMetaData{}
 
 	for _, subDir := range subPaths {
 		files, err := os.ReadDir(subDir)
@@ -41,7 +42,7 @@ func GetAssetMetaData(directory string, subDirectories []string, extensions map[
 			path := filepath.Join(subDir, file.Name())
 			name := file.Name()[0 : len(file.Name())-len(extension)]
 
-			metaDataCollection[name] = AssetMetaData{Name: name, Path: path}
+			metaDataCollection[name] = FileMetaData{Name: name, Path: path, Extension: extension}
 		}
 	}
 

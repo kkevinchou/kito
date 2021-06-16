@@ -25,12 +25,15 @@ func TestShader(t *testing.T) {
 
 	gl.Init()
 
-	shader, err := shaders.NewShader("testshaders/testshader.vs", "testshaders/testshader.fs")
-	if err != nil {
-		t.Errorf("failed to create shader %v", err.Error())
+	shaderManager := shaders.NewShaderManager("testshaders")
+	shaderManager.CompileShaderProgram("testshader", "testshader", "testshader")
+	shaderProgram := shaderManager.GetShaderProgram("testshader")
+
+	if shaderProgram == nil {
+		t.Errorf("failed to create shader program %v", err.Error())
 	}
 
-	if shader.ID == 0 {
+	if shaderProgram.ID == 0 {
 		t.Error("shader program created with id 0")
 	}
 }
