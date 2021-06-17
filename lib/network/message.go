@@ -8,8 +8,8 @@ const (
 )
 
 type Message struct {
-	SenderID int `json:"sender_id`
-	MessageType
+	SenderID    int         `json:"sender_id"`
+	MessageType MessageType `json:"message_type"`
 
 	Body []byte `json:"body"`
 }
