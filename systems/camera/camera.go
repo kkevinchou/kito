@@ -67,9 +67,9 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	var xRel, yRel float64
 
 	singleton := s.world.GetSingleton()
+	mouseInput := singleton.GetMouseInput()
 
-	if singleton.GetMouseInput() != nil {
-		mouseInput := *singleton.GetMouseInput()
+	if mouseInput != nil {
 		var mouseSensitivity float64 = 0.005
 		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
 			xRel += -mouseInput.MouseMotionEvent.XRel * mouseSensitivity
@@ -77,6 +77,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 		}
 	}
 
+	// handle camera controls with arrow keys
 	if singleton.GetKeyboardInputSet() != nil {
 		keyboardInput := *singleton.GetKeyboardInputSet()
 		var keyboardSensitivity float64 = 0.01
@@ -98,6 +99,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	rightVector := forwardVector.Cross(transformComponent.UpVector)
 	transformComponent.Position = targetPosition.Add(forwardVector.Mul(-1).Mul(followComponent.FollowDistance))
 
+	// calculate the quaternion for the delta in rotation
 	deltaRotationX := mgl64.QuatRotate(yRel, rightVector)         // pitch
 	deltaRotationY := mgl64.QuatRotate(xRel, mgl64.Vec3{0, 1, 0}) // yaw
 	deltaRotation := deltaRotationY.Mul(deltaRotationX)
@@ -117,6 +119,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
 }
 
+// controlled cameras are cameras that can move independently
 func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {
 	physicsComponent := componentContainer.PhysicsComponent
 	topDownViewComponent := componentContainer.TopDownViewComponent
