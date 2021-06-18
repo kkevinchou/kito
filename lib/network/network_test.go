@@ -26,4 +26,9 @@ func TestBasic(t *testing.T) {
 	if acceptMessage.PlayerID == 0 {
 		t.Error("expected a non zero player ID from the accept message")
 	}
+
+	err = client.SendMessage(&network.Message{MessageType: network.MessageTypeInput})
+	if err != nil {
+		t.Error(err)
+	}
 }

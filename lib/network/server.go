@@ -7,10 +7,6 @@ import (
 	"sync"
 )
 
-const (
-	messageQueueSize = 1024
-)
-
 type Server struct {
 	host           string
 	port           string
@@ -19,7 +15,8 @@ type Server struct {
 	nextPlayerID      int
 	nextPlayerIDMutex sync.Mutex
 
-	messageQueue chan Message
+	messageQueue chan *Message
+	connections  map[int]net.Conn
 }
 
 func NewServer(host, port, connectionType string) *Server {
@@ -30,7 +27,8 @@ func NewServer(host, port, connectionType string) *Server {
 
 		nextPlayerID: 1,
 
-		messageQueue: make(chan Message, messageQueueSize),
+		messageQueue: make(chan *Message, messageQueueBufferSize),
+		connections:  map[int]net.Conn{},
 	}
 }
 
@@ -50,59 +48,63 @@ func (s *Server) Start() error {
 				continue
 			}
 
-			s.nextPlayerIDMutex.Lock()
-			id := s.nextPlayerID
-			s.nextPlayerID++
-			s.nextPlayerIDMutex.Unlock()
+			id := s.generateNextPlayerID()
+			s.connections[id] = conn
 
-			acceptMessage := AcceptMessage{
-				PlayerID: id,
-			}
-			bodyBytes, err := json.Marshal(acceptMessage)
+			message, err := s.createAcceptMessage(id)
 			if err != nil {
-				fmt.Println("error marshaling accept message:", err.Error())
+				fmt.Println(err)
 				continue
 			}
 
-			encoder := json.NewEncoder(conn)
-			message := Message{
-				SenderID:    0,
-				MessageType: MessageTypeAcceptConnection,
-				Body:        bodyBytes,
-			}
-
-			err = encoder.Encode(message)
+			s.SendMessage(id, message)
 			if err != nil {
 				fmt.Println("error sending accept message:", err.Error())
 				continue
 			}
 
-			go s.handleRequest(conn)
+			go queueIncomingMessages(conn, s.messageQueue)
 		}
 	}()
 
 	return nil
 }
 
-func (s *Server) handleRequest(conn net.Conn) {
-	for {
-		decoder := json.NewDecoder(conn)
-
-		message := Message{}
-		err := decoder.Decode(&message)
-		if err != nil {
-			fmt.Println("error reading:", err.Error())
-			continue
-		}
-
-		select {
-		case s.messageQueue <- message:
-		default:
-			fmt.Println("message queue full")
-		}
-	}
+func (s *Server) IncomingMessageQueue() chan *Message {
+	return s.messageQueue
 }
 
-func (s *Server) MessageQueue() chan Message {
-	return s.messageQueue
+func (s *Server) SendMessage(playerID int, message *Message) error {
+	encoder := json.NewEncoder(s.connections[playerID])
+	err := encoder.Encode(message)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Server) generateNextPlayerID() int {
+	s.nextPlayerIDMutex.Lock()
+	id := s.nextPlayerID
+	s.nextPlayerID++
+	s.nextPlayerIDMutex.Unlock()
+
+	return id
+}
+
+func (s *Server) createAcceptMessage(playerID int) (*Message, error) {
+	acceptMessage := AcceptMessage{
+		PlayerID: playerID,
+	}
+	bodyBytes, err := json.Marshal(acceptMessage)
+	if err != nil {
+		fmt.Println("error marshaling accept message:", err.Error())
+		return nil, err
+	}
+	return &Message{
+		SenderID:    0,
+		MessageType: MessageTypeAcceptConnection,
+		Body:        bodyBytes,
+	}, nil
+
 }

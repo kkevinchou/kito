@@ -5,6 +5,7 @@ type MessageType int
 const (
 	MessageTypeConnect MessageType = iota
 	MessageTypeAcceptConnection
+	MessageTypeInput
 )
 
 type Message struct {
