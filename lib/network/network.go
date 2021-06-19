@@ -7,8 +7,14 @@ import (
 )
 
 const (
-	messageQueueBufferSize = 1024
+	messageQueueBufferSize        = 1024
+	incomingConnectionsBufferSize = 1024
 )
+
+type Connection struct {
+	PlayerID   int
+	Connection net.Conn
+}
 
 func queueIncomingMessages(conn net.Conn, messageQueue chan *Message) {
 	decoder := json.NewDecoder(conn)

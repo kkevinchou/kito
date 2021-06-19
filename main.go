@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/kkevinchou/kito/kito"
-	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/types"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -125,8 +124,6 @@ const (
 )
 
 func main() {
-	fmt.Println(os.Args)
-
 	var mode string = modeLocal
 	if len(os.Args) > 1 {
 		mode = strings.ToUpper(os.Args[1])
@@ -137,15 +134,13 @@ func main() {
 
 	fmt.Println("starting game on mode:", mode)
 	if mode == modeLocal {
-		game := kito.NewGame("_assets", "shaders")
+		game := kito.NewLocalGame("_assets", "shaders")
 		inputPoller := NewInputPoller()
 		game.Start(inputPoller.PollInput)
 	} else if mode == modeClient {
 
 	} else if mode == modeServer {
-		server := network.NewServer(host, port, connectionType)
-		server.Start()
-		game := kito.NewGame("_assets", "shaders")
+		game := kito.NewServerGame("_assets", "shaders")
 		game.Start(kito.NullInputPoller)
 	}
 

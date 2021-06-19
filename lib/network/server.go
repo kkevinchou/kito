@@ -15,8 +15,7 @@ type Server struct {
 	nextPlayerID      int
 	nextPlayerIDMutex sync.Mutex
 
-	messageQueue chan *Message
-	connections  map[int]net.Conn
+	incomingConnections chan *Connection
 }
 
 func NewServer(host, port, connectionType string) *Server {
@@ -27,8 +26,7 @@ func NewServer(host, port, connectionType string) *Server {
 
 		nextPlayerID: 1,
 
-		messageQueue: make(chan *Message, messageQueueBufferSize),
-		connections:  map[int]net.Conn{},
+		incomingConnections: make(chan *Connection, incomingConnectionsBufferSize),
 	}
 }
 
@@ -48,34 +46,48 @@ func (s *Server) Start() error {
 				continue
 			}
 
-			id := s.generateNextPlayerID()
-			s.connections[id] = conn
+			playerID := s.generateNextPlayerID()
 
-			message, err := s.createAcceptMessage(id)
+			message, err := s.createAcceptMessage(playerID)
 			if err != nil {
 				fmt.Println(err)
 				continue
 			}
 
-			s.SendMessage(id, message)
+			s.SendMessage(conn, message)
 			if err != nil {
 				fmt.Println("error sending accept message:", err.Error())
 				continue
 			}
 
-			go queueIncomingMessages(conn, s.messageQueue)
+			select {
+			case s.incomingConnections <- &Connection{Connection: conn, PlayerID: playerID}:
+			default:
+				panic("incomingConnections queue full")
+			}
 		}
 	}()
 
 	return nil
 }
 
-func (s *Server) IncomingMessageQueue() chan *Message {
-	return s.messageQueue
+func (s *Server) PullIncomingConnections() []*Connection {
+	connections := []*Connection{}
+
+	for i := 0; i < incomingConnectionsBufferSize; i++ {
+		select {
+		case connection := <-s.incomingConnections:
+			connections = append(connections, connection)
+		default:
+			return connections
+		}
+	}
+
+	return connections
 }
 
-func (s *Server) SendMessage(playerID int, message *Message) error {
-	encoder := json.NewEncoder(s.connections[playerID])
+func (s *Server) SendMessage(connection net.Conn, message *Message) error {
+	encoder := json.NewEncoder(connection)
 	err := encoder.Encode(message)
 	if err != nil {
 		return err

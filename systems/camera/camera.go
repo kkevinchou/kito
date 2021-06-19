@@ -40,6 +40,9 @@ func NewCameraSystem(world World) *CameraSystem {
 	return &s
 }
 
+func (s *CameraSystem) RegisterEntity(entity entities.Entity) {
+}
+
 func (s *CameraSystem) Update(delta time.Duration) {
 	camera := s.world.GetCamera()
 	componentContainer := camera.GetComponentContainer()
