@@ -3,7 +3,6 @@ package kito
 import (
 	"fmt"
 	"math/rand"
-	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/directory"
@@ -13,6 +12,7 @@ import (
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
+	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/systems/camera"
 	"github.com/kkevinchou/kito/systems/charactercontroller"
@@ -22,8 +22,8 @@ import (
 )
 
 func NewLocalGame(assetsDirectory string, shaderDirectory string) *Game {
-	seed := int64(time.Now().Nanosecond())
-	fmt.Println(fmt.Sprintf("Initializing local game with seed %d ...", seed))
+	seed := settings.Seed
+	fmt.Printf("Initializing local game with seed %d ...\n", seed)
 	rand.Seed(seed)
 
 	g := &Game{
@@ -74,10 +74,9 @@ func NewLocalGame(assetsDirectory string, shaderDirectory string) *Game {
 	// Entity Setup
 
 	bob := entities.NewBob(mgl64.Vec3{0, 15, 0})
-	camera := entities.NewThirdPersonCamera(cameraStartPosition, cameraStartView)
+	camera := entities.NewThirdPersonCamera(cameraStartPosition, cameraStartView, bob.GetID())
 
 	cameraComponentContainer := camera.GetComponentContainer()
-	cameraComponentContainer.FollowComponent.FollowTargetEntityID = bob.GetID()
 	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
 
 	bobComponentContainer := bob.GetComponentContainer()

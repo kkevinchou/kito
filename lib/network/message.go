@@ -6,6 +6,7 @@ const (
 	MessageTypeConnect MessageType = iota
 	MessageTypeAcceptConnection
 	MessageTypeInput
+	MessageTypeReplication
 )
 
 type Message struct {
@@ -17,4 +18,10 @@ type Message struct {
 
 type AcceptMessage struct {
 	PlayerID int `json:"player_id"`
+}
+
+type Entity struct {
+}
+
+type ReplicationMessage struct {
 }

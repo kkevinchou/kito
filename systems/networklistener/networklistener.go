@@ -1,6 +1,7 @@
 package networklistener
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/entities"
@@ -30,6 +31,7 @@ func (s *NetworkListenerSystem) RegisterEntity(entity entities.Entity) {
 func (s *NetworkListenerSystem) Update(delta time.Duration) {
 	incomingConnections := s.nserver.PullIncomingConnections()
 	for _, incomingConnection := range incomingConnections {
+		fmt.Println("New player connected with id", incomingConnection.PlayerID)
 		// create player entity - probably fire a message to the event manager
 		_ = incomingConnection
 	}

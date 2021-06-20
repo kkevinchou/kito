@@ -46,12 +46,12 @@ func (s *CameraSystem) RegisterEntity(entity entities.Entity) {
 func (s *CameraSystem) Update(delta time.Duration) {
 	camera := s.world.GetCamera()
 	componentContainer := camera.GetComponentContainer()
-	s.handleUncontrolledCamera(componentContainer)
+	s.handleFollowCameraControls(componentContainer)
 }
 
 // this might belong in some kind of movement or pathfinding system that handles "following" logic.
 // putting this here for now until more than just cameras need to follow a target
-func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.ComponentContainer) {
+func (s *CameraSystem) handleFollowCameraControls(componentContainer *components.ComponentContainer) {
 	followComponent := componentContainer.FollowComponent
 	transformComponent := componentContainer.TransformComponent
 
@@ -123,7 +123,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 }
 
 // controlled cameras are cameras that can move independently
-func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {
+func (s *CameraSystem) handleFreeCamera(componentContainer *components.ComponentContainer) {
 	physicsComponent := componentContainer.PhysicsComponent
 	topDownViewComponent := componentContainer.TopDownViewComponent
 

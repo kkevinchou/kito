@@ -138,6 +138,9 @@ func main() {
 		inputPoller := NewInputPoller()
 		game.Start(inputPoller.PollInput)
 	} else if mode == modeClient {
+		game := kito.NewClientGame("_assets", "shaders")
+		inputPoller := NewInputPoller()
+		game.Start(inputPoller.PollInput)
 
 	} else if mode == modeServer {
 		game := kito.NewServerGame("_assets", "shaders")

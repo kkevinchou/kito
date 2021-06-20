@@ -10,19 +10,18 @@ import (
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
+	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
 	"github.com/kkevinchou/kito/systems/networklistener"
 	"github.com/kkevinchou/kito/systems/physics"
 	"github.com/kkevinchou/kito/types"
 )
 
-func emptyRenderFunction(delta time.Duration) {
-
-}
+func emptyRenderFunction(delta time.Duration) {}
 
 func NewServerGame(assetsDirectory string, shaderDirectory string) *Game {
-	seed := int64(time.Now().Nanosecond())
-	fmt.Println(fmt.Sprintf("Initializing server with seed %d ...", seed))
+	seed := settings.Seed
+	fmt.Printf("Initializing server game with seed %d ...\n", seed)
 	rand.Seed(seed)
 
 	g := &Game{
@@ -35,7 +34,7 @@ func NewServerGame(assetsDirectory string, shaderDirectory string) *Game {
 
 	// System Setup
 
-	networkListener := networklistener.NewNetworkListenerSystem(g, "localhost", "8080", "tcp")
+	networkListener := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 

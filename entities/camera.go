@@ -5,7 +5,7 @@ import (
 	"github.com/kkevinchou/kito/components"
 )
 
-func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2) *EntityImpl {
+func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTargetEntityID int) *EntityImpl {
 	// TODO: sync initial position from transform compnoent from follow component
 
 	transformComponent := &components.TransformComponent{
@@ -16,7 +16,8 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2) *EntityImp
 	}
 
 	followComponent := &components.FollowComponent{
-		FollowDistance: 40,
+		FollowTargetEntityID: followTargetEntityID,
+		FollowDistance:       40,
 	}
 
 	entity := NewEntity(
