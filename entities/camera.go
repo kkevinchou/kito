@@ -9,10 +9,10 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTarg
 	// TODO: sync initial position from transform compnoent from follow component
 
 	transformComponent := &components.TransformComponent{
-		ViewQuaternion: mgl64.QuatIdent(),
-		Position:       mgl64.Vec3{0, 0, 1},
-		UpVector:       mgl64.Vec3{0, 1, 0},
-		ForwardVector:  mgl64.Vec3{0, 0, -1},
+		Orientation:   mgl64.QuatIdent(),
+		Position:      mgl64.Vec3{0, 0, 1},
+		UpVector:      mgl64.Vec3{0, 1, 0},
+		ForwardVector: mgl64.Vec3{0, 0, -1},
 	}
 
 	followComponent := &components.FollowComponent{

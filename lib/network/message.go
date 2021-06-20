@@ -20,8 +20,5 @@ type AcceptMessage struct {
 	PlayerID int `json:"player_id"`
 }
 
-type Entity struct {
-}
-
 type ReplicationMessage struct {
 }

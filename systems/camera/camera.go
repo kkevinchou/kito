@@ -98,7 +98,7 @@ func (s *CameraSystem) handleFollowCameraControls(componentContainer *components
 		}
 	}
 
-	forwardVector := transformComponent.ViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
+	forwardVector := transformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
 	rightVector := forwardVector.Cross(transformComponent.UpVector)
 	transformComponent.Position = targetPosition.Add(forwardVector.Mul(-1).Mul(followComponent.FollowDistance))
 
@@ -107,8 +107,8 @@ func (s *CameraSystem) handleFollowCameraControls(componentContainer *components
 	deltaRotationY := mgl64.QuatRotate(xRel, mgl64.Vec3{0, 1, 0}) // yaw
 	deltaRotation := deltaRotationY.Mul(deltaRotationX)
 
-	nextViewQuaternion := deltaRotation.Mul(transformComponent.ViewQuaternion)
-	nextForwardVector := nextViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
+	nextOrientation := deltaRotation.Mul(transformComponent.Orientation)
+	nextForwardVector := nextOrientation.Rotate(mgl64.Vec3{0, 0, -1})
 
 	// if we're nearly pointing directly downwards or upwards - stop camera movement
 	// TODO: do this in a better way
@@ -118,7 +118,7 @@ func (s *CameraSystem) handleFollowCameraControls(componentContainer *components
 
 	targetToCamera := transformComponent.Position.Sub(targetPosition)
 	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera).Normalize().Mul(followComponent.FollowDistance))
-	transformComponent.ViewQuaternion = nextViewQuaternion
+	transformComponent.Orientation = nextOrientation
 	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
 }
 

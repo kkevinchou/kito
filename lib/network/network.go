@@ -3,6 +3,7 @@ package network
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 )
 
@@ -22,6 +23,10 @@ func queueIncomingMessages(conn net.Conn, messageQueue chan *Message) {
 		message := Message{}
 		err := decoder.Decode(&message)
 		if err != nil {
+			if err == io.EOF {
+				continue
+			}
+
 			fmt.Println("error reading:", err.Error())
 			continue
 		}

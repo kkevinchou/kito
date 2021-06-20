@@ -90,7 +90,7 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 			// is due to issues looking at objects that are along our "up" vector.
 			// I believe this is due to us losing sense of what a "right" vector is.
 			// This code will likely change when we do animation blending in the animator
-			transformComponent.ViewQuaternion = utils.QuatLookAt(mgl64.Vec3{0, 0, 0}, transformComponent.ForwardVector, mgl64.Vec3{0, 1, 0})
+			transformComponent.Orientation = utils.QuatLookAt(mgl64.Vec3{0, 0, 0}, transformComponent.ForwardVector, mgl64.Vec3{0, 1, 0})
 		}
 	}
 }

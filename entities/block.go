@@ -7,7 +7,7 @@ import (
 
 func NewBlock() *EntityImpl {
 	transformComponent := &components.TransformComponent{
-		ViewQuaternion: mgl64.QuatIdent(),
+		Orientation: mgl64.QuatIdent(),
 	}
 
 	renderData := &components.BlockRenderData{
