@@ -136,11 +136,11 @@ func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	shader := shaderManager.GetShaderProgram("depth")
 
 	lightPosition := mgl64.Vec3{0, 40, 40}
-	lightViewQuaternion := mgl64.QuatRotate(mgl64.DegToRad(-30), mgl64.Vec3{1, 0, 0})
+	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-30), mgl64.Vec3{1, 0, 0})
 
 	orthoMatrix := mgl32.Ortho(-100, 100, -100, 100, near, far)
 	// orthoMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
-	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightViewQuaternion.Mat4()).Inv()
+	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
 
 	shader.Use()
 	shader.SetUniformMat4("lightPerspective", orthoMatrix)
@@ -152,7 +152,7 @@ func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 	gl.BindFramebuffer(gl.FRAMEBUFFER, s.depthMapFBO)
 	gl.Clear(gl.DEPTH_BUFFER_BIT)
 
-	s.renderScene(orthoMatrix, lightPosition, lightViewQuaternion, lightViewMatrix)
+	s.renderScene(orthoMatrix, lightPosition, lightOrientation, lightViewMatrix)
 
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
@@ -176,7 +176,7 @@ func (s *RenderSystem) Update(delta time.Duration) {
 	transformComponent := componentContainer.TransformComponent
 
 	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
-	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.ViewQuaternion, lightViewMatrix)
+	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.Orientation, lightViewMatrix)
 
 	// orthoMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
 	// s.renderSceneTest(orthoMatrix)
@@ -193,8 +193,8 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 	shaderManager := d.ShaderManager()
 
 	// We use the inverse to move the universe in the opposite direction of where the camera is looking
-	viewerViewQuaternion := utils.QuatF64ToQuatF32(viewerQuaternion)
-	viewerViewMatrix := viewerViewQuaternion.Inverse().Mat4()
+	viewerOrientation := utils.QuatF64ToQuatF32(viewerQuaternion)
+	viewerViewMatrix := viewerOrientation.Inverse().Mat4()
 
 	floorModelMatrix := createModelMatrix(
 		mgl32.Scale3D(100, 100, 100),
@@ -227,7 +227,7 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 		componentContainer := entity.GetComponentContainer()
 		renderData := componentContainer.RenderComponent.GetRenderData()
 		entityPosition := componentContainer.TransformComponent.Position
-		rotation := componentContainer.TransformComponent.ViewQuaternion
+		rotation := componentContainer.TransformComponent.Orientation
 
 		if !renderData.IsVisible() {
 			continue

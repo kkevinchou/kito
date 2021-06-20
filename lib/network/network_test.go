@@ -1,12 +1,12 @@
-package main
+package network_test
 
 import (
-	"time"
+	"testing"
 
 	"github.com/kkevinchou/kito/lib/network"
 )
 
-func main() {
+func TestBasic(t *testing.T) {
 	host := "localhost"
 	port := "8080"
 	connectionType := "tcp"
@@ -14,23 +14,21 @@ func main() {
 	server := network.NewServer(host, port, connectionType)
 	err := server.Start()
 	if err != nil {
-		panic(err)
+		t.Errorf("failed to start server %s", err)
 	}
 
 	client := network.NewClient()
 	acceptMessage, err := client.Connect(host, port, connectionType)
 	if err != nil {
-		panic(err)
+		t.Errorf("failed to connect %s", err)
 	}
 
 	if acceptMessage.PlayerID == 0 {
-		panic(err)
+		t.Error("expected a non zero player ID from the accept message")
 	}
 
 	err = client.SendMessage(&network.Message{MessageType: network.MessageTypeInput})
 	if err != nil {
-		panic(err)
+		t.Error(err)
 	}
-
-	time.Sleep(10000 * time.Second)
 }

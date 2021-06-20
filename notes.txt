@@ -36,7 +36,3 @@ High Level Behavior Schema
 - "pickup": {thing}
 - "drop": {thing
 - "random_item"
-
-
-
- 

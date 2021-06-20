@@ -40,15 +40,18 @@ func NewCameraSystem(world World) *CameraSystem {
 	return &s
 }
 
+func (s *CameraSystem) RegisterEntity(entity entities.Entity) {
+}
+
 func (s *CameraSystem) Update(delta time.Duration) {
 	camera := s.world.GetCamera()
 	componentContainer := camera.GetComponentContainer()
-	s.handleUncontrolledCamera(componentContainer)
+	s.handleFollowCameraControls(componentContainer)
 }
 
 // this might belong in some kind of movement or pathfinding system that handles "following" logic.
 // putting this here for now until more than just cameras need to follow a target
-func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.ComponentContainer) {
+func (s *CameraSystem) handleFollowCameraControls(componentContainer *components.ComponentContainer) {
 	followComponent := componentContainer.FollowComponent
 	transformComponent := componentContainer.TransformComponent
 
@@ -67,9 +70,9 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 	var xRel, yRel float64
 
 	singleton := s.world.GetSingleton()
+	mouseInput := singleton.GetMouseInput()
 
-	if singleton.GetMouseInput() != nil {
-		mouseInput := *singleton.GetMouseInput()
+	if mouseInput != nil {
 		var mouseSensitivity float64 = 0.005
 		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
 			xRel += -mouseInput.MouseMotionEvent.XRel * mouseSensitivity
@@ -77,6 +80,7 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 		}
 	}
 
+	// handle camera controls with arrow keys
 	if singleton.GetKeyboardInputSet() != nil {
 		keyboardInput := *singleton.GetKeyboardInputSet()
 		var keyboardSensitivity float64 = 0.01
@@ -94,16 +98,17 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 		}
 	}
 
-	forwardVector := transformComponent.ViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
+	forwardVector := transformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
 	rightVector := forwardVector.Cross(transformComponent.UpVector)
 	transformComponent.Position = targetPosition.Add(forwardVector.Mul(-1).Mul(followComponent.FollowDistance))
 
+	// calculate the quaternion for the delta in rotation
 	deltaRotationX := mgl64.QuatRotate(yRel, rightVector)         // pitch
 	deltaRotationY := mgl64.QuatRotate(xRel, mgl64.Vec3{0, 1, 0}) // yaw
 	deltaRotation := deltaRotationY.Mul(deltaRotationX)
 
-	nextViewQuaternion := deltaRotation.Mul(transformComponent.ViewQuaternion)
-	nextForwardVector := nextViewQuaternion.Rotate(mgl64.Vec3{0, 0, -1})
+	nextOrientation := deltaRotation.Mul(transformComponent.Orientation)
+	nextForwardVector := nextOrientation.Rotate(mgl64.Vec3{0, 0, -1})
 
 	// if we're nearly pointing directly downwards or upwards - stop camera movement
 	// TODO: do this in a better way
@@ -113,11 +118,12 @@ func (s *CameraSystem) handleUncontrolledCamera(componentContainer *components.C
 
 	targetToCamera := transformComponent.Position.Sub(targetPosition)
 	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera).Normalize().Mul(followComponent.FollowDistance))
-	transformComponent.ViewQuaternion = nextViewQuaternion
+	transformComponent.Orientation = nextOrientation
 	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
 }
 
-func (s *CameraSystem) handleControlledCamera(componentContainer *components.ComponentContainer) {
+// controlled cameras are cameras that can move independently
+func (s *CameraSystem) handleFreeCamera(componentContainer *components.ComponentContainer) {
 	physicsComponent := componentContainer.PhysicsComponent
 	topDownViewComponent := componentContainer.TopDownViewComponent
 

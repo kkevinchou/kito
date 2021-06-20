@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"runtime"
+	"strings"
 
 	"github.com/kkevinchou/kito/kito"
 	"github.com/kkevinchou/kito/types"
@@ -110,9 +113,45 @@ func (i *InputPoller) PollInput() []interface{} {
 	return inputList
 }
 
+const (
+	modeLocal  string = "LOCAL"
+	modeClient string = "CLIENT"
+	modeServer string = "SERVER"
+
+	host           = "localhost"
+	port           = "8080"
+	connectionType = "tcp"
+)
+
 func main() {
-	game := kito.NewGame("_assets", "shaders")
-	inputPoller := NewInputPoller()
-	game.Start(inputPoller.PollInput)
+	var mode string = modeLocal
+	if len(os.Args) > 1 {
+		mode = strings.ToUpper(os.Args[1])
+		if mode != modeLocal && mode != modeClient && mode != modeServer {
+			panic(fmt.Sprintf("unexpected mode %s", mode))
+		}
+	}
+
+	fmt.Println("starting game on mode:", mode)
+	if mode == modeLocal {
+		serverGame := kito.NewServerGame("_assets", "shaders")
+
+		go func() {
+			serverGame.Start(kito.NullInputPoller)
+		}()
+
+		game := kito.NewLocalGame("_assets", "shaders")
+		inputPoller := NewInputPoller()
+		game.Start(inputPoller.PollInput)
+	} else if mode == modeClient {
+		game := kito.NewClientGame("_assets", "shaders")
+		inputPoller := NewInputPoller()
+		game.Start(inputPoller.PollInput)
+
+	} else if mode == modeServer {
+		game := kito.NewServerGame("_assets", "shaders")
+		game.Start(kito.NullInputPoller)
+	}
+
 	sdl.Quit()
 }

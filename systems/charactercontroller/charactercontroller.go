@@ -52,12 +52,12 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 			}
 			cameraComponentContainer := camera.GetComponentContainer()
 
-			forwardVector = cameraComponentContainer.TransformComponent.ViewQuaternion.Rotate(forwardVector)
+			forwardVector = cameraComponentContainer.TransformComponent.Orientation.Rotate(forwardVector)
 			// forwardVector = cameraComponentContainer.TransformComponent.ForwardVector
 			forwardVector[1] = 0
 			forwardVector = forwardVector.Normalize()
 
-			rightVector = cameraComponentContainer.TransformComponent.ViewQuaternion.Rotate(rightVector)
+			rightVector = cameraComponentContainer.TransformComponent.Orientation.Rotate(rightVector)
 			// rightVector = forwardVector.Cross(cameraComponentContainer.TransformComponent.UpVector)
 			rightVector[1] = 0
 			rightVector.Normalize()
