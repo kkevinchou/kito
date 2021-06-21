@@ -117,10 +117,6 @@ const (
 	modeLocal  string = "LOCAL"
 	modeClient string = "CLIENT"
 	modeServer string = "SERVER"
-
-	host           = "localhost"
-	port           = "8080"
-	connectionType = "tcp"
 )
 
 func main() {
