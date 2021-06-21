@@ -7,6 +7,7 @@ import (
 
 func NewBlock() *EntityImpl {
 	transformComponent := &components.TransformComponent{
+		Position:    mgl64.Vec3{0, 15, 0},
 		Orientation: mgl64.QuatIdent(),
 	}
 

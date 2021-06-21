@@ -6,6 +6,7 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/utils"
+	"github.com/kkevinchou/kito/systems/base"
 	"github.com/kkevinchou/kito/systems/sysutils"
 	"github.com/kkevinchou/kito/types"
 )
@@ -16,12 +17,16 @@ type World interface {
 }
 
 type CharacterControllerSystem struct {
+	*base.BaseSystem
 	world    World
 	entities []entities.Entity
 }
 
 func NewCharacterControllerSystem(world World) *CharacterControllerSystem {
-	return &CharacterControllerSystem{world: world}
+	return &CharacterControllerSystem{
+		BaseSystem: &base.BaseSystem{},
+		world:      world,
+	}
 }
 
 func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {

@@ -10,6 +10,7 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/utils"
+	"github.com/kkevinchou/kito/systems/base"
 	"github.com/kkevinchou/kito/systems/sysutils"
 	"github.com/kkevinchou/kito/types"
 )
@@ -30,12 +31,14 @@ type World interface {
 }
 
 type CameraSystem struct {
+	*base.BaseSystem
 	world World
 }
 
 func NewCameraSystem(world World) *CameraSystem {
 	s := CameraSystem{
-		world: world,
+		BaseSystem: &base.BaseSystem{},
+		world:      world,
 	}
 	return &s
 }
@@ -61,7 +64,8 @@ func (s *CameraSystem) handleFollowCameraControls(componentContainer *components
 
 	entity, err := s.world.GetEntityByID(followComponent.FollowTargetEntityID)
 	if err != nil {
-		panic(err)
+		fmt.Println("failed to find target entity with ID", followComponent.FollowTargetEntityID)
+		return
 	}
 
 	targetComponentContainer := entity.GetComponentContainer()

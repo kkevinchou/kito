@@ -3,7 +3,6 @@ package kito
 import (
 	"fmt"
 	"math/rand"
-	"time"
 
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
@@ -17,8 +16,6 @@ import (
 	"github.com/kkevinchou/kito/types"
 )
 
-func emptyRenderFunction(delta time.Duration) {}
-
 func NewServerGame(assetsDirectory string, shaderDirectory string) *Game {
 	seed := settings.Seed
 	fmt.Printf("Initializing server game with seed %d ...\n", seed)
@@ -26,7 +23,7 @@ func NewServerGame(assetsDirectory string, shaderDirectory string) *Game {
 
 	g := &Game{
 		gameMode:  types.GameModePlaying,
-		singleton: singleton.New(),
+		singleton: singleton.NewServerSingleton(),
 	}
 
 	itemManager := item.NewManager()
@@ -60,8 +57,6 @@ func NewServerGame(assetsDirectory string, shaderDirectory string) *Game {
 			system.RegisterEntity(entity)
 		}
 	}
-
-	g.renderFunction = emptyRenderFunction
 
 	return g
 }

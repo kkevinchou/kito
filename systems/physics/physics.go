@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/lib/utils"
+	"github.com/kkevinchou/kito/systems/base"
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
@@ -17,14 +18,16 @@ const (
 type World interface{}
 
 type PhysicsSystem struct {
+	*base.BaseSystem
 	world    World
 	entities []entities.Entity
 }
 
 func NewPhysicsSystem(world World) *PhysicsSystem {
 	return &PhysicsSystem{
-		world:    world,
-		entities: []entities.Entity{},
+		BaseSystem: &base.BaseSystem{},
+		world:      world,
+		entities:   []entities.Entity{},
 	}
 }
 

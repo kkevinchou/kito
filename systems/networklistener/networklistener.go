@@ -6,11 +6,14 @@ import (
 
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/network"
+	"github.com/kkevinchou/kito/systems/base"
 )
 
 type World interface{}
 
 type NetworkListenerSystem struct {
+	*base.BaseSystem
+
 	world   World
 	nserver *network.Server
 }
@@ -20,8 +23,9 @@ func NewNetworkListenerSystem(world World, host, port, connectionType string) *N
 	nserver.Start()
 
 	return &NetworkListenerSystem{
-		world:   world,
-		nserver: nserver,
+		BaseSystem: &base.BaseSystem{},
+		world:      world,
+		nserver:    nserver,
 	}
 }
 

@@ -5,7 +5,6 @@ import (
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -43,19 +42,9 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 		Controlled: true,
 	}
 
-	connectionComponent, err := components.NewConnectionComponent(
-		settings.Host,
-		settings.Port,
-		settings.ConnectionType,
-	)
-	if err != nil {
-		panic(err)
-	}
-
 	entity := NewEntity(
 		"bob",
 		components.NewComponentContainer(
-			connectionComponent,
 			transformComponent,
 			renderComponent,
 			animationComponent,
