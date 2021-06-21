@@ -6,19 +6,22 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/systems/base"
 )
 
 type World interface{}
 
 type AnimationSystem struct {
+	*base.BaseSystem
 	world    World
 	entities []entities.Entity
 }
 
 func NewAnimationSystem(world World) *AnimationSystem {
 	return &AnimationSystem{
-		world:    world,
-		entities: []entities.Entity{},
+		BaseSystem: &base.BaseSystem{},
+		world:      world,
+		entities:   []entities.Entity{},
 	}
 }
 

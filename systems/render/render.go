@@ -14,6 +14,7 @@ import (
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/utils"
+	"github.com/kkevinchou/kito/systems/base"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -47,6 +48,7 @@ type World interface {
 }
 
 type RenderSystem struct {
+	*base.BaseSystem
 	renderer     *sdl.Renderer
 	window       *sdl.Window
 	camera       entities.Entity
@@ -91,10 +93,11 @@ func NewRenderSystem(world World) *RenderSystem {
 	}
 
 	renderSystem := RenderSystem{
-		window: window,
-		world:  world,
-		skybox: NewSkyBox(300),
-		floor:  NewQuad(quadZeroY),
+		BaseSystem: &base.BaseSystem{},
+		window:     window,
+		world:      world,
+		skybox:     NewSkyBox(300),
+		floor:      NewQuad(quadZeroY),
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -278,4 +281,8 @@ func (s *RenderSystem) renderSceneTest(perspectiveMatrix mgl32.Mat4) {
 	q := NewQuad(quadZeroY)
 	gl.BindVertexArray(q.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+}
+
+func (r *RenderSystem) UpdateOnCommandFrame() bool {
+	return false
 }
