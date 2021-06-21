@@ -55,22 +55,15 @@ func (g *Game) runCommandFrame(delta time.Duration) {
 }
 
 func (g *Game) Start(pollInputFunc InputPoller) {
-	renderFunction := emptyRenderFunction
-	d := directory.GetDirectory()
-	renderSystem := d.RenderSystem()
-	if renderSystem != nil {
-		renderFunction = renderSystem.Update
-	}
-
 	var accumulator float64
 	var renderAccumulator float64
-
-	msPerFrame := float64(1000) / fps
-
 	var fpsAccumulator float64
 
+	msPerFrame := float64(1000) / fps
 	previousTimeStamp := float64(time.Now().UnixNano()) / 1000000
+
 	frameCount := 0
+	renderFunction := getRenderFunction()
 	for !g.gameOver {
 		now := float64(time.Now().UnixNano()) / 1000000
 		delta := math.Min(now-previousTimeStamp, maxTimeStep)
@@ -154,4 +147,15 @@ func initSeed() {
 	seed := settings.Seed
 	fmt.Printf("Initializing with seed %d ...\n", seed)
 	rand.Seed(seed)
+}
+
+func getRenderFunction() RenderFunction {
+	renderFunction := emptyRenderFunction
+	d := directory.GetDirectory()
+	renderSystem := d.RenderSystem()
+	if renderSystem != nil {
+		renderFunction = renderSystem.Update
+	}
+
+	return renderFunction
 }
