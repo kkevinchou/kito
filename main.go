@@ -130,7 +130,7 @@ func main() {
 
 	fmt.Println("starting game on mode:", mode)
 	if mode == modeLocal {
-		serverGame := kito.NewServerGame("_assets", "shaders")
+		serverGame := kito.NewServerGame("_assets")
 
 		go func() {
 			serverGame.Start(kito.NullInputPoller)
@@ -145,7 +145,7 @@ func main() {
 		game.Start(inputPoller.PollInput)
 
 	} else if mode == modeServer {
-		game := kito.NewServerGame("_assets", "shaders")
+		game := kito.NewServerGame("_assets")
 		game.Start(kito.NullInputPoller)
 	}
 
