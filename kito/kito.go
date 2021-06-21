@@ -44,8 +44,6 @@ type Game struct {
 	singleton *singleton.Singleton
 	systems   []System
 	entities  map[int]entities.Entity
-
-	renderFunction RenderFunction
 }
 
 func (g *Game) runCommandFrame(delta time.Duration) {
