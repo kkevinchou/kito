@@ -23,7 +23,7 @@ func NewServerGame(assetsDirectory string, shaderDirectory string) *Game {
 
 	g := &Game{
 		gameMode:  types.GameModePlaying,
-		singleton: singleton.NewServerSingleton(),
+		singleton: singleton.NewSingleton(),
 	}
 
 	itemManager := item.NewManager()

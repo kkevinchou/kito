@@ -3,11 +3,13 @@ package kito
 import (
 	"fmt"
 
+	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/shaders"
+	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/systems/camera"
 	"github.com/kkevinchou/kito/systems/charactercontroller"
@@ -21,7 +23,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 
 	g := &Game{
 		gameMode:  types.GameModePlaying,
-		singleton: singleton.NewClientSingleton(),
+		singleton: singleton.NewSingleton(),
 	}
 
 	clientSystemSetup(g, assetsDirectory, shaderDirectory)
@@ -40,6 +42,16 @@ func clientEntitySetup(g *Game) []entities.Entity {
 	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
 
 	g.SetCamera(camera)
+
+	connectionComponent, err := components.NewConnectionComponent(
+		settings.Host,
+		settings.Port,
+		settings.ConnectionType,
+	)
+	if err != nil {
+		panic(err)
+	}
+	_ = connectionComponent
 
 	return []entities.Entity{camera, block}
 }
