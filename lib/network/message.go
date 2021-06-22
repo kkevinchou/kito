@@ -7,6 +7,7 @@ const (
 	MessageTypeAcceptConnection
 	MessageTypeInput
 	MessageTypeReplication
+	MessageTypeCreatePlayer
 )
 
 type Message struct {
@@ -18,6 +19,9 @@ type Message struct {
 
 type AcceptMessage struct {
 	PlayerID int `json:"player_id"`
+}
+
+type CreatePlayerMessage struct {
 }
 
 type ReplicationMessage struct {

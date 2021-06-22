@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/assets"
+	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
@@ -29,6 +30,28 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	clientSystemSetup(g, assetsDirectory, shaderDirectory)
 	compileShaders()
 
+	// Connect to server
+	connectionComponent, err := components.NewConnectionComponent(
+		settings.Host,
+		settings.Port,
+		settings.ConnectionType,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	err = connectionComponent.Client.SendMessage(
+		&network.Message{
+			SenderID:    connectionComponent.PlayerID,
+			MessageType: network.MessageTypeCreatePlayer,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	g.singleton.ConnectionComponent = connectionComponent
+
 	initialEntities := clientEntitySetup(g)
 	g.RegisterEntities(initialEntities)
 
@@ -42,17 +65,6 @@ func clientEntitySetup(g *Game) []entities.Entity {
 	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
 
 	g.SetCamera(camera)
-
-	connectionComponent, err := components.NewConnectionComponent(
-		settings.Host,
-		settings.Port,
-		settings.ConnectionType,
-	)
-	if err != nil {
-		panic(err)
-	}
-	_ = connectionComponent
-
 	return []entities.Entity{camera, block}
 }
 

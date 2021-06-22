@@ -1,6 +1,7 @@
 package directory
 
 import (
+	"net"
 	"sync"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/kkevinchou/kito/lib/textures"
 	"github.com/kkevinchou/kito/managers/item"
 	"github.com/kkevinchou/kito/managers/path"
+	"github.com/kkevinchou/kito/managers/player"
 )
 
 type IAssetManager interface {
@@ -25,12 +27,18 @@ type IShaderManager interface {
 	GetShaderProgram(name string) *shaders.ShaderProgram
 }
 
+type IPlayerManager interface {
+	RegisterPlayer(id int, connection net.Conn)
+	GetPlayer(id int) *player.Player
+}
+
 type Directory struct {
 	renderSystem  IRenderSystem
 	assetManager  IAssetManager
 	itemManager   *item.Manager
 	pathManager   *path.Manager
 	shaderManager IShaderManager
+	playerManager IPlayerManager
 }
 
 var instance *Directory
@@ -81,4 +89,12 @@ func (d *Directory) RegisterShaderManager(manager IShaderManager) {
 
 func (d *Directory) ShaderManager() IShaderManager {
 	return d.shaderManager
+}
+
+func (d *Directory) RegisterPlayerManager(manager IPlayerManager) {
+	d.playerManager = manager
+}
+
+func (d *Directory) PlayerManager() IPlayerManager {
+	return d.playerManager
 }

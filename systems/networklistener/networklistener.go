@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/systems/base"
@@ -33,10 +34,12 @@ func (s *NetworkListenerSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *NetworkListenerSystem) Update(delta time.Duration) {
+	d := directory.GetDirectory()
+	playerManager := d.PlayerManager()
+
 	incomingConnections := s.nserver.PullIncomingConnections()
 	for _, incomingConnection := range incomingConnections {
 		fmt.Println("New player connected with id", incomingConnection.PlayerID)
-		// create player entity - probably fire a message to the event manager
-		_ = incomingConnection
+		playerManager.RegisterPlayer(incomingConnection.PlayerID, incomingConnection.Connection)
 	}
 }
