@@ -24,7 +24,7 @@ func NewServer(host, port, connectionType string) *Server {
 		port:           port,
 		connectionType: connectionType,
 
-		nextPlayerID: 1,
+		nextPlayerID: 70000,
 
 		incomingConnections: make(chan *Connection, incomingConnectionsBufferSize),
 	}

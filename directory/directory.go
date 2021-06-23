@@ -30,6 +30,7 @@ type IShaderManager interface {
 type IPlayerManager interface {
 	RegisterPlayer(id int, connection net.Conn)
 	GetPlayer(id int) *player.Player
+	GetPlayers() map[int]*player.Player
 }
 
 type Directory struct {

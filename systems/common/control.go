@@ -1,4 +1,4 @@
-package sysutils
+package common
 
 import (
 	"github.com/go-gl/mathgl/mgl64"

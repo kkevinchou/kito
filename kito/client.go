@@ -73,7 +73,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 
 	// TODO: asset manager creation has to happen after the render system is set up
 	// because it depends on GL initializations
-	assetManager := assets.NewAssetManager(assetsDirectory)
+	assetManager := assets.NewAssetManager(assetsDirectory, true)
 	renderSystem.SetAssetManager(assetManager)
 
 	shaderManager := shaders.NewShaderManager(shaderDirectory)

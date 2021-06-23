@@ -7,7 +7,7 @@ import (
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/systems/base"
-	"github.com/kkevinchou/kito/systems/sysutils"
+	"github.com/kkevinchou/kito/systems/common"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -45,7 +45,7 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 		singleton := s.world.GetSingleton()
 		keyboardInput := *singleton.GetKeyboardInputSet()
 
-		controlVector := sysutils.GetControlVector(keyboardInput)
+		controlVector := common.GetControlVector(keyboardInput)
 
 		forwardVector := mgl64.Vec3{0, 0, -1}
 		rightVector := mgl64.Vec3{1, 0, 0}

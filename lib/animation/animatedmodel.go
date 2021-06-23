@@ -28,15 +28,18 @@ func getJointMap(joint *Joint, jointMap map[int]*Joint) map[int]*Joint {
 }
 
 func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
+	mesh := NewMesh(c, maxWeights)
+	animatedModel := NewAnimatedModelWithoutMesh(c, maxJoints, maxWeights)
+	animatedModel.Mesh = mesh
+
+	return animatedModel
+}
+
+func NewAnimatedModelWithoutMesh(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
 	joint := JointSpecToJoint(c.Root)
-
-	// printHierarchy(joint, 0)
-
 	jointMap := map[int]*Joint{}
 
-	mesh := NewMesh(c, maxWeights)
 	return &AnimatedModel{
-		Mesh:      mesh,
 		RootJoint: joint,
 		JointMap:  getJointMap(joint, jointMap),
 	}

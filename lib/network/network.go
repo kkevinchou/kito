@@ -18,6 +18,8 @@ type Connection struct {
 }
 
 func queueIncomingMessages(conn net.Conn, messageQueue chan *Message) {
+	defer conn.Close()
+
 	decoder := json.NewDecoder(conn)
 	for {
 		message := Message{}
@@ -28,7 +30,8 @@ func queueIncomingMessages(conn net.Conn, messageQueue chan *Message) {
 			}
 
 			fmt.Println("error reading:", err.Error())
-			continue
+			fmt.Println("closing connection")
+			return
 		}
 
 		select {

@@ -11,7 +11,7 @@ import (
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/systems/base"
-	"github.com/kkevinchou/kito/systems/sysutils"
+	"github.com/kkevinchou/kito/systems/common"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -133,7 +133,7 @@ func (s *CameraSystem) handleFreeCamera(componentContainer *components.Component
 
 	singleton := s.world.GetSingleton()
 	keyboardInput := *singleton.GetKeyboardInputSet()
-	controlVector := sysutils.GetControlVector(keyboardInput)
+	controlVector := common.GetControlVector(keyboardInput)
 
 	zoomValue := 0
 	if singleton.GetMouseInput() != nil {

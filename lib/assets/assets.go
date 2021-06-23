@@ -6,7 +6,6 @@ import (
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/assets/loaders"
 	"github.com/kkevinchou/kito/lib/textures"
-	"github.com/veandco/go-sdl2/ttf"
 )
 
 type AssetManager struct {
@@ -14,11 +13,14 @@ type AssetManager struct {
 	animatedModels map[string]*animation.ModelSpecification
 }
 
-func NewAssetManager(directory string) *AssetManager {
-	ttf.Init()
+func NewAssetManager(directory string, loadTextures bool) *AssetManager {
+	var loadedTextures map[string]*textures.Texture
+	if loadTextures {
+		loadedTextures = loaders.LoadTextures(directory)
+	}
 
 	assetManager := AssetManager{
-		textures:       loaders.LoadTextures(directory),
+		textures:       loadedTextures,
 		animatedModels: loaders.LoadAnimatedModels(directory),
 	}
 
