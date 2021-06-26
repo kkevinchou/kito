@@ -1,4 +1,4 @@
-package playermessage
+package networkdispatch
 
 import (
 	"encoding/json"
@@ -17,22 +17,22 @@ type World interface {
 	RegisterEntities([]entities.Entity)
 }
 
-type PlayerMessageSystem struct {
+type NetworkDispatchSystem struct {
 	*base.BaseSystem
 	world World
 }
 
-func NewPlayerMessageSystem(world World) *PlayerMessageSystem {
-	return &PlayerMessageSystem{
+func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
+	return &NetworkDispatchSystem{
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
 	}
 }
 
-func (s *PlayerMessageSystem) RegisterEntity(entity entities.Entity) {
+func (s *NetworkDispatchSystem) RegisterEntity(entity entities.Entity) {
 }
 
-func (s *PlayerMessageSystem) Update(delta time.Duration) {
+func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()
 
@@ -46,6 +46,7 @@ func (s *PlayerMessageSystem) Update(delta time.Duration) {
 	}
 }
 
+// todo: in the future this should be handled by some other system via an event
 func handleCreatePlayer(player *player.Player, message *network.Message, world World) {
 	fmt.Println("start new bob creation for id", message.SenderID)
 	playerId := message.SenderID

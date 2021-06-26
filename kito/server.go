@@ -8,9 +8,9 @@ import (
 	"github.com/kkevinchou/kito/managers/player"
 	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
+	"github.com/kkevinchou/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/systems/networklistener"
 	"github.com/kkevinchou/kito/systems/physics"
-	"github.com/kkevinchou/kito/systems/playermessage"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -46,13 +46,13 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	assetManager := assets.NewAssetManager(assetsDirectory, false)
 	d.RegisterAssetManager(assetManager)
 
-	networkListener := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
-	playerMessageSystem := playermessage.NewPlayerMessageSystem(g)
+	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
+	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 
-	g.systems = append(g.systems, networkListener)
-	g.systems = append(g.systems, playerMessageSystem)
+	g.systems = append(g.systems, networkListenerSystem)
+	g.systems = append(g.systems, networkDispatchSystem)
 	g.systems = append(g.systems, physicsSystem)
 	g.systems = append(g.systems, animationSystem)
 }
