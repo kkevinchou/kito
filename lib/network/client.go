@@ -65,6 +65,10 @@ func (c *Client) SendMessage(message *Message) error {
 	return nil
 }
 
+func (c *Client) SyncReceiveMessage() *Message {
+	return <-c.messageQueue
+}
+
 func readAcceptMessage(conn net.Conn) (*AcceptMessage, error) {
 	message := Message{}
 	decoder := json.NewDecoder(conn)

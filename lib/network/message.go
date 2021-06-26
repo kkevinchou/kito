@@ -1,5 +1,7 @@
 package network
 
+import "github.com/go-gl/mathgl/mgl64"
+
 type MessageType int
 
 const (
@@ -8,6 +10,7 @@ const (
 	MessageTypeInput
 	MessageTypeReplication
 	MessageTypeCreatePlayer
+	MessageTypeAckCreatePlayer
 )
 
 type Message struct {
@@ -22,6 +25,11 @@ type AcceptMessage struct {
 }
 
 type CreatePlayerMessage struct {
+}
+
+type AckCreatePlayerMessage struct {
+	Position    mgl64.Vec3 `json:"transform"`
+	Orientation mgl64.Quat `json:"orientation"`
 }
 
 type ReplicationMessage struct {

@@ -1,6 +1,7 @@
 package kito
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/kkevinchou/kito/components"
@@ -49,6 +50,16 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	if err != nil {
 		panic(err)
 	}
+
+	recvMessage := connectionComponent.Client.SyncReceiveMessage()
+	var ack network.AckCreatePlayerMessage
+	err = json.Unmarshal(recvMessage.Body, &ack)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("successfully received ack player creation")
+	fmt.Println(ack)
 
 	g.singleton.ConnectionComponent = connectionComponent
 
