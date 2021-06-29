@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
@@ -71,12 +72,16 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 
 func clientEntitySetup(g *Game) []entities.Entity {
 	block := entities.NewBlock()
-	camera := entities.NewThirdPersonCamera(cameraStartPosition, cameraStartView, block.GetID())
+
+	bob := entities.NewBob(mgl64.Vec3{})
+	camera := entities.NewThirdPersonCamera(cameraStartPosition, cameraStartView, bob.GetID())
 	cameraComponentContainer := camera.GetComponentContainer()
 	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
 
+	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
+
 	g.SetCamera(camera)
-	return []entities.Entity{camera, block}
+	return []entities.Entity{camera, block, bob}
 }
 
 func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
