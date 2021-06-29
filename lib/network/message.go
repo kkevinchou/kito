@@ -11,6 +11,7 @@ const (
 	MessageTypeReplication
 	MessageTypeCreatePlayer
 	MessageTypeAckCreatePlayer
+	MessageTypeGameStateSnapshot
 )
 
 type Message struct {
@@ -28,9 +29,23 @@ type CreatePlayerMessage struct {
 }
 
 type AckCreatePlayerMessage struct {
+	ID          int
 	Position    mgl64.Vec3 `json:"transform"`
 	Orientation mgl64.Quat `json:"orientation"`
 }
 
 type ReplicationMessage struct {
+}
+
+type EntitySnapshot struct {
+	ID          int
+	Position    mgl64.Vec3
+	Orientation mgl64.Quat
+}
+
+type GameStateSnapshotMessage struct {
+	Entities map[int]EntitySnapshot
+}
+
+type InputMessage struct {
 }

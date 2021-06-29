@@ -58,7 +58,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 		panic(err)
 	}
 
-	fmt.Println("successfully received ack player creation")
+	fmt.Println("successfully received ack player creation with id", ack.ID)
 	fmt.Println(ack)
 
 	g.singleton.ConnectionComponent = connectionComponent

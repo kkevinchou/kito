@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
+	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/kkevinchou/kito/systems/common"
@@ -21,7 +22,7 @@ const (
 )
 
 type Singleton interface {
-	GetKeyboardInputSet() *types.KeyboardInput
+	GetKeyboardInputSet() *input.KeyboardInput
 }
 
 type World interface {
@@ -74,32 +75,28 @@ func (s *CameraSystem) handleFollowCameraControls(componentContainer *components
 	var xRel, yRel float64
 
 	singleton := s.world.GetSingleton()
-	mouseInput := singleton.GetMouseInput()
+	keyboardInput := singleton.GetInput().KeyboardInput
+	mouseInput := singleton.GetInput().MouseInput
 
-	if mouseInput != nil {
-		var mouseSensitivity float64 = 0.005
-		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
-			xRel += -mouseInput.MouseMotionEvent.XRel * mouseSensitivity
-			yRel += -mouseInput.MouseMotionEvent.YRel * mouseSensitivity
-		}
+	var mouseSensitivity float64 = 0.005
+	if mouseInput.LeftButtonDown && !mouseInput.MouseMotionEvent.IsZero() {
+		xRel += -mouseInput.MouseMotionEvent.XRel * mouseSensitivity
+		yRel += -mouseInput.MouseMotionEvent.YRel * mouseSensitivity
 	}
 
 	// handle camera controls with arrow keys
-	if singleton.GetKeyboardInputSet() != nil {
-		keyboardInput := *singleton.GetKeyboardInputSet()
-		var keyboardSensitivity float64 = 0.01
-		if key, ok := keyboardInput[types.KeyboardKeyRight]; ok && key.Event == types.KeyboardEventDown {
-			xRel += keyboardSensitivity
-		}
-		if key, ok := keyboardInput[types.KeyboardKeyLeft]; ok && key.Event == types.KeyboardEventDown {
-			xRel += -keyboardSensitivity
-		}
-		if key, ok := keyboardInput[types.KeyboardKeyUp]; ok && key.Event == types.KeyboardEventDown {
-			yRel += -keyboardSensitivity
-		}
-		if key, ok := keyboardInput[types.KeyboardKeyDown]; ok && key.Event == types.KeyboardEventDown {
-			yRel += keyboardSensitivity
-		}
+	var keyboardSensitivity float64 = 0.01
+	if key, ok := keyboardInput[input.KeyboardKeyRight]; ok && key.Event == input.KeyboardEventDown {
+		xRel += keyboardSensitivity
+	}
+	if key, ok := keyboardInput[input.KeyboardKeyLeft]; ok && key.Event == input.KeyboardEventDown {
+		xRel += -keyboardSensitivity
+	}
+	if key, ok := keyboardInput[input.KeyboardKeyUp]; ok && key.Event == input.KeyboardEventDown {
+		yRel += -keyboardSensitivity
+	}
+	if key, ok := keyboardInput[input.KeyboardKeyDown]; ok && key.Event == input.KeyboardEventDown {
+		yRel += keyboardSensitivity
 	}
 
 	forwardVector := transformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
@@ -132,25 +129,25 @@ func (s *CameraSystem) handleFreeCamera(componentContainer *components.Component
 	topDownViewComponent := componentContainer.TopDownViewComponent
 
 	singleton := s.world.GetSingleton()
-	keyboardInput := *singleton.GetKeyboardInputSet()
+	keyboardInput := singleton.GetInput().KeyboardInput
 	controlVector := common.GetControlVector(keyboardInput)
 
-	zoomValue := 0
-	if singleton.GetMouseInput() != nil {
-		mouseInput := *singleton.GetMouseInput()
-		if mouseInput.LeftButtonDown && mouseInput.MouseMotionEvent != nil {
-			topDownViewComponent.UpdateView(mgl64.Vec2{mouseInput.MouseMotionEvent.XRel, mouseInput.MouseMotionEvent.YRel})
-		}
+	frameInput := singleton.GetInput()
+	mouseInput := frameInput.MouseInput
 
-		if mouseInput.MouseWheel == types.MouseWheelDirectionNeutral {
-			zoomValue = 0
-		} else if mouseInput.MouseWheel == types.MouseWheelDirectionUp {
-			zoomValue = -1
-		} else if mouseInput.MouseWheel == types.MouseWheelDirectionDown {
-			zoomValue = 1
-		} else {
-			panic(fmt.Sprintf("unexpected mousewheel value %v", mouseInput.MouseWheel))
-		}
+	if mouseInput.LeftButtonDown && !mouseInput.MouseMotionEvent.IsZero() {
+		topDownViewComponent.UpdateView(mgl64.Vec2{mouseInput.MouseMotionEvent.XRel, mouseInput.MouseMotionEvent.YRel})
+	}
+
+	zoomValue := 0
+	if mouseInput.MouseWheelDirection == input.MouseWheelDirectionNeutral {
+		zoomValue = 0
+	} else if mouseInput.MouseWheelDirection == input.MouseWheelDirectionUp {
+		zoomValue = -1
+	} else if mouseInput.MouseWheelDirection == input.MouseWheelDirectionDown {
+		zoomValue = 1
+	} else {
+		panic(fmt.Sprintf("unexpected mousewheel value %v", mouseInput.MouseWheelDirection))
 	}
 
 	if utils.Vec3IsZero(controlVector) && zoomValue == 0 {

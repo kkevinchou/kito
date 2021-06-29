@@ -10,6 +10,7 @@ import (
 	"github.com/kkevinchou/kito/systems/animation"
 	"github.com/kkevinchou/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/systems/networklistener"
+	"github.com/kkevinchou/kito/systems/networkupdate"
 	"github.com/kkevinchou/kito/systems/physics"
 	"github.com/kkevinchou/kito/types"
 )
@@ -48,11 +49,13 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 
 	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
+	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 
 	g.systems = append(g.systems, networkListenerSystem)
 	g.systems = append(g.systems, networkDispatchSystem)
+	g.systems = append(g.systems, networkUpdateSystem)
 	g.systems = append(g.systems, physicsSystem)
 	g.systems = append(g.systems, animationSystem)
 }

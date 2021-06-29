@@ -43,7 +43,7 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 		physicsComponent := componentContainer.PhysicsComponent
 
 		singleton := s.world.GetSingleton()
-		keyboardInput := *singleton.GetKeyboardInputSet()
+		keyboardInput := singleton.GetInput().KeyboardInput
 
 		controlVector := common.GetControlVector(keyboardInput)
 

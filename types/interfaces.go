@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/input"
 )
 
 type Item interface {
@@ -47,8 +48,6 @@ type Worker interface {
 }
 
 type Singleton interface {
-	GetKeyboardInputSet() *KeyboardInput
-	SetKeyboardInputSet(input *KeyboardInput)
-	GetMouseInput() *MouseInput
-	SetMouseInput(input *MouseInput)
+	GetInput() input.Input
+	SetInput(i input.Input)
 }

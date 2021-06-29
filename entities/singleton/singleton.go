@@ -2,20 +2,24 @@ package singleton
 
 import (
 	"github.com/kkevinchou/kito/components"
-	"github.com/kkevinchou/kito/components/singleton"
+	"github.com/kkevinchou/kito/lib/input"
 )
 
 type Singleton struct {
-	*singleton.KeyboardInputComponent
-	*singleton.MouseInputComponent
-
 	// client connection
 	*components.ConnectionComponent
+
+	frameInput input.Input
 }
 
 func NewSingleton() *Singleton {
-	return &Singleton{
-		KeyboardInputComponent: singleton.NewKeyboardInputComponent(),
-		MouseInputComponent:    singleton.NewMouseInputComponent(),
-	}
+	return &Singleton{}
+}
+
+func (s *Singleton) SetInput(i input.Input) {
+	s.frameInput = i
+}
+
+func (s *Singleton) GetInput() input.Input {
+	return s.frameInput
 }

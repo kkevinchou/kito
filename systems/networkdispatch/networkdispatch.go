@@ -15,6 +15,7 @@ import (
 
 type World interface {
 	RegisterEntities([]entities.Entity)
+	GetEntityByID(id int) (entities.Entity, error)
 }
 
 type NetworkDispatchSystem struct {
@@ -49,10 +50,10 @@ func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 // todo: in the future this should be handled by some other system via an event
 func handleCreatePlayer(player *player.Player, message *network.Message, world World) {
 	fmt.Println("start new bob creation for id", message.SenderID)
-	playerId := message.SenderID
+	playerID := message.SenderID
 
 	bob := entities.NewServerBob(mgl64.Vec3{})
-	bob.ID = playerId
+	bob.ID = playerID
 
 	world.RegisterEntities([]entities.Entity{bob})
 	fmt.Println("Created and registered a new bob with id", bob.ID)
@@ -60,6 +61,7 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 	cc := bob.ComponentContainer
 
 	ack := &network.AckCreatePlayerMessage{
+		ID:          playerID,
 		Position:    cc.TransformComponent.Position,
 		Orientation: cc.TransformComponent.Orientation,
 	}
