@@ -30,7 +30,6 @@ var (
 type System interface {
 	Update(delta time.Duration)
 	RegisterEntity(entity entities.Entity)
-	UpdateOnCommandFrame() bool
 }
 
 type RenderFunction func(delta time.Duration)
@@ -49,9 +48,7 @@ type Game struct {
 
 func (g *Game) runCommandFrame(delta time.Duration) {
 	for _, system := range g.systems {
-		if system.UpdateOnCommandFrame() {
-			system.Update(delta)
-		}
+		system.Update(delta)
 	}
 }
 
@@ -152,7 +149,7 @@ func getRenderFunction() RenderFunction {
 	d := directory.GetDirectory()
 	renderSystem := d.RenderSystem()
 	if renderSystem != nil {
-		renderFunction = renderSystem.Update
+		renderFunction = renderSystem.Render
 	}
 
 	return renderFunction

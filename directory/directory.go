@@ -19,7 +19,7 @@ type IAssetManager interface {
 }
 
 type IRenderSystem interface {
-	Update(time.Duration)
+	Render(time.Duration)
 }
 
 type IShaderManager interface {

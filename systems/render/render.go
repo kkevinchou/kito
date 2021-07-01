@@ -166,6 +166,9 @@ func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {
+}
+
+func (s *RenderSystem) Render(delta time.Duration) {
 	// render depth map
 	lightViewMatrix := s.renderToDepthMap()
 
@@ -281,8 +284,4 @@ func (s *RenderSystem) renderSceneTest(perspectiveMatrix mgl32.Mat4) {
 	q := NewQuad(quadZeroY)
 	gl.BindVertexArray(q.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
-}
-
-func (r *RenderSystem) UpdateOnCommandFrame() bool {
-	return false
 }
