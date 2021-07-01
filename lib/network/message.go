@@ -1,6 +1,9 @@
 package network
 
-import "github.com/go-gl/mathgl/mgl64"
+import (
+	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/input"
+)
 
 type MessageType int
 
@@ -48,4 +51,5 @@ type GameStateSnapshotMessage struct {
 }
 
 type InputMessage struct {
+	Input input.Input `json:"input"`
 }

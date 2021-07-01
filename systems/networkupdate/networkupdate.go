@@ -2,7 +2,6 @@ package networkupdate
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/directory"
@@ -43,11 +42,11 @@ func (s *NetworkUpdateSystem) RegisterEntity(entity entities.Entity) {
 
 func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	s.elapsedFrames++
-	if s.elapsedFrames < 20 {
+	if s.elapsedFrames < commandFramesPerUpdate {
 		return
 	}
 
-	s.elapsedFrames %= 20
+	s.elapsedFrames %= commandFramesPerUpdate
 
 	snapshot := &network.GameStateSnapshotMessage{
 		Entities: map[int]network.EntitySnapshot{},
@@ -59,7 +58,6 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()
-	fmt.Println(snapshot.Entities)
 
 	for _, player := range playerManager.GetPlayers() {
 		snapshotBytes, err := json.Marshal(snapshot)

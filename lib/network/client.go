@@ -65,6 +65,21 @@ func (c *Client) SendMessage(message *Message) error {
 	return nil
 }
 
+func (c *Client) SendWrappedMessage(senderID int, messageType MessageType, subMessage interface{}) error {
+	bodyBytes, err := json.Marshal(subMessage)
+	if err != nil {
+		return err
+	}
+
+	msg := &Message{
+		SenderID:    senderID,
+		MessageType: messageType,
+		Body:        bodyBytes,
+	}
+
+	return c.SendMessage(msg)
+}
+
 func (c *Client) SyncReceiveMessage() *Message {
 	return <-c.messageQueue
 }

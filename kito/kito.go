@@ -98,7 +98,7 @@ func (g *Game) GetCamera() entities.Entity {
 	return g.camera
 }
 
-func (g *Game) GetSingleton() types.Singleton {
+func (g *Game) GetSingleton() *singleton.Singleton {
 	return g.singleton
 }
 

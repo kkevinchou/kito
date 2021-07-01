@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/entities/singleton"
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
@@ -26,7 +27,7 @@ type Singleton interface {
 }
 
 type World interface {
-	GetSingleton() types.Singleton
+	GetSingleton() *singleton.Singleton
 	GetCamera() entities.Entity
 	GetEntityByID(id int) (entities.Entity, error)
 }
@@ -75,8 +76,8 @@ func (s *CameraSystem) handleFollowCameraControls(componentContainer *components
 	var xRel, yRel float64
 
 	singleton := s.world.GetSingleton()
-	keyboardInput := singleton.GetInput().KeyboardInput
-	mouseInput := singleton.GetInput().MouseInput
+	keyboardInput := singleton.Input.KeyboardInput
+	mouseInput := singleton.Input.MouseInput
 
 	var mouseSensitivity float64 = 0.005
 	if mouseInput.LeftButtonDown && !mouseInput.MouseMotionEvent.IsZero() {
@@ -129,10 +130,10 @@ func (s *CameraSystem) handleFreeCamera(componentContainer *components.Component
 	topDownViewComponent := componentContainer.TopDownViewComponent
 
 	singleton := s.world.GetSingleton()
-	keyboardInput := singleton.GetInput().KeyboardInput
+	keyboardInput := singleton.Input.KeyboardInput
 	controlVector := common.GetControlVector(keyboardInput)
 
-	frameInput := singleton.GetInput()
+	frameInput := singleton.Input
 	mouseInput := frameInput.MouseInput
 
 	if mouseInput.LeftButtonDown && !mouseInput.MouseMotionEvent.IsZero() {
