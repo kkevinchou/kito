@@ -1,25 +1,18 @@
 package singleton
 
 import (
-	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/lib/input"
+	"github.com/kkevinchou/kito/lib/network"
 )
 
 type Singleton struct {
-	// client connection
-	*components.ConnectionComponent
+	// client fields
+	PlayerID int
+	Client   *network.Client
 
-	frameInput input.Input
+	Input input.Input
 }
 
 func NewSingleton() *Singleton {
 	return &Singleton{}
-}
-
-func (s *Singleton) SetInput(i input.Input) {
-	s.frameInput = i
-}
-
-func (s *Singleton) GetInput() input.Input {
-	return s.frameInput
 }

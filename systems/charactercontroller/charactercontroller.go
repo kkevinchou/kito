@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/entities"
+	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/kkevinchou/kito/systems/common"
@@ -12,7 +13,7 @@ import (
 )
 
 type World interface {
-	GetSingleton() types.Singleton
+	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
 }
 
@@ -43,7 +44,7 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 		physicsComponent := componentContainer.PhysicsComponent
 
 		singleton := s.world.GetSingleton()
-		keyboardInput := singleton.GetInput().KeyboardInput
+		keyboardInput := singleton.Input.KeyboardInput
 
 		controlVector := common.GetControlVector(keyboardInput)
 

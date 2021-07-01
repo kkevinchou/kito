@@ -42,6 +42,10 @@ func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 		for _, message := range messages {
 			if message.MessageType == network.MessageTypeCreatePlayer {
 				handleCreatePlayer(player, message, s.world)
+			} else if message.MessageType == network.MessageTypeInput {
+				// fmt.Println(string(message.Body))
+			} else {
+				fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 			}
 		}
 	}
@@ -49,7 +53,6 @@ func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 
 // todo: in the future this should be handled by some other system via an event
 func handleCreatePlayer(player *player.Player, message *network.Message, world World) {
-	fmt.Println("start new bob creation for id", message.SenderID)
 	playerID := message.SenderID
 
 	bob := entities.NewServerBob(mgl64.Vec3{})

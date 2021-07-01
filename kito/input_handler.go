@@ -27,7 +27,7 @@ func (g *Game) GameOver() {
 
 func (g *Game) HandleInput(frameInput input.Input) {
 	singleton := g.GetSingleton()
-	singleton.SetInput(frameInput)
+	singleton.Input = frameInput
 
 	keyboardInput := frameInput.KeyboardInput
 	if _, ok := keyboardInput[input.KeyboardKeyEscape]; ok {

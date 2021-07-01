@@ -16,6 +16,7 @@ import (
 	"github.com/kkevinchou/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/systems/camera"
 	"github.com/kkevinchou/kito/systems/charactercontroller"
+	"github.com/kkevinchou/kito/systems/networkinput"
 	"github.com/kkevinchou/kito/systems/physics"
 	"github.com/kkevinchou/kito/systems/render"
 	"github.com/kkevinchou/kito/types"
@@ -62,7 +63,8 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	fmt.Println("successfully received ack player creation with id", ack.ID)
 	fmt.Println(ack)
 
-	g.singleton.ConnectionComponent = connectionComponent
+	g.singleton.Client = connectionComponent.Client
+	g.singleton.PlayerID = connectionComponent.PlayerID
 
 	initialEntities := clientEntitySetup(g)
 	g.RegisterEntities(initialEntities)
@@ -94,6 +96,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 
 	shaderManager := shaders.NewShaderManager(shaderDirectory)
 
+	networkInputSystem := networkinput.NewNetworkInputSystem(g)
 	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
@@ -104,9 +107,12 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	d.RegisterAssetManager(assetManager)
 	d.RegisterShaderManager(shaderManager)
 
-	g.systems = append(g.systems, characterControllerSystem)
-	g.systems = append(g.systems, physicsSystem)
-	g.systems = append(g.systems, animationSystem)
-	g.systems = append(g.systems, cameraSystem)
-	g.systems = append(g.systems, renderSystem)
+	g.systems = append(g.systems, []System{
+		networkInputSystem,
+		characterControllerSystem,
+		physicsSystem,
+		animationSystem,
+		cameraSystem,
+		renderSystem,
+	}...)
 }
