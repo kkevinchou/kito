@@ -19,6 +19,13 @@ func NewClient() *Client {
 	}
 }
 
+func NewClientFromConnection(connection net.Conn) *Client {
+	client := NewClient()
+	client.connection = connection
+	go queueIncomingMessages(client.connection, client.messageQueue)
+	return client
+}
+
 func (c *Client) Connect(host, port, connectionType string) (*AcceptMessage, error) {
 	conn, err := net.Dial(connectionType, fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
@@ -36,8 +43,17 @@ func (c *Client) Connect(host, port, connectionType string) (*AcceptMessage, err
 	return acceptMessage, nil
 }
 
-func (c *Client) IncomingMessageQueue() chan *Message {
-	return c.messageQueue
+func (c *Client) PullIncomingMessages() []*Message {
+	var messages []*Message
+	for i := 0; i < len(c.messageQueue); i++ {
+		select {
+		case message := <-c.messageQueue:
+			messages = append(messages, message)
+		default:
+			return messages
+		}
+	}
+	return messages
 }
 
 func (c *Client) SendMessage(message *Message) error {
@@ -47,6 +63,10 @@ func (c *Client) SendMessage(message *Message) error {
 		return err
 	}
 	return nil
+}
+
+func (c *Client) SyncReceiveMessage() *Message {
+	return <-c.messageQueue
 }
 
 func readAcceptMessage(conn net.Conn) (*AcceptMessage, error) {

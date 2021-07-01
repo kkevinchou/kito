@@ -1,11 +1,13 @@
-package types
+package input
 
-type MouseWheelDirection string
+type InputPoller func() Input
+
+type MouseWheelDirection int
 
 const (
-	MouseWheelDirectionUp      MouseWheelDirection = "UP"
-	MouseWheelDirectionDown    MouseWheelDirection = "DOWN"
-	MouseWheelDirectionNeutral MouseWheelDirection = "NEUTRAL"
+	MouseWheelDirectionNeutral MouseWheelDirection = iota
+	MouseWheelDirectionUp
+	MouseWheelDirectionDown
 )
 
 type MouseMotionEvent struct {
@@ -13,12 +15,16 @@ type MouseMotionEvent struct {
 	YRel float64
 }
 
+func (m MouseMotionEvent) IsZero() bool {
+	return m.XRel == 0 && m.YRel == 0
+}
+
 type MouseInput struct {
-	MouseWheel       MouseWheelDirection
-	MouseMotionEvent *MouseMotionEvent
-	LeftButtonDown   bool
-	MiddleButtonDown bool
-	RightButtonDown  bool
+	MouseWheelDirection MouseWheelDirection
+	MouseMotionEvent    MouseMotionEvent
+	LeftButtonDown      bool
+	MiddleButtonDown    bool
+	RightButtonDown     bool
 }
 
 type KeyboardKey string
@@ -39,8 +45,8 @@ const (
 	KeyboardKeySpace  KeyboardKey = "Space"
 	KeyboardKeyEscape KeyboardKey = "Escape"
 
-	KeyboardEventUp   = iota
-	KeyboardEventDown = iota
+	KeyboardEventUp = iota
+	KeyboardEventDown
 )
 
 type KeyState struct {
@@ -51,4 +57,10 @@ type KeyState struct {
 type KeyboardInput map[KeyboardKey]KeyState
 
 type QuitCommand struct {
+}
+
+type Input struct {
+	KeyboardInput KeyboardInput
+	MouseInput    MouseInput
+	Commands      []interface{}
 }

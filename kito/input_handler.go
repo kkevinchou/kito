@@ -3,7 +3,7 @@ package kito
 import (
 	"fmt"
 
-	"github.com/kkevinchou/kito/types"
+	"github.com/kkevinchou/kito/lib/input"
 )
 
 // type CameraRaycastCommand struct {
@@ -25,20 +25,21 @@ func (g *Game) GameOver() {
 	g.gameOver = true
 }
 
-func (g *Game) HandleInput(command interface{}) {
+func (g *Game) HandleInput(frameInput input.Input) {
 	singleton := g.GetSingleton()
+	singleton.SetInput(frameInput)
 
-	if _, ok := command.(*types.QuitCommand); ok {
+	keyboardInput := frameInput.KeyboardInput
+	if _, ok := keyboardInput[input.KeyboardKeyEscape]; ok {
+		// move this into a system maybe
 		g.GameOver()
-	} else if c, ok := command.(*types.KeyboardInput); ok {
-		if _, ok := (*c)[types.KeyboardKeyEscape]; ok {
-			// move this into a system maybe
+	}
+
+	for _, cmd := range frameInput.Commands {
+		if _, ok := cmd.(input.QuitCommand); ok {
 			g.GameOver()
+		} else {
+			panic(fmt.Sprintf("UNEXPECTED COMMAND %v", cmd))
 		}
-		singleton.SetKeyboardInputSet(c)
-	} else if c, ok := command.(*types.MouseInput); ok {
-		singleton.SetMouseInput(c)
-	} else {
-		panic(fmt.Sprintf("UNEXPECTED COMMAND %v", command))
 	}
 }

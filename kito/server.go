@@ -1,11 +1,16 @@
 package kito
 
 import (
+	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
+	"github.com/kkevinchou/kito/lib/assets"
+	"github.com/kkevinchou/kito/managers/player"
 	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
+	"github.com/kkevinchou/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/systems/networklistener"
+	"github.com/kkevinchou/kito/systems/networkupdate"
 	"github.com/kkevinchou/kito/systems/physics"
 	"github.com/kkevinchou/kito/types"
 )
@@ -32,11 +37,25 @@ func serverEntitySetup(g *Game) []entities.Entity {
 }
 
 func serverSystemSetup(g *Game, assetsDirectory string) {
-	networkListener := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
+	d := directory.GetDirectory()
+
+	playerManager := player.NewPlayerManager()
+	d.RegisterPlayerManager(playerManager)
+
+	// asset manager is needed to load animation data. we don't load the meshes themselves to avoid
+	// depending on OpenGL on the server
+	assetManager := assets.NewAssetManager(assetsDirectory, false)
+	d.RegisterAssetManager(assetManager)
+
+	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
+	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
+	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 
-	g.systems = append(g.systems, networkListener)
+	g.systems = append(g.systems, networkListenerSystem)
+	g.systems = append(g.systems, networkDispatchSystem)
+	g.systems = append(g.systems, networkUpdateSystem)
 	g.systems = append(g.systems, physicsSystem)
 	g.systems = append(g.systems, animationSystem)
 }

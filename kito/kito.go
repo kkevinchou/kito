@@ -9,6 +9,7 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
+	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/settings"
 
 	"github.com/kkevinchou/kito/entities/singleton"
@@ -54,7 +55,7 @@ func (g *Game) runCommandFrame(delta time.Duration) {
 	}
 }
 
-func (g *Game) Start(pollInputFunc InputPoller) {
+func (g *Game) Start(pollInputFunc input.InputPoller) {
 	var accumulator float64
 	var renderAccumulator float64
 	var fpsAccumulator float64
@@ -74,10 +75,7 @@ func (g *Game) Start(pollInputFunc InputPoller) {
 
 		for accumulator >= msPerCommandFrame {
 			// input is handled once per command frame
-			inputList := pollInputFunc()
-			for _, input := range inputList {
-				g.HandleInput(input)
-			}
+			g.HandleInput(pollInputFunc())
 			g.runCommandFrame(time.Duration(msPerCommandFrame) * time.Millisecond)
 			accumulator -= msPerCommandFrame
 		}
