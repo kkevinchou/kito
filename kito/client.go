@@ -66,16 +66,17 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	g.singleton.Client = connectionComponent.Client
 	g.singleton.PlayerID = connectionComponent.PlayerID
 
-	initialEntities := clientEntitySetup(g)
+	initialEntities := clientEntitySetup(g, connectionComponent.PlayerID)
 	g.RegisterEntities(initialEntities)
 
 	return g
 }
 
-func clientEntitySetup(g *Game) []entities.Entity {
+func clientEntitySetup(g *Game, playerID int) []entities.Entity {
 	block := entities.NewBlock()
 
 	bob := entities.NewBob(mgl64.Vec3{})
+	bob.ID = playerID
 	camera := entities.NewThirdPersonCamera(cameraStartPosition, cameraStartView, bob.GetID())
 	cameraComponentContainer := camera.GetComponentContainer()
 	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
