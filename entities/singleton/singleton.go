@@ -9,10 +9,17 @@ type Singleton struct {
 	// client fields
 	PlayerID int
 	Client   *network.Client
+	Input    input.Input
 
-	Input input.Input
+	// server fields
+	PlayerInput map[int]input.Input
+
+	// Common
+	CommandFrameCount int
 }
 
 func NewSingleton() *Singleton {
-	return &Singleton{}
+	return &Singleton{
+		PlayerInput: map[int]input.Input{},
+	}
 }

@@ -3,6 +3,7 @@ package physics
 import (
 	"time"
 
+	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/systems/base"
 
@@ -15,7 +16,9 @@ const (
 	gravity            = float64(60)
 )
 
-type World interface{}
+type World interface {
+	GetSingleton() *singleton.Singleton
+}
 
 type PhysicsSystem struct {
 	*base.BaseSystem

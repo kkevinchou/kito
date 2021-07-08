@@ -1,8 +1,10 @@
-package charactercontroller
+package servercharactercontroller
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/systems/base"
@@ -14,20 +16,20 @@ type World interface {
 	GetEntityByID(id int) (entities.Entity, error)
 }
 
-type CharacterControllerSystem struct {
+type ServerCharacterControllerSystem struct {
 	*base.BaseSystem
 	world    World
 	entities []entities.Entity
 }
 
-func NewCharacterControllerSystem(world World) *CharacterControllerSystem {
-	return &CharacterControllerSystem{
+func NewServerCharacterControllerSystem(world World) *ServerCharacterControllerSystem {
+	return &ServerCharacterControllerSystem{
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
 	}
 }
 
-func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
+func (s *ServerCharacterControllerSystem) RegisterEntity(entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 
 	if componentContainer.PhysicsComponent != nil && componentContainer.TransformComponent != nil && componentContainer.ThirdPersonControllerComponent != nil {
@@ -35,10 +37,17 @@ func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
 	}
 }
 
-func (s *CharacterControllerSystem) Update(delta time.Duration) {
+func (s *ServerCharacterControllerSystem) Update(delta time.Duration) {
+	d := directory.GetDirectory()
+	playerManager := d.PlayerManager()
 	singleton := s.world.GetSingleton()
-	for _, entity := range s.entities {
-		common.UpdateCharacterController(entity, s.world, singleton.Input)
-		// fmt.Println(entity.GetComponentContainer().TransformComponent.Position)
+
+	for _, player := range playerManager.GetPlayers() {
+		entity, err := s.world.GetEntityByID(player.ID)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		common.UpdateCharacterController(entity, s.world, singleton.PlayerInput[player.ID])
 	}
 }

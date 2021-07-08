@@ -1,4 +1,4 @@
-package camera
+package servercamera
 
 import (
 	"fmt"
