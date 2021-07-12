@@ -3,6 +3,7 @@ package networkinput
 import (
 	"time"
 
+	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/network"
@@ -36,10 +37,12 @@ func (s *NetworkInputSystem) RegisterEntity(entity entities.Entity) {
 
 func (s *NetworkInputSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
+	playerManager := directory.GetDirectory().PlayerManager()
+	player := playerManager.GetPlayer(singleton.PlayerID)
 
 	inputMessage := &network.InputMessage{
-		Input: singleton.Input,
+		Input: singleton.PlayerInput[player.ID],
 	}
 
-	singleton.Client.SendWrappedMessage(singleton.PlayerID, network.MessageTypeInput, inputMessage)
+	player.Client.SendWrappedMessage(singleton.PlayerID, network.MessageTypeInput, inputMessage)
 }

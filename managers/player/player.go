@@ -21,8 +21,13 @@ func NewPlayerManager() *PlayerManager {
 	}
 }
 
-func (p *PlayerManager) RegisterPlayer(id int, connection net.Conn) {
-	p.players[id] = &Player{ID: id, Client: network.NewClientFromConnection(connection)}
+func (p *PlayerManager) RegisterPlayerWithConnection(id int, connection net.Conn) {
+	client := network.NewClientFromConnection(connection)
+	p.RegisterPlayerWithClient(id, client)
+}
+
+func (p *PlayerManager) RegisterPlayerWithClient(id int, client *network.Client) {
+	p.players[id] = &Player{ID: id, Client: client}
 }
 
 func (p *PlayerManager) GetPlayer(id int) *Player {

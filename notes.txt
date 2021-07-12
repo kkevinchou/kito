@@ -36,3 +36,7 @@ High Level Behavior Schema
 - "pickup": {thing}
 - "drop": {thing
 - "random_item"
+
+
+Camera system should be refactored into a "Following" or "Movement" system. There isn't any logic in there that is
+actually camera specific. It just so happens that cameras are the first follower.

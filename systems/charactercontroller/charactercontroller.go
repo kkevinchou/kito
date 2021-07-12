@@ -1,8 +1,10 @@
 package charactercontroller
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/systems/base"
@@ -36,9 +38,16 @@ func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *CharacterControllerSystem) Update(delta time.Duration) {
+	d := directory.GetDirectory()
+	playerManager := d.PlayerManager()
 	singleton := s.world.GetSingleton()
-	for _, entity := range s.entities {
-		common.UpdateCharacterController(entity, s.world, singleton.Input)
-		// fmt.Println(entity.GetComponentContainer().TransformComponent.Position)
+
+	for _, player := range playerManager.GetPlayers() {
+		entity, err := s.world.GetEntityByID(player.ID)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		common.UpdateCharacterController(entity, s.world, singleton.PlayerInput[player.ID])
 	}
 }

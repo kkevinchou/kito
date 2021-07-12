@@ -12,6 +12,7 @@ import (
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
+	"github.com/kkevinchou/kito/managers/player"
 	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/systems/camera"
@@ -63,7 +64,9 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	fmt.Println("successfully received ack player creation with id", ack.ID)
 	fmt.Println(ack)
 
-	g.singleton.Client = connectionComponent.Client
+	directory := directory.GetDirectory()
+	directory.PlayerManager().RegisterPlayerWithClient(connectionComponent.PlayerID, connectionComponent.Client)
+
 	g.singleton.PlayerID = connectionComponent.PlayerID
 
 	initialEntities := clientEntitySetup(g, connectionComponent.PlayerID)
@@ -88,6 +91,8 @@ func clientEntitySetup(g *Game, playerID int) []entities.Entity {
 }
 
 func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
+	d := directory.GetDirectory()
+
 	renderSystem := render.NewRenderSystem(g)
 
 	// TODO: asset manager creation has to happen after the render system is set up
@@ -95,18 +100,21 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	assetManager := assets.NewAssetManager(assetsDirectory, true)
 	renderSystem.SetAssetManager(assetManager)
 
+	// Managers
 	shaderManager := shaders.NewShaderManager(shaderDirectory)
+	playerManager := player.NewPlayerManager()
 
+	// Systems
 	networkInputSystem := networkinput.NewNetworkInputSystem(g)
 	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 
-	d := directory.GetDirectory()
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterAssetManager(assetManager)
 	d.RegisterShaderManager(shaderManager)
+	d.RegisterPlayerManager(playerManager)
 
 	g.systems = append(g.systems, []System{
 		networkInputSystem,

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
 	"github.com/kkevinchou/kito/managers/item"
@@ -28,7 +29,8 @@ type IShaderManager interface {
 }
 
 type IPlayerManager interface {
-	RegisterPlayer(id int, connection net.Conn)
+	RegisterPlayerWithConnection(id int, connection net.Conn)
+	RegisterPlayerWithClient(id int, client *network.Client)
 	GetPlayer(id int) *player.Player
 	GetPlayers() map[int]*player.Player
 }
