@@ -3,7 +3,7 @@ package render
 import (
 	"errors"
 
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
 func initializeShadowMap(width, height int32) (uint32, uint32, error) {

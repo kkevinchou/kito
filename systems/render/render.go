@@ -5,7 +5,7 @@ import (
 	_ "image/png"
 	"time"
 
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
@@ -77,6 +77,10 @@ func NewRenderSystem(world World) *RenderSystem {
 	// multisampling algorithms implemented by the OpenGL rasterizer
 	sdl.GLSetAttribute(sdl.GL_MULTISAMPLEBUFFERS, 1)
 	sdl.GLSetAttribute(sdl.GL_MULTISAMPLESAMPLES, 4)
+	sdl.GLSetAttribute(sdl.GL_CONTEXT_PROFILE_MASK, sdl.GL_CONTEXT_PROFILE_CORE)
+	sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 4)
+	sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 1)
+	sdl.GLSetAttribute(sdl.GL_CONTEXT_FLAGS, sdl.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG)
 
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
 	if err != nil {

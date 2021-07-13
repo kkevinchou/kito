@@ -23,6 +23,7 @@ type PlayerManager struct {
 func NewPlayerManager(world World) *PlayerManager {
 	return &PlayerManager{
 		players: map[int]*Player{},
+		world:   world,
 	}
 }
 
