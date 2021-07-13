@@ -9,8 +9,8 @@ type Singleton struct {
 	PlayerID int
 
 	// Common
-	PlayerInput       map[int]input.Input
-	CommandFrameCount int
+	PlayerInput  map[int]input.Input
+	CommandFrame int
 }
 
 func NewSingleton() *Singleton {

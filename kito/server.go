@@ -41,7 +41,7 @@ func serverEntitySetup(g *Game) []entities.Entity {
 func serverSystemSetup(g *Game, assetsDirectory string) {
 	d := directory.GetDirectory()
 
-	playerManager := player.NewPlayerManager()
+	playerManager := player.NewPlayerManager(g)
 	d.RegisterPlayerManager(playerManager)
 
 	// asset manager is needed to load animation data. we don't load the meshes themselves to avoid

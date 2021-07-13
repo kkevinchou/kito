@@ -44,6 +44,8 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 		panic(err)
 	}
 
+	connectionComponent.Client.SetCommandFrameFunction(func() int { return g.singleton.CommandFrame })
+
 	err = connectionComponent.Client.SendMessage(
 		&network.Message{
 			SenderID:    connectionComponent.PlayerID,
@@ -102,7 +104,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 
 	// Managers
 	shaderManager := shaders.NewShaderManager(shaderDirectory)
-	playerManager := player.NewPlayerManager()
+	playerManager := player.NewPlayerManager(g)
 
 	// Systems
 	networkInputSystem := networkinput.NewNetworkInputSystem(g)

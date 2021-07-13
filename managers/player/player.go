@@ -6,6 +6,10 @@ import (
 	"github.com/kkevinchou/kito/lib/network"
 )
 
+type World interface {
+	CommandFrame() int
+}
+
 type Player struct {
 	ID     int
 	Client *network.Client
@@ -13,9 +17,10 @@ type Player struct {
 
 type PlayerManager struct {
 	players map[int]*Player
+	world   World
 }
 
-func NewPlayerManager() *PlayerManager {
+func NewPlayerManager(world World) *PlayerManager {
 	return &PlayerManager{
 		players: map[int]*Player{},
 	}
@@ -23,6 +28,7 @@ func NewPlayerManager() *PlayerManager {
 
 func (p *PlayerManager) RegisterPlayerWithConnection(id int, connection net.Conn) {
 	client := network.NewClientFromConnection(connection)
+	client.SetCommandFrameFunction(p.world.CommandFrame)
 	p.RegisterPlayerWithClient(id, client)
 }
 

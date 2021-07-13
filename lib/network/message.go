@@ -18,8 +18,9 @@ const (
 )
 
 type Message struct {
-	SenderID    int         `json:"sender_id"`
-	MessageType MessageType `json:"message_type"`
+	SenderID     int         `json:"sender_id"`
+	MessageType  MessageType `json:"message_type"`
+	CommandFrame int         `json:"command_frame"`
 
 	Body []byte `json:"body"`
 }

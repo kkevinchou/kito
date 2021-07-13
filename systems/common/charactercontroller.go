@@ -15,9 +15,6 @@ type World interface {
 }
 
 func UpdateCharacterController(entity entities.Entity, world World, frameInput input.Input) {
-	singleton := world.GetSingleton()
-	singleton.CommandFrameCount += 1
-
 	componentContainer := entity.GetComponentContainer()
 	physicsComponent := componentContainer.PhysicsComponent
 

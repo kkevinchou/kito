@@ -40,3 +40,5 @@ High Level Behavior Schema
 
 Camera system should be refactored into a "Following" or "Movement" system. There isn't any logic in there that is
 actually camera specific. It just so happens that cameras are the first follower.
+
+MacOS only supports OpenGL4.1. Using a newer version of OpenGL causes `gl.Init` to return `glBindBuffersBase` as an error
