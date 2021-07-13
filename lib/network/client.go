@@ -6,11 +6,13 @@ import (
 	"net"
 )
 
-const ()
+type commandFrameFunc func() int
 
 type Client struct {
 	connection   net.Conn
 	messageQueue chan *Message
+
+	commandFrameFunc commandFrameFunc
 }
 
 func NewClient() *Client {
@@ -24,6 +26,10 @@ func NewClientFromConnection(connection net.Conn) *Client {
 	client.connection = connection
 	go queueIncomingMessages(client.connection, client.messageQueue)
 	return client
+}
+
+func (c *Client) SetCommandFrameFunction(f commandFrameFunc) {
+	c.commandFrameFunc = f
 }
 
 func (c *Client) Connect(host, port, connectionType string) (*AcceptMessage, error) {

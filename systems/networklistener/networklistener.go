@@ -40,6 +40,6 @@ func (s *NetworkListenerSystem) Update(delta time.Duration) {
 	incomingConnections := s.nserver.PullIncomingConnections()
 	for _, incomingConnection := range incomingConnections {
 		fmt.Println("New player connected with id", incomingConnection.PlayerID)
-		playerManager.RegisterPlayer(incomingConnection.PlayerID, incomingConnection.Connection)
+		playerManager.RegisterPlayerWithConnection(incomingConnection.PlayerID, incomingConnection.Connection)
 	}
 }

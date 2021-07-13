@@ -8,12 +8,12 @@ import (
 	"github.com/kkevinchou/kito/managers/player"
 	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
+	"github.com/kkevinchou/kito/systems/camera"
+	"github.com/kkevinchou/kito/systems/charactercontroller"
 	"github.com/kkevinchou/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/systems/networklistener"
 	"github.com/kkevinchou/kito/systems/networkupdate"
 	"github.com/kkevinchou/kito/systems/physics"
-	"github.com/kkevinchou/kito/systems/servercamera"
-	"github.com/kkevinchou/kito/systems/servercharactercontroller"
 	"github.com/kkevinchou/kito/types"
 )
 
@@ -41,7 +41,7 @@ func serverEntitySetup(g *Game) []entities.Entity {
 func serverSystemSetup(g *Game, assetsDirectory string) {
 	d := directory.GetDirectory()
 
-	playerManager := player.NewPlayerManager()
+	playerManager := player.NewPlayerManager(g)
 	d.RegisterPlayerManager(playerManager)
 
 	// asset manager is needed to load animation data. we don't load the meshes themselves to avoid
@@ -51,19 +51,19 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 
 	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
-	serverCharacterControllerSystem := servercharactercontroller.NewServerCharacterControllerSystem(g)
+	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
-	serverCameraSystem := servercamera.NewServerCameraSystem(g)
+	cameraSystem := camera.NewCameraSystem(g)
 	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
 
 	g.systems = append(g.systems, []System{
 		networkListenerSystem,
 		networkDispatchSystem,
-		serverCharacterControllerSystem,
+		characterControllerSystem,
 		physicsSystem,
 		animationSystem,
-		serverCameraSystem,
+		cameraSystem,
 		networkUpdateSystem,
 	}...)
 }

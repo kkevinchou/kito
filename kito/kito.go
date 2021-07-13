@@ -47,6 +47,7 @@ type Game struct {
 }
 
 func (g *Game) runCommandFrame(delta time.Duration) {
+	g.singleton.CommandFrame++
 	for _, system := range g.systems {
 		system.Update(delta)
 	}
@@ -125,6 +126,10 @@ func (g *Game) RegisterEntities(entityList []entities.Entity) {
 
 func (g *Game) SetCamera(camera entities.Entity) {
 	g.camera = camera
+}
+
+func (g *Game) CommandFrame() int {
+	return g.singleton.CommandFrame
 }
 
 func compileShaders() {

@@ -9,10 +9,17 @@ import (
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
+	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/managers/player"
 	"github.com/kkevinchou/kito/systems/base"
 )
+
+type InputBuffer struct {
+	bufferSize int
+	index      int
+	buffer     []input.Input
+}
 
 type World interface {
 	RegisterEntities([]entities.Entity)
