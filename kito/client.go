@@ -39,7 +39,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 		panic(err)
 	}
 
-	client.SetCommandFrameFunction(func() int { return g.singleton.CommandFrame })
+	client.SetCommandFrameFunction(func() int { return g.CommandFrame() })
 
 	err = client.SendMessage(network.MessageTypeCreatePlayer, nil)
 	if err != nil {
@@ -57,7 +57,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	fmt.Println(ack)
 
 	directory := directory.GetDirectory()
-	directory.PlayerManager().RegisterPlayerWithClient(id, client)
+	directory.PlayerManager().RegisterPlayer(id, client)
 
 	g.singleton.PlayerID = id
 

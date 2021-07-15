@@ -1,7 +1,6 @@
 package directory
 
 import (
-	"net"
 	"sync"
 	"time"
 
@@ -29,8 +28,7 @@ type IShaderManager interface {
 }
 
 type IPlayerManager interface {
-	RegisterPlayerWithConnection(id int, connection net.Conn)
-	RegisterPlayerWithClient(id int, client *network.Client)
+	RegisterPlayer(id int, client *network.Client)
 	GetPlayer(id int) *player.Player
 	GetPlayers() map[int]*player.Player
 }

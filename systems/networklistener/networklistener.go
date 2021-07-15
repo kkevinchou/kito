@@ -11,7 +11,9 @@ import (
 	"github.com/kkevinchou/kito/systems/base"
 )
 
-type World interface{}
+type World interface {
+	CommandFrame() int
+}
 
 type NetworkListenerSystem struct {
 	*base.BaseSystem
@@ -41,6 +43,9 @@ func (s *NetworkListenerSystem) Update(delta time.Duration) {
 	incomingConnections := s.nserver.PullIncomingConnections()
 	for _, incomingConnection := range incomingConnections {
 		fmt.Println("New player connected with id", incomingConnection.ID)
-		playerManager.RegisterPlayerWithConnection(incomingConnection.ID, incomingConnection.Connection)
+
+		client := network.NewClient(settings.ServerID, incomingConnection.Connection)
+		client.SetCommandFrameFunction(s.world.CommandFrame)
+		playerManager.RegisterPlayer(incomingConnection.ID, client)
 	}
 }
