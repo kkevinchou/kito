@@ -13,7 +13,7 @@ const (
 )
 
 type Connection struct {
-	PlayerID   int
+	ID         int
 	Connection net.Conn
 }
 

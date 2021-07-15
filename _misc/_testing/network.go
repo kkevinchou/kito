@@ -11,23 +11,22 @@ func main() {
 	port := "8080"
 	connectionType := "tcp"
 
-	server := network.NewServer(host, port, connectionType)
+	server := network.NewServer(host, port, connectionType, 18)
 	err := server.Start()
 	if err != nil {
 		panic(err)
 	}
 
-	client := network.NewClient()
-	acceptMessage, err := client.Connect(host, port, connectionType)
+	client, err := network.Connect(host, port, connectionType)
 	if err != nil {
 		panic(err)
 	}
 
-	if acceptMessage.PlayerID == 0 {
+	if client.ID() == 0 {
 		panic(err)
 	}
 
-	err = client.SendMessage(&network.Message{MessageType: network.MessageTypeInput})
+	err = client.SendMessage(network.MessageTypeInput, nil)
 	if err != nil {
 		panic(err)
 	}

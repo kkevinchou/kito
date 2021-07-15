@@ -44,5 +44,5 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 		Input: singleton.PlayerInput[player.ID],
 	}
 
-	player.Client.SendWrappedMessage(singleton.PlayerID, network.MessageTypeInput, inputMessage)
+	player.Client.SendMessage(network.MessageTypeInput, inputMessage)
 }

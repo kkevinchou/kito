@@ -6,4 +6,7 @@ const (
 	Host           string = "localhost"
 	Port           string = "8080"
 	ConnectionType string = "tcp"
+
+	ServerID      = 69
+	ServerIDStart = 70000
 )
