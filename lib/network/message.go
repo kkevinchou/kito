@@ -26,7 +26,7 @@ type Message struct {
 }
 
 type AcceptMessage struct {
-	PlayerID int `json:"player_id"`
+	ID int `json:"id"`
 }
 
 type CreatePlayerMessage struct {

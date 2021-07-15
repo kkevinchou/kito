@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/network"
+	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/base"
 )
 
@@ -20,7 +21,7 @@ type NetworkListenerSystem struct {
 }
 
 func NewNetworkListenerSystem(world World, host, port, connectionType string) *NetworkListenerSystem {
-	nserver := network.NewServer(host, port, connectionType)
+	nserver := network.NewServer(host, port, connectionType, settings.ServerIDStart)
 	nserver.Start()
 
 	return &NetworkListenerSystem{
@@ -39,7 +40,7 @@ func (s *NetworkListenerSystem) Update(delta time.Duration) {
 
 	incomingConnections := s.nserver.PullIncomingConnections()
 	for _, incomingConnection := range incomingConnections {
-		fmt.Println("New player connected with id", incomingConnection.PlayerID)
-		playerManager.RegisterPlayerWithConnection(incomingConnection.PlayerID, incomingConnection.Connection)
+		fmt.Println("New player connected with id", incomingConnection.ID)
+		playerManager.RegisterPlayerWithConnection(incomingConnection.ID, incomingConnection.Connection)
 	}
 }

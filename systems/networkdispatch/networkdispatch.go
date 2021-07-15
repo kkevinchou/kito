@@ -54,6 +54,8 @@ func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 				handleCreatePlayer(player, message, s.world)
 			} else if message.MessageType == network.MessageTypeInput {
 				handlePlayerInput(player, message, s.world)
+			} else if message.MessageType == network.MessageTypeGameStateSnapshot {
+				handlePlayerInput(player, message, s.world)
 			} else {
 				fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 			}
@@ -98,15 +100,7 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 		Position:    cc.TransformComponent.Position,
 		Orientation: cc.TransformComponent.Orientation,
 	}
-	ackBytes, err := json.Marshal(ack)
-	if err != nil {
-		panic(err)
-	}
 
-	response := &network.Message{
-		MessageType: network.MessageTypeAckCreatePlayer,
-		Body:        ackBytes,
-	}
-	player.Client.SendMessage(response)
+	player.Client.SendMessage(network.MessageTypeAckCreatePlayer, ack)
 	fmt.Println("Sent entity ack creation message")
 }

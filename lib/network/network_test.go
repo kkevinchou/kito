@@ -11,23 +11,22 @@ func TestBasic(t *testing.T) {
 	port := "8080"
 	connectionType := "tcp"
 
-	server := network.NewServer(host, port, connectionType)
+	server := network.NewServer(host, port, connectionType, 19)
 	err := server.Start()
 	if err != nil {
 		t.Errorf("failed to start server %s", err)
 	}
 
-	client := network.NewClient()
-	acceptMessage, err := client.Connect(host, port, connectionType)
+	client, id, err := network.Connect(host, port, connectionType)
 	if err != nil {
 		t.Errorf("failed to connect %s", err)
 	}
 
-	if acceptMessage.PlayerID == 0 {
+	if id == network.UnsetClientID {
 		t.Error("expected a non zero player ID from the accept message")
 	}
 
-	err = client.SendMessage(&network.Message{MessageType: network.MessageTypeInput})
+	err = client.SendMessage(network.MessageTypeInput, nil)
 	if err != nil {
 		t.Error(err)
 	}

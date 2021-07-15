@@ -12,19 +12,19 @@ type Server struct {
 	port           string
 	connectionType string
 
-	nextPlayerID      int
-	nextPlayerIDMutex sync.Mutex
+	nextID      int
+	nextIDMutex sync.Mutex
 
 	incomingConnections chan *Connection
 }
 
-func NewServer(host, port, connectionType string) *Server {
+func NewServer(host, port, connectionType string, idStart int) *Server {
 	return &Server{
 		host:           host,
 		port:           port,
 		connectionType: connectionType,
 
-		nextPlayerID: 70000,
+		nextID: idStart,
 
 		incomingConnections: make(chan *Connection, incomingConnectionsBufferSize),
 	}
@@ -46,9 +46,9 @@ func (s *Server) Start() error {
 				continue
 			}
 
-			playerID := s.generateNextPlayerID()
+			id := s.generateNextID()
 
-			message, err := s.createAcceptMessage(playerID)
+			message, err := s.createAcceptMessage(id)
 			if err != nil {
 				fmt.Println(err)
 				continue
@@ -61,7 +61,7 @@ func (s *Server) Start() error {
 			}
 
 			select {
-			case s.incomingConnections <- &Connection{Connection: conn, PlayerID: playerID}:
+			case s.incomingConnections <- &Connection{ID: id, Connection: conn}:
 			default:
 				panic("incomingConnections queue full")
 			}
@@ -95,18 +95,18 @@ func (s *Server) SendMessage(connection net.Conn, message *Message) error {
 	return nil
 }
 
-func (s *Server) generateNextPlayerID() int {
-	s.nextPlayerIDMutex.Lock()
-	id := s.nextPlayerID
-	s.nextPlayerID++
-	s.nextPlayerIDMutex.Unlock()
+func (s *Server) generateNextID() int {
+	s.nextIDMutex.Lock()
+	id := s.nextID
+	s.nextID++
+	s.nextIDMutex.Unlock()
 
 	return id
 }
 
-func (s *Server) createAcceptMessage(playerID int) (*Message, error) {
+func (s *Server) createAcceptMessage(id int) (*Message, error) {
 	acceptMessage := AcceptMessage{
-		PlayerID: playerID,
+		ID: id,
 	}
 	bodyBytes, err := json.Marshal(acceptMessage)
 	if err != nil {

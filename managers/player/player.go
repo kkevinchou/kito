@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/kkevinchou/kito/lib/network"
+	"github.com/kkevinchou/kito/settings"
 )
 
 type World interface {
@@ -28,7 +29,7 @@ func NewPlayerManager(world World) *PlayerManager {
 }
 
 func (p *PlayerManager) RegisterPlayerWithConnection(id int, connection net.Conn) {
-	client := network.NewClientFromConnection(connection)
+	client := network.NewClient(settings.ServerID, connection)
 	client.SetCommandFrameFunction(p.world.CommandFrame)
 	p.RegisterPlayerWithClient(id, client)
 }

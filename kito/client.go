@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
@@ -35,28 +34,19 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	compileShaders()
 
 	// Connect to server
-	connectionComponent, err := components.NewConnectionComponent(
-		settings.Host,
-		settings.Port,
-		settings.ConnectionType,
-	)
+	client, id, err := network.Connect(settings.Host, settings.Port, settings.ConnectionType)
 	if err != nil {
 		panic(err)
 	}
 
-	connectionComponent.Client.SetCommandFrameFunction(func() int { return g.singleton.CommandFrame })
+	client.SetCommandFrameFunction(func() int { return g.singleton.CommandFrame })
 
-	err = connectionComponent.Client.SendMessage(
-		&network.Message{
-			SenderID:    connectionComponent.PlayerID,
-			MessageType: network.MessageTypeCreatePlayer,
-		},
-	)
+	err = client.SendMessage(network.MessageTypeCreatePlayer, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	recvMessage := connectionComponent.Client.SyncReceiveMessage()
+	recvMessage := client.SyncReceiveMessage()
 	var ack network.AckCreatePlayerMessage
 	err = json.Unmarshal(recvMessage.Body, &ack)
 	if err != nil {
@@ -67,11 +57,11 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	fmt.Println(ack)
 
 	directory := directory.GetDirectory()
-	directory.PlayerManager().RegisterPlayerWithClient(connectionComponent.PlayerID, connectionComponent.Client)
+	directory.PlayerManager().RegisterPlayerWithClient(id, client)
 
-	g.singleton.PlayerID = connectionComponent.PlayerID
+	g.singleton.PlayerID = id
 
-	initialEntities := clientEntitySetup(g, connectionComponent.PlayerID)
+	initialEntities := clientEntitySetup(g, id)
 	g.RegisterEntities(initialEntities)
 
 	return g

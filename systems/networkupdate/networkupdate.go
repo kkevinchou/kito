@@ -1,7 +1,6 @@
 package networkupdate
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/kkevinchou/kito/directory"
@@ -60,16 +59,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	playerManager := d.PlayerManager()
 
 	for _, player := range playerManager.GetPlayers() {
-		snapshotBytes, err := json.Marshal(snapshot)
-		if err != nil {
-			panic(err)
-		}
-
-		message := &network.Message{
-			MessageType: network.MessageTypeGameStateSnapshot,
-			Body:        snapshotBytes,
-		}
-		player.Client.SendMessage(message)
+		player.Client.SendMessage(network.MessageTypeGameStateSnapshot, snapshot)
 	}
 }
 
