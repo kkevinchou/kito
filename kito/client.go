@@ -57,7 +57,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	fmt.Println(ack)
 
 	directory := directory.GetDirectory()
-	directory.PlayerManager().RegisterPlayerWithClient(id, client)
+	directory.PlayerManager().RegisterPlayer(id, client)
 
 	g.singleton.PlayerID = id
 
