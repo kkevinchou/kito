@@ -17,12 +17,12 @@ func main() {
 		panic(err)
 	}
 
-	client, err := network.Connect(host, port, connectionType)
+	client, id, err := network.Connect(host, port, connectionType)
 	if err != nil {
 		panic(err)
 	}
 
-	if client.ID() == 0 {
+	if id == 0 {
 		panic(err)
 	}
 

@@ -40,25 +40,23 @@ func (c *Client) SetCommandFrameFunction(f commandFrameFunc) {
 	c.commandFrameFunc = f
 }
 
-func Connect(host, port, connectionType string) (*Client, error) {
+func Connect(host, port, connectionType string) (*Client, int, error) {
 	conn, err := net.Dial(connectionType, fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
-		fmt.Println(connectionType, fmt.Sprintf("%s:%s", host, port))
-		fmt.Println("HI1")
-		return nil, err
+		return nil, -1, err
 	}
 	client := baseClient()
 	client.connection = conn
 
 	acceptMessage, err := readAcceptMessage(conn)
 	if err != nil {
-		return nil, err
+		return nil, -1, err
 	}
 	client.id = acceptMessage.ID
 
 	go queueIncomingMessages(conn, client.messageQueue)
 
-	return client, nil
+	return client, acceptMessage.ID, nil
 }
 
 func (c *Client) PullIncomingMessages() []*Message {
@@ -95,7 +93,7 @@ func (c *Client) SendMessage(messageType MessageType, subMessage interface{}) er
 	}
 
 	msg := &Message{
-		SenderID:     c.ID(),
+		SenderID:     c.id,
 		CommandFrame: c.commandFrameFunc(),
 		MessageType:  messageType,
 		Body:         bodyBytes,
@@ -106,10 +104,6 @@ func (c *Client) SendMessage(messageType MessageType, subMessage interface{}) er
 
 func (c *Client) SyncReceiveMessage() *Message {
 	return <-c.messageQueue
-}
-
-func (c *Client) ID() int {
-	return c.id
 }
 
 func readAcceptMessage(conn net.Conn) (*AcceptMessage, error) {

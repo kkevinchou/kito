@@ -17,12 +17,12 @@ func TestBasic(t *testing.T) {
 		t.Errorf("failed to start server %s", err)
 	}
 
-	client, err := network.Connect(host, port, connectionType)
+	client, id, err := network.Connect(host, port, connectionType)
 	if err != nil {
 		t.Errorf("failed to connect %s", err)
 	}
 
-	if client.ID() == 0 {
+	if id == 0 {
 		t.Error("expected a non zero player ID from the accept message")
 	}
 

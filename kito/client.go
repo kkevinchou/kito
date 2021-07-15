@@ -34,7 +34,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	compileShaders()
 
 	// Connect to server
-	client, err := network.Connect(settings.Host, settings.Port, settings.ConnectionType)
+	client, id, err := network.Connect(settings.Host, settings.Port, settings.ConnectionType)
 	if err != nil {
 		panic(err)
 	}
@@ -57,11 +57,11 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	fmt.Println(ack)
 
 	directory := directory.GetDirectory()
-	directory.PlayerManager().RegisterPlayerWithClient(client.ID(), client)
+	directory.PlayerManager().RegisterPlayerWithClient(id, client)
 
-	g.singleton.PlayerID = client.ID()
+	g.singleton.PlayerID = id
 
-	initialEntities := clientEntitySetup(g, client.ID())
+	initialEntities := clientEntitySetup(g, id)
 	g.RegisterEntities(initialEntities)
 
 	return g
