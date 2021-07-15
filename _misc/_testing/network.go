@@ -22,7 +22,7 @@ func main() {
 		panic(err)
 	}
 
-	if id == 0 {
+	if id == network.UnsetClientID {
 		panic(err)
 	}
 

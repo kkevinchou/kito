@@ -22,7 +22,7 @@ func TestBasic(t *testing.T) {
 		t.Errorf("failed to connect %s", err)
 	}
 
-	if id == 0 {
+	if id == network.UnsetClientID {
 		t.Error("expected a non zero player ID from the accept message")
 	}
 

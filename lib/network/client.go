@@ -22,7 +22,7 @@ type Client struct {
 
 func baseClient() *Client {
 	return &Client{
-		id:               -1,
+		id:               UnsetClientID,
 		messageQueue:     make(chan *Message, messageQueueBufferSize),
 		commandFrameFunc: defaultCommandFrameFunc,
 	}
@@ -43,14 +43,14 @@ func (c *Client) SetCommandFrameFunction(f commandFrameFunc) {
 func Connect(host, port, connectionType string) (*Client, int, error) {
 	conn, err := net.Dial(connectionType, fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
-		return nil, -1, err
+		return nil, UnsetClientID, err
 	}
 	client := baseClient()
 	client.connection = conn
 
 	acceptMessage, err := readAcceptMessage(conn)
 	if err != nil {
-		return nil, -1, err
+		return nil, UnsetClientID, err
 	}
 	client.id = acceptMessage.ID
 

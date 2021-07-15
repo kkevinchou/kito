@@ -10,6 +10,8 @@ import (
 const (
 	messageQueueBufferSize        = 1024
 	incomingConnectionsBufferSize = 1024
+
+	UnsetClientID = -1
 )
 
 type Connection struct {
