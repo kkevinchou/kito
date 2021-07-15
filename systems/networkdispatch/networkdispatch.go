@@ -54,6 +54,8 @@ func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 				handleCreatePlayer(player, message, s.world)
 			} else if message.MessageType == network.MessageTypeInput {
 				handlePlayerInput(player, message, s.world)
+			} else if message.MessageType == network.MessageTypeGameStateSnapshot {
+				handlePlayerInput(player, message, s.world)
 			} else {
 				fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 			}

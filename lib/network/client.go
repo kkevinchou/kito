@@ -78,9 +78,10 @@ func (c *Client) SendWrappedMessage(senderID int, messageType MessageType, subMe
 	}
 
 	msg := &Message{
-		SenderID:    senderID,
-		MessageType: messageType,
-		Body:        bodyBytes,
+		SenderID:     senderID,
+		CommandFrame: c.commandFrameFunc(),
+		MessageType:  messageType,
+		Body:         bodyBytes,
 	}
 
 	return c.SendMessage(msg)
