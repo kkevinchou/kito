@@ -51,6 +51,8 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 
 	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
+	networkDispatchSystem.SetMessageFetcher(networkdispatch.ConnectedPlayersMessageFetcher)
+	networkDispatchSystem.SetMessageHandler(networkdispatch.ServerMessageHandler)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
