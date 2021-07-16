@@ -16,6 +16,7 @@ import (
 	"github.com/kkevinchou/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/systems/camera"
 	"github.com/kkevinchou/kito/systems/charactercontroller"
+	"github.com/kkevinchou/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/systems/networkinput"
 	"github.com/kkevinchou/kito/systems/physics"
 	"github.com/kkevinchou/kito/systems/render"
@@ -98,6 +99,9 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 
 	// Systems
 	networkInputSystem := networkinput.NewNetworkInputSystem(g)
+	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
+	networkDispatchSystem.SetMessageFetcher(networkdispatch.ClientMessageFetcher)
+	networkDispatchSystem.SetMessageHandler(networkdispatch.ClientMessageHandler)
 	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
@@ -110,6 +114,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 
 	g.systems = append(g.systems, []System{
 		networkInputSystem,
+		networkDispatchSystem,
 		characterControllerSystem,
 		physicsSystem,
 		animationSystem,
