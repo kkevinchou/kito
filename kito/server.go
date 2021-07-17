@@ -19,6 +19,7 @@ import (
 
 func NewServerGame(assetsDirectory string) *Game {
 	initSeed()
+	settings.CurrentGameMode = settings.GameModeServer
 
 	g := &Game{
 		gameMode:  types.GameModePlaying,

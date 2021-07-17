@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/kkevinchou/kito/systems/common"
+	"github.com/kkevinchou/kito/utils"
 )
 
 type World interface {
@@ -38,6 +39,10 @@ func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *CharacterControllerSystem) Update(delta time.Duration) {
+	if utils.IsClient() {
+		// return
+	}
+
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()
 	singleton := s.world.GetSingleton()
