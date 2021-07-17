@@ -35,7 +35,28 @@ func ServerMessageHandler(world World, message *network.Message) {
 
 func ClientMessageHandler(world World, message *network.Message) {
 	if message.MessageType == network.MessageTypeGameStateSnapshot {
-		fmt.Println(message.CommandFrame, message.SenderID)
+		handleEntitySnapshot(message, world)
+	} else {
+		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
+	}
+}
+
+func handleEntitySnapshot(message *network.Message, world World) {
+	var gameStateSnapshot network.GameStateSnapshotMessage
+	err := json.Unmarshal(message.Body, &gameStateSnapshot)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, entitySnapshot := range gameStateSnapshot.Entities {
+		entity, err := world.GetEntityByID(entitySnapshot.ID)
+		if err != nil {
+			panic(err)
+		}
+
+		cc := entity.GetComponentContainer()
+		cc.TransformComponent.Position = entitySnapshot.Position
+		cc.TransformComponent.Orientation = entitySnapshot.Orientation
 	}
 }
 

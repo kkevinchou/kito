@@ -25,6 +25,7 @@ import (
 
 func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	initSeed()
+	settings.CurrentGameMode = settings.GameModeClient
 
 	g := &Game{
 		gameMode:  types.GameModePlaying,
