@@ -19,7 +19,6 @@ type World interface {
 	RegisterEntities([]entities.Entity)
 	GetEntityByID(id int) (entities.Entity, error)
 	GetSingleton() *singleton.Singleton
-	SetCamera(camera entities.Entity)
 }
 
 type NetworkDispatchSystem struct {

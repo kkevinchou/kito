@@ -11,18 +11,13 @@ import (
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
+	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/veandco/go-sdl2/sdl"
 )
-
-type Camera interface {
-	UpdateView(mgl64.Vec2)
-	Position() mgl64.Vec3
-	View() mgl64.Vec2
-}
 
 const (
 	width               int32 = 1024
@@ -44,7 +39,8 @@ var (
 )
 
 type World interface {
-	GetCamera() entities.Entity
+	GetSingleton() *singleton.Singleton
+	GetEntityByID(id int) (entities.Entity, error)
 }
 
 type RenderSystem struct {
@@ -173,6 +169,18 @@ func (s *RenderSystem) Update(delta time.Duration) {
 }
 
 func (s *RenderSystem) Render(delta time.Duration) {
+	singleton := s.world.GetSingleton()
+	if singleton.CameraID == 0 {
+		fmt.Println("camera not found in Render()")
+		return
+	}
+
+	camera, err := s.world.GetEntityByID(singleton.CameraID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	// render depth map
 	lightViewMatrix := s.renderToDepthMap()
 
@@ -181,7 +189,6 @@ func (s *RenderSystem) Render(delta time.Duration) {
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	camera := s.world.GetCamera()
 	componentContainer := camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
 

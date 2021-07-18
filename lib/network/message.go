@@ -33,7 +33,8 @@ type CreatePlayerMessage struct {
 }
 
 type AckCreatePlayerMessage struct {
-	ID          int
+	ID          int        `json:"id"`
+	CameraID    int        `json:"camera_id"`
 	Position    mgl64.Vec3 `json:"transform"`
 	Orientation mgl64.Quat `json:"orientation"`
 }

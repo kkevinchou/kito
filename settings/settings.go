@@ -1,9 +1,16 @@
 package settings
 
+import "github.com/go-gl/mathgl/mgl64"
+
 type GameMode string
 
 var (
 	CurrentGameMode GameMode = GameModeUndefined
+)
+
+var (
+	CameraStartPosition = mgl64.Vec3{0, 10, 30}
+	CameraStartView     = mgl64.Vec2{0, 0}
 )
 
 const (
@@ -19,4 +26,5 @@ const (
 
 	ServerID      = 69
 	ServerIDStart = 70000
+	EntityIDStart = 80000
 )

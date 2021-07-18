@@ -24,6 +24,7 @@ func NewServerGame(assetsDirectory string) *Game {
 	g := &Game{
 		gameMode:  types.GameModePlaying,
 		singleton: singleton.NewSingleton(),
+		entities:  map[int]entities.Entity{},
 	}
 
 	serverSystemSetup(g, assetsDirectory)
@@ -34,9 +35,8 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
-	return []entities.Entity{
-		entities.NewBlock(),
-	}
+	block := entities.NewBlock()
+	return []entities.Entity{block}
 }
 
 func serverSystemSetup(g *Game, assetsDirectory string) {

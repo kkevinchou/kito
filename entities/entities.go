@@ -1,8 +1,11 @@
 package entities
 
-import "github.com/kkevinchou/kito/components"
+import (
+	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/settings"
+)
 
-var idCounter int = 0
+var idCounter int = settings.EntityIDStart
 
 type Entity interface {
 	GetID() int

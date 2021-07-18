@@ -1,3 +1,5 @@
+github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
+github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/aquilax/go-perlin v0.0.0-20191229124216-0af9ce917c28 h1:iQUvYFmTKLXaDf3N0YfsJG5vgVtA1La82fHFDkpX5y4=
 github.com/aquilax/go-perlin v0.0.0-20191229124216-0af9ce917c28/go.mod h1:z9Rl7EM4BZY0Ikp2fEN1I5mKSOJ26HQpk0O2TBdN2HE=
 github.com/disintegration/imaging v1.6.2 h1:w1LecBlG2Lnp8B3jk5zSuNqd7b4DXhcjwek1ei82L+c=
