@@ -36,6 +36,9 @@ func ServerMessageHandler(world World, message *network.Message) {
 func ClientMessageHandler(world World, message *network.Message) {
 	if message.MessageType == network.MessageTypeGameStateSnapshot {
 		handleEntitySnapshot(message, world)
+	} else if message.MessageType == network.MessageTypeAckCreatePlayer {
+		// This is handled as a part of client initialization and doesn't
+		// need to be handled here
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}
@@ -51,7 +54,7 @@ func handleEntitySnapshot(message *network.Message, world World) {
 	for _, entitySnapshot := range gameStateSnapshot.Entities {
 		entity, err := world.GetEntityByID(entitySnapshot.ID)
 		if err != nil {
-			panic(err)
+			continue
 		}
 
 		cc := entity.GetComponentContainer()
@@ -87,13 +90,12 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 
 	cc.ThirdPersonControllerComponent.CameraID = camera.GetID()
 
-	world.SetCamera(camera)
-
 	world.RegisterEntities([]entities.Entity{bob, camera})
 	fmt.Println("Created and registered a new bob with id", bob.ID)
 
 	ack := &network.AckCreatePlayerMessage{
 		ID:          playerID,
+		CameraID:    camera.ID,
 		Position:    cc.TransformComponent.Position,
 		Orientation: cc.TransformComponent.Orientation,
 	}

@@ -7,6 +7,7 @@ import (
 type Singleton struct {
 	// client fields
 	PlayerID int
+	CameraID int
 
 	// Common
 	PlayerInput  map[int]input.Input

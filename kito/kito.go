@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"runtime/debug"
 	"time"
 
-	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/input"
@@ -22,11 +22,6 @@ const (
 	maxTimeStep       float64 = 250 // in milliseconds
 )
 
-var (
-	cameraStartPosition = mgl64.Vec3{0, 10, 30}
-	cameraStartView     = mgl64.Vec2{0, 0}
-)
-
 type System interface {
 	Update(delta time.Duration)
 	RegisterEntity(entity entities.Entity)
@@ -38,7 +33,6 @@ func emptyRenderFunction(delta time.Duration) {}
 
 type Game struct {
 	gameOver bool
-	camera   entities.Entity
 	gameMode types.GameMode
 
 	singleton *singleton.Singleton
@@ -95,10 +89,6 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 	}
 }
 
-func (g *Game) GetCamera() entities.Entity {
-	return g.camera
-}
-
 func (g *Game) GetSingleton() *singleton.Singleton {
 	return g.singleton
 }
@@ -108,11 +98,12 @@ func (g *Game) GetEntityByID(id int) (entities.Entity, error) {
 		return entity, nil
 	}
 
-	return nil, fmt.Errorf("failed to find entity with ID %d", id)
+	stack := debug.Stack()
+
+	return nil, fmt.Errorf("%sfailed to find entity with ID %d", string(stack), id)
 }
 
 func (g *Game) RegisterEntities(entityList []entities.Entity) {
-	g.entities = map[int]entities.Entity{}
 	for _, entity := range entityList {
 		g.entities[entity.GetID()] = entity
 	}
@@ -122,10 +113,6 @@ func (g *Game) RegisterEntities(entityList []entities.Entity) {
 			system.RegisterEntity(entity)
 		}
 	}
-}
-
-func (g *Game) SetCamera(camera entities.Entity) {
-	g.camera = camera
 }
 
 func (g *Game) CommandFrame() int {

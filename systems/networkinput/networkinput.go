@@ -38,6 +38,7 @@ func (s *NetworkInputSystem) RegisterEntity(entity entities.Entity) {
 func (s *NetworkInputSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	playerManager := directory.GetDirectory().PlayerManager()
+
 	player := playerManager.GetPlayer(singleton.PlayerID)
 
 	inputMessage := &network.InputMessage{

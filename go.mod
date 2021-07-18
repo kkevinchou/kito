@@ -3,6 +3,7 @@ module github.com/kkevinchou/kito
 go 1.15
 
 require (
+	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/aquilax/go-perlin v0.0.0-20191229124216-0af9ce917c28
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-gl/gl v0.0.0-20190320180904-bf2b1f2f34d7

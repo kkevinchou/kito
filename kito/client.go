@@ -30,13 +30,14 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	g := &Game{
 		gameMode:  types.GameModePlaying,
 		singleton: singleton.NewSingleton(),
+		entities:  map[int]entities.Entity{},
 	}
 
 	clientSystemSetup(g, assetsDirectory, shaderDirectory)
 	compileShaders()
 
 	// Connect to server
-	client, id, err := network.Connect(settings.Host, settings.Port, settings.ConnectionType)
+	client, playerID, err := network.Connect(settings.Host, settings.Port, settings.ConnectionType)
 	if err != nil {
 		panic(err)
 	}
@@ -49,39 +50,23 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	}
 
 	recvMessage := client.SyncReceiveMessage()
-	var ack network.AckCreatePlayerMessage
-	err = json.Unmarshal(recvMessage.Body, &ack)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("successfully received ack player creation with id", ack.ID)
-	fmt.Println(ack)
+	handleAckCreatePlayer(recvMessage, g)
 
 	directory := directory.GetDirectory()
-	directory.PlayerManager().RegisterPlayer(id, client)
+	directory.PlayerManager().RegisterPlayer(playerID, client)
+	g.GetSingleton().PlayerID = playerID
 
-	g.singleton.PlayerID = id
-
-	initialEntities := clientEntitySetup(g, id)
+	initialEntities := clientEntitySetup(g)
 	g.RegisterEntities(initialEntities)
+
+	fmt.Println("successfully received ack player creation with id", playerID)
 
 	return g
 }
 
-func clientEntitySetup(g *Game, playerID int) []entities.Entity {
+func clientEntitySetup(g *Game) []entities.Entity {
 	block := entities.NewBlock()
-
-	bob := entities.NewBob(mgl64.Vec3{})
-	bob.ID = playerID
-	camera := entities.NewThirdPersonCamera(cameraStartPosition, cameraStartView, bob.GetID())
-	cameraComponentContainer := camera.GetComponentContainer()
-	fmt.Println("Camera initialized at position", cameraComponentContainer.TransformComponent.Position)
-
-	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
-
-	g.SetCamera(camera)
-	return []entities.Entity{camera, block, bob}
+	return []entities.Entity{block}
 }
 
 func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
@@ -122,4 +107,29 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 		cameraSystem,
 		renderSystem,
 	}...)
+}
+
+func handleAckCreatePlayer(message *network.Message, world *Game) {
+	subMessage := &network.AckCreatePlayerMessage{}
+	err := json.Unmarshal(message.Body, subMessage)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	singleton := world.GetSingleton()
+	singleton.PlayerID = subMessage.ID
+	singleton.CameraID = subMessage.CameraID
+
+	bob := entities.NewBob(mgl64.Vec3{})
+	bob.ID = subMessage.ID
+
+	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())
+	camera.ID = subMessage.CameraID
+
+	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
+
+	world.RegisterEntities([]entities.Entity{
+		bob,
+		camera,
+	})
 }

@@ -8,6 +8,7 @@ type ComponentContainer struct {
 	TopDownViewComponent           *TopDownViewComponent
 	ThirdPersonControllerComponent *ThirdPersonControllerComponent
 	FollowComponent                *FollowComponent
+	CameraComponent                *CameraComponent
 }
 
 type Component interface {
