@@ -45,6 +45,7 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 	entity := NewEntity(
 		"bob",
 		components.NewComponentContainer(
+			&components.NetworkComponent{},
 			transformComponent,
 			renderComponent,
 			animationComponent,

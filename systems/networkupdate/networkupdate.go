@@ -34,7 +34,7 @@ func NewNetworkUpdateSystem(world World) *NetworkUpdateSystem {
 func (s *NetworkUpdateSystem) RegisterEntity(entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 
-	if componentContainer.TransformComponent != nil {
+	if componentContainer.TransformComponent != nil && componentContainer.NetworkComponent != nil {
 		s.entities = append(s.entities, entity)
 	}
 }

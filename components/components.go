@@ -9,6 +9,7 @@ type ComponentContainer struct {
 	ThirdPersonControllerComponent *ThirdPersonControllerComponent
 	FollowComponent                *FollowComponent
 	CameraComponent                *CameraComponent
+	NetworkComponent               *NetworkComponent
 }
 
 type Component interface {
