@@ -37,6 +37,7 @@ func NewServerBob(position mgl64.Vec3) *EntityImpl {
 	entity := NewEntity(
 		"serverbob",
 		components.NewComponentContainer(
+			&components.NetworkComponent{},
 			transformComponent,
 			animationComponent,
 			physicsComponent,

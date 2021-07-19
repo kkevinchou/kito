@@ -23,6 +23,7 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTarg
 	entity := NewEntity(
 		"camera",
 		components.NewComponentContainer(
+			&components.NetworkComponent{},
 			&components.CameraComponent{},
 			transformComponent,
 			followComponent,
