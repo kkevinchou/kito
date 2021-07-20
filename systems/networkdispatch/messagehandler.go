@@ -79,7 +79,7 @@ func handlePlayerInput(player *player.Player, message *network.Message, world Wo
 func handleCreatePlayer(player *player.Player, message *network.Message, world World) {
 	playerID := message.SenderID
 
-	bob := entities.NewServerBob(mgl64.Vec3{})
+	bob := entities.NewBob(mgl64.Vec3{})
 	bob.ID = playerID
 
 	cc := bob.ComponentContainer
