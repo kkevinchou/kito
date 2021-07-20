@@ -10,25 +10,24 @@ import (
 func TestLookAt(t *testing.T) {
 	eye := mgl64.Vec3{0, 0, 0}
 	up := mgl64.Vec3{0, 1, 0}
-	forward := mgl64.Vec3{0, 0, -1}
 
 	dir := mgl64.Vec3{0, 1, 0}
-	lookAt := utils.QuatLookAt(eye, dir, up)
+	utils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{0, 0, -1}
-	lookAt = utils.QuatLookAt(eye, dir, up)
+	utils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{-1, 0, 0}
-	lookAt = utils.QuatLookAt(eye, dir, up)
+	utils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{1, 0, 0}
-	lookAt = utils.QuatLookAt(eye, dir, up)
+	utils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{0, -1, 0}
-	lookAt = utils.QuatLookAt(eye, dir, up)
+	utils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{0, 0, 1}
-	lookAt = utils.QuatLookAt(eye, dir, up)
+	utils.QuatLookAt(eye, dir, up)
 
 	t.Fail()
 }
