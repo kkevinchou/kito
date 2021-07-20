@@ -82,7 +82,6 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 
 		fpsAccumulator += delta
 		if fpsAccumulator > 1000 {
-			// fmt.Println(fmt.Sprintf("%d frames rendered last second", frameCount))
 			frameCount = 0
 			fpsAccumulator -= 1000
 		}

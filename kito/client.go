@@ -114,6 +114,7 @@ func handleAckCreatePlayer(message *network.Message, world *Game) {
 	err := json.Unmarshal(message.Body, subMessage)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	singleton := world.GetSingleton()

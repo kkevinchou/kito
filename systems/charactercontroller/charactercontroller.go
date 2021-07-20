@@ -53,7 +53,6 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 	for _, player := range playerManager.GetPlayers() {
 		entity, err := s.world.GetEntityByID(player.ID)
 		if err != nil {
-			// fmt.Println(err)
 			continue
 		}
 		updateCharacterController(entity, s.world, singleton.PlayerInput[player.ID])

@@ -235,8 +235,6 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 			Start: time.Duration(int(timeStamp*1000)) * time.Millisecond,
 			Pose:  timeStampToPose[timeStamp],
 		})
-
-		// fmt.Println(timeStamp, timeStampToPose[timeStamp][0])
 	}
 
 	result := &animation.ModelSpecification{

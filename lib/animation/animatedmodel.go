@@ -143,13 +143,6 @@ func configureJointVertexAttributes(triIndices []int, triIndicesStride int, join
 
 	for i := 0; i < len(triIndices); i += triIndicesStride {
 		vertexIndex := triIndices[i]
-
-		// fmt.Println("------------------------------")
-		// fmt.Println("------------------------------")
-		// fmt.Println("------------------------------")
-		// fmt.Println(vertexIndex)
-		// fmt.Println(jointIDs)
-		// fmt.Println(jointWeights)
 		ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
 		for _, id := range ids {
 			jointIDsAttribute = append(jointIDsAttribute, int32(id))
