@@ -1,10 +1,8 @@
 package kito
 
 import (
-	"encoding/json"
 	"fmt"
 
-	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
@@ -48,9 +46,6 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	if err != nil {
 		panic(err)
 	}
-
-	recvMessage := client.SyncReceiveMessage()
-	handleAckCreatePlayer(recvMessage, g)
 
 	directory := directory.GetDirectory()
 	directory.PlayerManager().RegisterPlayer(playerID, client)
@@ -107,30 +102,4 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 		cameraSystem,
 		renderSystem,
 	}...)
-}
-
-func handleAckCreatePlayer(message *network.Message, world *Game) {
-	subMessage := &network.AckCreatePlayerMessage{}
-	err := json.Unmarshal(message.Body, subMessage)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	singleton := world.GetSingleton()
-	singleton.PlayerID = subMessage.ID
-	singleton.CameraID = subMessage.CameraID
-
-	bob := entities.NewBob(mgl64.Vec3{})
-	bob.ID = subMessage.ID
-
-	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())
-	camera.ID = subMessage.CameraID
-
-	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
-
-	world.RegisterEntities([]entities.Entity{
-		bob,
-		camera,
-	})
 }
