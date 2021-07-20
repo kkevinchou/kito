@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/managers/player"
+	"github.com/kkevinchou/kito/settings"
 )
 
 type MessageHandler func(world World, message *network.Message)
@@ -37,8 +38,7 @@ func ClientMessageHandler(world World, message *network.Message) {
 	if message.MessageType == network.MessageTypeGameStateSnapshot {
 		handleEntitySnapshot(message, world)
 	} else if message.MessageType == network.MessageTypeAckCreatePlayer {
-		// This is handled as a part of client initialization and doesn't
-		// need to be handled here
+		handleAckCreatePlayer(message, world)
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}
@@ -102,4 +102,30 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 
 	player.Client.SendMessage(network.MessageTypeAckCreatePlayer, ack)
 	fmt.Println("Sent entity ack creation message")
+}
+
+func handleAckCreatePlayer(message *network.Message, world World) {
+	subMessage := &network.AckCreatePlayerMessage{}
+	err := json.Unmarshal(message.Body, subMessage)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	singleton := world.GetSingleton()
+	singleton.PlayerID = subMessage.ID
+	singleton.CameraID = subMessage.CameraID
+
+	bob := entities.NewBob(mgl64.Vec3{})
+	bob.ID = subMessage.ID
+
+	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())
+	camera.ID = subMessage.CameraID
+
+	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
+
+	world.RegisterEntities([]entities.Entity{
+		bob,
+		camera,
+	})
 }
