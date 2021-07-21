@@ -5,6 +5,7 @@ import (
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/assets"
+	"github.com/kkevinchou/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/managers/player"
 	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
@@ -22,9 +23,10 @@ func NewServerGame(assetsDirectory string) *Game {
 	settings.CurrentGameMode = settings.GameModeServer
 
 	g := &Game{
-		gameMode:  types.GameModePlaying,
-		singleton: singleton.NewSingleton(),
-		entities:  map[int]entities.Entity{},
+		gameMode:    types.GameModePlaying,
+		singleton:   singleton.NewSingleton(),
+		entities:    map[int]entities.Entity{},
+		eventBroker: eventbroker.NewEventBroker(),
 	}
 
 	serverSystemSetup(g, assetsDirectory)

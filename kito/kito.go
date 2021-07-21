@@ -10,6 +10,7 @@ import (
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/input"
+	"github.com/kkevinchou/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/settings"
 
 	"github.com/kkevinchou/kito/entities/singleton"
@@ -38,6 +39,8 @@ type Game struct {
 	singleton *singleton.Singleton
 	systems   []System
 	entities  map[int]entities.Entity
+
+	eventBroker eventbroker.EventBroker
 }
 
 func (g *Game) runCommandFrame(delta time.Duration) {
@@ -116,6 +119,10 @@ func (g *Game) RegisterEntities(entityList []entities.Entity) {
 
 func (g *Game) CommandFrame() int {
 	return g.singleton.CommandFrame
+}
+
+func (g *Game) GetEventBroker() eventbroker.EventBroker {
+	return g.eventBroker
 }
 
 func compileShaders() {
