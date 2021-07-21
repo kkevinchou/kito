@@ -6,6 +6,7 @@ import (
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/input"
+	"github.com/kkevinchou/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/systems/base"
 )
 
@@ -19,6 +20,7 @@ type World interface {
 	RegisterEntities([]entities.Entity)
 	GetEntityByID(id int) (entities.Entity, error)
 	GetSingleton() *singleton.Singleton
+	GetEventBroker() eventbroker.EventBroker
 }
 
 type NetworkDispatchSystem struct {
@@ -29,18 +31,26 @@ type NetworkDispatchSystem struct {
 }
 
 func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
-	return &NetworkDispatchSystem{
-		BaseSystem:     &base.BaseSystem{},
+	networkDispatchSystem := &NetworkDispatchSystem{
+		BaseSystem:     base.NewBaseSystem(),
 		world:          world,
 		messageFetcher: defaultMessageFetcher,
 		messageHandler: defaultMessageHandler,
 	}
+	eventBroker := world.GetEventBroker()
+	eventBroker.AddObserver(networkDispatchSystem, []eventbroker.EventType{
+		eventbroker.EventCreatePlayer,
+	})
+
+	return networkDispatchSystem
 }
 
+// todo: just check game mode and directly set the function
 func (s *NetworkDispatchSystem) SetMessageFetcher(f MessageFetcher) {
 	s.messageFetcher = f
 }
 
+// todo: just check game mode and directly set the function
 func (s *NetworkDispatchSystem) SetMessageHandler(f MessageHandler) {
 	s.messageHandler = f
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
+	"github.com/kkevinchou/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/managers/player"
 	"github.com/kkevinchou/kito/settings"
 	"github.com/kkevinchou/kito/systems/animation"
@@ -26,9 +27,10 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	settings.CurrentGameMode = settings.GameModeClient
 
 	g := &Game{
-		gameMode:  types.GameModePlaying,
-		singleton: singleton.NewSingleton(),
-		entities:  map[int]entities.Entity{},
+		gameMode:    types.GameModePlaying,
+		singleton:   singleton.NewSingleton(),
+		entities:    map[int]entities.Entity{},
+		eventBroker: eventbroker.NewEventBroker(),
 	}
 
 	clientSystemSetup(g, assetsDirectory, shaderDirectory)
