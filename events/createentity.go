@@ -1,16 +1,14 @@
 package events
 
-import "encoding/json"
+import (
+	"encoding/json"
 
-type EntityType int
-
-const (
-	EntityTypeBob EntityType = iota
+	"github.com/kkevinchou/kito/types"
 )
 
 type CreateEntityEvent struct {
-	EntityType EntityType `json:"entity_type"`
-	EntityID   int        `json:"entity_id"`
+	EntityType types.EntityType `json:"entity_type"`
+	EntityID   int              `json:"entity_id"`
 }
 
 func (e *CreateEntityEvent) Serialize() ([]byte, error) {
@@ -19,4 +17,8 @@ func (e *CreateEntityEvent) Serialize() ([]byte, error) {
 
 func (e *CreateEntityEvent) Type() EventType {
 	return EventTypeCreateEntity
+}
+
+func (e *CreateEntityEvent) TypeAsInt() int {
+	return int(EventTypeCreateEntity)
 }

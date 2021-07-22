@@ -3,6 +3,7 @@ package entities
 import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/types"
 )
 
 func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTargetEntityID int) *EntityImpl {
@@ -22,6 +23,7 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTarg
 
 	entity := NewEntity(
 		"camera",
+		types.EntityTypeCamera,
 		components.NewComponentContainer(
 			&components.NetworkComponent{},
 			&components.CameraComponent{},

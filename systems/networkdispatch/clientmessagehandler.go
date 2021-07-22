@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/events"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/settings"
+	"github.com/kkevinchou/kito/types"
 )
 
 func ClientMessageHandler(world World, message *network.Message) {
@@ -30,9 +31,19 @@ func handleGameStateUpdate(message *network.Message, world World) {
 	}
 
 	for _, entitySnapshot := range gameStateupdate.Entities {
-		entity, err := world.GetEntityByID(entitySnapshot.ID)
+		var entity entities.Entity
+		var err error
+		entity, err = world.GetEntityByID(entitySnapshot.ID)
 		if err != nil {
-			continue
+			if types.EntityType(entitySnapshot.Type) == types.EntityTypeBob {
+				bob := entities.NewBob(mgl64.Vec3{})
+				bob.ID = entitySnapshot.ID
+				world.RegisterEntities([]entities.Entity{bob})
+
+				entity = bob
+			} else {
+				return
+			}
 		}
 
 		cc := entity.GetComponentContainer()
@@ -45,15 +56,18 @@ func handleGameStateUpdate(message *network.Message, world World) {
 			var realEvent events.CreateEntityEvent
 			json.Unmarshal(event.Bytes, &realEvent)
 
-			if realEvent.EntityType == events.EntityTypeBob {
+			if realEvent.EntityType == types.EntityTypeBob {
 				if realEvent.EntityID == singleton.PlayerID {
 					// TODO: skip this is event as its the creation event of the original player.
 					// In the future, the server should simply not send this message to the player
 					continue
 				}
-				bob := entities.NewBob(mgl64.Vec3{})
-				bob.ID = realEvent.EntityID
-				world.RegisterEntities([]entities.Entity{bob})
+
+				//TODO: undecided what the best way to handle creation of entities. currently using the entity snapshot
+				// to determine the need to create an entity
+				// bob := entities.NewBob(mgl64.Vec3{})
+				// bob.ID = realEvent.EntityID
+				// world.RegisterEntities([]entities.Entity{bob})
 			}
 		}
 	}

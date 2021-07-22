@@ -80,7 +80,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	for _, event := range s.events {
 		bytes, err := event.Serialize()
 		if err != nil {
-			fmt.Println("failed to serial event", err)
+			fmt.Println("failed to serialize event", err)
 			continue
 		}
 
@@ -105,6 +105,7 @@ func constructEntitySnapshot(entity entities.Entity) network.EntitySnapshot {
 
 	return network.EntitySnapshot{
 		ID:          entity.GetID(),
+		Type:        int(entity.Type()),
 		Position:    componentContainer.TransformComponent.Position,
 		Orientation: componentContainer.TransformComponent.Orientation,
 	}

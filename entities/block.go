@@ -3,6 +3,7 @@ package entities
 import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/types"
 )
 
 func NewBlock() *EntityImpl {
@@ -21,6 +22,7 @@ func NewBlock() *EntityImpl {
 
 	entity := NewEntity(
 		"block",
+		types.EntityTypeBlock,
 		components.NewComponentContainer(
 			transformComponent,
 			renderComponent,

@@ -41,6 +41,7 @@ type AckCreatePlayerMessage struct {
 
 type EntitySnapshot struct {
 	ID          int
+	Type        int
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
 }
@@ -50,9 +51,15 @@ type Event struct {
 	Bytes []byte
 }
 
+type EventI interface {
+	TypeAsInt() int
+	Serialize() ([]byte, error)
+}
+
 type GameStateUpdateMessage struct {
 	Entities map[int]EntitySnapshot
 	Events   []Event
+	Events2  []EventI
 }
 
 type InputMessage struct {

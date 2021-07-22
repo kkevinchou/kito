@@ -10,6 +10,7 @@ import (
 	"github.com/kkevinchou/kito/events"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/managers/player"
+	"github.com/kkevinchou/kito/types"
 )
 
 type MessageHandler func(world World, message *network.Message)
@@ -75,7 +76,7 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 	fmt.Println("Sent entity ack creation message")
 
 	event := &events.CreateEntityEvent{
-		EntityType: events.EntityTypeBob,
+		EntityType: types.EntityTypeBob,
 		EntityID:   bob.GetID(),
 	}
 	world.GetEventBroker().Broadcast(event)
