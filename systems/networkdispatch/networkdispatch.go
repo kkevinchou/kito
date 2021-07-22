@@ -37,10 +37,6 @@ func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
 		messageFetcher: defaultMessageFetcher,
 		messageHandler: defaultMessageHandler,
 	}
-	eventBroker := world.GetEventBroker()
-	eventBroker.AddObserver(networkDispatchSystem, []eventbroker.EventType{
-		eventbroker.EventCreatePlayer,
-	})
 
 	return networkDispatchSystem
 }

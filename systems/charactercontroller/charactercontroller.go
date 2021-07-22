@@ -43,7 +43,7 @@ func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
 
 func (s *CharacterControllerSystem) Update(delta time.Duration) {
 	if utils.IsClient() {
-		return
+		// return
 	}
 
 	d := directory.GetDirectory()

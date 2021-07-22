@@ -7,9 +7,10 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
+	"github.com/kkevinchou/kito/events"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/managers/player"
-	"github.com/kkevinchou/kito/settings"
+	"github.com/kkevinchou/kito/types"
 )
 
 type MessageHandler func(world World, message *network.Message)
@@ -31,35 +32,6 @@ func ServerMessageHandler(world World, message *network.Message) {
 		handlePlayerInput(player, message, world)
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
-	}
-}
-
-func ClientMessageHandler(world World, message *network.Message) {
-	if message.MessageType == network.MessageTypeGameStateSnapshot {
-		handleEntitySnapshot(message, world)
-	} else if message.MessageType == network.MessageTypeAckCreatePlayer {
-		handleAckCreatePlayer(message, world)
-	} else {
-		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
-	}
-}
-
-func handleEntitySnapshot(message *network.Message, world World) {
-	var gameStateSnapshot network.GameStateSnapshotMessage
-	err := json.Unmarshal(message.Body, &gameStateSnapshot)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, entitySnapshot := range gameStateSnapshot.Entities {
-		entity, err := world.GetEntityByID(entitySnapshot.ID)
-		if err != nil {
-			continue
-		}
-
-		cc := entity.GetComponentContainer()
-		cc.TransformComponent.Position = entitySnapshot.Position
-		cc.TransformComponent.Orientation = entitySnapshot.Orientation
 	}
 }
 
@@ -102,30 +74,10 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 
 	player.Client.SendMessage(network.MessageTypeAckCreatePlayer, ack)
 	fmt.Println("Sent entity ack creation message")
-}
 
-func handleAckCreatePlayer(message *network.Message, world World) {
-	subMessage := &network.AckCreatePlayerMessage{}
-	err := json.Unmarshal(message.Body, subMessage)
-	if err != nil {
-		fmt.Println(err)
-		return
+	event := &events.CreateEntityEvent{
+		EntityType: types.EntityTypeBob,
+		EntityID:   bob.GetID(),
 	}
-
-	singleton := world.GetSingleton()
-	singleton.PlayerID = subMessage.ID
-	singleton.CameraID = subMessage.CameraID
-
-	bob := entities.NewBob(mgl64.Vec3{})
-	bob.ID = subMessage.ID
-
-	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())
-	camera.ID = subMessage.CameraID
-
-	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
-
-	world.RegisterEntities([]entities.Entity{
-		bob,
-		camera,
-	})
+	world.GetEventBroker().Broadcast(event)
 }

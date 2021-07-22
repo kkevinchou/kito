@@ -63,6 +63,7 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 
 	entity := NewEntity(
 		"bob",
+		types.EntityTypeBob,
 		components.NewComponentContainer(entityComponents...),
 	)
 
