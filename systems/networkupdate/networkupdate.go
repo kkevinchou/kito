@@ -69,12 +69,12 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 
 	s.elapsedFrames %= commandFramesPerUpdate
 
-	snapshot := &network.GameStateSnapshotMessage{
+	gameStateUpdate := &network.GameStateUpdateMessage{
 		Entities: map[int]network.EntitySnapshot{},
 	}
 
 	for _, entity := range s.entities {
-		snapshot.Entities[entity.GetID()] = constructEntitySnapshot(entity)
+		gameStateUpdate.Entities[entity.GetID()] = constructEntitySnapshot(entity)
 	}
 
 	for _, event := range s.events {
@@ -84,15 +84,15 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		serializedEvent := network.SerializedEvent{Type: int(event.Type()), Bytes: bytes}
-		snapshot.Events = append(snapshot.Events, serializedEvent)
+		serializedEvent := network.Event{Type: int(event.Type()), Bytes: bytes}
+		gameStateUpdate.Events = append(gameStateUpdate.Events, serializedEvent)
 	}
 
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()
 
 	for _, player := range playerManager.GetPlayers() {
-		player.Client.SendMessage(network.MessageTypeGameStateSnapshot, snapshot)
+		player.Client.SendMessage(network.MessageTypeGameStateUpdate, gameStateUpdate)
 	}
 }
 

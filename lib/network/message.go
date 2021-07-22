@@ -14,7 +14,7 @@ const (
 	MessageTypeReplication
 	MessageTypeCreatePlayer
 	MessageTypeAckCreatePlayer
-	MessageTypeGameStateSnapshot
+	MessageTypeGameStateUpdate
 )
 
 type Message struct {
@@ -39,23 +39,20 @@ type AckCreatePlayerMessage struct {
 	Orientation mgl64.Quat `json:"orientation"`
 }
 
-type ReplicationMessage struct {
-}
-
 type EntitySnapshot struct {
 	ID          int
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
 }
 
-type SerializedEvent struct {
+type Event struct {
 	Type  int
 	Bytes []byte
 }
 
-type GameStateSnapshotMessage struct {
+type GameStateUpdateMessage struct {
 	Entities map[int]EntitySnapshot
-	Events   []SerializedEvent
+	Events   []Event
 }
 
 type InputMessage struct {
