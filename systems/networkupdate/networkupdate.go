@@ -84,7 +84,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		serializedEvent := network.SerializedEvent{EventType: event.Type(), Bytes: bytes}
+		serializedEvent := network.SerializedEvent{Type: int(event.Type()), Bytes: bytes}
 		snapshot.Events = append(snapshot.Events, serializedEvent)
 	}
 

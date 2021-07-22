@@ -2,7 +2,6 @@ package network
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/events"
 	"github.com/kkevinchou/kito/lib/input"
 )
 
@@ -50,8 +49,8 @@ type EntitySnapshot struct {
 }
 
 type SerializedEvent struct {
-	EventType events.EventType
-	Bytes     []byte
+	Type  int
+	Bytes []byte
 }
 
 type GameStateSnapshotMessage struct {

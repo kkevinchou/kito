@@ -46,6 +46,7 @@ func ClientMessageHandler(world World, message *network.Message) {
 }
 
 func handleEntitySnapshot(message *network.Message, world World) {
+	singleton := world.GetSingleton()
 	var gameStateSnapshot network.GameStateSnapshotMessage
 	err := json.Unmarshal(message.Body, &gameStateSnapshot)
 	if err != nil {
@@ -64,13 +65,16 @@ func handleEntitySnapshot(message *network.Message, world World) {
 	}
 
 	for _, event := range gameStateSnapshot.Events {
-		if event.EventType == events.EventTypeCreateEntity {
+		if events.EventType(event.Type) == events.EventTypeCreateEntity {
 			var realEvent events.CreateEntityEvent
 			json.Unmarshal(event.Bytes, &realEvent)
 
 			if realEvent.EntityType == events.EntityTypeBob {
-				fmt.Println("NEW ENTITY", string(event.Bytes))
-				fmt.Println("NEW ENTITY ID", realEvent.EntityID)
+				if realEvent.EntityID == singleton.PlayerID {
+					// TODO: skip this is event as its the creation event of the original player.
+					// In the future, the server should simply not send this message to the player
+					continue
+				}
 				bob := entities.NewBob(mgl64.Vec3{})
 				bob.ID = realEvent.EntityID
 				world.RegisterEntities([]entities.Entity{bob})
