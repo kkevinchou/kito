@@ -1,37 +1,33 @@
 package eventbroker
 
-type EventType int
-
-const (
-	EventCreatePlayer EventType = iota
-)
+import "github.com/kkevinchou/kito/events"
 
 type Observer interface {
-	Observe(eventType EventType, event interface{})
+	Observe(event events.Event)
 }
 
 type EventBroker interface {
-	Broadcast(eventType EventType, event interface{})
-	AddObserver(observer Observer, eventTypes []EventType)
+	Broadcast(event events.Event)
+	AddObserver(observer Observer, eventTypes []events.EventType)
 }
 
 type EventBrokerImpl struct {
-	observations map[EventType][]Observer
+	observations map[events.EventType][]Observer
 }
 
 func NewEventBroker() *EventBrokerImpl {
 	return &EventBrokerImpl{
-		observations: map[EventType][]Observer{},
+		observations: map[events.EventType][]Observer{},
 	}
 }
 
-func (e *EventBrokerImpl) Broadcast(eventType EventType, event interface{}) {
-	for _, observer := range e.observations[eventType] {
-		observer.Observe(eventType, event)
+func (e *EventBrokerImpl) Broadcast(event events.Event) {
+	for _, observer := range e.observations[event.Type()] {
+		observer.Observe(event)
 	}
 }
 
-func (e *EventBrokerImpl) AddObserver(observer Observer, eventTypes []EventType) {
+func (e *EventBrokerImpl) AddObserver(observer Observer, eventTypes []events.EventType) {
 	for _, eventType := range eventTypes {
 		e.observations[eventType] = append(e.observations[eventType], observer)
 	}

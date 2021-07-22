@@ -7,6 +7,7 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
+	"github.com/kkevinchou/kito/events"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/managers/player"
 	"github.com/kkevinchou/kito/settings"
@@ -61,6 +62,21 @@ func handleEntitySnapshot(message *network.Message, world World) {
 		cc.TransformComponent.Position = entitySnapshot.Position
 		cc.TransformComponent.Orientation = entitySnapshot.Orientation
 	}
+
+	for _, event := range gameStateSnapshot.Events {
+		if event.EventType == events.EventTypeCreateEntity {
+			var realEvent events.CreateEntityEvent
+			json.Unmarshal(event.Bytes, &realEvent)
+
+			if realEvent.EntityType == events.EntityTypeBob {
+				fmt.Println("NEW ENTITY", string(event.Bytes))
+				fmt.Println("NEW ENTITY ID", realEvent.EntityID)
+				bob := entities.NewBob(mgl64.Vec3{})
+				bob.ID = realEvent.EntityID
+				world.RegisterEntities([]entities.Entity{bob})
+			}
+		}
+	}
 }
 
 func handlePlayerInput(player *player.Player, message *network.Message, world World) {
@@ -102,6 +118,12 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 
 	player.Client.SendMessage(network.MessageTypeAckCreatePlayer, ack)
 	fmt.Println("Sent entity ack creation message")
+
+	event := &events.CreateEntityEvent{
+		EntityType: events.EntityTypeBob,
+		EntityID:   bob.GetID(),
+	}
+	world.GetEventBroker().Broadcast(event)
 }
 
 func handleAckCreatePlayer(message *network.Message, world World) {

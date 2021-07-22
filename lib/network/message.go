@@ -2,6 +2,7 @@ package network
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/events"
 	"github.com/kkevinchou/kito/lib/input"
 )
 
@@ -48,8 +49,14 @@ type EntitySnapshot struct {
 	Orientation mgl64.Quat
 }
 
+type SerializedEvent struct {
+	EventType events.EventType
+	Bytes     []byte
+}
+
 type GameStateSnapshotMessage struct {
 	Entities map[int]EntitySnapshot
+	Events   []SerializedEvent
 }
 
 type InputMessage struct {

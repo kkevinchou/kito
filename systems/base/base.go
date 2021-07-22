@@ -1,6 +1,6 @@
 package base
 
-import "github.com/kkevinchou/kito/managers/eventbroker"
+import "github.com/kkevinchou/kito/events"
 
 type BaseSystem struct {
 }
@@ -9,6 +9,6 @@ func NewBaseSystem() *BaseSystem {
 	return &BaseSystem{}
 }
 
-func (b *BaseSystem) Observe(eventType eventbroker.EventType, event interface{}) {
+func (b *BaseSystem) Observe(event events.Event) {
 
 }
