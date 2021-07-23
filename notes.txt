@@ -44,3 +44,7 @@ actually camera specific. It just so happens that cameras are the first follower
 Camera as a component or entity?
 
 MacOS only supports OpenGL4.1. Using a newer version of OpenGL causes `gl.Init` to return `glBindBuffersBase` as an error
+
+NETWORKING
+* Might want to add an indicator that an entity is replicated and shouldn't be simulated. Systems might
+  unintentionally start manipulating replicated entities

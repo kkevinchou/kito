@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	commandFramesPerUpdate = 20
+	commandFramesPerUpdate = 10
 )
 
 type World interface {
