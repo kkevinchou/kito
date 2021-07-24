@@ -12,7 +12,7 @@ import (
 	"github.com/kkevinchou/kito/types"
 )
 
-func ClientMessageHandler(world World, message *network.Message) {
+func clientMessageHandler(world World, message *network.Message) {
 	if message.MessageType == network.MessageTypeGameStateUpdate {
 		handleGameStateUpdate(message, world)
 	} else if message.MessageType == network.MessageTypeAckCreatePlayer {

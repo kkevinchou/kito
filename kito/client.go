@@ -83,8 +83,6 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	// Systems
 	networkInputSystem := networkinput.NewNetworkInputSystem(g)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
-	networkDispatchSystem.SetMessageFetcher(networkdispatch.ClientMessageFetcher)
-	networkDispatchSystem.SetMessageHandler(networkdispatch.ClientMessageHandler)
 	cameraSystem := camerasys.NewCameraSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)

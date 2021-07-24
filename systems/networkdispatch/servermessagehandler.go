@@ -15,10 +15,7 @@ import (
 
 type MessageHandler func(world World, message *network.Message)
 
-func defaultMessageHandler(world World, message *network.Message) {
-}
-
-func ServerMessageHandler(world World, message *network.Message) {
+func serverMessageHandler(world World, message *network.Message) {
 	playerManager := directory.GetDirectory().PlayerManager()
 	player := playerManager.GetPlayer(message.SenderID)
 	if player == nil {

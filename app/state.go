@@ -33,7 +33,11 @@ func (s *StateInterpolator) AppendCF(cf int, update *network.GameStateUpdateMess
 
 func (s *StateInterpolator) Interpolate(cf int) *network.GameStateUpdateMessage {
 	if len(s.cfBuffer) < s.bufferSize {
-		// not enough updates in the buffer, return early
+		if len(s.cfBuffer) > 0 {
+			// if we're slow in receiving updates we shouldn't return nil
+			// TODO: have a less aggressive solution than halting the world
+			return s.stateBuffer[s.cfBuffer[0]].update
+		}
 		return nil
 	}
 

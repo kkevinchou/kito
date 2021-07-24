@@ -7,11 +7,7 @@ import (
 
 type MessageFetcher func(world World) []*network.Message
 
-func defaultMessageFetcher(world World) []*network.Message {
-	return nil
-}
-
-func ConnectedPlayersMessageFetcher(world World) []*network.Message {
+func connectedPlayersMessageFetcher(world World) []*network.Message {
 	playerManager := directory.GetDirectory().PlayerManager()
 	var allMessages []*network.Message
 
@@ -23,7 +19,7 @@ func ConnectedPlayersMessageFetcher(world World) []*network.Message {
 	return allMessages
 }
 
-func ClientMessageFetcher(world World) []*network.Message {
+func clientMessageFetcher(world World) []*network.Message {
 	singleton := world.GetSingleton()
 	playerManager := directory.GetDirectory().PlayerManager()
 
