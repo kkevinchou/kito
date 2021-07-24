@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/systems/base"
+	"github.com/kkevinchou/kito/utils"
 )
 
 type InputBuffer struct {
@@ -32,21 +33,21 @@ type NetworkDispatchSystem struct {
 
 func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
 	networkDispatchSystem := &NetworkDispatchSystem{
-		BaseSystem:     base.NewBaseSystem(),
-		world:          world,
-		messageFetcher: defaultMessageFetcher,
-		messageHandler: defaultMessageHandler,
+		BaseSystem: base.NewBaseSystem(),
+		world:      world,
+	}
+
+	if utils.IsClient() {
+		networkDispatchSystem.messageFetcher = clientMessageFetcher
+		networkDispatchSystem.messageHandler = clientMessageHandler
+	} else if utils.IsServer() {
+		networkDispatchSystem.messageFetcher = connectedPlayersMessageFetcher
+		networkDispatchSystem.messageHandler = serverMessageHandler
 	}
 
 	return networkDispatchSystem
 }
 
-// todo: just check game mode and directly set the function
-func (s *NetworkDispatchSystem) SetMessageFetcher(f MessageFetcher) {
-	s.messageFetcher = f
-}
-
-// todo: just check game mode and directly set the function
 func (s *NetworkDispatchSystem) SetMessageHandler(f MessageHandler) {
 	s.messageHandler = f
 }
