@@ -58,14 +58,14 @@ func newTexture(file string) uint32 {
 	return texture
 }
 
-func drawSkyBox(sb *SkyBox, shader *shaders.ShaderProgram, frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture *textures.Texture, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4) {
+func drawSkyBox(sb *SkyBox, shader *shaders.ShaderProgram, frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture *textures.Texture, viewMatrix, projectionMatrix mgl32.Mat4) {
 	textures := []*textures.Texture{frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture}
 
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindVertexArray(sb.VAO())
 	shader.Use()
 	shader.SetUniformInt("skyboxTexture", 0)
-	shader.SetUniformMat4("model", modelMatrix)
+	shader.SetUniformMat4("model", mgl32.Ident4())
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	for i := 0; i < 6; i++ {
@@ -112,7 +112,7 @@ func drawTextureToQuad(shader *shaders.ShaderProgram, texture uint32, modelMatri
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(mesh Mesh, shader *shaders.ShaderProgram, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3, lightSpaceMatrix mgl64.Mat4, texture uint32) {
+func drawMesh(mesh Mesh, shader *shaders.ShaderProgram, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3, lightMVPMatrix mgl64.Mat4, texture uint32) {
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
 	shader.Use()
@@ -120,7 +120,7 @@ func drawMesh(mesh Mesh, shader *shaders.ShaderProgram, modelMatrix, viewMatrix,
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(cameraPosition.X()), float32(cameraPosition.Y()), float32(cameraPosition.Z())})
-	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToMat4F32(lightSpaceMatrix))
+	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToMat4F32(lightMVPMatrix))
 	gl.BindVertexArray(mesh.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
@@ -231,3 +231,11 @@ func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl32.Mat4
 // 	gl.Vertex3f(float32(end.X), float32(end.Y), float32(end.Z))
 // 	gl.End()
 // }
+
+func downscaleMat4(m mgl64.Mat4) mgl32.Mat4 {
+	var result mgl32.Mat4
+	for i := 0; i < len(m); i++ {
+		result[i] = float32(m[i])
+	}
+	return result
+}

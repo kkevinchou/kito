@@ -13,7 +13,6 @@ import (
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/assets"
-	"github.com/kkevinchou/kito/lib/noise"
 	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/veandco/go-sdl2/sdl"
@@ -28,14 +27,10 @@ const (
 	renderDistance            = 500.0
 	skyboxSize                = 500
 
-	aspectRatio         = float32(width) / float32(height)
-	fovy                = float32(90.0 / aspectRatio)
-	near        float32 = 1
-	far         float32 = 1000
-)
-
-var (
-	noiseMap [][]float64 = noise.GenerateNoiseMap(100, 100)
+	aspectRatio         = float64(width) / float64(height)
+	fovy                = float64(90.0 / aspectRatio)
+	near        float64 = 1
+	far         float64 = 1000
 )
 
 type World interface {
@@ -45,12 +40,9 @@ type World interface {
 
 type RenderSystem struct {
 	*base.BaseSystem
-	renderer     *sdl.Renderer
 	window       *sdl.Window
-	camera       entities.Entity
 	assetManager *assets.AssetManager
 	world        World
-	lights       []*Light
 	skybox       *SkyBox
 	floor        *Quad
 
@@ -132,43 +124,37 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 	}
 }
 
-func (s *RenderSystem) renderToDepthMap() mgl64.Mat4 {
-	d := directory.GetDirectory()
-	shaderManager := d.ShaderManager()
-
-	shader := shaderManager.GetShaderProgram("depth")
-
+func (s *RenderSystem) Render(delta time.Duration) {
 	lightPosition := mgl64.Vec3{0, 40, 40}
 	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-30), mgl64.Vec3{1, 0, 0})
-
-	orthoMatrix := mgl32.Ortho(-100, 100, -100, 100, near, far)
-	// orthoMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
+	lightProjectionMatrix := mgl64.Ortho(-100, 100, -100, 100, near, far)
+	lightMVPMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
 
-	shader.Use()
-	shader.SetUniformMat4("lightPerspective", orthoMatrix)
-	shader.SetUniformMat4("view", utils.Mat4F64ToMat4F32(lightViewMatrix))
-	shader.SetUniformMat4("model", mgl32.Ident4())
+	s.renderToDepthMap(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix)
+	s.renderToDisplay(lightMVPMatrix)
+
+	s.window.GLSwap()
+}
+
+func (s *RenderSystem) renderToDepthMap(lightProjectionMatrix mgl64.Mat4, lightPosition mgl64.Vec3, lightOrientation mgl64.Quat, lightMVPMatrix mgl64.Mat4) {
+	defer resetGLRenderSettings()
 
 	gl.CullFace(gl.FRONT)
 	gl.Viewport(0, 0, depthBufferWidth, depthBufferHeight)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, s.depthMapFBO)
 	gl.Clear(gl.DEPTH_BUFFER_BIT)
 
-	s.renderScene(orthoMatrix, lightPosition, lightOrientation, lightViewMatrix)
+	s.renderScene(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix)
+}
 
-	gl.BindVertexArray(0)
-	gl.UseProgram(0)
+func (s *RenderSystem) renderToDisplay(lightMVPMatrix mgl64.Mat4) {
+	defer resetGLRenderSettings()
+
+	gl.Viewport(0, 0, width, height)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
-	gl.CullFace(gl.BACK)
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	return mgl64.Ortho(-100, 100, -100, 100, float64(near), float64(far)).Mul4(lightViewMatrix)
-}
-
-func (s *RenderSystem) Update(delta time.Duration) {
-}
-
-func (s *RenderSystem) Render(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	if singleton.CameraID == 0 {
 		fmt.Println("camera not found in Render()")
@@ -181,37 +167,29 @@ func (s *RenderSystem) Render(delta time.Duration) {
 		return
 	}
 
-	// render depth map
-	lightViewMatrix := s.renderToDepthMap()
-
-	// regular render
-	gl.Viewport(0, 0, width, height)
-	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
 	componentContainer := camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
 
-	projectionMatrix := mgl32.Perspective(mgl32.DegToRad(fovy), aspectRatio, near, far)
-	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.Orientation, lightViewMatrix)
+	projectionMatrix := mgl64.Perspective(mgl64.DegToRad(fovy), aspectRatio, near, far)
+	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.Orientation, lightMVPMatrix)
+}
 
-	// orthoMatrix := mgl32.Ortho(-10, 10, -10, 10, near, far)
-	// s.renderSceneTest(orthoMatrix)
-
+func resetGLRenderSettings() {
 	gl.BindVertexArray(0)
 	gl.UseProgram(0)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
-
-	s.window.GLSwap()
+	gl.CullFace(gl.BACK)
 }
 
-func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition mgl64.Vec3, viewerQuaternion mgl64.Quat, lightSpaceMatrix mgl64.Mat4) {
+// renderScene renders a scene from the perspective of a viewer
+func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition mgl64.Vec3, viewerQuaternion mgl64.Quat, lightMVPMatrix mgl64.Mat4) {
+	downscaledProjectionMatrix := downscaleMat4(projectionMatrix)
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
 
 	// We use the inverse to move the universe in the opposite direction of where the camera is looking
 	viewerOrientation := utils.QuatF64ToQuatF32(viewerQuaternion)
-	viewerViewMatrix := viewerOrientation.Inverse().Mat4()
+	viewerViewMatrix := viewerOrientation.Mat4()
 
 	floorModelMatrix := createModelMatrix(
 		mgl32.Scale3D(100, 100, 100),
@@ -219,12 +197,13 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 		mgl32.Ident4(),
 	)
 
-	viewTranslationMatrix := mgl32.Translate3D(float32(-viewerPosition.X()), float32(-viewerPosition.Y()), float32(-viewerPosition.Z()))
-	viewMatrix := viewerViewMatrix.Mul4(viewTranslationMatrix)
+	viewTranslationMatrix := mgl32.Translate3D(float32(viewerPosition.X()), float32(viewerPosition.Y()), float32(viewerPosition.Z()))
+	viewMatrix := viewTranslationMatrix.Mul4(viewerViewMatrix).Inv()
 
 	vPosition := mgl32.Vec3{float32(viewerPosition[0]), float32(viewerPosition[1]), float32(viewerPosition[2])}
 
-	drawTextureToQuad(shaderManager.GetShaderProgram("depthDebug"), s.depthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, perspectiveMatrix)
+	drawTextureToQuad(shaderManager.GetShaderProgram("depthDebug"), s.depthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, downscaledProjectionMatrix)
+
 	drawSkyBox(
 		s.skybox,
 		shaderManager.GetShaderProgram("skybox"),
@@ -234,11 +213,10 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 		s.assetManager.GetTexture("right"),
 		s.assetManager.GetTexture("bottom"),
 		s.assetManager.GetTexture("back"),
-		mgl32.Ident4(),
-		viewerViewMatrix,
-		perspectiveMatrix,
+		viewerViewMatrix.Inv(),
+		downscaledProjectionMatrix,
 	)
-	drawMesh(s.floor, shaderManager.GetShaderProgram("basicShadow"), floorModelMatrix, viewMatrix, perspectiveMatrix, vPosition, lightSpaceMatrix, s.depthTexture)
+	drawMesh(s.floor, shaderManager.GetShaderProgram("basicShadow"), floorModelMatrix, viewMatrix, downscaledProjectionMatrix, vPosition, lightMVPMatrix, s.depthTexture)
 
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
@@ -271,7 +249,7 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 					shaderManager.GetShaderProgram("model"),
 					meshModelMatrix,
 					viewMatrix,
-					perspectiveMatrix,
+					downscaledProjectionMatrix,
 					vPosition,
 				)
 			}
@@ -280,19 +258,5 @@ func (s *RenderSystem) renderScene(perspectiveMatrix mgl32.Mat4, viewerPosition 
 	}
 }
 
-func (s *RenderSystem) renderSceneTest(perspectiveMatrix mgl32.Mat4) {
-	d := directory.GetDirectory()
-	shaderManager := d.ShaderManager()
-	shader := shaderManager.GetShaderProgram("depth")
-
-	lightViewMatrix := mgl32.QuatRotate(mgl32.DegToRad(-90), mgl32.Vec3{1, 0, 0}).Mat4().Inv()
-
-	shader.Use()
-	shader.SetUniformMat4("lightPerspective", perspectiveMatrix)
-	shader.SetUniformMat4("view", lightViewMatrix)
-	shader.SetUniformMat4("model", mgl32.Translate3D(0, -2, 0).Mul4(mgl32.Scale3D(10, 10, 10)))
-
-	q := NewQuad(quadZeroY)
-	gl.BindVertexArray(q.GetVAO())
-	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+func (s *RenderSystem) Update(delta time.Duration) {
 }
