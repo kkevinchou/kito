@@ -19,13 +19,10 @@ import (
 )
 
 const (
-	width               int32 = 1024
-	height              int32 = 760
-	depthBufferWidth    int32 = 2048
-	depthBufferHeight   int32 = 1520
-	floorPanelDimension       = 1
-	renderDistance            = 500.0
-	skyboxSize                = 500
+	width             int32 = 1024
+	height            int32 = 760
+	depthBufferWidth  int32 = 2048
+	depthBufferHeight int32 = 1520
 
 	aspectRatio         = float64(width) / float64(height)
 	fovy                = float64(90.0 / aspectRatio)
@@ -131,7 +128,13 @@ func (s *RenderSystem) Render(delta time.Duration) {
 	lightProjectionMatrix := mgl64.Ortho(-100, 100, -100, 100, near, far)
 	lightMVPMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
 
+	// calculate frustum points
+	// convert frustum  points to world space
+	// convert frustum points to light space
+
+	// calcuate shadow cuboid
 	s.renderToDepthMap(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix)
+
 	s.renderToDisplay(lightMVPMatrix)
 
 	s.window.GLSwap()
@@ -202,7 +205,8 @@ func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition m
 
 	vPosition := mgl32.Vec3{float32(viewerPosition[0]), float32(viewerPosition[1]), float32(viewerPosition[2])}
 
-	drawTextureToQuad(shaderManager.GetShaderProgram("depthDebug"), s.depthTexture, mgl32.Translate3D(0, 10, 0), viewMatrix, downscaledProjectionMatrix)
+	// render a debug shadow map for viewing
+	drawHUDTextureToQuad(shaderManager.GetShaderProgram("depthDebug"), s.depthTexture, downscaledProjectionMatrix)
 
 	drawSkyBox(
 		s.skybox,
@@ -231,12 +235,14 @@ func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition m
 		if rData, ok := renderData.(*components.ModelRenderData); ok {
 			if rData.Animated {
 
-				// accounting for blender change of axis
+				// // accounting for blender change of axis
+				// xr := mgl32.Ident4()
 				xr := mgl32.QuatRotate(mgl32.DegToRad(90), mgl32.Vec3{1, 0, 0}).Mat4()
 				yr := mgl32.QuatRotate(mgl32.DegToRad(180), mgl32.Vec3{0, 1, 0}).Mat4()
 
 				meshModelMatrix := createModelMatrix(
 					mgl32.Ident4(),
+					// mgl32.Scale3D(0.07, 0.07, 0.07),
 					utils.QuatF64ToQuatF32(rotation).Mat4().Mul4(xr.Mul4(yr)),
 					mgl32.Translate3D(float32(entityPosition.X()), float32(entityPosition.Y()), float32(entityPosition.Z())),
 				)
@@ -245,7 +251,7 @@ func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition m
 				drawAnimatedMesh(
 					animationComponent.AnimatedModel.Mesh,
 					animationComponent.AnimationTransforms,
-					s.assetManager.GetTexture("diffuse"),
+					s.assetManager.GetTexture("character Texture"),
 					shaderManager.GetShaderProgram("model"),
 					meshModelMatrix,
 					viewMatrix,

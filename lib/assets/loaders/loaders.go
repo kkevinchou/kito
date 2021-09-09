@@ -1,6 +1,9 @@
 package loaders
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
@@ -37,9 +40,13 @@ func LoadAnimatedModels(directory string) map[string]*animation.ModelSpecificati
 	fileMetaData := utils.GetFileMetaData(directory, subDirectories, extensions)
 
 	for _, metaData := range fileMetaData {
+		if strings.HasPrefix(metaData.Name, "_") {
+			continue
+		}
 		parsedCollada, err := collada.ParseCollada(metaData.Path)
 		if err != nil {
-			panic(err)
+			fmt.Println("failed to parse collada for", metaData.Path, ", error:", err)
+			continue
 		}
 		animationMap[metaData.Name] = parsedCollada
 	}

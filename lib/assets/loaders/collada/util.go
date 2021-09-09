@@ -8,7 +8,7 @@ import (
 )
 
 func ParseVec3Array(source *Source) []mgl32.Vec3 {
-	splitString := strings.Split(source.FloatArray.Floats.Values.V, " ")
+	splitString := strings.Fields(source.FloatArray.Floats.Values.V)
 	result := make([]mgl32.Vec3, len(splitString)/3)
 	for i := 0; i < len(splitString); i += 3 {
 		x := mustParseFloat32(splitString[i])
@@ -21,7 +21,7 @@ func ParseVec3Array(source *Source) []mgl32.Vec3 {
 }
 
 func ParseVec2Array(source *Source) []mgl32.Vec2 {
-	splitString := strings.Split(source.FloatArray.Floats.Values.V, " ")
+	splitString := strings.Fields(source.FloatArray.Floats.Values.V)
 	result := make([]mgl32.Vec2, len(splitString)/2)
 	for i := 0; i < len(splitString); i += 2 {
 		x := mustParseFloat32(splitString[i])
@@ -59,7 +59,7 @@ func mustParseInt(input string) int {
 }
 
 func parseFloatArrayString(s string) []float32 {
-	splitString := strings.Split(strings.TrimSpace(s), " ")
+	splitString := strings.Fields(s)
 	result := make([]float32, len(splitString))
 
 	for i, f := range splitString {
@@ -69,7 +69,7 @@ func parseFloatArrayString(s string) []float32 {
 }
 
 func parseIntArrayString(s string) []int {
-	splitString := strings.Split(strings.TrimSpace(s), " ")
+	splitString := strings.Fields(s)
 	result := make([]int, len(splitString))
 
 	for i, f := range splitString {
@@ -79,13 +79,14 @@ func parseIntArrayString(s string) []int {
 }
 
 func parseMatrixArrayString(s string) mgl32.Mat4 {
-	splitString := strings.Split(strings.TrimSpace(s), " ")
+	splitString := strings.Fields(s)
 	data := make([]float32, len(splitString))
 
 	for i, f := range splitString {
 		data[i] = mustParseFloat32(f)
 	}
 
+	// FYI: Mat4 is stored in column order even though it claims to be row major order
 	return mgl32.Mat4FromRows(
 		mgl32.Vec4{data[0], data[1], data[2], data[3]},
 		mgl32.Vec4{data[4], data[5], data[6], data[7]},
@@ -96,7 +97,7 @@ func parseMatrixArrayString(s string) mgl32.Mat4 {
 
 func parseMultiMatrixArrayString(s string) []mgl32.Mat4 {
 	results := []mgl32.Mat4{}
-	splitString := strings.Split(strings.TrimSpace(s), " ")
+	splitString := strings.Fields(s)
 
 	for i := 0; i < len(splitString); i += 16 {
 		matrixString := strings.Join(splitString[i:i+16], " ")

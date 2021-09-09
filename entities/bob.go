@@ -27,13 +27,13 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 		RenderData: renderData,
 	}
 
-	modelSpec := assetManager.GetAnimatedModel("bob")
+	modelSpec := assetManager.GetAnimatedModel("cowboy")
 
 	var animatedModel *animation.AnimatedModel
 	if utils.IsClient() {
-		animatedModel = animation.NewAnimatedModel(modelSpec, 50, 3)
+		animatedModel = animation.NewAnimatedModel(modelSpec, 3)
 	} else {
-		animatedModel = animation.NewAnimatedModelWithoutMesh(modelSpec, 50, 3)
+		animatedModel = animation.NewAnimatedModelWithoutMesh(modelSpec, 3)
 	}
 
 	animationComponent := &components.AnimationComponent{

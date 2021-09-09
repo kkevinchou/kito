@@ -27,15 +27,15 @@ func getJointMap(joint *Joint, jointMap map[int]*Joint) map[int]*Joint {
 	return jointMap
 }
 
-func NewAnimatedModel(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
+func NewAnimatedModel(c *ModelSpecification, maxWeights int) *AnimatedModel {
 	mesh := NewMesh(c, maxWeights)
-	animatedModel := NewAnimatedModelWithoutMesh(c, maxJoints, maxWeights)
+	animatedModel := NewAnimatedModelWithoutMesh(c, maxWeights)
 	animatedModel.Mesh = mesh
 
 	return animatedModel
 }
 
-func NewAnimatedModelWithoutMesh(c *ModelSpecification, maxJoints, maxWeights int) *AnimatedModel {
+func NewAnimatedModelWithoutMesh(c *ModelSpecification, maxWeights int) *AnimatedModel {
 	joint := JointSpecToJoint(c.Root)
 	jointMap := map[int]*Joint{}
 

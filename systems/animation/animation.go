@@ -97,6 +97,8 @@ func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*anima
 	}
 
 	return interpolatePoses(startKeyFrame, endKeyFrame, progression)
+	// _ = progression
+	// return interpolatePoses(keyFrames[0], keyFrames[1], 0)
 }
 
 func interpolatePoses(k1, k2 *animation.KeyFrame, progression float32) map[int]mgl32.Mat4 {

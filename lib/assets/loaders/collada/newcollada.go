@@ -8,8 +8,9 @@ type Skin struct {
 
 // VertexWeights describes the combination of joints and weights used by a skin.
 type VertexWeights struct {
-	VCount string `xml:"vcount"`
-	V      string `xml:"v"`
+	VCount string         `xml:"vcount"`
+	V      string         `xml:"v"`
+	Input  []*InputShared `xml:"input"`
 }
 
 //Controller categorizes the declaration of generic control information.
@@ -44,13 +45,7 @@ type Accessor struct {
 
 //LibraryAnimations provides a library in which to place <animation> elements.
 type LibraryAnimations struct {
-	RootAnimations []*RootAnimation `xml:"animation"`
-}
-
-//Animation ategorizes the declaration of animation information.
-type RootAnimation struct {
 	Animations []*Animation `xml:"animation"`
-	Name       string       `xml:"name,attr,omitempty"`
 }
 
 type Animation struct {
