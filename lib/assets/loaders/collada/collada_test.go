@@ -14,8 +14,43 @@ import (
 // 4260 individual vertices (vertices can be counted multiple times)
 // 740 distinct vertices
 
+func TestRunAnimation(t *testing.T) {
+	c, err := collada.ParseCollada("sample/female/run_forward.dae")
+	// printKeyFrames(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_ = animation.NewAnimatedModel(c, 3)
+
+	fmt.Println(c)
+	t.Fail()
+}
+
+func TestWolf(t *testing.T) {
+	c, err := collada.ParseCollada("sample/pete_walk.dae")
+	// printKeyFrames(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(c)
+	t.Fail()
+}
+
 func TestCollada(t *testing.T) {
 	c, err := collada.ParseCollada("sample/bob.dae")
+	// printKeyFrames(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Println(c)
+	t.Fail()
+}
+
+func TestCowboy(t *testing.T) {
+	c, err := collada.ParseCollada("sample/model.dae")
 	// printKeyFrames(c)
 	if err != nil {
 		t.Fatal(err)

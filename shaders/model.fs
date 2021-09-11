@@ -17,7 +17,7 @@ void main()
     vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
     // ambient
-    float ambientStrength = 0.2;
+    float ambientStrength = 0.5;
     vec3 ambient = ambientStrength * lightColor;
         
     // diffuse 
@@ -27,12 +27,12 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     FragColor = vec4((ambient + diffuse) * texture(ourTexture, TexCoord).xyz, 1.0);
-    // FragColor = texture(ourTexture, TexCoord);
+    // FragColor = Vec3(texture(ourTexture, TexCoord));
     // FragColor = Color;
 
 
     // // solid color debugging
-    vec3 objectColor = vec3(0.7, 0.0, 0.05);
-    vec3 result = (ambient + diffuse) * objectColor;
-    FragColor = vec4(result, 1.0);
+    // vec3 objectColor = vec3(0.98, 0.43, 0);
+    // vec3 result = (ambient + diffuse) * objectColor;
+    // FragColor = vec4(result, 1.0);
 }

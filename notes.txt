@@ -48,3 +48,7 @@ MacOS only supports OpenGL4.1. Using a newer version of OpenGL causes `gl.Init` 
 NETWORKING
 * Might want to add an indicator that an entity is replicated and shouldn't be simulated. Systems might
   unintentionally start manipulating replicated entities
+
+
+Mixamo for free assets www.mixamo.com
+check out using the collada loader from: https://github.com/g3n/engine/tree/master/loader/collada

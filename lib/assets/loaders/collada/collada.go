@@ -10,35 +10,20 @@ import (
 	"github.com/kkevinchou/kito/lib/animation"
 )
 
-type TechniqueType string
-
-func (t TechniqueType) String() string {
-	return string(t)
-}
-
-func (t NodeType) String() string {
-	return string(t)
-}
-
-func (t SemanticType) String() string {
-	return string(t)
-}
-
 type SemanticType string
 type NodeType string
 
 const (
-	SemanticVertex   SemanticType = "VERTEX"
-	SemanticNormal   SemanticType = "NORMAL"
-	SemanticTexCoord SemanticType = "TEXCOORD"
-	SemanticColor    SemanticType = "COLOR"
-	SemanticPosition SemanticType = "POSITION"
-	SemanticInput    SemanticType = "INPUT"
-	SemanticOutput   SemanticType = "OUTPUT"
-
-	TechniqueJoint     TechniqueType = "JOINT"
-	TechniqueTransform TechniqueType = "TRANSFORM"
-	TechniqueWeight    TechniqueType = "WEIGHT"
+	SemanticVertex            SemanticType = "VERTEX"
+	SemanticNormal            SemanticType = "NORMAL"
+	SemanticTexCoord          SemanticType = "TEXCOORD"
+	SemanticColor             SemanticType = "COLOR"
+	SemanticPosition          SemanticType = "POSITION"
+	SemanticInput             SemanticType = "INPUT"
+	SemanticOutput            SemanticType = "OUTPUT"
+	SemanticJoint             SemanticType = "JOINT"
+	SemanticWeight            SemanticType = "WEIGHT"
+	SemanticInverseBindMatrix SemanticType = "INV_BIND_MATRIX"
 
 	NodeJoint NodeType = "JOINT"
 
@@ -55,17 +40,11 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	// parse geometry
 	mesh := rawCollada.LibraryGeometries[0].Geometry[0].Mesh
 
-	// var normalSourceID, textureSourceID Uri
-	// for _, input := range mesh.Polylist[0].Input {
-	// 	if input.Semantic == string(SemanticNormal) {
-	// 		normalSourceID = input.Source[1:] // remove leading "#"
-	// 	} else if input.Semantic == string(SemanticTexCoord) {
-	// 		textureSourceID = input.Source[1:] // remove leading "#"
-	// 	}
-	// }
+	// for some reason, my personal blender exports will place
+	// polygon information in a "triangles" element instead of "polylist"
 
 	var normalSourceID, textureSourceID Uri
-	for _, input := range mesh.Triangles[0].Input {
+	for _, input := range mesh.Polylist[0].Input {
 		if input.Semantic == string(SemanticNormal) {
 			normalSourceID = input.Source[1:] // remove leading "#"
 		} else if input.Semantic == string(SemanticTexCoord) {
@@ -108,8 +87,7 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	normalSource := ParseVec3Array(normalSourceElement)     // looks at <geometries>
 	textureSource := ParseVec2Array(textureSourceElement)   // looks at <geometries>
 
-	// triVertices := parseIntArrayString(mesh.Polylist[0].P.V)
-	triVertices := parseIntArrayString(mesh.Triangles[0].P.V)
+	triVertices := parseIntArrayString(mesh.Polylist[0].P.V)
 
 	// parse skinning information, joint weights
 	skin := rawCollada.LibraryControllers[0].Controller.Skin
@@ -135,22 +113,38 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		vIndex += (numWeights * 2)
 	}
 
-	// visualSceneNode := rawCollada.LibraryVisualScenes[0].VisualScene[0].Node[0]
-
 	// parse joint hierarchy
-	visualSceneNode := rawCollada.LibraryVisualScenes[0].VisualScene[0].Node[0]
-	armatureID := visualSceneNode.Id
+	visualScene := rawCollada.LibraryVisualScenes[0].VisualScene[0]
+	// armatureID := visualScene.Node[0].Id // was used for bob.dae
+
+	var jointSourceID string
+	var weightSourceID string
+	var inverseBindMatrixSourceID string
+
+	for _, input := range skin.VertexWeights.Input {
+		if input.Semantic == string(SemanticJoint) {
+			jointSourceID = string(input.Source)[1:] // remove preceding #
+		} else if input.Semantic == string(SemanticWeight) {
+			weightSourceID = string(input.Source)[1:] // remove preceding #
+		} else if input.Semantic == string(SemanticInverseBindMatrix) {
+			inverseBindMatrixSourceID = string(input.Source)[1:]
+		}
+	}
 
 	var joints []string
 	var weights []float32
+	var inverseBindMatrices []mgl32.Mat4
+
 	for _, source := range skin.Source {
-		if source.TechniqueCommon.Accessor.Param.Name == TechniqueJoint.String() {
-			for _, j := range strings.Split(source.NameArray.V, " ") {
-				joints = append(joints, fmt.Sprintf("%s_%s", string(armatureID), j))
+		if string(source.Id) == jointSourceID {
+			for _, j := range strings.Fields(source.NameArray.V) {
+				// joints = append(joints, fmt.Sprintf("%s_%s", string(armatureID), j)) // was used for bob.dae
+				joints = append(joints, j)
 			}
-		} else if source.TechniqueCommon.Accessor.Param.Name == TechniqueTransform.String() {
-		} else if source.TechniqueCommon.Accessor.Param.Name == TechniqueWeight.String() {
+		} else if string(source.Id) == weightSourceID {
 			weights = parseFloatArrayString(source.FloatArray.Floats.V)
+		} else if string(source.Id) == inverseBindMatrixSourceID {
+			inverseBindMatrices = parseMultiMatrixArrayString(source.FloatArray.Floats.V)
 		}
 	}
 
@@ -159,21 +153,33 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		jointsToIndex[name] = i
 	}
 
-	rootNode := visualSceneNode.Node[0]
-	rootJoint := parseJointElement(rootNode, jointsToIndex)
+	var rootNode *Node
+	for _, node := range visualScene.Node {
+		if node.Type == "JOINT" {
+			rootNode = node
+			break
+		}
+
+		// TODO: no idea if this works
+		if len(node.Node) == 1 && node.Node[0].Type == "JOINT" {
+			rootNode = node.Node[0]
+			break
+		}
+	}
+
+	rootJoint := parseJointElement(rootNode, jointsToIndex, inverseBindMatrices)
 
 	// parse animations
 	timeStampToPose := map[float32]map[int]*animation.JointTransform{}
 
-	armatureRootAnimation := rawCollada.LibraryAnimations[0].RootAnimations[0]
-	for _, animationElement := range armatureRootAnimation.Animations {
+	for _, animationElement := range rawCollada.LibraryAnimations[0].Animations {
 		// get the input/output sources
 		var inputSource Uri
 		var outputSource Uri
 		for _, input := range animationElement.Sampler.Inputs {
-			if input.Semantic == SemanticInput.String() {
+			if input.Semantic == string(SemanticInput) {
 				inputSource = input.Source
-			} else if input.Semantic == SemanticOutput.String() {
+			} else if input.Semantic == string(SemanticOutput) {
 				outputSource = input.Source
 			}
 		}
@@ -237,9 +243,11 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		})
 	}
 
+	// TODO: perform assertions on number of joints, verts, etc
+
 	result := &animation.ModelSpecification{
 		TriIndices:       triVertices,
-		TriIndicesStride: len(mesh.Triangles[0].Input),
+		TriIndicesStride: len(mesh.Polylist[0].Input),
 
 		PositionSourceData: positionSource,
 		NormalSourceData:   normalSource,
@@ -259,13 +267,21 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	return result, nil
 }
 
-func parseJointElement(node *Node, jointsToIndex map[string]int) *animation.JointSpecification {
+func parseJointElement(node *Node, jointsToIndex map[string]int, inverseBindMatrices []mgl32.Mat4) *animation.JointSpecification {
 	children := []*animation.JointSpecification{}
+
 	for _, childNode := range node.Node {
-		children = append(children, parseJointElement(childNode, jointsToIndex))
+		children = append(children, parseJointElement(childNode, jointsToIndex, inverseBindMatrices))
+	}
+
+	// TODO: cowboy.dae did not have a matrix but instead used translate, rotate scale.
+	// too lazy to handle that so just assume identity matrix
+	if len(node.Matrix) == 0 {
+		fmt.Println("empty node matrix")
 	}
 
 	bindTransform := parseMatrixArrayString(node.Matrix[0].V)
+
 	joint := &animation.JointSpecification{
 		ID:            jointsToIndex[string(node.Id)],
 		Name:          string(node.Id),
