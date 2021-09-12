@@ -30,6 +30,10 @@ const (
 	far         float64 = 1000
 )
 
+var (
+	directionalLightDir = mgl32.Vec3{}
+)
+
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
@@ -124,23 +128,27 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 func (s *RenderSystem) Render(delta time.Duration) {
 	lightPosition := mgl64.Vec3{0, 40, 40}
 	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-30), mgl64.Vec3{1, 0, 0})
+	directionalLightDir := lightOrientation.Rotate(mgl64.Vec3{0, 0, -1})
+
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
 	lightProjectionMatrix := mgl64.Ortho(-100, 100, -100, 100, near, far)
 	lightMVPMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
 
 	// calculate frustum points
+	// var modelSpaceFrustumPoints = calculateFrustumVertices(near, far, fovy, aspectRatio)
+
 	// convert frustum  points to world space
 	// convert frustum points to light space
 
 	// calcuate shadow cuboid
-	s.renderToDepthMap(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix)
+	s.renderToDepthMap(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix, directionalLightDir)
 
-	s.renderToDisplay(lightMVPMatrix)
+	s.renderToDisplay(lightMVPMatrix, directionalLightDir)
 
 	s.window.GLSwap()
 }
 
-func (s *RenderSystem) renderToDepthMap(lightProjectionMatrix mgl64.Mat4, lightPosition mgl64.Vec3, lightOrientation mgl64.Quat, lightMVPMatrix mgl64.Mat4) {
+func (s *RenderSystem) renderToDepthMap(lightProjectionMatrix mgl64.Mat4, lightPosition mgl64.Vec3, lightOrientation mgl64.Quat, lightMVPMatrix mgl64.Mat4, directionalLightDir mgl64.Vec3) {
 	defer resetGLRenderSettings()
 
 	gl.CullFace(gl.FRONT)
@@ -148,10 +156,10 @@ func (s *RenderSystem) renderToDepthMap(lightProjectionMatrix mgl64.Mat4, lightP
 	gl.BindFramebuffer(gl.FRAMEBUFFER, s.depthMapFBO)
 	gl.Clear(gl.DEPTH_BUFFER_BIT)
 
-	s.renderScene(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix)
+	s.renderScene(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix, directionalLightDir)
 }
 
-func (s *RenderSystem) renderToDisplay(lightMVPMatrix mgl64.Mat4) {
+func (s *RenderSystem) renderToDisplay(lightMVPMatrix mgl64.Mat4, directionalLightDir mgl64.Vec3) {
 	defer resetGLRenderSettings()
 
 	gl.Viewport(0, 0, width, height)
@@ -174,7 +182,7 @@ func (s *RenderSystem) renderToDisplay(lightMVPMatrix mgl64.Mat4) {
 	transformComponent := componentContainer.TransformComponent
 
 	projectionMatrix := mgl64.Perspective(mgl64.DegToRad(fovy), aspectRatio, near, far)
-	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.Orientation, lightMVPMatrix)
+	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.Orientation, lightMVPMatrix, directionalLightDir)
 }
 
 func resetGLRenderSettings() {
@@ -185,7 +193,7 @@ func resetGLRenderSettings() {
 }
 
 // renderScene renders a scene from the perspective of a viewer
-func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition mgl64.Vec3, viewerQuaternion mgl64.Quat, lightMVPMatrix mgl64.Mat4) {
+func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition mgl64.Vec3, viewerQuaternion mgl64.Quat, lightMVPMatrix mgl64.Mat4, directionalLightDir mgl64.Vec3) {
 	downscaledProjectionMatrix := downscaleMat4(projectionMatrix)
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
@@ -220,7 +228,7 @@ func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition m
 		viewerViewMatrix.Inv(),
 		downscaledProjectionMatrix,
 	)
-	drawMesh(s.floor, shaderManager.GetShaderProgram("basicShadow"), floorModelMatrix, viewMatrix, downscaledProjectionMatrix, vPosition, lightMVPMatrix, s.depthTexture)
+	drawMesh(s.floor, shaderManager.GetShaderProgram("basicShadow"), floorModelMatrix, viewMatrix, downscaledProjectionMatrix, vPosition, lightMVPMatrix, s.depthTexture, directionalLightDir)
 
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
