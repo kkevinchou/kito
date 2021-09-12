@@ -13,22 +13,26 @@ func Cross2D(v1, v2 mgl64.Vec3) float64 {
 	return (v1.X() * v2.Z()) - (v1.Z() * v2.X())
 }
 
-func Vec3F64ToVec3F32(v mgl64.Vec3) mgl32.Vec3 {
-	return mgl32.Vec3{float32(v.X()), float32(v.Y()), float32(v.Z())}
+func Vec3F64ToF32(v mgl64.Vec3) mgl32.Vec3 {
+	var result mgl32.Vec3
+	for i := 0; i < len(v); i++ {
+		result[i] = float32(v[i])
+	}
+	return result
 }
 
-func Vec4F64ToVec4F32(v mgl64.Vec4) mgl32.Vec4 {
+func Vec4F64To4F32(v mgl64.Vec4) mgl32.Vec4 {
 	return mgl32.Vec4{float32(v.X()), float32(v.Y()), float32(v.Z()), float32(v.W())}
 }
 
-func QuatF64ToQuatF32(q mgl64.Quat) mgl32.Quat {
-	return mgl32.Quat{W: float32(q.W), V: Vec3F64ToVec3F32(q.V)}
+func QuatF64ToF32(q mgl64.Quat) mgl32.Quat {
+	return mgl32.Quat{W: float32(q.W), V: Vec3F64ToF32(q.V)}
 }
 
-func Mat4F64ToMat4F32(m mgl64.Mat4) mgl32.Mat4 {
+func Mat4F64ToF32(m mgl64.Mat4) mgl32.Mat4 {
 	var result mgl32.Mat4
-	for i := 0; i < 4; i++ {
-		result.SetRow(i, Vec4F64ToVec4F32(m.Row(i)))
+	for i := 0; i < len(m); i++ {
+		result[i] = float32(m[i])
 	}
 	return result
 }

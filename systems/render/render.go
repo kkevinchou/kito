@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	_ "image/png"
+	"math"
 	"time"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -19,19 +20,21 @@ import (
 )
 
 const (
-	width             int32 = 1024
-	height            int32 = 760
-	depthBufferWidth  int32 = 2048
-	depthBufferHeight int32 = 1520
+	width  int32 = 1024
+	height int32 = 760
 
 	aspectRatio         = float64(width) / float64(height)
-	fovy                = float64(90.0 / aspectRatio)
+	fovx        float64 = 90
 	near        float64 = 1
-	far         float64 = 1000
+	far         float64 = 500
+
+	// shadow map parameters
+	shadowMapDimension   int     = 8000
+	shadowDistanceFactor float64 = 0.3 // proportion of view fustrum to include in shadow cuboid
 )
 
 var (
-	directionalLightDir = mgl32.Vec3{}
+	fovy float64 = mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio))
 )
 
 type World interface {
@@ -46,9 +49,7 @@ type RenderSystem struct {
 	world        World
 	skybox       *SkyBox
 	floor        *Quad
-
-	depthMapFBO  uint32
-	depthTexture uint32
+	shadowMap    *ShadowMap
 
 	entities []entities.Entity
 }
@@ -73,23 +74,23 @@ func NewRenderSystem(world World) *RenderSystem {
 
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to create window %s", err))
+		panic(fmt.Sprintf("failed to create window %s", err))
 	}
 
 	_, err = window.GLCreateContext()
 	if err != nil {
-		panic(fmt.Sprintf("Failed to create context %s", err))
+		panic(fmt.Sprintf("failed to create context %s", err))
 	}
 
 	if err := gl.Init(); err != nil {
-		panic(fmt.Sprintf("Failed to init OpenGL %s", err))
+		panic(fmt.Sprintf("failed to init OpenGL %s", err))
 	}
 
 	renderSystem := RenderSystem{
 		BaseSystem: &base.BaseSystem{},
 		window:     window,
 		world:      world,
-		skybox:     NewSkyBox(300),
+		skybox:     NewSkyBox(600),
 		floor:      NewQuad(quadZeroY),
 	}
 
@@ -106,13 +107,10 @@ func NewRenderSystem(world World) *RenderSystem {
 	gl.FrontFace(gl.CCW)
 	gl.Enable(gl.MULTISAMPLE)
 
-	depthMapFBO, depthTexture, err := initializeShadowMap(depthBufferWidth, depthBufferHeight)
+	renderSystem.shadowMap, err = NewShadowMap(shadowMapDimension, shadowMapDimension)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("failed to create shadow map %s", err))
 	}
-
-	renderSystem.depthMapFBO = depthMapFBO
-	renderSystem.depthTexture = depthTexture
 
 	return &renderSystem
 }
@@ -126,23 +124,29 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *RenderSystem) Render(delta time.Duration) {
-	lightPosition := mgl64.Vec3{0, 40, 40}
-	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-30), mgl64.Vec3{1, 0, 0})
+	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-150), mgl64.Vec3{1, 0, 0})
 	directionalLightDir := lightOrientation.Rotate(mgl64.Vec3{0, 0, -1})
 
+	// calculate frustum points
+	singleton := s.world.GetSingleton()
+	if singleton.CameraID == 0 {
+		fmt.Println("camera not found in Render()")
+		return
+	}
+	camera, err := s.world.GetEntityByID(singleton.CameraID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	componentContainer := camera.GetComponentContainer()
+	transformComponent := componentContainer.TransformComponent
+	modelSpaceFrustumPoints := CalculateFrustumPoints(transformComponent.Position, transformComponent.Orientation, near, far, fovy, aspectRatio, shadowDistanceFactor)
+	lightPosition, lightProjectionMatrix := ComputeDirectionalLightProps(lightOrientation.Mat4(), modelSpaceFrustumPoints)
+
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
-	lightProjectionMatrix := mgl64.Ortho(-100, 100, -100, 100, near, far)
 	lightMVPMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
 
-	// calculate frustum points
-	// var modelSpaceFrustumPoints = calculateFrustumVertices(near, far, fovy, aspectRatio)
-
-	// convert frustum  points to world space
-	// convert frustum points to light space
-
-	// calcuate shadow cuboid
 	s.renderToDepthMap(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix, directionalLightDir)
-
 	s.renderToDisplay(lightMVPMatrix, directionalLightDir)
 
 	s.window.GLSwap()
@@ -150,12 +154,7 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 func (s *RenderSystem) renderToDepthMap(lightProjectionMatrix mgl64.Mat4, lightPosition mgl64.Vec3, lightOrientation mgl64.Quat, lightMVPMatrix mgl64.Mat4, directionalLightDir mgl64.Vec3) {
 	defer resetGLRenderSettings()
-
-	gl.CullFace(gl.FRONT)
-	gl.Viewport(0, 0, depthBufferWidth, depthBufferHeight)
-	gl.BindFramebuffer(gl.FRAMEBUFFER, s.depthMapFBO)
-	gl.Clear(gl.DEPTH_BUFFER_BIT)
-
+	s.shadowMap.Prepare()
 	s.renderScene(lightProjectionMatrix, lightPosition, lightOrientation, lightMVPMatrix, directionalLightDir)
 }
 
@@ -185,28 +184,15 @@ func (s *RenderSystem) renderToDisplay(lightMVPMatrix mgl64.Mat4, directionalLig
 	s.renderScene(projectionMatrix, transformComponent.Position, transformComponent.Orientation, lightMVPMatrix, directionalLightDir)
 }
 
-func resetGLRenderSettings() {
-	gl.BindVertexArray(0)
-	gl.UseProgram(0)
-	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
-	gl.CullFace(gl.BACK)
-}
-
 // renderScene renders a scene from the perspective of a viewer
 func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition mgl64.Vec3, viewerQuaternion mgl64.Quat, lightMVPMatrix mgl64.Mat4, directionalLightDir mgl64.Vec3) {
-	downscaledProjectionMatrix := downscaleMat4(projectionMatrix)
+	downscaledProjectionMatrix := utils.Mat4F64ToF32(projectionMatrix)
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
 
 	// We use the inverse to move the universe in the opposite direction of where the camera is looking
-	viewerOrientation := utils.QuatF64ToQuatF32(viewerQuaternion)
+	viewerOrientation := utils.QuatF64ToF32(viewerQuaternion)
 	viewerViewMatrix := viewerOrientation.Mat4()
-
-	floorModelMatrix := createModelMatrix(
-		mgl32.Scale3D(100, 100, 100),
-		mgl32.Ident4(),
-		mgl32.Ident4(),
-	)
 
 	viewTranslationMatrix := mgl32.Translate3D(float32(viewerPosition.X()), float32(viewerPosition.Y()), float32(viewerPosition.Z()))
 	viewMatrix := viewTranslationMatrix.Mul4(viewerViewMatrix).Inv()
@@ -214,7 +200,7 @@ func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition m
 	vPosition := mgl32.Vec3{float32(viewerPosition[0]), float32(viewerPosition[1]), float32(viewerPosition[2])}
 
 	// render a debug shadow map for viewing
-	drawHUDTextureToQuad(shaderManager.GetShaderProgram("depthDebug"), s.depthTexture, downscaledProjectionMatrix)
+	drawHUDTextureToQuad(shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), downscaledProjectionMatrix, 0.4)
 
 	drawSkyBox(
 		s.skybox,
@@ -228,7 +214,13 @@ func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition m
 		viewerViewMatrix.Inv(),
 		downscaledProjectionMatrix,
 	)
-	drawMesh(s.floor, shaderManager.GetShaderProgram("basicShadow"), floorModelMatrix, viewMatrix, downscaledProjectionMatrix, vPosition, lightMVPMatrix, s.depthTexture, directionalLightDir)
+
+	floorModelMatrix := createModelMatrix(
+		mgl32.Scale3D(1000, 1000, 1000),
+		mgl32.Ident4(),
+		mgl32.Ident4(),
+	)
+	drawMesh(s.floor, shaderManager.GetShaderProgram("basicShadow"), floorModelMatrix, viewMatrix, downscaledProjectionMatrix, vPosition, lightMVPMatrix, s.shadowMap.DepthTexture(), directionalLightDir, far*shadowDistanceFactor)
 
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
@@ -251,7 +243,7 @@ func (s *RenderSystem) renderScene(projectionMatrix mgl64.Mat4, viewerPosition m
 				meshModelMatrix := createModelMatrix(
 					mgl32.Ident4(),
 					// mgl32.Scale3D(0.07, 0.07, 0.07),
-					utils.QuatF64ToQuatF32(rotation).Mat4().Mul4(xr.Mul4(yr)),
+					utils.QuatF64ToF32(rotation).Mat4().Mul4(xr.Mul4(yr)),
 					mgl32.Translate3D(float32(entityPosition.X()), float32(entityPosition.Y()), float32(entityPosition.Z())),
 				)
 

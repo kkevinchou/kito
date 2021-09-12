@@ -64,9 +64,9 @@ func NewSkyBox(scale float32) *SkyBox {
 	}
 
 	for i := 0; i < len(skyboxVertices); i += 5 {
-		skyboxVertices[i] *= 500
-		skyboxVertices[i+1] *= 500
-		skyboxVertices[i+2] *= 500
+		skyboxVertices[i] *= scale
+		skyboxVertices[i+1] *= scale
+		skyboxVertices[i+2] *= scale
 	}
 
 	var vbo, vao uint32

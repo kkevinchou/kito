@@ -124,6 +124,11 @@ func (s *ShaderProgram) SetUniformInt(uniform string, value int32) {
 	gl.Uniform1i(uniformLocation, value)
 }
 
+func (s *ShaderProgram) SetUniformFloat(uniform string, value float32) {
+	uniformLocation := gl.GetUniformLocation(s.ID, gl.Str(fmt.Sprintf("%s\x00", uniform)))
+	gl.Uniform1f(uniformLocation, value)
+}
+
 func (s *ShaderProgram) Use() {
 	gl.UseProgram(s.ID)
 }

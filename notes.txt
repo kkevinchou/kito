@@ -52,3 +52,8 @@ NETWORKING
 
 Mixamo for free assets www.mixamo.com
 check out using the collada loader from: https://github.com/g3n/engine/tree/master/loader/collada
+
+automate navmesh generation based on geometry. geometry is tagged with a "layer" that the navmesh baking knows to use or discard. unity tooling https://www.youtube.com/watch?v=CHV1ymlw-P8. stepheight, max slope.
+mark a player as a navmesh agent. this makes sense for destination based movement, less so for directional movement
+
+figre out 3d platformer movement (physics based?)
