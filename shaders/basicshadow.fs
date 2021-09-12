@@ -5,6 +5,7 @@ in VS_OUT {
     vec3 FragPos;
     vec3 Normal;
     vec4 FragPosLightSpace;
+    vec3 DirectionalLightDir;
 } fs_in;
 
 uniform sampler2D shadowMap;
@@ -26,7 +27,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     // float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
     // bias term needs to be tweaked depending on geometry
-    float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001);
+    float bias = max(0.0001 * (1.0 - dot(normal, lightDir)), 0.0001);
     
     // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
@@ -47,16 +48,15 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 
 void main()
 {           
-    vec3 color =  vec3(0.91, 0.85, 1.0);
+    vec3 color =  vec3(0.69, 0.16, 0.89);
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(1.0, 1.0, 1.0);
-    vec3 lightPos = vec3(0, 40.0, 40.0);
 
     // ambient
     vec3 ambient = 0.3 * color;
 
     // diffuse
-    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+    vec3 lightDir = normalize(-fs_in.DirectionalLightDir);
     float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * lightColor;
 
@@ -73,4 +73,5 @@ void main()
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
     FragColor = vec4(lighting, 1.0);
+    // FragColor = vec4(normalize(-fs_in.DirectionalLightDir), 1.0);
 }

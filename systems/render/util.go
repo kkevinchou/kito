@@ -153,7 +153,8 @@ func drawTextureToQuad(shader *shaders.ShaderProgram, texture uint32, modelMatri
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(mesh Mesh, shader *shaders.ShaderProgram, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3, lightMVPMatrix mgl64.Mat4, texture uint32) {
+func drawMesh(mesh Mesh, shader *shaders.ShaderProgram, modelMatrix, viewMatrix, projectionMatrix mgl32.Mat4, cameraPosition mgl32.Vec3, lightMVPMatrix mgl64.Mat4, texture uint32, directionalLightDir mgl64.Vec3) {
+	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
 	shader.Use()
@@ -161,6 +162,7 @@ func drawMesh(mesh Mesh, shader *shaders.ShaderProgram, modelMatrix, viewMatrix,
 	shader.SetUniformMat4("view", viewMatrix)
 	shader.SetUniformMat4("projection", projectionMatrix)
 	shader.SetUniformVec3("viewPos", mgl32.Vec3{float32(cameraPosition.X()), float32(cameraPosition.Y()), float32(cameraPosition.Z())})
+	shader.SetUniformVec3("directionalLightDir", downscaleVec3(directionalLightDir))
 	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToMat4F32(lightMVPMatrix))
 	gl.BindVertexArray(mesh.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
@@ -277,6 +279,14 @@ func downscaleMat4(m mgl64.Mat4) mgl32.Mat4 {
 	var result mgl32.Mat4
 	for i := 0; i < len(m); i++ {
 		result[i] = float32(m[i])
+	}
+	return result
+}
+
+func downscaleVec3(v mgl64.Vec3) mgl32.Vec3 {
+	var result mgl32.Vec3
+	for i := 0; i < len(v); i++ {
+		result[i] = float32(v[i])
 	}
 	return result
 }

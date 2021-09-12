@@ -2,8 +2,10 @@ package render
 
 import (
 	"errors"
+	"math"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/mathgl/mgl64"
 )
 
 func initializeShadowMap(width, height int32) (uint32, uint32, error) {
@@ -32,4 +34,12 @@ func initializeShadowMap(width, height int32) (uint32, uint32, error) {
 	}
 
 	return depthMapFBO, texture, nil
+}
+
+func calculateFrustumVertices(near, far, fovy, aspectRatio float64) []mgl64.Vec3 {
+	halfY := 2 * math.Tan(mgl64.DegToRad(fovy/2))
+	halfX := aspectRatio * halfY
+	_ = halfX
+	return nil
+
 }
