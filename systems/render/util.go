@@ -66,7 +66,7 @@ func drawSkyBox(viewerContext ViewerContext, sb *SkyBox, shader *shaders.ShaderP
 	shader.Use()
 	shader.SetUniformInt("skyboxTexture", 0)
 	shader.SetUniformMat4("model", mgl32.Ident4())
-	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
+	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.Orientation.Mat4().Inv()))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
 	for i := 0; i < 6; i++ {
 		gl.BindTexture(gl.TEXTURE_2D, textures[i].ID)
