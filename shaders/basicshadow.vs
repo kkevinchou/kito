@@ -6,7 +6,6 @@ out VS_OUT {
     vec3 FragPos;
     vec3 Normal;
     vec4 FragPosLightSpace;
-    vec3 DirectionalLightDir;
     mat4 View;
 } vs_out;
 
@@ -14,14 +13,12 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 uniform mat4 lightSpaceMatrix;
-uniform vec3 directionalLightDir;
 
 void main()
 {
     vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
     vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
     vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
-    vs_out.DirectionalLightDir = directionalLightDir;
     vs_out.View = view;
 
     gl_Position = projection * view * model * vec4(aPos, 1.0);

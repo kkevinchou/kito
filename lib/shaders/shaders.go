@@ -102,7 +102,7 @@ func compileShader(shaderPath string, shaderType uint32) (uint32, error) {
 		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
 		log := strings.Repeat("\x00", int(logLength+1))
 		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
-		return 0, fmt.Errorf("failed to compile shader:\n%s", log)
+		return 0, fmt.Errorf("failed to compile shader (%s):\n%s", shaderPath, log)
 	}
 
 	return shader, nil

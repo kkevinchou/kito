@@ -5,13 +5,13 @@ in VS_OUT {
     vec3 FragPos;
     vec3 Normal;
     vec4 FragPosLightSpace;
-    vec3 DirectionalLightDir;
     mat4 View;
 } fs_in;
 
 uniform sampler2D shadowMap;
 uniform vec3 viewPos;
 uniform float shadowDistance;
+uniform vec3 directionalLightDir;
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
@@ -61,7 +61,7 @@ void main()
     vec3 ambient = 0.3 * color;
 
     // diffuse
-    vec3 lightDir = normalize(-fs_in.DirectionalLightDir);
+    vec3 lightDir = normalize(-directionalLightDir);
     float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * lightColor;
 
@@ -78,5 +78,4 @@ void main()
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
     FragColor = vec4(lighting, 1.0);
-    // FragColor = vec4(normalize(-fs_in.DirectionalLightDir), 1.0);
 }
