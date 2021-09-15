@@ -9,7 +9,6 @@ type ViewerContext struct {
 
 	InverseViewMatrix mgl64.Mat4
 	ProjectionMatrix  mgl64.Mat4
-	LightSpaceMatrix  mgl64.Mat4
 }
 
 type LightContext struct {

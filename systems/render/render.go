@@ -121,31 +121,28 @@ func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
 	}
 }
 
-func (s *RenderSystem) Render(delta time.Duration) {
-	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-150), mgl64.Vec3{1, 0, 0})
-	directionalLightDir := lightOrientation.Rotate(mgl64.Vec3{0, 0, -1})
-
-	// calculate frustum points
+func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 	singleton := s.world.GetSingleton()
 	if singleton.CameraID == 0 {
-		fmt.Println("camera not found in Render()")
-		return
+		return nil
 	}
 	camera, err := s.world.GetEntityByID(singleton.CameraID)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return nil
 	}
 	componentContainer := camera.GetComponentContainer()
-	transformComponent := componentContainer.TransformComponent
+	return componentContainer.TransformComponent
+}
 
-	modelSpaceFrustumPoints := CalculateFrustumPoints(transformComponent.Position, transformComponent.Orientation, near, far, fovy, aspectRatio, shadowDistanceFactor)
-	lightPosition, lightProjectionMatrix := ComputeDirectionalLightProps(lightOrientation.Mat4(), modelSpaceFrustumPoints)
+func (s *RenderSystem) Render(delta time.Duration) {
+	transformComponent := s.GetCameraTransform()
+	if transformComponent == nil {
+		fmt.Println("camera not found in Render()")
+		return
+	}
 
-	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
-	lightSpaceMatrix := lightProjectionMatrix.Mul4(lightViewMatrix)
-
-	projectionMatrix := mgl64.Perspective(mgl64.DegToRad(fovy), aspectRatio, near, far)
+	// configure camera viewer context
 	viewerViewMatrix := transformComponent.Orientation.Mat4()
 	viewTranslationMatrix := mgl64.Translate3D(transformComponent.Position.X(), transformComponent.Position.Y(), transformComponent.Position.Z())
 
@@ -154,8 +151,14 @@ func (s *RenderSystem) Render(delta time.Duration) {
 		Orientation: transformComponent.Orientation,
 
 		InverseViewMatrix: viewTranslationMatrix.Mul4(viewerViewMatrix).Inv(),
-		ProjectionMatrix:  projectionMatrix,
+		ProjectionMatrix:  mgl64.Perspective(mgl64.DegToRad(fovy), aspectRatio, near, far),
 	}
+
+	// configure light viewer context
+	modelSpaceFrustumPoints := CalculateFrustumPoints(transformComponent.Position, transformComponent.Orientation, near, far, fovy, aspectRatio, shadowDistanceFactor)
+	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-150), mgl64.Vec3{1, 0, 0})
+	lightPosition, lightProjectionMatrix := ComputeDirectionalLightProps(lightOrientation.Mat4(), modelSpaceFrustumPoints)
+	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
 
 	lightViewerContext := ViewerContext{
 		Position:    lightPosition,
@@ -166,8 +169,8 @@ func (s *RenderSystem) Render(delta time.Duration) {
 	}
 
 	lightContext := LightContext{
-		DirectionalLightDir: directionalLightDir,
-		LightSpaceMatrix:    lightSpaceMatrix,
+		DirectionalLightDir: lightOrientation.Rotate(mgl64.Vec3{0, 0, -1}),
+		LightSpaceMatrix:    lightProjectionMatrix.Mul4(lightViewMatrix),
 	}
 
 	s.renderToDepthMap(lightViewerContext, lightContext)
