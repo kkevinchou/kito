@@ -6,14 +6,19 @@ in VS_OUT {
     vec3 Normal;
     vec4 FragPosLightSpace;
     vec3 DirectionalLightDir;
+    mat4 View;
 } fs_in;
 
 uniform sampler2D shadowMap;
-
 uniform vec3 viewPos;
+uniform float shadowDistance;
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
+    if (length(vec3(fs_in.View * vec4(fs_in.FragPos, 1))) > shadowDistance) {
+        return 0;
+    }
+
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
