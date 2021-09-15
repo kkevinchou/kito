@@ -9,45 +9,26 @@ layout (location = 3) in vec3 aColor;
 layout (location = 4) in ivec3 jointIndices;
 layout (location = 5) in vec3 jointWeights;
 
-out vec3 FragPos;
-out vec3 Normal;
-out vec2 TexCoord;
-
-out vec4 Color;
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec4 FragPosLightSpace;
+    mat4 View;
+    vec2 TexCoord;
+} vs_out;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 jointTransforms[MAX_JOINTS];
+uniform mat4 lightSpaceMatrix;
 
 void main() {
     vec4 totalLocalPos = vec4(0.0);
 	vec4 totalNormal = vec4(0.0);
 
-	Color = vec4(1, 0, 0, 0);
-
-	// float sum = 0;
-	// for(int i = 0; i < MAX_WEIGHTS; i++) { sum += jointWeights[i]; }
-
-	// if (sum > 1.01 || sum < 0.99) {
-	// 	sum = 0;
-	// }
-	// Color = vec4(sum, 0, 0, 0);
-
 	for(int i = 0; i < MAX_WEIGHTS; i++){
 		int jointIndex = jointIndices[i];
-		// if (jointIndex >=4 && jointIndex <= 9) {
-		// 	Color = vec4(0, 0, 1, 0);
-		// } else if (jointIndex >=10 && jointIndex <= 15) {
-		// 	Color = vec4(0, 1, 0, 0);
-		// }
-		// if (jointIndex == 1) {
-		// 	Color = vec4(0, 1, 0, 0);
-		// }
-
-		// if (jointIndex == 15) {
-		// 	Color = vec4(1, 0, 0, 0);
-		// }
 
 		mat4 jointTransform = jointTransforms[jointIndex];
 		vec4 posePosition = jointTransform * vec4(aPos, 1.0);
@@ -57,16 +38,12 @@ void main() {
 		totalNormal += worldNormal * jointWeights[i];
 	}
 
-	// Color = vec4(jointWeights, 0);
-
-	// totalLocalPos = vec4(aPos, 1);
-	// totalNormal = vec4(aNormal, 1);
-
-    FragPos = vec3(model * totalLocalPos);
+    vs_out.FragPos = vec3(model * totalLocalPos);
     // TODO: the normal matrix is expensive to calculate and should be passed in as a uniform
-    Normal = mat3(transpose(inverse(model))) * vec3(totalNormal);
-    TexCoord = aTexCoord;
+    vs_out.Normal = transpose(inverse(mat3(model))) * vec3(totalNormal);
+    vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+    vs_out.View = view;
+	vs_out.TexCoord = aTexCoord;
 
     gl_Position = (projection * (view * (model * totalLocalPos)));
-    // gl_Position = projection * view * vec4(FragPos, 1.0);
 }

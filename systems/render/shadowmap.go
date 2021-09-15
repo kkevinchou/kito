@@ -9,10 +9,11 @@ import (
 )
 
 type ShadowMap struct {
-	depthMapFBO  uint32
-	depthTexture uint32
-	width        int
-	height       int
+	depthMapFBO    uint32
+	depthTexture   uint32
+	width          int
+	height         int
+	shadowDistance float64
 }
 
 func (s *ShadowMap) Prepare() {
@@ -22,7 +23,7 @@ func (s *ShadowMap) Prepare() {
 	gl.Clear(gl.DEPTH_BUFFER_BIT)
 }
 
-func NewShadowMap(width int, height int) (*ShadowMap, error) {
+func NewShadowMap(width int, height int, shadowDistance float64) (*ShadowMap, error) {
 	var depthMapFBO uint32
 	gl.GenFramebuffers(1, &depthMapFBO)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, depthMapFBO)
@@ -48,15 +49,20 @@ func NewShadowMap(width int, height int) (*ShadowMap, error) {
 	}
 
 	return &ShadowMap{
-		depthMapFBO:  depthMapFBO,
-		depthTexture: texture,
-		width:        width,
-		height:       height,
+		depthMapFBO:    depthMapFBO,
+		depthTexture:   texture,
+		width:          width,
+		height:         height,
+		shadowDistance: shadowDistance,
 	}, nil
 }
 
 func (s *ShadowMap) DepthTexture() uint32 {
 	return s.depthTexture
+}
+
+func (s *ShadowMap) ShadowDistance() float64 {
+	return s.shadowDistance
 }
 
 func CalculateFrustumPoints(position mgl64.Vec3, orientation mgl64.Quat, near, far, fovy, aspectRatio float64, shadowDistance float64) []mgl64.Vec3 {

@@ -128,12 +128,21 @@ func (g *Game) GetEventBroker() eventbroker.EventBroker {
 func compileShaders() {
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
-	shaderManager.CompileShaderProgram("basic", "basic", "basic")
-	shaderManager.CompileShaderProgram("basicShadow", "basicshadow", "basicshadow")
-	shaderManager.CompileShaderProgram("skybox", "skybox", "skybox")
-	shaderManager.CompileShaderProgram("model", "model", "model")
-	shaderManager.CompileShaderProgram("depth", "depth", "depth")
-	shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue")
+	if err := shaderManager.CompileShaderProgram("basic", "basic", "basic"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("basicShadow", "basicshadow", "basicshadow"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("skybox", "skybox", "skybox"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("model", "model", "model"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue"); err != nil {
+		panic(err)
+	}
 }
 
 func initSeed() {
