@@ -32,7 +32,6 @@ func (i *SDLInputPoller) PollInput() Input {
 	var commands []interface{}
 	var event sdl.Event
 
-	wheelCount := 0
 	// The same event type can be fired multiple times in the same PollEvent loop
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
@@ -45,11 +44,7 @@ func (i *SDLInputPoller) PollInput() Input {
 			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
 		case *sdl.MouseWheelEvent:
 			mouseInput.MouseWheelDelta += int(e.Y)
-			wheelCount++
 		}
-	}
-	if wheelCount > 0 {
-		// fmt.Println(wheelCount)
 	}
 
 	// Keyboard inputs
