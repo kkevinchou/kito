@@ -113,8 +113,10 @@ func drawHUDTextureToQuad(viewerContext ViewerContext, shader *shaders.ShaderPro
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, mesh Mesh, modelMatrix mgl64.Mat4) {
+func drawMesh(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, texture *textures.Texture, mesh Mesh, modelMatrix mgl64.Mat4) {
 	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, texture.ID)
+	gl.ActiveTexture(gl.TEXTURE31)
 	gl.BindTexture(gl.TEXTURE_2D, shadowMap.DepthTexture())
 
 	shader.Use()
@@ -125,6 +127,9 @@ func drawMesh(viewerContext ViewerContext, lightContext LightContext, shadowMap 
 	shader.SetUniformFloat("shadowDistance", float32(shadowMap.ShadowDistance()))
 	shader.SetUniformVec3("directionalLightDir", utils.Vec3F64ToF32(lightContext.DirectionalLightDir))
 	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToF32(lightContext.LightSpaceMatrix))
+	shader.SetUniformInt("mainTexture", 0)
+	shader.SetUniformInt("shadowMap", 31)
+
 	gl.BindVertexArray(mesh.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }

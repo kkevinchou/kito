@@ -1,4 +1,5 @@
 #version 330 core
+
 out vec4 FragColor;
 
 in VS_OUT {
@@ -6,9 +7,12 @@ in VS_OUT {
     vec3 Normal;
     vec4 FragPosLightSpace;
     mat4 View;
+    vec2 TexCoord;
 } fs_in;
 
+uniform sampler2D mainTexture;
 uniform sampler2D shadowMap;
+
 uniform vec3 viewPos;
 uniform float shadowDistance;
 uniform vec3 directionalLightDir;
@@ -53,7 +57,8 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 
 void main()
 {           
-    vec3 color =  vec3(0.69, 0.16, 0.89);
+    vec3 color =  texture(mainTexture, vec2(fs_in.FragPos.x/100, -fs_in.FragPos.z/100)).xyz;
+
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(1.0, 1.0, 1.0);
 

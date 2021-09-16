@@ -226,6 +226,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		lightContext,
 		s.shadowMap,
 		shaderManager.GetShaderProgram("basicShadow"),
+		s.assetManager.GetTexture("default"),
 		s.floor,
 		floorModelMatrix,
 	)
