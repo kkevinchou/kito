@@ -10,12 +10,14 @@ import (
 
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/input"
+	"github.com/kkevinchou/kito/lib/utils"
 	"github.com/kkevinchou/kito/systems/base"
 )
 
 const (
-	zoomSpeed float64 = 100
-	moveSpeed float64 = 25
+	zoomSpeed             float64 = 100
+	moveSpeed             float64 = 25
+	mouseWheelSensitivity float64 = 0.3
 )
 
 type Singleton interface {
@@ -54,25 +56,28 @@ func (s *CameraSystem) Update(delta time.Duration) {
 
 	for _, camera := range s.entities {
 		playerID := camera.GetComponentContainer().FollowComponent.FollowTargetEntityID
-		handleFollowCameraControls(camera, s.world, singleton.PlayerInput[playerID])
+		handleCameraControls(delta, camera, s.world, singleton.PlayerInput[playerID])
 	}
 }
 
-func handleFollowCameraControls(entity entities.Entity, world World, frameInput input.Input) {
-	followComponent := entity.GetComponentContainer().FollowComponent
-	transformComponent := entity.GetComponentContainer().TransformComponent
+func handleCameraControls(delta time.Duration, entity entities.Entity, world World, frameInput input.Input) {
+	cc := entity.GetComponentContainer()
+	followComponent := cc.FollowComponent
+	transformComponent := cc.TransformComponent
+
+	cc.EasingComponent.Update(delta)
 
 	if followComponent == nil {
 		return
 	}
 
-	entity, err := world.GetEntityByID(followComponent.FollowTargetEntityID)
+	target, err := world.GetEntityByID(followComponent.FollowTargetEntityID)
 	if err != nil {
 		fmt.Println("failed to find target entity with ID", followComponent.FollowTargetEntityID)
 		return
 	}
 
-	targetComponentContainer := entity.GetComponentContainer()
+	targetComponentContainer := target.GetComponentContainer()
 	targetPosition := targetComponentContainer.TransformComponent.Position
 
 	var xRel, yRel float64
@@ -119,8 +124,43 @@ func handleFollowCameraControls(entity entities.Entity, world World, frameInput 
 		return
 	}
 
-	targetToCamera := transformComponent.Position.Sub(targetPosition)
-	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera).Normalize().Mul(followComponent.FollowDistance))
+	var easingValue float64
+	if mouseInput.MouseWheelDelta != 0 {
+		// allow the buildup of zoom velocity if we have continuous mouse wheeling
+		if cc.EasingComponent.Active() && utils.SameSign(followComponent.ZoomDirection, mouseInput.MouseWheelDelta) {
+			followComponent.ZoomVelocity += 1
+		} else {
+			followComponent.ZoomVelocity = 1
+		}
+
+		cc.EasingComponent.Start()
+		if mouseInput.MouseWheelDelta > 0 {
+			followComponent.ZoomDirection = 1
+		} else {
+			followComponent.ZoomDirection = -1
+		}
+	}
+
+	if cc.EasingComponent.Active() {
+		easingValue = cc.EasingComponent.GetValue()
+		if easingValue == 1 {
+			cc.EasingComponent.Stop()
+			followComponent.ZoomDirection = 0
+			followComponent.ZoomVelocity = 1
+		}
+
+	}
+
+	followComponent.Zoom += followComponent.ZoomVelocity * float64(followComponent.ZoomDirection) * mouseWheelSensitivity
+
+	if followComponent.FollowDistance-followComponent.Zoom >= followComponent.MaxFollowDistance {
+		followComponent.Zoom = -(followComponent.MaxFollowDistance - followComponent.FollowDistance)
+	} else if followComponent.FollowDistance-followComponent.Zoom < 5 {
+		followComponent.Zoom = followComponent.FollowDistance - 5
+	}
+
+	targetToCamera := transformComponent.Position.Sub(targetPosition).Normalize()
+	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera).Mul(followComponent.FollowDistance - followComponent.Zoom))
 	transformComponent.Orientation = nextOrientation
 	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
 }

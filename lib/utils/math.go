@@ -37,6 +37,10 @@ func Mat4F64ToF32(m mgl64.Mat4) mgl32.Mat4 {
 	return result
 }
 
+func SameSign(a, b int) bool {
+	return (a > 0 && b > 0) || (a < 0 && b < 0) || (a == 0 && b == 0)
+}
+
 func QuatLookAt(eye, center, up mgl64.Vec3) mgl64.Quat {
 	// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#I_need_an_equivalent_of_gluLookAt__How_do_I_orient_an_object_towards_a_point__
 	// https://bitbucket.org/sinbad/ogre/src/d2ef494c4a2f5d6e2f0f17d3bfb9fd936d5423bb/OgreMain/src/OgreCamera.cpp?at=default#cl-161

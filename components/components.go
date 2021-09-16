@@ -10,6 +10,7 @@ type ComponentContainer struct {
 	FollowComponent                *FollowComponent
 	CameraComponent                *CameraComponent
 	NetworkComponent               *NetworkComponent
+	EasingComponent                *EasingComponent
 }
 
 type Component interface {

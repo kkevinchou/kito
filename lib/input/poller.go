@@ -32,7 +32,7 @@ func (i *SDLInputPoller) PollInput() Input {
 	var commands []interface{}
 	var event sdl.Event
 
-	// The same event can be fired multiple times in the same PollEvent loop
+	// The same event type can be fired multiple times in the same PollEvent loop
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
 		case *sdl.QuitEvent:
@@ -43,11 +43,7 @@ func (i *SDLInputPoller) PollInput() Input {
 			mouseInput.MouseMotionEvent.XRel += float64(e.XRel)
 			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
 		case *sdl.MouseWheelEvent:
-			if e.Y > 0 {
-				mouseInput.MouseWheelDirection = MouseWheelDirectionUp
-			} else if e.Y < 0 {
-				mouseInput.MouseWheelDirection = MouseWheelDirectionDown
-			}
+			mouseInput.MouseWheelDelta += int(e.Y)
 		}
 	}
 
