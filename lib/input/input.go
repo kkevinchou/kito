@@ -4,12 +4,6 @@ type InputPoller func() Input
 
 type MouseWheelDirection int
 
-const (
-	MouseWheelDirectionNeutral MouseWheelDirection = iota
-	MouseWheelDirectionUp
-	MouseWheelDirectionDown
-)
-
 type MouseMotionEvent struct {
 	XRel float64
 	YRel float64
@@ -20,11 +14,11 @@ func (m MouseMotionEvent) IsZero() bool {
 }
 
 type MouseInput struct {
-	MouseWheelDirection MouseWheelDirection
-	MouseMotionEvent    MouseMotionEvent
-	LeftButtonDown      bool
-	MiddleButtonDown    bool
-	RightButtonDown     bool
+	MouseWheelDelta  int
+	MouseMotionEvent MouseMotionEvent
+	LeftButtonDown   bool
+	MiddleButtonDown bool
+	RightButtonDown  bool
 }
 
 type KeyboardKey string
