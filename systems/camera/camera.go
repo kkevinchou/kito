@@ -15,9 +15,8 @@ import (
 )
 
 const (
-	zoomSpeed             float64 = 100
 	moveSpeed             float64 = 25
-	mouseWheelSensitivity float64 = 0.3
+	mouseWheelSensitivity float64 = 8
 )
 
 type Singleton interface {
@@ -124,6 +123,7 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 		return
 	}
 
+	// TBH this easing stuff feels awkward here, might belong in a separate system
 	var easingValue float64
 	if mouseInput.MouseWheelDelta != 0 {
 		// allow the buildup of zoom velocity if we have continuous mouse wheeling
@@ -151,7 +151,7 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 
 	}
 
-	followComponent.Zoom += followComponent.ZoomVelocity * float64(followComponent.ZoomDirection) * mouseWheelSensitivity
+	followComponent.Zoom += math.Pow(1.8, followComponent.ZoomVelocity/2) * float64(followComponent.ZoomDirection) * (float64(1) / float64(delta.Milliseconds())) * mouseWheelSensitivity
 
 	if followComponent.FollowDistance-followComponent.Zoom >= followComponent.MaxFollowDistance {
 		followComponent.Zoom = -(followComponent.MaxFollowDistance - followComponent.FollowDistance)

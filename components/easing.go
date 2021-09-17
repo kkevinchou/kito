@@ -67,3 +67,19 @@ func EaseOutSine(x float64) float64 {
 
 	return math.Sin((x * math.Pi) / 2)
 }
+
+func EaseInOutSine(x float64) float64 {
+	x = mgl64.Clamp(x, 0, 1)
+
+	return -(math.Cos(x*math.Pi) - 1) / 2
+}
+
+func EaseInOutCirc(x float64) float64 {
+	x = mgl64.Clamp(x, 0, 1)
+
+	if x < 0.5 {
+		return (1 - math.Sqrt(1-math.Pow(2*x, 2))) / 2
+	}
+
+	return (math.Sqrt(1-math.Pow(-2*x+2, 2)) + 1) / 2
+}
