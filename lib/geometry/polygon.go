@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/utils"
+	utils "github.com/kkevinchou/kito/lib/libutils"
 )
 
 const (

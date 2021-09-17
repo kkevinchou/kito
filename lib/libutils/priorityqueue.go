@@ -1,4 +1,4 @@
-package utils
+package libutils
 
 import "container/heap"
 

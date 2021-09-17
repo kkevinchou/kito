@@ -1,13 +1,13 @@
-package utils_test
+package libutils_test
 
 import (
 	"testing"
 
-	"github.com/kkevinchou/kito/lib/utils"
+	"github.com/kkevinchou/kito/lib/libutils"
 )
 
 func TestPriorityQueue(t *testing.T) {
-	pq := utils.NewPriorityQueue()
+	pq := libutils.NewPriorityQueue()
 	pq.Push("zuko", 3)
 	pq.Push("aang", 0)
 	pq.Push("katara", 1)
