@@ -2,7 +2,6 @@ package camera
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
@@ -15,8 +14,8 @@ import (
 )
 
 const (
-	moveSpeed             float64 = 25
-	mouseWheelSensitivity float64 = 8
+	mouseWheelSensitivity float64 = 0.5
+	zoomDecay             float64 = 0.1
 )
 
 type Singleton interface {
@@ -68,15 +67,6 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 		return
 	}
 
-	target, err := world.GetEntityByID(followComponent.FollowTargetEntityID)
-	if err != nil {
-		fmt.Println("failed to find target entity with ID", followComponent.FollowTargetEntityID)
-		return
-	}
-
-	targetComponentContainer := target.GetComponentContainer()
-	targetPosition := targetComponentContainer.TransformComponent.Position.Add(mgl64.Vec3{0, followComponent.YOffset, 0})
-
 	var xRel, yRel float64
 
 	keyboardInput := frameInput.KeyboardInput
@@ -104,55 +94,42 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	}
 
 	forwardVector := transformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
-	rightVector := forwardVector.Cross(transformComponent.UpVector)
-	transformComponent.Position = targetPosition.Add(forwardVector.Mul(-1).Mul(followComponent.FollowDistance))
+	upVector := transformComponent.Orientation.Rotate(mgl64.Vec3{0, 1, 0})
+	// there's probably away to get the right vector directly rather than going crossing the up vector :D
+	rightVector := forwardVector.Cross(upVector)
 
 	// calculate the quaternion for the delta in rotation
 	deltaRotationX := mgl64.QuatRotate(yRel, rightVector)         // pitch
 	deltaRotationY := mgl64.QuatRotate(xRel, mgl64.Vec3{0, 1, 0}) // yaw
 	deltaRotation := deltaRotationY.Mul(deltaRotationX)
 
-	nextOrientation := deltaRotation.Mul(transformComponent.Orientation)
-	nextForwardVector := nextOrientation.Rotate(mgl64.Vec3{0, 0, -1})
+	newOrientation := deltaRotation.Mul(transformComponent.Orientation)
 
-	// if we're nearly pointing directly downwards or upwards - stop camera movement
-	// TODO: do this in a better way
-	if mgl64.FloatEqualThreshold(math.Abs(nextForwardVector[1]), 1, 0.001) {
-		return
+	// don't let the camera go upside down
+	if newOrientation.Rotate(mgl64.Vec3{0, 1, 0})[1] < 0 {
+		newOrientation = transformComponent.Orientation
 	}
 
-	cc.EasingComponent.Update(delta)
+	zoomDirection := libutils.NormalizeF64(followComponent.ZoomSpeed)
 
-	// TBH this easing stuff feels awkward here, might belong in a separate system
-	var easingValue float64
 	if mouseInput.MouseWheelDelta != 0 {
 		// allow the buildup of zoom velocity if we have continuous mouse wheeling
-		if cc.EasingComponent.Active() && libutils.SameSign(followComponent.ZoomDirection, mouseInput.MouseWheelDelta) {
-			followComponent.ZoomVelocity += 1
-		} else {
-			followComponent.ZoomVelocity = 1
+		// allow instantaneous direction change
+		if !libutils.SameSign(zoomDirection, float64(mouseInput.MouseWheelDelta)) {
+			followComponent.ZoomSpeed = 0
 		}
 
-		cc.EasingComponent.Start()
-		if mouseInput.MouseWheelDelta > 0 {
-			followComponent.ZoomDirection = 1
-		} else {
-			followComponent.ZoomDirection = -1
-		}
+		zoomDirection = libutils.NormalizeF64(float64(mouseInput.MouseWheelDelta))
+		followComponent.ZoomSpeed += float64(mouseInput.MouseWheelDelta)
 	}
 
-	if cc.EasingComponent.Active() {
-		easingValue = cc.EasingComponent.GetValue()
-		if easingValue == 1 {
-			cc.EasingComponent.Stop()
-			followComponent.ZoomDirection = 0
-			followComponent.ZoomVelocity = 1
-		}
-
+	// decay zoom velocity
+	followComponent.ZoomSpeed -= zoomDecay * zoomDirection
+	if !libutils.SameSign(zoomDirection, followComponent.ZoomSpeed) {
+		followComponent.ZoomSpeed = 0
 	}
 
-	// I have no idea what I'm doing, I messed with some factors and this felt good for the zoom
-	followComponent.Zoom += math.Pow(1.8, followComponent.ZoomVelocity/2) * float64(followComponent.ZoomDirection) * (float64(1) / float64(delta.Milliseconds())) * mouseWheelSensitivity
+	followComponent.Zoom += followComponent.ZoomSpeed * mouseWheelSensitivity
 
 	if followComponent.FollowDistance-followComponent.Zoom >= followComponent.MaxFollowDistance {
 		followComponent.Zoom = -(followComponent.MaxFollowDistance - followComponent.FollowDistance)
@@ -160,8 +137,13 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 		followComponent.Zoom = followComponent.FollowDistance - 5
 	}
 
-	targetToCamera := transformComponent.Position.Sub(targetPosition).Normalize()
-	transformComponent.Position = targetPosition.Add(deltaRotation.Rotate(targetToCamera).Mul(followComponent.FollowDistance - followComponent.Zoom))
-	transformComponent.Orientation = nextOrientation
-	transformComponent.UpVector = deltaRotation.Rotate(transformComponent.UpVector)
+	target, err := world.GetEntityByID(followComponent.FollowTargetEntityID)
+	if err != nil {
+		fmt.Println("failed to find target entity with ID", followComponent.FollowTargetEntityID)
+		return
+	}
+	targetComponentContainer := target.GetComponentContainer()
+	targetPosition := targetComponentContainer.TransformComponent.Position.Add(mgl64.Vec3{0, followComponent.YOffset, 0})
+	transformComponent.Position = newOrientation.Rotate(mgl64.Vec3{0, 0, followComponent.FollowDistance - followComponent.Zoom}).Add(targetPosition)
+	transformComponent.Orientation = newOrientation
 }

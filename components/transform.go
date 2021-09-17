@@ -5,10 +5,8 @@ import (
 )
 
 type TransformComponent struct {
-	Position      mgl64.Vec3
-	Orientation   mgl64.Quat
-	UpVector      mgl64.Vec3
-	ForwardVector mgl64.Vec3
+	Position    mgl64.Vec3
+	Orientation mgl64.Quat
 }
 
 func (c *TransformComponent) AddToComponentContainer(container *ComponentContainer) {

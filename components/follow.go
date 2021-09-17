@@ -6,9 +6,9 @@ type FollowComponent struct {
 	MaxFollowDistance    float64
 	YOffset              float64
 
-	Zoom          float64
-	ZoomDirection int
-	ZoomVelocity  float64
+	// this zoom stuff probably doesn't belong here
+	Zoom      float64
+	ZoomSpeed float64
 }
 
 func (c *FollowComponent) AddToComponentContainer(container *ComponentContainer) {
