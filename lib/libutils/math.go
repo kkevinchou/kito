@@ -37,7 +37,16 @@ func Mat4F64ToF32(m mgl64.Mat4) mgl32.Mat4 {
 	return result
 }
 
-func SameSign(a, b int) bool {
+func NormalizeF64(a float64) float64 {
+	if a > 0 {
+		return 1
+	} else if a < 0 {
+		return -1
+	}
+	return 0
+}
+
+func SameSign(a, b float64) bool {
 	return (a > 0 && b > 0) || (a < 0 && b < 0) || (a == 0 && b == 0)
 }
 
