@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/utils"
+	utils "github.com/kkevinchou/kito/lib/libutils"
 )
 
 type ShaderProgram struct {

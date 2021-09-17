@@ -10,7 +10,7 @@ import (
 
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/input"
-	"github.com/kkevinchou/kito/lib/utils"
+	"github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/systems/base"
 )
 
@@ -127,7 +127,7 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	var easingValue float64
 	if mouseInput.MouseWheelDelta != 0 {
 		// allow the buildup of zoom velocity if we have continuous mouse wheeling
-		if cc.EasingComponent.Active() && utils.SameSign(followComponent.ZoomDirection, mouseInput.MouseWheelDelta) {
+		if cc.EasingComponent.Active() && libutils.SameSign(followComponent.ZoomDirection, mouseInput.MouseWheelDelta) {
 			followComponent.ZoomVelocity += 1
 		} else {
 			followComponent.ZoomVelocity = 1

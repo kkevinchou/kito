@@ -8,7 +8,7 @@ import (
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/input"
-	libutils "github.com/kkevinchou/kito/lib/utils"
+	libutils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/kkevinchou/kito/systems/common"
 	"github.com/kkevinchou/kito/types"

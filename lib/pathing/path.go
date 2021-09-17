@@ -3,7 +3,7 @@ package pathing
 import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/geometry"
-	"github.com/kkevinchou/kito/lib/utils"
+	utils "github.com/kkevinchou/kito/lib/libutils"
 )
 
 func getPoints(path []NavNode) []geometry.Point {

@@ -1,10 +1,10 @@
-package utils_test
+package libutils_test
 
 import (
 	"testing"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/utils"
+	"github.com/kkevinchou/kito/lib/libutils"
 )
 
 func TestLookAt(t *testing.T) {
@@ -12,22 +12,22 @@ func TestLookAt(t *testing.T) {
 	up := mgl64.Vec3{0, 1, 0}
 
 	dir := mgl64.Vec3{0, 1, 0}
-	utils.QuatLookAt(eye, dir, up)
+	libutils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{0, 0, -1}
-	utils.QuatLookAt(eye, dir, up)
+	libutils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{-1, 0, 0}
-	utils.QuatLookAt(eye, dir, up)
+	libutils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{1, 0, 0}
-	utils.QuatLookAt(eye, dir, up)
+	libutils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{0, -1, 0}
-	utils.QuatLookAt(eye, dir, up)
+	libutils.QuatLookAt(eye, dir, up)
 
 	dir = mgl64.Vec3{0, 0, 1}
-	utils.QuatLookAt(eye, dir, up)
+	libutils.QuatLookAt(eye, dir, up)
 
 	t.Fail()
 }

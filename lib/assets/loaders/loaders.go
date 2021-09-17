@@ -7,8 +7,8 @@ import (
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
+	utils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/textures"
-	"github.com/kkevinchou/kito/lib/utils"
 )
 
 func LoadTextures(directory string) map[string]*textures.Texture {
