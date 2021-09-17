@@ -27,6 +27,7 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTarg
 		FollowTargetEntityID: followTargetEntityID,
 		FollowDistance:       defaultFollowDistance,
 		MaxFollowDistance:    maxFollowDistance,
+		YOffset:              5,
 	}
 
 	entity := NewEntity(

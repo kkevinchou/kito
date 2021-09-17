@@ -4,6 +4,7 @@ type FollowComponent struct {
 	FollowTargetEntityID int
 	FollowDistance       float64
 	MaxFollowDistance    float64
+	YOffset              float64
 
 	Zoom          float64
 	ZoomDirection int

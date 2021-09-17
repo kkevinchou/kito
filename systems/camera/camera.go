@@ -64,8 +64,6 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	followComponent := cc.FollowComponent
 	transformComponent := cc.TransformComponent
 
-	cc.EasingComponent.Update(delta)
-
 	if followComponent == nil {
 		return
 	}
@@ -77,7 +75,7 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	}
 
 	targetComponentContainer := target.GetComponentContainer()
-	targetPosition := targetComponentContainer.TransformComponent.Position
+	targetPosition := targetComponentContainer.TransformComponent.Position.Add(mgl64.Vec3{0, followComponent.YOffset, 0})
 
 	var xRel, yRel float64
 
@@ -123,6 +121,8 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 		return
 	}
 
+	cc.EasingComponent.Update(delta)
+
 	// TBH this easing stuff feels awkward here, might belong in a separate system
 	var easingValue float64
 	if mouseInput.MouseWheelDelta != 0 {
@@ -151,6 +151,7 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 
 	}
 
+	// I have no idea what I'm doing, I messed with some factors and this felt good for the zoom
 	followComponent.Zoom += math.Pow(1.8, followComponent.ZoomVelocity/2) * float64(followComponent.ZoomDirection) * (float64(1) / float64(delta.Milliseconds())) * mouseWheelSensitivity
 
 	if followComponent.FollowDistance-followComponent.Zoom >= followComponent.MaxFollowDistance {
