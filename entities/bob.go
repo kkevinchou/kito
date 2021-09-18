@@ -4,13 +4,16 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
-	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/model"
+	"github.com/kkevinchou/kito/lib/textures"
 	"github.com/kkevinchou/kito/types"
 	"github.com/kkevinchou/kito/utils"
 )
 
 func NewBob(position mgl64.Vec3) *EntityImpl {
-	assetManager := directory.GetDirectory().AssetManager()
+	modelName := "cowboy"
+	shaderProgram := "model"
+	textureName := "character Texture"
 
 	transformComponent := &components.TransformComponent{
 		Position:    position,
@@ -18,25 +21,39 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 	}
 
 	renderData := &components.ModelRenderData{
-		Visible:  true,
-		Animated: true,
+		ID:            modelName,
+		Visible:       true,
+		ShaderProgram: shaderProgram,
 	}
 	renderComponent := &components.RenderComponent{
 		RenderData: renderData,
 	}
 
-	modelSpec := assetManager.GetAnimatedModel("cowboy")
+	assetManager := directory.GetDirectory().AssetManager()
+	modelSpec := assetManager.GetAnimatedModel(modelName)
 
-	var animatedModel *animation.AnimatedModel
+	var m *model.Model
+	var vao uint32
+	var vertexCount int
+	var texture *textures.Texture
+
 	if utils.IsClient() {
-		animatedModel = animation.NewAnimatedModel(modelSpec, 3)
+		m = model.NewModel(modelSpec)
+		vao = m.VAO()
+		vertexCount = m.VertexCount()
+		texture = assetManager.GetTexture(textureName)
 	} else {
-		animatedModel = animation.NewAnimatedModelWithoutMesh(modelSpec, 3)
+		m = model.NewPlaceholderModel(modelSpec)
 	}
 
 	animationComponent := &components.AnimationComponent{
-		AnimatedModel: animatedModel, // potentially shared across many entities
-		Animation:     modelSpec.Animation,
+		Animation: m.Animation,
+	}
+
+	meshComponent := &components.MeshComponent{
+		ModelVAO:         vao,
+		ModelVertexCount: vertexCount,
+		Texture:          texture,
 	}
 
 	physicsComponent := &components.PhysicsComponent{
@@ -53,6 +70,7 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 		animationComponent,
 		physicsComponent,
 		thirdPersonControllerComponent,
+		meshComponent,
 	}
 
 	if utils.IsClient() {

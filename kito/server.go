@@ -37,8 +37,10 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
-	block := entities.NewBlock()
-	return []entities.Entity{block}
+	// rigidBody := entities.NewRigidBody(mgl64.Vec3{0, 10, -5})
+	// fmt.Println("Created rigid body entity with ID", rigidBody.ID)
+	// return []entities.Entity{rigidBody}
+	return []entities.Entity{}
 }
 
 func serverSystemSetup(g *Game, assetsDirectory string) {

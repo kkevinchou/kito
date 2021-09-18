@@ -17,6 +17,33 @@ import (
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
+func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, meshComponent *components.MeshComponent, animationComponent *components.AnimationComponent, modelMatrix mgl64.Mat4) {
+	shader.Use()
+	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix))
+	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
+	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	shader.SetUniformVec3("viewPos", utils.Vec3F64ToF32(viewerContext.Position))
+	shader.SetUniformFloat("shadowDistance", float32(shadowMap.ShadowDistance()))
+	shader.SetUniformVec3("directionalLightDir", utils.Vec3F64ToF32(lightContext.DirectionalLightDir))
+	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToF32(lightContext.LightSpaceMatrix))
+	shader.SetUniformInt("shadowMap", 31)
+
+	if animationComponent != nil {
+		animationTransforms := animationComponent.AnimationTransforms
+		for i := 0; i < len(animationTransforms); i++ {
+			shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
+		}
+	}
+
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, meshComponent.Texture.ID)
+	gl.ActiveTexture(gl.TEXTURE31)
+	gl.BindTexture(gl.TEXTURE_2D, shadowMap.DepthTexture())
+	gl.BindVertexArray(meshComponent.ModelVAO)
+
+	gl.DrawElements(gl.TRIANGLES, int32(meshComponent.ModelVertexCount), gl.UNSIGNED_INT, nil)
+}
+
 func newTexture(file string) uint32 {
 	imgFile, err := os.Open(file)
 	if err != nil {
@@ -113,7 +140,7 @@ func drawHUDTextureToQuad(viewerContext ViewerContext, shader *shaders.ShaderPro
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawMesh(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, texture *textures.Texture, mesh Mesh, modelMatrix mgl64.Mat4) {
+func drawThingy(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, texture *textures.Texture, mesh Mesh, modelMatrix mgl64.Mat4) {
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, texture.ID)
 	gl.ActiveTexture(gl.TEXTURE31)
@@ -132,32 +159,6 @@ func drawMesh(viewerContext ViewerContext, lightContext LightContext, shadowMap 
 
 	gl.BindVertexArray(mesh.GetVAO())
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
-}
-
-func drawAnimatedMesh(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, texture *textures.Texture, animationComponent *components.AnimationComponent, modelMatrix mgl64.Mat4) {
-	mesh := animationComponent.AnimatedModel.Mesh
-	animationTransforms := animationComponent.AnimationTransforms
-
-	shader.Use()
-	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix))
-	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
-	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
-	shader.SetUniformVec3("viewPos", utils.Vec3F64ToF32(viewerContext.Position))
-	shader.SetUniformFloat("shadowDistance", float32(shadowMap.ShadowDistance()))
-	shader.SetUniformVec3("directionalLightDir", utils.Vec3F64ToF32(lightContext.DirectionalLightDir))
-	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToF32(lightContext.LightSpaceMatrix))
-	shader.SetUniformInt("shadowMap", 31)
-
-	for i := 0; i < len(animationTransforms); i++ {
-		shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
-	}
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, texture.ID)
-	gl.ActiveTexture(gl.TEXTURE31)
-	gl.BindTexture(gl.TEXTURE_2D, shadowMap.DepthTexture())
-	gl.BindVertexArray(mesh.VAO())
-
-	gl.DrawElements(gl.TRIANGLES, int32(mesh.VertexCount()), gl.UNSIGNED_INT, nil)
 }
 
 func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl64.Mat4) mgl64.Mat4 {

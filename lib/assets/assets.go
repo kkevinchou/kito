@@ -3,14 +3,14 @@ package assets
 import (
 	"fmt"
 
-	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/assets/loaders"
+	"github.com/kkevinchou/kito/lib/modelspec"
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
 type AssetManager struct {
 	textures       map[string]*textures.Texture
-	animatedModels map[string]*animation.ModelSpecification
+	animatedModels map[string]*modelspec.ModelSpecification
 }
 
 func NewAssetManager(directory string, loadTextures bool) *AssetManager {
@@ -34,7 +34,7 @@ func (a *AssetManager) GetTexture(name string) *textures.Texture {
 	return a.textures[name]
 }
 
-func (a *AssetManager) GetAnimatedModel(name string) *animation.ModelSpecification {
+func (a *AssetManager) GetAnimatedModel(name string) *modelspec.ModelSpecification {
 	if _, ok := a.animatedModels[name]; !ok {
 		panic(fmt.Sprintf("could not find animated model %s", name))
 	}

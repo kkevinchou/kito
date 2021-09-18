@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
 	utils "github.com/kkevinchou/kito/lib/libutils"
+	"github.com/kkevinchou/kito/lib/modelspec"
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
@@ -29,14 +29,14 @@ func LoadTextures(directory string) map[string]*textures.Texture {
 	return textureMap
 }
 
-func LoadAnimatedModels(directory string) map[string]*animation.ModelSpecification {
+func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecification {
 	var subDirectories []string = []string{"collada"}
 
 	extensions := map[string]interface{}{
 		".dae": nil,
 	}
 
-	animationMap := map[string]*animation.ModelSpecification{}
+	animationMap := map[string]*modelspec.ModelSpecification{}
 	fileMetaData := utils.GetFileMetaData(directory, subDirectories, extensions)
 
 	for _, metaData := range fileMetaData {

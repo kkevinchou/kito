@@ -216,12 +216,12 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	)
 
 	floorModelMatrix := createModelMatrix(
-		mgl64.Scale3D(1000, 1000, 1000),
+		mgl64.Scale3D(500, 500, 500),
 		mgl64.Ident4(),
 		mgl64.Ident4(),
 	)
 
-	drawMesh(
+	drawThingy(
 		viewerContext,
 		lightContext,
 		s.shadowMap,
@@ -235,38 +235,47 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		componentContainer := entity.GetComponentContainer()
 		renderData := componentContainer.RenderComponent.GetRenderData()
 		entityPosition := componentContainer.TransformComponent.Position
-		rotation := componentContainer.TransformComponent.Orientation
+		orientation := componentContainer.TransformComponent.Orientation
+		translation := mgl64.Translate3D(entityPosition.X(), entityPosition.Y(), entityPosition.Z())
 
 		if !renderData.IsVisible() {
 			continue
 		}
 
-		if rData, ok := renderData.(*components.ModelRenderData); ok {
-			if rData.Animated {
+		if modelRenderData, ok := renderData.(*components.ModelRenderData); ok {
+			var meshModelMatrix mgl64.Mat4
 
+			if modelRenderData.ID == "cowboy" || modelRenderData.ID == "box" || modelRenderData.ID == "cube_shifted" || modelRenderData.ID == "cube_static" {
 				// // accounting for blender change of axis
-				// xr := mgl32.Ident4()
-				xr := mgl64.QuatRotate(mgl64.DegToRad(90), mgl64.Vec3{1, 0, 0}).Mat4()
+				xr := mgl64.QuatRotate(mgl64.DegToRad(-90), mgl64.Vec3{1, 0, 0}).Mat4()
 				yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
-
-				meshModelMatrix := createModelMatrix(
+				meshModelMatrix = createModelMatrix(
 					mgl64.Ident4(),
-					// mgl32.Scale3D(0.07, 0.07, 0.07),
-					rotation.Mat4().Mul4(xr.Mul4(yr)),
-					mgl64.Translate3D(entityPosition.X(), entityPosition.Y(), entityPosition.Z()),
+					orientation.Mat4().Mul4(yr).Mul4(xr),
+					translation,
 				)
-
-				animationComponent := componentContainer.AnimationComponent
-				drawAnimatedMesh(
-					viewerContext,
-					lightContext,
-					s.shadowMap,
-					shaderManager.GetShaderProgram("model"),
-					s.assetManager.GetTexture("character Texture"),
-					animationComponent,
-					meshModelMatrix,
+			} else {
+				// meshModelMatrix = createModelMatrix(
+				// 	mgl64.Scale3D(0.07, 0.07, 0.07),
+				// 	mgl64.Ident4(),
+				// 	mgl64.Translate3D(entityPosition.X(), entityPosition.Y(), entityPosition.Z()),
+				// )
+				meshModelMatrix = createModelMatrix(
+					mgl64.Ident4(),
+					orientation.Mat4(),
+					translation,
 				)
 			}
+
+			drawModel(
+				viewerContext,
+				lightContext,
+				s.shadowMap,
+				shaderManager.GetShaderProgram(modelRenderData.ShaderProgram),
+				componentContainer.MeshComponent,
+				componentContainer.AnimationComponent,
+				meshModelMatrix,
+			)
 		} else if _, ok := renderData.(*components.BlockRenderData); ok {
 		}
 	}

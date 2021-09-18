@@ -28,9 +28,9 @@ func (t *ItemRenderData) IsVisible() bool {
 }
 
 type ModelRenderData struct {
-	ID       string
-	Visible  bool
-	Animated bool
+	ID            string
+	Visible       bool
+	ShaderProgram string
 }
 
 func (m *ModelRenderData) IsVisible() bool {
