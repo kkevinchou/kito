@@ -13,12 +13,13 @@ type Joint struct {
 	InverseBindTransform mgl32.Mat4
 }
 
-func NewJoint(id int, name string, localBindTransform mgl32.Mat4) *Joint {
+func NewJoint(id int, name string, localBindTransform mgl32.Mat4, inverseBindTransform mgl32.Mat4) *Joint {
 	joint := Joint{
-		ID:                 id,
-		Name:               name,
-		Children:           []*Joint{},
-		LocalBindTransform: localBindTransform,
+		ID:                   id,
+		Name:                 name,
+		Children:             []*Joint{},
+		LocalBindTransform:   localBindTransform,
+		InverseBindTransform: inverseBindTransform,
 	}
 
 	return &joint

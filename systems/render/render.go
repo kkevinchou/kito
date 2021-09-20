@@ -260,9 +260,10 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 				// 	mgl64.Ident4(),
 				// 	mgl64.Translate3D(entityPosition.X(), entityPosition.Y(), entityPosition.Z()),
 				// )
+				yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
 				meshModelMatrix = createModelMatrix(
-					mgl64.Ident4(),
-					orientation.Mat4(),
+					mgl64.Scale3D(0.07, 0.07, 0.07),
+					orientation.Mat4().Mul4(yr),
 					translation,
 				)
 			}

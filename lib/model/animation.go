@@ -70,6 +70,13 @@ func configureJointVertexAttributes(triIndices []int, triIndicesStride int, join
 
 	for i := 0; i < len(triIndices); i += triIndicesStride {
 		vertexIndex := triIndices[i]
+
+		for j, id := range jointIDs[vertexIndex] {
+			if id == 38 || id == 50 || id == 51 {
+				jointWeights[vertexIndex][j] = 0
+			}
+		}
+
 		ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
 
 		for _, id := range ids {
@@ -95,8 +102,8 @@ func configureJointVertexAttributes(triIndices []int, triIndicesStride int, join
 		// for j := 0; j < len(jointIDsAttribute); j++ {
 		// 	jointIDsAttribute[j] = 0
 		// }
-
 		jointWeightsAttribute = append(jointWeightsAttribute, weights...)
+
 	}
 
 	var vboJointIDs uint32

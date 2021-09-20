@@ -121,7 +121,8 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	}
 
 	// parse skinning information, joint weights
-	skin := rawCollada.LibraryControllers[0].Controller.Skin
+	// TODO: handle multiple skins (sometimes the model is broken down into multiple indepdendent meshes)
+	skin := rawCollada.LibraryControllers[0].Controller[0].Skin
 
 	vcount := parseIntArrayString(skin.VertexWeights.VCount)
 	v := parseIntArrayString(skin.VertexWeights.V)
@@ -144,20 +145,34 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			jointWeightsList = append(jointWeightsList, weightIndex)
 		}
 		jointIDs = append(jointIDs, jointIDsList)
+		all_spine2 := true
+		for _, jj := range jointIDsList {
+			if jj != 0 {
+				all_spine2 = false
+			}
+		}
+		if all_spine2 {
+			a := 1
+			_ = a
+		}
 		jointWeights = append(jointWeights, jointWeightsList)
 		vIndex += (numWeights * 2)
 	}
 
 	var jointSourceID string
 	var weightSourceID string
-	var inverseBindMatrixSourceID string
 
 	for _, input := range skin.VertexWeights.Input {
 		if input.Semantic == string(SemanticJoint) {
 			jointSourceID = string(input.Source)[1:] // remove preceding #
 		} else if input.Semantic == string(SemanticWeight) {
 			weightSourceID = string(input.Source)[1:] // remove preceding #
-		} else if input.Semantic == string(SemanticInverseBindMatrix) {
+		}
+	}
+
+	var inverseBindMatrixSourceID string
+	for _, input := range skin.Joints.Input {
+		if input.Semantic == string(SemanticInverseBindMatrix) {
 			inverseBindMatrixSourceID = string(input.Source)[1:]
 		}
 	}
@@ -282,6 +297,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			// todo: update root finding logic and parseJointElement to produce more rich datastructures
 			// i'd like to have access to a jointIDsToIndex map that either maps to a name or a a joint index directly.
 			if _, ok := jointNamesToIndex["Bone"]; !ok {
+				fmt.Println(documentPath)
 				panic(fmt.Sprintf("couldn't find joint name \"%s\" in joint listing. available joints: %v", jointName, jointNamesToIndex))
 			} else {
 				jointName = "Bone"
@@ -317,6 +333,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			timeStampToPose[timeStamp][jointIndex] = &modelspec.JointTransform{
 				Translation: translation,
 				Rotation:    rotation,
+				Mat4:        transform,
 			}
 		}
 	}
@@ -334,6 +351,23 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			Start: time.Duration(int(timeStamp*1000)) * time.Millisecond,
 			Pose:  timeStampToPose[timeStamp],
 		})
+	}
+
+	if strings.Contains(documentPath, "Jumping") {
+		jointID := 3
+		jointTransform := keyFrames[0].Pose[jointID]
+		fmt.Println(len(keyFrames), "KEYFRAMES TOTAL")
+		fmt.Println("JOINT ID", jointID)
+		fmt.Println("JOINT NAME", joints[jointID])
+		fmt.Println("JOINT INDEX", jointNamesToIndex[joints[jointID]])
+		fmt.Println("ROTATION IDENTITY", mgl32.QuatIdent())
+		fmt.Println("TRANSLATION", jointTransform.Translation)
+		fmt.Println("ROTATION", jointTransform.Rotation)
+		fmt.Println("ROTATION TO FORWARD Z", jointTransform.Rotation.Rotate(mgl32.Vec3{0, 0, -1}))
+		fmt.Println("ROTATION AS MAT4\n", jointTransform.Rotation.Mat4())
+
+		m := ParseMatrixArrayString("0.730190 0.053016 -0.681184 0.441448 -0.000008 0.996986 0.077585 87.042564 0.683244 -0.056646 0.727990 -1.176846 0.000000 0.000000 0.000000 1.000000")
+		fmt.Println("EXPECTED MATRIX\n", m)
 	}
 
 	// TODO: perform assertions on number of joints, verts, etc
@@ -364,11 +398,11 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	return result, nil
 }
 
-func parseJointElement(node *Node, jointsToIndex map[string]int, inverseBindMatrices []mgl32.Mat4) *modelspec.JointSpecification {
+func parseJointElement(node *Node, jointNamesToIndex map[string]int, inverseBindMatrices []mgl32.Mat4) *modelspec.JointSpecification {
 	children := []*modelspec.JointSpecification{}
 
 	for _, childNode := range node.Node {
-		children = append(children, parseJointElement(childNode, jointsToIndex, inverseBindMatrices))
+		children = append(children, parseJointElement(childNode, jointNamesToIndex, inverseBindMatrices))
 	}
 
 	// TODO: cowboy.dae did not have a matrix but instead used translate, rotate scale.
@@ -377,13 +411,15 @@ func parseJointElement(node *Node, jointsToIndex map[string]int, inverseBindMatr
 		fmt.Println("empty node matrix")
 	}
 
-	bindTransform := parseMatrixArrayString(node.Matrix[0].V)
+	bindTransform := ParseMatrixArrayString(node.Matrix[0].V)
+	jointID := jointNamesToIndex[string(node.Id)]
 
 	joint := &modelspec.JointSpecification{
-		ID:            jointsToIndex[string(node.Id)],
-		Name:          string(node.Id),
-		BindTransform: bindTransform,
-		Children:      children,
+		ID:                   jointID,
+		Name:                 string(node.Id),
+		BindTransform:        bindTransform,
+		InverseBindTransform: inverseBindMatrices[jointID],
+		Children:             children,
 	}
 	return joint
 }

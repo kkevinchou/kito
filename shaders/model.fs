@@ -7,6 +7,9 @@ in VS_OUT {
     vec4 FragPosLightSpace;
     mat4 View;
     vec2 TexCoord;
+    flat int SpecialVert;
+    flat int SpecialVert2;
+    flat int SpecialVert3;
 } fs_in;
 
 uniform vec3 viewPos;
@@ -74,5 +77,15 @@ void main()
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, lightDir);
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color; 
 
-    FragColor = vec4(lighting, 1.0);
+    if (fs_in.SpecialVert3 == 1) {
+        FragColor = vec4(1, 1, 1, 1);
+    } else if (fs_in.SpecialVert == 1) {
+        discard;
+        FragColor = vec4(1, 1, 1, 1);
+    } else if (fs_in.SpecialVert2 == 1) {
+        FragColor = vec4(1, 0, 0, 1);
+    } else {
+        // FragColor = vec4(1, 0, 0, 1);
+        FragColor = vec4(lighting, 1);
+    }
 }

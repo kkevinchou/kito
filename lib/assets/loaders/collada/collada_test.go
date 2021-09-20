@@ -14,8 +14,8 @@ import (
 // 4260 individual vertices (vertices can be counted multiple times)
 // 740 distinct vertices
 
-func TestBox(t *testing.T) {
-	c, err := collada.ParseCollada("sample/box.dae")
+func TestManWalk(t *testing.T) {
+	c, err := collada.ParseCollada("sample/man_walk.dae")
 	// printKeyFrames(c)
 	if err != nil {
 		t.Fatal(err)
@@ -25,8 +25,8 @@ func TestBox(t *testing.T) {
 	t.Fail()
 }
 
-func TestJumping(t *testing.T) {
-	c, err := collada.ParseCollada("sample/Jumping.dae")
+func TestBox(t *testing.T) {
+	c, err := collada.ParseCollada("sample/box.dae")
 	// printKeyFrames(c)
 	if err != nil {
 		t.Fatal(err)

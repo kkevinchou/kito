@@ -11,9 +11,9 @@ import (
 )
 
 func NewBob(position mgl64.Vec3) *EntityImpl {
-	modelName := "cowboy"
+	modelName := "guard_running"
 	shaderProgram := "model"
-	textureName := "character Texture"
+	textureName := "Guard_02__diffuse"
 
 	transformComponent := &components.TransformComponent{
 		Position:    position,
@@ -49,6 +49,7 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 	animationComponent := &components.AnimationComponent{
 		Animation: m.Animation,
 	}
+	_ = animationComponent
 
 	meshComponent := &components.MeshComponent{
 		ModelVAO:         vao,
