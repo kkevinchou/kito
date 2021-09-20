@@ -62,8 +62,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 }
 
 func clientEntitySetup(g *Game) []entities.Entity {
-	block := entities.NewBlock()
-	return []entities.Entity{block}
+	return []entities.Entity{}
 }
 
 func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
@@ -72,7 +71,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	renderSystem := render.NewRenderSystem(g)
 
 	// TODO: asset manager creation has to happen after the render system is set up
-	// because it depends on GL initializations
+	// because it depends on GL initializations. Should probably decouple GL initializations from the rendering system
 	assetManager := assets.NewAssetManager(assetsDirectory, true)
 	renderSystem.SetAssetManager(assetManager)
 

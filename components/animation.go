@@ -4,16 +4,17 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/model"
 )
 
 type AnimationComponent struct {
-	ElapsedTime   time.Duration
-	Pose          map[int]mgl32.Mat4
-	AnimatedModel *animation.AnimatedModel // potentially shared across many entities
-	Animation     *animation.Animation
-
+	// stateful data that is manipulated by the Animation System
+	ElapsedTime         time.Duration
+	Pose                map[int]mgl32.Mat4
 	AnimationTransforms map[int]mgl32.Mat4
+
+	// these fields are from the loaded animation and should not be modified
+	Animation *model.Animation
 }
 
 func (c *AnimationComponent) GetAnimationComponent() *AnimationComponent {

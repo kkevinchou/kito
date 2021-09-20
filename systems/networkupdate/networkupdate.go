@@ -53,6 +53,7 @@ func (s *NetworkUpdateSystem) RegisterEntity(entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 
 	if componentContainer.TransformComponent != nil && componentContainer.NetworkComponent != nil {
+		fmt.Println("NetworkUpdate system registered entity with ID", entity.GetID())
 		s.entities = append(s.entities, entity)
 	}
 }

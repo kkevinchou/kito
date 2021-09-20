@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
+	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
 // cowboy model
@@ -14,21 +14,19 @@ import (
 // 4260 individual vertices (vertices can be counted multiple times)
 // 740 distinct vertices
 
-func TestRunAnimation(t *testing.T) {
-	c, err := collada.ParseCollada("sample/female/run_forward.dae")
+func TestBox(t *testing.T) {
+	c, err := collada.ParseCollada("sample/box.dae")
 	// printKeyFrames(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_ = animation.NewAnimatedModel(c, 3)
-
 	fmt.Println(c)
 	t.Fail()
 }
 
-func TestWolf(t *testing.T) {
-	c, err := collada.ParseCollada("sample/pete_walk.dae")
+func TestJumping(t *testing.T) {
+	c, err := collada.ParseCollada("sample/Jumping.dae")
 	// printKeyFrames(c)
 	if err != nil {
 		t.Fatal(err)
@@ -60,7 +58,7 @@ func TestCowboy(t *testing.T) {
 	t.Fail()
 }
 
-func printKeyFrames(c *animation.ModelSpecification) {
+func printKeyFrames(c *modelspec.ModelSpecification) {
 	for _, kf := range c.Animation.KeyFrames {
 		fmt.Println(kf.Start, kf.Pose)
 	}
@@ -90,14 +88,14 @@ func TestJointHierarchy(t *testing.T) {
 	}
 }
 
-func collectBindPoseAnimationTransforms(joint *animation.JointSpecification, transforms map[int]mgl32.Mat4) {
+func collectBindPoseAnimationTransforms(joint *modelspec.JointSpecification, transforms map[int]mgl32.Mat4) {
 	transforms[joint.ID] = joint.BindTransform
 	for _, child := range joint.Children {
 		collectBindPoseAnimationTransforms(child, transforms)
 	}
 }
 
-func collectIDs(joint *animation.JointSpecification, ids *[]int) {
+func collectIDs(joint *modelspec.JointSpecification, ids *[]int) {
 	*ids = append(*ids, joint.ID)
 	for _, child := range joint.Children {
 		collectIDs(child, ids)

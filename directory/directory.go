@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/modelspec"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
@@ -15,7 +15,7 @@ import (
 
 type IAssetManager interface {
 	GetTexture(name string) *textures.Texture
-	GetAnimatedModel(name string) *animation.ModelSpecification
+	GetAnimatedModel(name string) *modelspec.ModelSpecification
 }
 
 type IRenderSystem interface {

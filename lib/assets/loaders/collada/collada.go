@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/libutils"
+	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
 type SemanticType string
@@ -29,9 +30,11 @@ const (
 
 	ArmatureNodeID = "Armature"
 	ArmatureName   = "Armature"
+
+	debugPrinting = false
 )
 
-func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
+func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	rawCollada, err := LoadDocument(documentPath)
 	if err != nil {
 		return nil, err
@@ -40,11 +43,20 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	// parse geometry
 	mesh := rawCollada.LibraryGeometries[0].Geometry[0].Mesh
 
-	// for some reason, my personal blender exports will place
-	// polygon information in a "triangles" element instead of "polylist"
+	// Blender supports both PolyList and Triangles for storing mesh polygons
+	var polyInput []*InputShared
+	var polyValues string
+
+	if len(mesh.Polylist) > 0 {
+		polyInput = mesh.Polylist[0].Input
+		polyValues = mesh.Polylist[0].P.V
+	} else if len(mesh.Triangles) > 0 {
+		polyInput = mesh.Triangles[0].Input
+		polyValues = mesh.Triangles[0].P.V
+	}
 
 	var normalSourceID, textureSourceID Uri
-	for _, input := range mesh.Polylist[0].Input {
+	for _, input := range polyInput {
 		if input.Semantic == string(SemanticNormal) {
 			normalSourceID = input.Source[1:] // remove leading "#"
 		} else if input.Semantic == string(SemanticTexCoord) {
@@ -87,13 +99,36 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 	normalSource := ParseVec3Array(normalSourceElement)     // looks at <geometries>
 	textureSource := ParseVec2Array(textureSourceElement)   // looks at <geometries>
 
-	triVertices := parseIntArrayString(mesh.Polylist[0].P.V)
+	triVertices := parseIntArrayString(polyValues)
+
+	if debugPrinting && strings.Contains(documentPath, "Jump") {
+		fmt.Println("NUM POSITIONS", len(positionSource))
+		fmt.Println("NUM NORMALS", len(normalSource))
+		fmt.Println("NUM TEXTURES", len(textureSource))
+	}
+
+	if len(rawCollada.LibraryControllers) == 0 || len(rawCollada.LibraryAnimations) == 0 {
+		// no animations
+		return &modelspec.ModelSpecification{
+			TriIndices:       triVertices,
+			TriIndicesStride: len(polyInput),
+
+			PositionSourceData: positionSource,
+			NormalSourceData:   normalSource,
+			TextureSourceData:  textureSource,
+			ColorSourceData:    nil,
+		}, nil
+	}
 
 	// parse skinning information, joint weights
 	skin := rawCollada.LibraryControllers[0].Controller.Skin
 
 	vcount := parseIntArrayString(skin.VertexWeights.VCount)
 	v := parseIntArrayString(skin.VertexWeights.V)
+
+	if debugPrinting && strings.Contains(documentPath, "Jumping") {
+		fmt.Println("NUM WEIGHTS", len(vcount))
+	}
 
 	jointIDs := [][]int{}
 	jointWeights := [][]int{}
@@ -112,10 +147,6 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		jointWeights = append(jointWeights, jointWeightsList)
 		vIndex += (numWeights * 2)
 	}
-
-	// parse joint hierarchy
-	visualScene := rawCollada.LibraryVisualScenes[0].VisualScene[0]
-	// armatureID := visualScene.Node[0].Id // was used for bob.dae
 
 	var jointSourceID string
 	var weightSourceID string
@@ -148,12 +179,52 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		}
 	}
 
-	jointsToIndex := map[string]int{}
-	for i, name := range joints {
-		jointsToIndex[name] = i
+	// Sanity checking that we parsed the model correctly
+	if debugPrinting && strings.Contains(documentPath, "Jumping") {
+		if len(jointIDs) != len(vcount) {
+			fmt.Println("WHAT A")
+		}
+		if len(jointWeights) != len(vcount) {
+			fmt.Println("WHAT B")
+		}
+
+		for i, numWeights := range vcount {
+			jid := jointIDs[i]
+			jw := jointWeights[i]
+
+			if len(jid) != numWeights {
+				fmt.Println("WHAT C")
+			}
+			if len(jw) != numWeights {
+				fmt.Println("WHAT D")
+			}
+
+			var sum float32
+			var seenWeights []float32
+			for _, wid := range jw {
+				sum += weights[wid]
+				seenWeights = append(seenWeights, weights[wid])
+			}
+			if sum != 1 {
+				fmt.Println("WHAT E", i, jid, jw, seenWeights)
+			}
+		}
 	}
 
+	jointNamesToIndex := map[string]int{}
+	for i, name := range joints {
+		jointNamesToIndex[name] = i
+	}
+
+	if debugPrinting && strings.Contains(documentPath, "Jumping") {
+		fmt.Println(jointNamesToIndex)
+	}
+
+	// parse joint hierarchy
+	visualScene := rawCollada.LibraryVisualScenes[0].VisualScene[0]
 	var rootNode *Node
+
+	// finding the root
 	for _, node := range visualScene.Node {
 		if node.Type == "JOINT" {
 			rootNode = node
@@ -161,18 +232,28 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		}
 
 		// TODO: no idea if this works
-		if len(node.Node) == 1 && node.Node[0].Type == "JOINT" {
+		if len(node.Node) > 0 && node.Node[0].Type == "JOINT" {
 			rootNode = node.Node[0]
 			break
 		}
 	}
 
-	rootJoint := parseJointElement(rootNode, jointsToIndex, inverseBindMatrices)
+	rootJoint := parseJointElement(rootNode, jointNamesToIndex, inverseBindMatrices)
+	if debugPrinting && strings.Contains(documentPath, "Jump") {
+		printHierarchy(rootJoint, 0)
+	}
 
 	// parse animations
-	timeStampToPose := map[float32]map[int]*animation.JointTransform{}
+	timeStampToPose := map[float32]map[int]*modelspec.JointTransform{}
 
-	for _, animationElement := range rawCollada.LibraryAnimations[0].Animations {
+	animations := rawCollada.LibraryAnimations[0].Animations
+	if len(animations[0].Animations) > 0 {
+		// dirty hack for handling blender exported colladas. not sure why they nest it under
+		// yet another animation element. This actually trips up the vscode collada renderer too...
+		animations = animations[0].Animations
+	}
+
+	for _, animationElement := range animations {
 		// get the input/output sources
 		var inputSource Uri
 		var outputSource Uri
@@ -195,10 +276,18 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		target := animationElement.Channel.Target
 		jointName := strings.Split(target, "/")[0] // guessing the sample i'm looking at looks like: "Torso/transform"
 
-		if _, ok := jointsToIndex[jointName]; !ok {
-			panic(fmt.Sprintf("couldn't find joint name \"%s\" in joint listing. available joints: %v", jointName, jointsToIndex))
+		if _, ok := jointNamesToIndex[jointName]; !ok {
+			// dirty hack for testing blender collada
+			// target actually looks for IDs, and we shouldn't be using jointNamesToIndex
+			// todo: update root finding logic and parseJointElement to produce more rich datastructures
+			// i'd like to have access to a jointIDsToIndex map that either maps to a name or a a joint index directly.
+			if _, ok := jointNamesToIndex["Bone"]; !ok {
+				panic(fmt.Sprintf("couldn't find joint name \"%s\" in joint listing. available joints: %v", jointName, jointNamesToIndex))
+			} else {
+				jointName = "Bone"
+			}
 		}
-		jointID := jointsToIndex[jointName]
+		jointIndex := jointNamesToIndex[jointName]
 
 		var timeStamps []float32
 		var poseMatrices []mgl32.Mat4
@@ -218,12 +307,16 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 			timeStamp := timeStamps[i]
 			transform := poseMatrices[i]
 			if timeStampToPose[timeStamp] == nil {
-				timeStampToPose[timeStamp] = map[int]*animation.JointTransform{}
+				timeStampToPose[timeStamp] = map[int]*modelspec.JointTransform{}
 			}
 
-			timeStampToPose[timeStamp][jointID] = &animation.JointTransform{
-				Translation: transform.Col(3).Vec3(),
-				Rotation:    mgl32.Mat4ToQuat(transform),
+			// translation := transform.Col(3).Vec3()
+			// rotation := mgl32.Mat4ToQuat(transform)
+			translation, rotation := libutils.Decompose(transform)
+
+			timeStampToPose[timeStamp][jointIndex] = &modelspec.JointTransform{
+				Translation: translation,
+				Rotation:    rotation,
 			}
 		}
 	}
@@ -235,9 +328,9 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 
 	sort.Sort(byFloat32(timeStamps))
 
-	keyFrames := []*animation.KeyFrame{}
+	keyFrames := []*modelspec.KeyFrame{}
 	for _, timeStamp := range timeStamps {
-		keyFrames = append(keyFrames, &animation.KeyFrame{
+		keyFrames = append(keyFrames, &modelspec.KeyFrame{
 			Start: time.Duration(int(timeStamp*1000)) * time.Millisecond,
 			Pose:  timeStampToPose[timeStamp],
 		})
@@ -245,9 +338,13 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 
 	// TODO: perform assertions on number of joints, verts, etc
 
-	result := &animation.ModelSpecification{
+	// TODO clean up ModelSpecification. This represents the API between our loader logic
+	// and our internal model representation. Theoretically struct shouldn't change
+	// if we load a different file format which allows our internal model representation code
+	// to not require changes either.
+	result := &modelspec.ModelSpecification{
 		TriIndices:       triVertices,
-		TriIndicesStride: len(mesh.Polylist[0].Input),
+		TriIndicesStride: len(polyInput),
 
 		PositionSourceData: positionSource,
 		NormalSourceData:   normalSource,
@@ -261,14 +358,14 @@ func ParseCollada(documentPath string) (*animation.ModelSpecification, error) {
 		JointWeights: jointWeights,
 
 		Root:      rootJoint,
-		Animation: &animation.Animation{KeyFrames: keyFrames, Length: keyFrames[len(keyFrames)-1].Start},
+		Animation: &modelspec.AnimationSpec{KeyFrames: keyFrames, Length: keyFrames[len(keyFrames)-1].Start},
 	}
 
 	return result, nil
 }
 
-func parseJointElement(node *Node, jointsToIndex map[string]int, inverseBindMatrices []mgl32.Mat4) *animation.JointSpecification {
-	children := []*animation.JointSpecification{}
+func parseJointElement(node *Node, jointsToIndex map[string]int, inverseBindMatrices []mgl32.Mat4) *modelspec.JointSpecification {
+	children := []*modelspec.JointSpecification{}
 
 	for _, childNode := range node.Node {
 		children = append(children, parseJointElement(childNode, jointsToIndex, inverseBindMatrices))
@@ -282,7 +379,7 @@ func parseJointElement(node *Node, jointsToIndex map[string]int, inverseBindMatr
 
 	bindTransform := parseMatrixArrayString(node.Matrix[0].V)
 
-	joint := &animation.JointSpecification{
+	joint := &modelspec.JointSpecification{
 		ID:            jointsToIndex[string(node.Id)],
 		Name:          string(node.Id),
 		BindTransform: bindTransform,
@@ -301,4 +398,15 @@ func (s byFloat32) Swap(i, j int) {
 }
 func (s byFloat32) Less(i, j int) bool {
 	return s[i] < s[j]
+}
+
+func printHierarchy(j *modelspec.JointSpecification, level int) {
+	indentation := ""
+	for i := 0; i < level; i++ {
+		indentation += "    "
+	}
+	fmt.Println(indentation + j.Name + fmt.Sprintf(" %d", j.ID))
+	for _, c := range j.Children {
+		printHierarchy(c, level+1)
+	}
 }

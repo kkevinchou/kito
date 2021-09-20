@@ -30,26 +30,36 @@ func handleGameStateUpdate(message *network.Message, world World) {
 		panic(err)
 	}
 
+	var newEntities []entities.Entity
 	for _, entitySnapshot := range gameStateupdate.Entities {
-		var entity entities.Entity
-		var err error
-		entity, err = world.GetEntityByID(entitySnapshot.ID)
+		_, err := world.GetEntityByID(entitySnapshot.ID)
+
 		if err != nil {
 			if types.EntityType(entitySnapshot.Type) == types.EntityTypeBob {
-				bob := entities.NewBob(mgl64.Vec3{})
-				bob.ID = entitySnapshot.ID
-				world.RegisterEntities([]entities.Entity{bob})
+				newEntity := entities.NewBob(mgl64.Vec3{})
+				newEntity.ID = entitySnapshot.ID
 
-				entity = bob
+				cc := newEntity.GetComponentContainer()
+				cc.TransformComponent.Position = entitySnapshot.Position
+				cc.TransformComponent.Orientation = entitySnapshot.Orientation
+
+				newEntities = append(newEntities, newEntity)
+			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeRigidBody {
+				newEntity := entities.NewRigidBody(entitySnapshot.Position)
+				newEntity.ID = entitySnapshot.ID
+
+				cc := newEntity.GetComponentContainer()
+				cc.TransformComponent.Position = entitySnapshot.Position
+				cc.TransformComponent.Orientation = entitySnapshot.Orientation
+
+				newEntities = append(newEntities, newEntity)
 			} else {
-				return
+				continue
 			}
 		}
 
-		cc := entity.GetComponentContainer()
-		cc.TransformComponent.Position = entitySnapshot.Position
-		cc.TransformComponent.Orientation = entitySnapshot.Orientation
 	}
+	world.RegisterEntities(newEntities)
 
 	for _, event := range gameStateupdate.Events {
 		if events.EventType(event.Type) == events.EventTypeCreateEntity {

@@ -68,3 +68,23 @@ func QuatLookAt(eye, center, up mgl64.Vec3) mgl64.Quat {
 	rotTarget := rotUp.Mul(rotDir) // remember, in reverse order.
 	return rotTarget
 }
+
+// takes a matrix composed of a translation, scale, and rotation (no projection) and decomposes it
+func Decompose(m mgl32.Mat4) (mgl32.Vec3, mgl32.Quat) {
+	translation := m.Col(3).Vec3()
+	m.SetCol(3, mgl32.Vec4{0, 0, 0, 1})
+
+	xScaleCol := m.Col(0).Vec3()
+	newXCol := xScaleCol.Mul(1. / xScaleCol.Len())
+	yScaleCol := m.Col(1).Vec3()
+	newYCol := yScaleCol.Mul(1. / yScaleCol.Len())
+	zScaleCol := m.Col(2).Vec3()
+	newZCol := zScaleCol.Mul(1. / zScaleCol.Len())
+	m.SetCol(0, newXCol.Vec4(0))
+	m.SetCol(1, newYCol.Vec4(0))
+	m.SetCol(2, newZCol.Vec4(0))
+
+	rotation := mgl32.Mat4ToQuat(m)
+
+	return translation, rotation
+}

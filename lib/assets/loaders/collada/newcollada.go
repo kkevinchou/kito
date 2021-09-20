@@ -49,9 +49,10 @@ type LibraryAnimations struct {
 }
 
 type Animation struct {
-	Source  []*Source `xml:"source"`
-	Sampler Sampler   `xml:"sampler"`
-	Channel Channel   `xml:"channel"`
+	Source     []*Source    `xml:"source"`
+	Sampler    Sampler      `xml:"sampler"`
+	Channel    Channel      `xml:"channel"`
+	Animations []*Animation `xml:"animation"`
 }
 
 //Sampler declares an interpolation sampling function for an animation.
