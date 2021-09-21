@@ -83,27 +83,7 @@ func configureJointVertexAttributes(triIndices []int, triIndicesStride int, join
 			jointIDsAttribute = append(jointIDsAttribute, int32(id))
 		}
 
-		// for j := 0; j < len(weights); j++ {
-		// 	weights[j] = 0
-		// }
-
-		// weights[0] = 1
-		// var sum float32
-		// for j := 0; j < len(weights); j++ {
-		// 	sum += weights[j]
-		// }
-		// if sum > 1.01 || sum < 1-0.01 {
-		// 	fmt.Println("WHACK", weights)
-		// }
-		// if len(weights) != 3 {
-		// 	fmt.Println("WHACK", weights)
-		// }
-
-		// for j := 0; j < len(jointIDsAttribute); j++ {
-		// 	jointIDsAttribute[j] = 0
-		// }
 		jointWeightsAttribute = append(jointWeightsAttribute, weights...)
-
 	}
 
 	var vboJointIDs uint32

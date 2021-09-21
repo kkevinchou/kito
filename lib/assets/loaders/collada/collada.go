@@ -30,8 +30,6 @@ const (
 
 	ArmatureNodeID = "Armature"
 	ArmatureName   = "Armature"
-
-	debugPrinting = false
 )
 
 func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
@@ -101,12 +99,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 
 	triVertices := parseIntArrayString(polyValues)
 
-	if debugPrinting && strings.Contains(documentPath, "Jump") {
-		fmt.Println("NUM POSITIONS", len(positionSource))
-		fmt.Println("NUM NORMALS", len(normalSource))
-		fmt.Println("NUM TEXTURES", len(textureSource))
-	}
-
 	if len(rawCollada.LibraryControllers) == 0 || len(rawCollada.LibraryAnimations) == 0 {
 		// no animations
 		return &modelspec.ModelSpecification{
@@ -127,10 +119,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	vcount := parseIntArrayString(skin.VertexWeights.VCount)
 	v := parseIntArrayString(skin.VertexWeights.V)
 
-	if debugPrinting && strings.Contains(documentPath, "Jumping") {
-		fmt.Println("NUM WEIGHTS", len(vcount))
-	}
-
 	jointIDs := [][]int{}
 	jointWeights := [][]int{}
 	vIndex := 0
@@ -145,16 +133,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			jointWeightsList = append(jointWeightsList, weightIndex)
 		}
 		jointIDs = append(jointIDs, jointIDsList)
-		all_spine2 := true
-		for _, jj := range jointIDsList {
-			if jj != 0 {
-				all_spine2 = false
-			}
-		}
-		if all_spine2 {
-			a := 1
-			_ = a
-		}
 		jointWeights = append(jointWeights, jointWeightsList)
 		vIndex += (numWeights * 2)
 	}
@@ -194,45 +172,9 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 	}
 
-	// Sanity checking that we parsed the model correctly
-	if debugPrinting && strings.Contains(documentPath, "Jumping") {
-		if len(jointIDs) != len(vcount) {
-			fmt.Println("WHAT A")
-		}
-		if len(jointWeights) != len(vcount) {
-			fmt.Println("WHAT B")
-		}
-
-		for i, numWeights := range vcount {
-			jid := jointIDs[i]
-			jw := jointWeights[i]
-
-			if len(jid) != numWeights {
-				fmt.Println("WHAT C")
-			}
-			if len(jw) != numWeights {
-				fmt.Println("WHAT D")
-			}
-
-			var sum float32
-			var seenWeights []float32
-			for _, wid := range jw {
-				sum += weights[wid]
-				seenWeights = append(seenWeights, weights[wid])
-			}
-			if sum != 1 {
-				fmt.Println("WHAT E", i, jid, jw, seenWeights)
-			}
-		}
-	}
-
 	jointNamesToIndex := map[string]int{}
 	for i, name := range joints {
 		jointNamesToIndex[name] = i
-	}
-
-	if debugPrinting && strings.Contains(documentPath, "Jumping") {
-		fmt.Println(jointNamesToIndex)
 	}
 
 	// parse joint hierarchy
@@ -254,9 +196,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	}
 
 	rootJoint := parseJointElement(rootNode, jointNamesToIndex, inverseBindMatrices)
-	if debugPrinting && strings.Contains(documentPath, "Jump") {
-		printHierarchy(rootJoint, 0)
-	}
 
 	// parse animations
 	timeStampToPose := map[float32]map[int]*modelspec.JointTransform{}
@@ -333,7 +272,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			timeStampToPose[timeStamp][jointIndex] = &modelspec.JointTransform{
 				Translation: translation,
 				Rotation:    rotation,
-				Mat4:        transform,
 			}
 		}
 	}
@@ -351,23 +289,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			Start: time.Duration(int(timeStamp*1000)) * time.Millisecond,
 			Pose:  timeStampToPose[timeStamp],
 		})
-	}
-
-	if strings.Contains(documentPath, "Jumping") {
-		jointID := 3
-		jointTransform := keyFrames[0].Pose[jointID]
-		fmt.Println(len(keyFrames), "KEYFRAMES TOTAL")
-		fmt.Println("JOINT ID", jointID)
-		fmt.Println("JOINT NAME", joints[jointID])
-		fmt.Println("JOINT INDEX", jointNamesToIndex[joints[jointID]])
-		fmt.Println("ROTATION IDENTITY", mgl32.QuatIdent())
-		fmt.Println("TRANSLATION", jointTransform.Translation)
-		fmt.Println("ROTATION", jointTransform.Rotation)
-		fmt.Println("ROTATION TO FORWARD Z", jointTransform.Rotation.Rotate(mgl32.Vec3{0, 0, -1}))
-		fmt.Println("ROTATION AS MAT4\n", jointTransform.Rotation.Mat4())
-
-		m := ParseMatrixArrayString("0.730190 0.053016 -0.681184 0.441448 -0.000008 0.996986 0.077585 87.042564 0.683244 -0.056646 0.727990 -1.176846 0.000000 0.000000 0.000000 1.000000")
-		fmt.Println("EXPECTED MATRIX\n", m)
 	}
 
 	// TODO: perform assertions on number of joints, verts, etc

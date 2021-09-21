@@ -13,9 +13,6 @@ out VS_OUT {
     vec4 FragPosLightSpace;
     mat4 View;
     vec2 TexCoord;
-    flat int SpecialVert;
-    flat int SpecialVert2;
-    flat int SpecialVert3;
 } vs_out;
 
 uniform mat4 model;

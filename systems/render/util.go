@@ -32,10 +32,6 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 		animationTransforms := animationComponent.AnimationTransforms
 		for i := 0; i < len(animationTransforms); i++ {
 			shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
-			// if i == 15 {
-			// 	fmt.Println("------------------------------")
-			// 	fmt.Println(animationTransforms[i])
-			// }
 		}
 	}
 

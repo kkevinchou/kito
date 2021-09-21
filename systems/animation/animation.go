@@ -43,36 +43,9 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 			animationComponent.ElapsedTime = time.Duration(animationComponent.ElapsedTime.Milliseconds()-animationComponent.Animation.Length.Milliseconds()) * time.Millisecond
 		}
 
-		// keyFrames := animationComponent.Animation.KeyFrames
-		// // set translation to 0 for all keyframes for the spine2
-		// for z := 0; z < len(keyFrames); z++ {
-		// 	keyFrames[z].Pose[38].Translation = mgl32.Vec3{0, 0, 0}
-		// 	keyFrames[z].Pose[38].Rotation = mgl32.QuatIdent()
-		// }
-
 		pose := calculateCurrentAnimationPose(animationComponent.ElapsedTime, animationComponent.Animation.KeyFrames)
-
-		// jointID := 0
-		// fmt.Println("---------------")
-		// fmt.Println("POSE FOR JOINT\n", pose[jointID])
 		animationTransforms := applyPoseToJoints(animationComponent.Animation.RootJoint, pose, map[int]bool{1000: true})
-		// fmt.Println("ANIMATION TRANSFORM FOR JOINT\n", animationTransforms[jointID])
-
-		// 38, 50, 51
-
 		animationComponent.AnimationTransforms = animationTransforms
-
-		// kf1Pose := calculateCurrentAnimationPose(0, keyFrames)
-		// fmt.Println("---------------------------------")
-		// fmt.Println(keyFrames[0].Pose[0].Rotation)
-		// fmt.Println(keyFrames[0].Pose[0].Translation)
-		// spine2 := kf1Pose[0]
-		// kf1AnimationTransforms := applyPoseToJoints(animationComponent.Animation.RootJoint, kf1Pose)
-		// for i, _ := range animationComponent.AnimationTransforms {
-		// 	if i != 0 {
-		// 		animationComponent.AnimationTransforms[i] = kf1AnimationTransforms[i]
-		// 	}
-		// }
 	}
 }
 
@@ -89,42 +62,17 @@ func applyPoseToJointsHelper(joint *model.Joint, parentTransform mgl32.Mat4, pos
 	// TODO: is this what i actually want to do? probably need to refactor this
 	// when we start keyframing joints at different frames
 	if _, ok := pose[joint.ID]; !ok {
-		// fmt.Println("HI")
 		localTransform = joint.LocalBindTransform
 	}
 
 	poseTransform := parentTransform.Mul4(localTransform) // model-space relative to the origin
-
-	if joint.ID == 15 {
-		// fmt.Println("POSE LOCAL\n", pose[joint.ID])
-		// fmt.Println("POSE TRANSFORM\n", parentTransform.Mul4((joint.LocalBindTransform)))
-		// fmt.Println("FINAL TRANSFORM\n", poseTransform.Mul4(joint.InverseBindTransform))
-	}
-
 	if _, ok := frozenJoints[joint.ID]; ok {
-		// poseTransform = parentTransform.Mul4((joint.LocalBindTransform))
-
-		// fmt.Println("---------------------------")
-		// fmt.Println("SELF\n", joint.LocalBindTransform)
-		// _, r := libutils.Decompose(joint.LocalBindTransform)
-		// fmt.Println("SELF QUAT\n", r)
-		// fmt.Println("PARENT\n", parentTransform)
-
-		// fmt.Println("OPPOSITE ========================")
-		// fmt.Println("SELF\n", joint.LocalBindTransform)
-		// _, r := libutils.Decompose(joint.LocalBindTransform)
-		// fmt.Println("SELF QUAT\n", r)
-		// fmt.Println("POSE LEFT LOCAL\n", pose[15])
+		poseTransform = parentTransform.Mul4((joint.LocalBindTransform))
 	}
+
 	for _, child := range joint.Children {
 		applyPoseToJointsHelper(child, poseTransform, pose, transforms, frozenJoints)
 	}
-	// if joint.ID == 0 {
-	// 	fmt.Println("LOCAL BIND TRANSFORM\n", joint.LocalBindTransform)
-	// 	fmt.Println("POSE TRANSFORM\n", poseTransform)
-	// 	fmt.Println("INVERSE BIND TRANSFORM\n", joint.InverseBindTransform)
-	// 	fmt.Println("OUTPUT TRANSFORM\n", poseTransform.Mul4(joint.InverseBindTransform))
-	// }
 	transforms[joint.ID] = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
 }
 
@@ -151,8 +99,6 @@ func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*model
 	}
 
 	return interpolatePoses(startKeyFrame, endKeyFrame, progression)
-	// _ = progression
-	// return interpolatePoses(keyFrames[0], keyFrames[1], 0)
 }
 
 func interpolatePoses(k1, k2 *model.KeyFrame, progression float32) map[int]mgl32.Mat4 {
