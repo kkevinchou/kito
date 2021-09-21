@@ -4,6 +4,11 @@ package collada
 type Skin struct {
 	Source        []*Source     `xml:"source"`
 	VertexWeights VertexWeights `xml:"vertex_weights"`
+	Joints        Joints        `xml:"joints"`
+}
+
+type Joints struct {
+	Input []*InputShared `xml:"input"`
 }
 
 // VertexWeights describes the combination of joints and weights used by a skin.
@@ -21,7 +26,7 @@ type Controller struct {
 
 //LibraryControllers provides a library in which to place <controller> elements.
 type LibraryControllers struct {
-	Controller Controller `xml:"controller"`
+	Controller []*Controller `xml:"controller"`
 }
 
 type HasTechniqueCommon struct {

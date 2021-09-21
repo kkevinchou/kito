@@ -34,7 +34,6 @@ func (s *AnimationSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *AnimationSystem) Update(delta time.Duration) {
-	// delta = 0
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
 		animationComponent := componentContainer.AnimationComponent
@@ -45,20 +44,19 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 		}
 
 		pose := calculateCurrentAnimationPose(animationComponent.ElapsedTime, animationComponent.Animation.KeyFrames)
-		animationTransforms := applyPoseToJoints(animationComponent.Animation.RootJoint, pose)
-
+		animationTransforms := applyPoseToJoints(animationComponent.Animation.RootJoint, pose, map[int]bool{1000: true})
 		animationComponent.AnimationTransforms = animationTransforms
 	}
 }
 
 // applyPoseToJoints returns the set of transforms that move the joint from the bind pose to the given pose
-func applyPoseToJoints(joint *model.Joint, pose map[int]mgl32.Mat4) map[int]mgl32.Mat4 {
+func applyPoseToJoints(joint *model.Joint, pose map[int]mgl32.Mat4, frozenJoints map[int]bool) map[int]mgl32.Mat4 {
 	animationTransforms := map[int]mgl32.Mat4{}
-	applyPoseToJointsHelper(joint, mgl32.Ident4(), pose, animationTransforms)
+	applyPoseToJointsHelper(joint, mgl32.Ident4(), pose, animationTransforms, frozenJoints)
 	return animationTransforms
 }
 
-func applyPoseToJointsHelper(joint *model.Joint, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4) {
+func applyPoseToJointsHelper(joint *model.Joint, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4, frozenJoints map[int]bool) {
 	localTransform := pose[joint.ID]
 
 	// TODO: is this what i actually want to do? probably need to refactor this
@@ -68,8 +66,12 @@ func applyPoseToJointsHelper(joint *model.Joint, parentTransform mgl32.Mat4, pos
 	}
 
 	poseTransform := parentTransform.Mul4(localTransform) // model-space relative to the origin
+	if _, ok := frozenJoints[joint.ID]; ok {
+		poseTransform = parentTransform.Mul4((joint.LocalBindTransform))
+	}
+
 	for _, child := range joint.Children {
-		applyPoseToJointsHelper(child, poseTransform, pose, transforms)
+		applyPoseToJointsHelper(child, poseTransform, pose, transforms, frozenJoints)
 	}
 	transforms[joint.ID] = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
 }
@@ -97,8 +99,6 @@ func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*model
 	}
 
 	return interpolatePoses(startKeyFrame, endKeyFrame, progression)
-	// _ = progression
-	// return interpolatePoses(keyFrames[0], keyFrames[1], 0)
 }
 
 func interpolatePoses(k1, k2 *model.KeyFrame, progression float32) map[int]mgl32.Mat4 {

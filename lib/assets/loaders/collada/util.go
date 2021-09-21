@@ -1,6 +1,7 @@
 package collada
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -78,8 +79,11 @@ func parseIntArrayString(s string) []int {
 	return result
 }
 
-func parseMatrixArrayString(s string) mgl32.Mat4 {
+func ParseMatrixArrayString(s string) mgl32.Mat4 {
 	splitString := strings.Fields(s)
+	if len(splitString) != 16 {
+		panic(fmt.Sprintf("unable to parse matrix array string %s, expected split to be of length 16", s))
+	}
 	data := make([]float32, len(splitString))
 
 	for i, f := range splitString {
@@ -101,7 +105,7 @@ func parseMultiMatrixArrayString(s string) []mgl32.Mat4 {
 
 	for i := 0; i < len(splitString); i += 16 {
 		matrixString := strings.Join(splitString[i:i+16], " ")
-		matrix := parseMatrixArrayString(matrixString)
+		matrix := ParseMatrixArrayString(matrixString)
 		results = append(results, matrix)
 	}
 	return results

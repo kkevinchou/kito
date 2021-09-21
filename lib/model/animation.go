@@ -70,31 +70,18 @@ func configureJointVertexAttributes(triIndices []int, triIndicesStride int, join
 
 	for i := 0; i < len(triIndices); i += triIndicesStride {
 		vertexIndex := triIndices[i]
+
+		for j, id := range jointIDs[vertexIndex] {
+			if id == 38 || id == 50 || id == 51 {
+				jointWeights[vertexIndex][j] = 0
+			}
+		}
+
 		ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
 
 		for _, id := range ids {
 			jointIDsAttribute = append(jointIDsAttribute, int32(id))
 		}
-
-		// for j := 0; j < len(weights); j++ {
-		// 	weights[j] = 0
-		// }
-
-		// weights[0] = 1
-		// var sum float32
-		// for j := 0; j < len(weights); j++ {
-		// 	sum += weights[j]
-		// }
-		// if sum > 1.01 || sum < 1-0.01 {
-		// 	fmt.Println("WHACK", weights)
-		// }
-		// if len(weights) != 3 {
-		// 	fmt.Println("WHACK", weights)
-		// }
-
-		// for j := 0; j < len(jointIDsAttribute); j++ {
-		// 	jointIDsAttribute[j] = 0
-		// }
 
 		jointWeightsAttribute = append(jointWeightsAttribute, weights...)
 	}

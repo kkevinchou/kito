@@ -25,11 +25,6 @@ type Perspective struct {
 	//TODO
 }
 
-//Joints associates joint, or skeleton, nodes with attribute data.
-type Joints struct {
-	//TODO
-}
-
 //Morph describes the data required to blend between sets of static meshes.
 type Morph struct {
 	//TODO
