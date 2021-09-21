@@ -32,7 +32,7 @@ func handleGameStateUpdate(message *network.Message, world World) {
 
 	var newEntities []entities.Entity
 	for _, entitySnapshot := range gameStateupdate.Entities {
-		_, err := world.GetEntityByID(entitySnapshot.ID)
+		foundEntity, err := world.GetEntityByID(entitySnapshot.ID)
 
 		if err != nil {
 			if types.EntityType(entitySnapshot.Type) == types.EntityTypeBob {
@@ -56,8 +56,11 @@ func handleGameStateUpdate(message *network.Message, world World) {
 			} else {
 				continue
 			}
+		} else {
+			cc := foundEntity.GetComponentContainer()
+			cc.TransformComponent.Position = entitySnapshot.Position
+			cc.TransformComponent.Orientation = entitySnapshot.Orientation
 		}
-
 	}
 	world.RegisterEntities(newEntities)
 
