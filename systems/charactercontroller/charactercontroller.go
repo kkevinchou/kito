@@ -89,7 +89,7 @@ func updateCharacterController(entity entities.Entity, world World, frameInput i
 	forwardVector = forwardVector.Mul(controlVector.Z())
 	rightVector = rightVector.Mul(controlVector.X())
 	movementVector := forwardVector.Add(rightVector)
-	var moveSpeed float64 = 20
+	var moveSpeed float64 = 100
 
 	if !libutils.Vec3IsZero(movementVector) {
 		normalizedMovementVector := movementVector.Normalize()
@@ -102,7 +102,7 @@ func updateCharacterController(entity entities.Entity, world World, frameInput i
 
 	if controlVector.Y() > 0 {
 		impulse := types.Impulse{
-			Vector:    mgl64.Vec3{0, 40, 0},
+			Vector:    mgl64.Vec3{0, 100, 0},
 			DecayRate: 1,
 		}
 		physicsComponent.ApplyImpulse("jumper", impulse)
