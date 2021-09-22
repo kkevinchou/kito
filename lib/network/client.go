@@ -41,7 +41,9 @@ func (c *Client) SetCommandFrameFunction(f commandFrameFunc) {
 }
 
 func Connect(host, port, connectionType string) (*Client, int, error) {
-	conn, err := net.Dial(connectionType, fmt.Sprintf("%s:%s", host, port))
+	address := fmt.Sprintf("%s:%s", host, port)
+	fmt.Println("connecting to " + address + " via " + connectionType)
+	conn, err := net.Dial(connectionType, address)
 	if err != nil {
 		return nil, UnsetClientID, err
 	}

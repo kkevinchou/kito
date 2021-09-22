@@ -37,7 +37,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	compileShaders()
 
 	// Connect to server
-	client, playerID, err := network.Connect(settings.Host, settings.Port, settings.ConnectionType)
+	client, playerID, err := network.Connect(settings.RemoteHost, settings.Port, settings.ConnectionType)
 	if err != nil {
 		panic(err)
 	}

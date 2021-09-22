@@ -17,7 +17,7 @@ func NewRigidBody(position mgl64.Vec3) *EntityImpl {
 	}
 
 	assetManager := directory.GetDirectory().AssetManager()
-	modelSpec := assetManager.GetAnimatedModel("cowboy")
+	modelSpec := assetManager.GetAnimatedModel("house")
 	var m *model.Model
 	var vao uint32
 	var vertexCount int
@@ -27,7 +27,7 @@ func NewRigidBody(position mgl64.Vec3) *EntityImpl {
 		m = model.NewMeshedModel(modelSpec)
 		vao = m.VAO()
 		vertexCount = m.VertexCount()
-		texture = assetManager.GetTexture("character Texture")
+		texture = assetManager.GetTexture("default")
 	} else {
 		m = model.NewPlaceholderModel(modelSpec)
 	}
@@ -39,8 +39,9 @@ func NewRigidBody(position mgl64.Vec3) *EntityImpl {
 	}
 
 	renderData := &components.ModelRenderData{
-		ID:      "thing",
-		Visible: true,
+		ID:            "thing",
+		Visible:       true,
+		ShaderProgram: "model_static",
 	}
 	renderComponent := &components.RenderComponent{
 		RenderData: renderData,

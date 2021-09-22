@@ -4,6 +4,7 @@ import (
 	"fmt"
 	_ "image/png"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -28,7 +29,7 @@ const (
 
 	// shadow map parameters
 	shadowMapDimension   int     = 8000
-	shadowDistanceFactor float64 = 0.3 // proportion of view fustrum to include in shadow cuboid
+	shadowDistanceFactor float64 = .8 // proportion of view fustrum to include in shadow cuboid
 )
 
 var (
@@ -245,16 +246,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		if modelRenderData, ok := renderData.(*components.ModelRenderData); ok {
 			var meshModelMatrix mgl64.Mat4
 
-			if modelRenderData.ID == "cowboy" || modelRenderData.ID == "box" || modelRenderData.ID == "cube_shifted" || modelRenderData.ID == "cube_static" {
-				// // accounting for blender change of axis
-				xr := mgl64.QuatRotate(mgl64.DegToRad(-90), mgl64.Vec3{1, 0, 0}).Mat4()
-				yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
-				meshModelMatrix = createModelMatrix(
-					mgl64.Ident4(),
-					orientation.Mat4().Mul4(yr).Mul4(xr),
-					translation,
-				)
-			} else {
+			if strings.Contains(modelRenderData.ID, "guard") {
 				// meshModelMatrix = createModelMatrix(
 				// 	mgl64.Scale3D(0.07, 0.07, 0.07),
 				// 	mgl64.Ident4(),
@@ -264,6 +256,15 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 				meshModelMatrix = createModelMatrix(
 					mgl64.Scale3D(0.07, 0.07, 0.07),
 					orientation.Mat4().Mul4(yr),
+					translation,
+				)
+			} else {
+				// // accounting for blender change of axis
+				xr := mgl64.QuatRotate(mgl64.DegToRad(-90), mgl64.Vec3{1, 0, 0}).Mat4()
+				yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
+				meshModelMatrix = createModelMatrix(
+					mgl64.Ident4(),
+					orientation.Mat4().Mul4(yr).Mul4(xr),
 					translation,
 				)
 			}

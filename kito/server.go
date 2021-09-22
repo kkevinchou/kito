@@ -1,6 +1,7 @@
 package kito
 
 import (
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/entities/singleton"
@@ -37,10 +38,8 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
-	// rigidBody := entities.NewRigidBody(mgl64.Vec3{0, 10, -5})
-	// fmt.Println("Created rigid body entity with ID", rigidBody.ID)
-	// return []entities.Entity{rigidBody}
-	return []entities.Entity{}
+	rigidBody := entities.NewRigidBody(mgl64.Vec3{-50, 0, -50})
+	return []entities.Entity{rigidBody}
 }
 
 func serverSystemSetup(g *Game, assetsDirectory string) {
