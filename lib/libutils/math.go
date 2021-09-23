@@ -70,7 +70,7 @@ func QuatLookAt(eye, center, up mgl64.Vec3) mgl64.Quat {
 }
 
 // takes a matrix composed of a translation, scale, and rotation (no projection) and decomposes it
-func Decompose(m mgl32.Mat4) (mgl32.Vec3, mgl32.Quat) {
+func Decompose(m mgl32.Mat4) (mgl32.Vec3, mgl32.Vec3, mgl32.Quat) {
 	translation := m.Col(3).Vec3()
 	m.SetCol(3, mgl32.Vec4{0, 0, 0, 1})
 
@@ -85,6 +85,7 @@ func Decompose(m mgl32.Mat4) (mgl32.Vec3, mgl32.Quat) {
 	m.SetCol(2, newZCol.Vec4(0))
 
 	rotation := mgl32.Mat4ToQuat(m)
+	scale := mgl32.Vec3{xScaleCol.Len(), yScaleCol.Len(), zScaleCol.Len()}
 
-	return translation, rotation
+	return translation, scale, rotation
 }

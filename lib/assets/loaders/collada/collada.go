@@ -230,6 +230,11 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 		target := animationElement.Channel.Target
 		jointName := strings.Split(target, "/")[0] // guessing the sample i'm looking at looks like: "Torso/transform"
 
+		// dirty hack for handling blender collada exports
+		if strings.HasPrefix(jointName, "Armature_") {
+			jointName = jointName[len("Armature_"):]
+		}
+
 		if _, ok := jointNamesToIndex[jointName]; !ok {
 			// dirty hack for testing blender collada
 			// target actually looks for IDs, and we shouldn't be using jointNamesToIndex
@@ -267,11 +272,12 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 
 			// translation := transform.Col(3).Vec3()
 			// rotation := mgl32.Mat4ToQuat(transform)
-			translation, rotation := libutils.Decompose(transform)
+			translation, scale, rotation := libutils.Decompose(transform)
 
 			timeStampToPose[timeStamp][jointIndex] = &modelspec.JointTransform{
 				Translation: translation,
 				Rotation:    rotation,
+				Scale:       scale,
 			}
 		}
 	}

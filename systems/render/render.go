@@ -246,7 +246,16 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		if modelRenderData, ok := renderData.(*components.ModelRenderData); ok {
 			var meshModelMatrix mgl64.Mat4
 
-			if strings.Contains(modelRenderData.ID, "guard") {
+			if strings.Contains(modelRenderData.ID, "slime") {
+				// // accounting for blender change of axis
+				xr := mgl64.QuatRotate(mgl64.DegToRad(-90), mgl64.Vec3{1, 0, 0}).Mat4()
+				yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
+				meshModelMatrix = createModelMatrix(
+					mgl64.Scale3D(25, 25, 25),
+					orientation.Mat4().Mul4(yr).Mul4(xr),
+					translation,
+				)
+			} else if strings.Contains(modelRenderData.ID, "guard") {
 				// meshModelMatrix = createModelMatrix(
 				// 	mgl64.Scale3D(0.07, 0.07, 0.07),
 				// 	mgl64.Ident4(),
