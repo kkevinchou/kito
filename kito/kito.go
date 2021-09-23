@@ -13,7 +13,7 @@ import (
 	"github.com/kkevinchou/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/settings"
 
-	"github.com/kkevinchou/kito/entities/singleton"
+	"github.com/kkevinchou/kito/singleton"
 	"github.com/kkevinchou/kito/types"
 )
 

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/entities/singleton"
+	"github.com/kkevinchou/kito/singleton"
 
 	"github.com/kkevinchou/kito/entities"
 	"github.com/kkevinchou/kito/lib/input"

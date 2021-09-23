@@ -12,8 +12,8 @@ import (
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
-	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/assets"
+	"github.com/kkevinchou/kito/singleton"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/veandco/go-sdl2/sdl"
 )
