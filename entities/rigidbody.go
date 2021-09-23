@@ -17,7 +17,7 @@ func NewRigidBody(position mgl64.Vec3) *EntityImpl {
 	}
 
 	assetManager := directory.GetDirectory().AssetManager()
-	modelSpec := assetManager.GetAnimatedModel("house")
+	modelSpec := assetManager.GetAnimatedModel("slime_kevin")
 	var m *model.Model
 	var vao uint32
 	var vertexCount int
@@ -39,7 +39,7 @@ func NewRigidBody(position mgl64.Vec3) *EntityImpl {
 	}
 
 	renderData := &components.ModelRenderData{
-		ID:            "thing",
+		ID:            "slime_kevin",
 		Visible:       true,
 		ShaderProgram: "model_static",
 	}
