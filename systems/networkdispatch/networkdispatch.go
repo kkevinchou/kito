@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/entities"
-	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/singleton"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/kkevinchou/kito/utils"
 )

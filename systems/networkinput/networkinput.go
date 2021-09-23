@@ -5,8 +5,8 @@ import (
 
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
-	"github.com/kkevinchou/kito/entities/singleton"
 	"github.com/kkevinchou/kito/lib/network"
+	"github.com/kkevinchou/kito/singleton"
 	"github.com/kkevinchou/kito/systems/base"
 )
 

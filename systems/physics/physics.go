@@ -3,8 +3,8 @@ package physics
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/entities/singleton"
 	utils "github.com/kkevinchou/kito/lib/libutils"
+	"github.com/kkevinchou/kito/singleton"
 	"github.com/kkevinchou/kito/systems/base"
 
 	"github.com/go-gl/mathgl/mgl64"
