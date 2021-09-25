@@ -2,7 +2,7 @@ package pathing
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/components"
+	"github.com/kkevinchou/kito/kito/components"
 )
 
 type NavMeshRenderData struct {

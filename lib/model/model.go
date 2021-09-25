@@ -3,7 +3,6 @@ package model
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/kkevinchou/kito/lib/modelspec"
-	"github.com/kkevinchou/kito/utils"
 )
 
 const (
@@ -59,9 +58,6 @@ func NewMeshedModel(spec *modelspec.ModelSpecification) *Model {
 // the related GL calls. For now this is just to allow simualtion of animations
 // on the backend. this may not actually be needed
 func NewPlaceholderModel(spec *modelspec.ModelSpecification) *Model {
-	if utils.IsClient() {
-		panic("clients should not be calling placeholder model")
-	}
 	// if we're on the server and it's a static model, there will be no root joint
 	// skip the animation stuff
 	var animation *Animation

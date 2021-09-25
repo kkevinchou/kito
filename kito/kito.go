@@ -7,14 +7,14 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/kkevinchou/kito/directory"
-	"github.com/kkevinchou/kito/entities"
+	"github.com/kkevinchou/kito/kito/directory"
+	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/input"
-	"github.com/kkevinchou/kito/managers/eventbroker"
-	"github.com/kkevinchou/kito/settings"
 
-	"github.com/kkevinchou/kito/singleton"
-	"github.com/kkevinchou/kito/types"
+	"github.com/kkevinchou/kito/kito/singleton"
+	"github.com/kkevinchou/kito/kito/types"
 )
 
 const (
