@@ -575,11 +575,11 @@ type TechniqueFx struct {
 	HasSid
 	HasAsset
 	HasAnnotate
-	Blinn      *Blinn      `xml:"blinn"`
-	ConstantFx *ConstantFx `xml:"constant"`
-	Lambert    *Lambert    `xml:"lambert"`
-	Phone      *Phong      `xml:"phong"`
-	Pass       *Pass       `xml:"pass"`
+	Blinn      *Phong `xml:"blinn"`
+	ConstantFx *Phong `xml:"constant"`
+	Lambert    *Phong `xml:"lambert"`
+	Phong      *Phong `xml:"phong"`
+	Pass       *Pass  `xml:"pass"`
 	HasExtra
 }
 
@@ -774,6 +774,18 @@ type HasP struct {
 }
 type HasPs struct {
 	P []*P `xml:"p"`
+}
+
+type RenderingTechnique struct {
+	Emission          Color `xml:"emission"`
+	Ambient           Color `xml:"ambient"`
+	Diffuse           Color `xml:"diffuse"`
+	IndexOfRefraction Float `xml:"index_of_refraction"`
+	Transparent       Color `xml:"transparent"`
+	Transparency      Float `xml:"transparency"`
+	Reflective        Color `xml:"reflective"`
+	Reflectivity      Float `xml:"reflectivity"`
+	Shininess         Float `xml:"shininess"`
 }
 
 func LoadDocument(filename string) (*RawCollada, error) {

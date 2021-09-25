@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	fps               float64 = 60
-	msPerCommandFrame float64 = 16
+	fps               float64 = 30
+	msPerCommandFrame float64 = 20
 	maxTimeStep       float64 = 250 // in milliseconds
 )
 
@@ -144,6 +144,9 @@ func compileShaders() {
 		panic(err)
 	}
 	if err := shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("material", "model", "material"); err != nil {
 		panic(err)
 	}
 }
