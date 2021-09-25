@@ -1,4 +1,4 @@
-package app
+package state
 
 import "github.com/kkevinchou/kito/lib/network"
 
