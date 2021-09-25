@@ -17,6 +17,9 @@ type Model struct {
 	vao uint32
 }
 
+// NewModel takes a ModelSpecification and performs the necessary OpenGL operations
+// to pack the vertex and joint data into vertex buffers. It also holds animation
+// key frame data for the animation system
 func NewModel(spec *modelspec.ModelSpecification) *Model {
 	var animation *Animation
 	vao := configureVAO()

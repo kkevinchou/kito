@@ -15,6 +15,9 @@ type EffectSpec struct {
 	TransparencyColor      mgl32.Vec3
 }
 
+// ModelSpecification is the output of any parsed model files (e.g. from Blender, Maya, etc)
+// and acts a the blueprint for the model that contains all the associated vertex and
+// animation data. This struct should be agnostic to the 3D modelling tool that produced the data.
 type ModelSpecification struct {
 	// Geometry
 	TriIndices       []int // vertex indices in triangle order. Each triplet defines a face
