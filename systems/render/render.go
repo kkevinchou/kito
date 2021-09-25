@@ -12,28 +12,19 @@ import (
 	"github.com/kkevinchou/kito/components"
 	"github.com/kkevinchou/kito/directory"
 	"github.com/kkevinchou/kito/entities"
-	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/singleton"
 	"github.com/kkevinchou/kito/systems/base"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 const (
-	width  int32 = 1024
-	height int32 = 760
-
-	aspectRatio         = float64(width) / float64(height)
-	fovx        float64 = 90
-	near        float64 = 1
-	far         float64 = 500
+	fovx float64 = 90
+	near float64 = 1
+	far  float64 = 500
 
 	// shadow map parameters
 	shadowMapDimension   int     = 8000
 	shadowDistanceFactor float64 = .8 // proportion of view fustrum to include in shadow cuboid
-)
-
-var (
-	fovy float64 = mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio))
 )
 
 type World interface {
@@ -43,54 +34,33 @@ type World interface {
 
 type RenderSystem struct {
 	*base.BaseSystem
-	window       *sdl.Window
-	assetManager *assets.AssetManager
-	world        World
-	skybox       *SkyBox
-	floor        *Quad
-	shadowMap    *ShadowMap
+	window    *sdl.Window
+	world     World
+	skybox    *SkyBox
+	floor     *Quad
+	shadowMap *ShadowMap
+
+	width       int
+	height      int
+	aspectRatio float64
+	fovY        float64
 
 	entities []entities.Entity
 }
 
-func (r *RenderSystem) SetAssetManager(assetManager *assets.AssetManager) {
-	r.assetManager = assetManager
-}
-
-func NewRenderSystem(world World) *RenderSystem {
-	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		panic(fmt.Sprintf("Failed to init SDL %s", err))
-	}
-
-	// Enable hints for multisampling which allows opengl to use the default
-	// multisampling algorithms implemented by the OpenGL rasterizer
-	sdl.GLSetAttribute(sdl.GL_MULTISAMPLEBUFFERS, 1)
-	sdl.GLSetAttribute(sdl.GL_MULTISAMPLESAMPLES, 4)
-	sdl.GLSetAttribute(sdl.GL_CONTEXT_PROFILE_MASK, sdl.GL_CONTEXT_PROFILE_CORE)
-	sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 4)
-	sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 1)
-	sdl.GLSetAttribute(sdl.GL_CONTEXT_FLAGS, sdl.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG)
-
-	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_OPENGL)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create window %s", err))
-	}
-
-	_, err = window.GLCreateContext()
-	if err != nil {
-		panic(fmt.Sprintf("failed to create context %s", err))
-	}
-
-	if err := gl.Init(); err != nil {
-		panic(fmt.Sprintf("failed to init OpenGL %s", err))
-	}
-
+func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
+	aspectRatio := float64(width) / float64(height)
 	renderSystem := RenderSystem{
 		BaseSystem: &base.BaseSystem{},
 		window:     window,
 		world:      world,
 		skybox:     NewSkyBox(600),
 		floor:      NewQuad(quadZeroY),
+
+		width:       width,
+		height:      height,
+		aspectRatio: aspectRatio,
+		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -106,6 +76,7 @@ func NewRenderSystem(world World) *RenderSystem {
 	gl.FrontFace(gl.CCW)
 	gl.Enable(gl.MULTISAMPLE)
 
+	var err error
 	renderSystem.shadowMap, err = NewShadowMap(shadowMapDimension, shadowMapDimension, far*shadowDistanceFactor)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create shadow map %s", err))
@@ -152,11 +123,11 @@ func (s *RenderSystem) Render(delta time.Duration) {
 		Orientation: transformComponent.Orientation,
 
 		InverseViewMatrix: viewTranslationMatrix.Mul4(viewerViewMatrix).Inv(),
-		ProjectionMatrix:  mgl64.Perspective(mgl64.DegToRad(fovy), aspectRatio, near, far),
+		ProjectionMatrix:  mgl64.Perspective(mgl64.DegToRad(s.fovY), s.aspectRatio, near, far),
 	}
 
 	// configure light viewer context
-	modelSpaceFrustumPoints := CalculateFrustumPoints(transformComponent.Position, transformComponent.Orientation, near, far, fovy, aspectRatio, shadowDistanceFactor)
+	modelSpaceFrustumPoints := CalculateFrustumPoints(transformComponent.Position, transformComponent.Orientation, near, far, s.fovY, s.aspectRatio, shadowDistanceFactor)
 	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-150), mgl64.Vec3{1, 0, 0})
 	lightPosition, lightProjectionMatrix := ComputeDirectionalLightProps(lightOrientation.Mat4(), modelSpaceFrustumPoints)
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
@@ -189,7 +160,7 @@ func (s *RenderSystem) renderToDepthMap(viewerContext ViewerContext, lightContex
 func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext LightContext) {
 	defer resetGLRenderSettings()
 
-	gl.Viewport(0, 0, width, height)
+	gl.Viewport(0, 0, int32(s.width), int32(s.height))
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -200,6 +171,7 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext LightContext) {
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
+	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
 	drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
@@ -208,12 +180,12 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		viewerContext,
 		s.skybox,
 		shaderManager.GetShaderProgram("skybox"),
-		s.assetManager.GetTexture("front"),
-		s.assetManager.GetTexture("top"),
-		s.assetManager.GetTexture("left"),
-		s.assetManager.GetTexture("right"),
-		s.assetManager.GetTexture("bottom"),
-		s.assetManager.GetTexture("back"),
+		assetManager.GetTexture("front"),
+		assetManager.GetTexture("top"),
+		assetManager.GetTexture("left"),
+		assetManager.GetTexture("right"),
+		assetManager.GetTexture("bottom"),
+		assetManager.GetTexture("back"),
 	)
 
 	floorModelMatrix := createModelMatrix(
@@ -227,7 +199,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		lightContext,
 		s.shadowMap,
 		shaderManager.GetShaderProgram("basicShadow"),
-		s.assetManager.GetTexture("default"),
+		assetManager.GetTexture("default"),
 		s.floor,
 		floorModelMatrix,
 	)

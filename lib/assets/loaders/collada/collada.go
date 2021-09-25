@@ -127,7 +127,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 
 	if polyMaterialSymbol != string(materialId) {
 		effectSpec = nil
-		fmt.Println("Material mismatch:", polyMaterialSymbol, "and", string(materialId), ", ignoring")
 	}
 
 	var normalSourceID, textureSourceID Uri

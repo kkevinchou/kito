@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	fps               float64 = 30
-	msPerCommandFrame float64 = 20
+	fps               float64 = 60
+	msPerCommandFrame float64 = 16
 	maxTimeStep       float64 = 250 // in milliseconds
 )
 
