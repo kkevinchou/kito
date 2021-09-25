@@ -575,11 +575,11 @@ type TechniqueFx struct {
 	HasSid
 	HasAsset
 	HasAnnotate
-	Blinn      *RenderingTechnique `xml:"blinn"`
-	ConstantFx *RenderingTechnique `xml:"constant"`
-	Lambert    *RenderingTechnique `xml:"lambert"`
-	Phong      *RenderingTechnique `xml:"phong"`
-	Pass       *Pass               `xml:"pass"`
+	Blinn      *Phong `xml:"blinn"`
+	ConstantFx *Phong `xml:"constant"`
+	Lambert    *Phong `xml:"lambert"`
+	Phong      *Phong `xml:"phong"`
+	Pass       *Pass  `xml:"pass"`
 	HasExtra
 }
 

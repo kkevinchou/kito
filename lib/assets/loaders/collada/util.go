@@ -59,6 +59,13 @@ func mustParseInt(input string) int {
 	return int(num)
 }
 
+func maybeParseFloat(input *FxCommonFloatOrParamType) float32 {
+	if input == nil || input.Float == nil {
+		return 0
+	}
+	return float32(input.Float.Value)
+}
+
 func parseFloatArrayString(s string) []float32 {
 	splitString := strings.Fields(s)
 	result := make([]float32, len(splitString))
@@ -69,8 +76,14 @@ func parseFloatArrayString(s string) []float32 {
 	return result
 }
 
-func parseVect3String(s string) mgl32.Vec3 {
-	floats := parseFloatArrayString(s)
+func parseVect3String(s *FxCommonColorOrTextureType) mgl32.Vec3 {
+	if s == nil || s.Color == nil {
+		return mgl32.Vec3{
+			0, 0, 0,
+		}
+	}
+	// todo handle non colors
+	floats := parseFloatArrayString(s.Color.V)
 	return mgl32.Vec3{
 		floats[0], floats[1], floats[2],
 	}

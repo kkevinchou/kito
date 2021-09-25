@@ -33,6 +33,7 @@ const (
 )
 
 func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
+	fmt.Println("Parsing", documentPath)
 	rawCollada, err := LoadDocument(documentPath)
 	if err != nil {
 		return nil, err
@@ -44,7 +45,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 
 	if len(rawCollada.LibraryEffects[0].Effect) > 0 {
 		if len(rawCollada.LibraryEffects[0].Effect) != 1 {
-			panic(" more than 1 effect not supported")
+			fmt.Println("More than 1 effect. Using only 1st one", documentPath)
 		}
 		effect := rawCollada.LibraryEffects[0].Effect[0]
 		effectId = effect.Id
@@ -55,7 +56,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 
 		technique := effect.ProfileCommon.TechniqueFx[0]
 		var shaderElement string
-		var techniqueNode *RenderingTechnique
+		var techniqueNode *Phong
 		if technique.Lambert != nil {
 			shaderElement = "lambert"
 			techniqueNode = technique.Lambert
@@ -72,16 +73,20 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			panic("Unknown technique for material")
 		}
 
+		if techniqueNode == nil {
+			panic("Unknown technique")
+		}
+
 		effectSpec = &modelspec.EffectSpec{
 			ShaderElement:          shaderElement,
-			EmissionColor:          parseVect3String(techniqueNode.Emission.Floats.V),
-			DiffuseColor:           parseVect3String(techniqueNode.Diffuse.Floats.V),
-			IndexOfRefractionFloat: float32(techniqueNode.IndexOfRefraction.Value),
-			ReflectivityFloat:      float32(techniqueNode.Reflectivity.Value),
-			ReflectivityColor:      parseVect3String(techniqueNode.Reflective.Floats.V),
-			ShininessFloat:         float32(techniqueNode.Shininess.Value),
-			TransparencyFloat:      float32(techniqueNode.Transparency.Value),
-			TransparencyColor:      parseVect3String(techniqueNode.Transparent.Floats.V),
+			EmissionColor:          parseVect3String(techniqueNode.Emission),
+			DiffuseColor:           parseVect3String(techniqueNode.Diffuse),
+			IndexOfRefractionFloat: maybeParseFloat(techniqueNode.IndexOfRefraction),
+			ReflectivityFloat:      maybeParseFloat(techniqueNode.Reflectivity),
+			ReflectivityColor:      parseVect3String(techniqueNode.Reflective),
+			ShininessFloat:         maybeParseFloat(techniqueNode.Shininess),
+			TransparencyFloat:      maybeParseFloat(techniqueNode.Transparency),
+			TransparencyColor:      parseVect3String(techniqueNode.Transparent),
 		}
 	}
 
@@ -89,7 +94,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	var materialId Id
 	if len(libraryMaterial.Material) > 0 {
 		if len(libraryMaterial.Material) != 1 {
-			panic("more than 1 material not supported")
+			fmt.Println("More than 1 material. Using only 1st one", documentPath)
 		}
 		material := libraryMaterial.Material[0]
 		materialId = material.Id
@@ -121,7 +126,8 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	}
 
 	if polyMaterialSymbol != string(materialId) {
-		panic("Material on mesh not found")
+		effectSpec = nil
+		fmt.Println("Material mismatch:", polyMaterialSymbol, "and", string(materialId), ", ignoring")
 	}
 
 	var normalSourceID, textureSourceID Uri
