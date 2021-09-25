@@ -69,6 +69,13 @@ func parseFloatArrayString(s string) []float32 {
 	return result
 }
 
+func parseVect3String(s string) mgl32.Vec3 {
+	floats := parseFloatArrayString(s)
+	return mgl32.Vec3{
+		floats[0], floats[1], floats[2],
+	}
+}
+
 func parseIntArrayString(s string) []int {
 	splitString := strings.Fields(s)
 	result := make([]int, len(splitString))

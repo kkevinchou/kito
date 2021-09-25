@@ -11,9 +11,9 @@ import (
 )
 
 func NewBob(position mgl64.Vec3) *EntityImpl {
-	modelName := "guard_running"
+	modelName := "slime_kevin"
 	shaderProgram := "model"
-	textureName := "Guard_02__diffuse"
+	textureName := "default"
 
 	transformComponent := &components.TransformComponent{
 		Position:    position,

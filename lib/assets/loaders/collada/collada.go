@@ -38,19 +38,90 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 		return nil, err
 	}
 
+	// parse materials
+	var effectSpec *modelspec.EffectSpec
+	var effectId Id
+
+	if len(rawCollada.LibraryEffects[0].Effect) > 0 {
+		if len(rawCollada.LibraryEffects[0].Effect) != 1 {
+			panic(" more than 1 effect not supported")
+		}
+		effect := rawCollada.LibraryEffects[0].Effect[0]
+		effectId = effect.Id
+
+		if len(effect.ProfileCommon.TechniqueFx) != 1 {
+			panic(" more than 1 technique not supported")
+		}
+
+		technique := effect.ProfileCommon.TechniqueFx[0]
+		var shaderElement string
+		var techniqueNode *RenderingTechnique
+		if technique.Lambert != nil {
+			shaderElement = "lambert"
+			techniqueNode = technique.Lambert
+		} else if technique.Phong != nil {
+			shaderElement = "phong"
+			techniqueNode = technique.Phong
+		} else if technique.Blinn != nil {
+			shaderElement = "blinn"
+			techniqueNode = technique.Blinn
+		} else if technique.ConstantFx != nil {
+			shaderElement = "constant"
+			techniqueNode = technique.ConstantFx
+		} else {
+			panic("Unknown technique for material")
+		}
+
+		effectSpec = &modelspec.EffectSpec{
+			ShaderElement:          shaderElement,
+			EmissionColor:          parseVect3String(techniqueNode.Emission.Floats.V),
+			DiffuseColor:           parseVect3String(techniqueNode.Diffuse.Floats.V),
+			IndexOfRefractionFloat: float32(techniqueNode.IndexOfRefraction.Value),
+			ReflectivityFloat:      float32(techniqueNode.Reflectivity.Value),
+			ReflectivityColor:      parseVect3String(techniqueNode.Reflective.Floats.V),
+			ShininessFloat:         float32(techniqueNode.Shininess.Value),
+			TransparencyFloat:      float32(techniqueNode.Transparency.Value),
+			TransparencyColor:      parseVect3String(techniqueNode.Transparent.Floats.V),
+		}
+	}
+
+	libraryMaterial := rawCollada.LibraryMaterials[0]
+	var materialId Id
+	if len(libraryMaterial.Material) > 0 {
+		if len(libraryMaterial.Material) != 1 {
+			panic("more than 1 material not supported")
+		}
+		material := libraryMaterial.Material[0]
+		materialId = material.Id
+		// materialName := material.Name
+		instanceEffect := material.InstanceEffect
+		instanceEffectURL := instanceEffect.Url[1:] // remove leading "#"
+
+		if string(instanceEffectURL) != string(effectId) {
+			panic("material effect not found")
+		}
+	}
+
 	// parse geometry
 	mesh := rawCollada.LibraryGeometries[0].Geometry[0].Mesh
 
 	// Blender supports both PolyList and Triangles for storing mesh polygons
 	var polyInput []*InputShared
 	var polyValues string
+	var polyMaterialSymbol string
 
 	if len(mesh.Polylist) > 0 {
 		polyInput = mesh.Polylist[0].Input
 		polyValues = mesh.Polylist[0].P.V
+		polyMaterialSymbol = mesh.Polylist[0].Material
 	} else if len(mesh.Triangles) > 0 {
 		polyInput = mesh.Triangles[0].Input
 		polyValues = mesh.Triangles[0].P.V
+		polyMaterialSymbol = mesh.Triangles[0].Material
+	}
+
+	if polyMaterialSymbol != string(materialId) {
+		panic("Material on mesh not found")
 	}
 
 	var normalSourceID, textureSourceID Uri
@@ -108,6 +179,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 			PositionSourceData: positionSource,
 			NormalSourceData:   normalSource,
 			TextureSourceData:  textureSource,
+			EffectSpecData:     effectSpec,
 			ColorSourceData:    nil,
 		}, nil
 	}
@@ -310,7 +382,9 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 		PositionSourceData: positionSource,
 		NormalSourceData:   normalSource,
 		TextureSourceData:  textureSource,
-		ColorSourceData:    nil,
+		EffectSpecData:     effectSpec,
+
+		ColorSourceData: nil,
 
 		JointsSourceData:       joints,
 		JointWeightsSourceData: weights,
