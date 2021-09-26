@@ -42,7 +42,8 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 	player := playerManager.GetPlayer(singleton.PlayerID)
 
 	inputMessage := &network.InputMessage{
-		Input: singleton.PlayerInput[player.ID],
+		CommandFrame: singleton.CommandFrame,
+		Input:        singleton.PlayerInput[player.ID],
 	}
 
 	player.Client.SendMessage(network.MessageTypeInput, inputMessage)

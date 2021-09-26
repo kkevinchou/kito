@@ -57,11 +57,13 @@ type EventI interface {
 }
 
 type GameStateUpdateMessage struct {
-	Entities map[int]EntitySnapshot
-	Events   []Event
-	Events2  []EventI
+	LatestReceivedCommandFrame int
+	Entities                   map[int]EntitySnapshot
+	Events                     []Event
+	Events2                    []EventI
 }
 
 type InputMessage struct {
-	Input input.Input `json:"input"`
+	CommandFrame int         `json:"command_frame"`
+	Input        input.Input `json:"input"`
 }

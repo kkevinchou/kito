@@ -3,7 +3,6 @@ package physics
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	utils "github.com/kkevinchou/kito/lib/libutils"
 
@@ -17,7 +16,6 @@ const (
 )
 
 type World interface {
-	GetSingleton() *singleton.Singleton
 }
 
 type PhysicsSystem struct {
@@ -43,9 +41,13 @@ func (s *PhysicsSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *PhysicsSystem) Update(delta time.Duration) {
+	PhysicsStep(delta, s.entities)
+}
+
+func PhysicsStep(delta time.Duration, entities []entities.Entity) {
 	accelerationDueToGravity := mgl64.Vec3{0, -gravity, 0}
 
-	for _, entity := range s.entities {
+	for _, entity := range entities {
 		componentContainer := entity.GetComponentContainer()
 		physicsComponent := componentContainer.PhysicsComponent
 		transformComponent := componentContainer.TransformComponent
@@ -98,4 +100,5 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 			transformComponent.Orientation = utils.QuatLookAt(mgl64.Vec3{0, 0, 0}, velocityWithoutY.Normalize(), mgl64.Vec3{0, 1, 0})
 		}
 	}
+
 }

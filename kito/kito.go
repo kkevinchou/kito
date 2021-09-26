@@ -7,6 +7,7 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
@@ -40,7 +41,8 @@ type Game struct {
 	systems   []System
 	entities  map[int]entities.Entity
 
-	eventBroker eventbroker.EventBroker
+	eventBroker         eventbroker.EventBroker
+	commandFrameHistory *commandframe.CommandFrameHistory
 }
 
 func (g *Game) runCommandFrame(delta time.Duration) {
@@ -85,6 +87,7 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 
 		fpsAccumulator += delta
 		if fpsAccumulator > 1000 {
+			// fmt.Println("FPS:", frameCount)
 			frameCount = 0
 			fpsAccumulator -= 1000
 		}
@@ -123,6 +126,10 @@ func (g *Game) CommandFrame() int {
 
 func (g *Game) GetEventBroker() eventbroker.EventBroker {
 	return g.eventBroker
+}
+
+func (g *Game) GetCommandFrameHistory() *commandframe.CommandFrameHistory {
+	return g.commandFrameHistory
 }
 
 func compileShaders() {

@@ -1,6 +1,10 @@
 package settings
 
-import "github.com/go-gl/mathgl/mgl64"
+import (
+	"time"
+
+	"github.com/go-gl/mathgl/mgl64"
+)
 
 type GameMode string
 
@@ -28,4 +32,7 @@ const (
 	ServerID      = 69
 	ServerIDStart = 70000
 	EntityIDStart = 80000
+
+	// Aritificial Latency
+	ArtificialClientLatency = 60 * time.Millisecond
 )

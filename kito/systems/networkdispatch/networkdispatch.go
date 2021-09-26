@@ -3,6 +3,7 @@ package networkdispatch
 import (
 	"time"
 
+	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/singleton"
@@ -22,6 +23,7 @@ type World interface {
 	GetEntityByID(id int) (entities.Entity, error)
 	GetSingleton() *singleton.Singleton
 	GetEventBroker() eventbroker.EventBroker
+	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 }
 
 type NetworkDispatchSystem struct {
@@ -46,10 +48,6 @@ func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
 	}
 
 	return networkDispatchSystem
-}
-
-func (s *NetworkDispatchSystem) SetMessageHandler(f MessageHandler) {
-	s.messageHandler = f
 }
 
 func (s *NetworkDispatchSystem) RegisterEntity(entity entities.Entity) {

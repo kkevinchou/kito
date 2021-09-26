@@ -41,7 +41,13 @@ func handlePlayerInput(player *player.Player, message *network.Message, world Wo
 		panic(err)
 	}
 
-	singleton.PlayerInput[player.ID] = inputMessage.Input
+	// TODO: This is to somewhat handle out of order messages coming to the server.
+	// we take the latest command frame. however the current implementation risks
+	// dropping inputs because we simply use only the latest
+	if inputMessage.CommandFrame > singleton.PlayerCommandFrames[player.ID] {
+		singleton.PlayerCommandFrames[player.ID] = inputMessage.CommandFrame
+		singleton.PlayerInput[player.ID] = inputMessage.Input
+	}
 }
 
 // todo: in the future this should be handled by some other system via an event

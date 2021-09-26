@@ -9,6 +9,9 @@ type Singleton struct {
 	PlayerID int
 	CameraID int
 
+	// server fields
+	PlayerCommandFrames map[int]int // most recent command frame based on last input message
+
 	// Common
 	PlayerInput  map[int]input.Input
 	CommandFrame int
@@ -16,6 +19,7 @@ type Singleton struct {
 
 func NewSingleton() *Singleton {
 	return &Singleton{
-		PlayerInput: map[int]input.Input{},
+		PlayerInput:         map[int]input.Input{},
+		PlayerCommandFrames: map[int]int{},
 	}
 }

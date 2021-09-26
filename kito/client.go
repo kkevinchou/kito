@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
@@ -13,6 +14,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
+	historysys "github.com/kkevinchou/kito/kito/systems/history"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/kito/systems/networkinput"
 	"github.com/kkevinchou/kito/kito/systems/physics"
@@ -34,17 +36,18 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	settings.CurrentGameMode = settings.GameModeClient
 
 	g := &Game{
-		gameMode:    types.GameModePlaying,
-		singleton:   singleton.NewSingleton(),
-		entities:    map[int]entities.Entity{},
-		eventBroker: eventbroker.NewEventBroker(),
+		gameMode:            types.GameModePlaying,
+		singleton:           singleton.NewSingleton(),
+		entities:            map[int]entities.Entity{},
+		eventBroker:         eventbroker.NewEventBroker(),
+		commandFrameHistory: commandframe.NewCommandFrameHistory(),
 	}
 
 	clientSystemSetup(g, assetsDirectory, shaderDirectory)
 	compileShaders()
 
 	// Connect to server
-	client, playerID, err := network.Connect(settings.RemoteHost, settings.Port, settings.ConnectionType)
+	client, playerID, err := network.Connect(settings.RemoteHost, settings.Port, settings.ConnectionType, settings.ArtificialClientLatency)
 	if err != nil {
 		panic(err)
 	}
@@ -94,6 +97,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
+	historySystem := historysys.NewHistorySystem(g)
 
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterAssetManager(assetManager)
@@ -107,6 +111,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 		physicsSystem,
 		animationSystem,
 		cameraSystem,
+		historySystem,
 		renderSystem,
 	}...)
 }

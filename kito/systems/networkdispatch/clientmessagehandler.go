@@ -30,6 +30,23 @@ func handleGameStateUpdate(message *network.Message, world World) {
 		panic(err)
 	}
 
+	cfHistory := world.GetCommandFrameHistory().CommandFrames[gameStateupdate.LatestReceivedCommandFrame]
+
+	//TODO: terrible n^2
+	if cfHistory != nil {
+		for _, historyEntity := range cfHistory.PostCFState {
+			for _, entitySnapshot := range gameStateupdate.Entities {
+				if historyEntity.ID == entitySnapshot.ID {
+					if historyEntity.Position == entitySnapshot.Position {
+						fmt.Println("HIT", gameStateupdate.LatestReceivedCommandFrame)
+					} else {
+						fmt.Println("MiSS", gameStateupdate.LatestReceivedCommandFrame, historyEntity.Position, entitySnapshot.Position)
+					}
+				}
+			}
+		}
+	}
+
 	var newEntities []entities.Entity
 	for _, entitySnapshot := range gameStateupdate.Entities {
 		foundEntity, err := world.GetEntityByID(entitySnapshot.ID)
@@ -57,6 +74,12 @@ func handleGameStateUpdate(message *network.Message, world World) {
 				continue
 			}
 		} else {
+			// TODO: the rewinding here is forcibly making us MISS when comparing past command frames
+			// once we more intelligently apply these updates this should cause us to miss less frequently.
+			// currently using this hack
+			if entitySnapshot.ID == singleton.PlayerID {
+				continue
+			}
 			cc := foundEntity.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
