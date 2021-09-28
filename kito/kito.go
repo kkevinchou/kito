@@ -18,12 +18,6 @@ import (
 	"github.com/kkevinchou/kito/kito/types"
 )
 
-const (
-	fps               float64 = 60
-	msPerCommandFrame float64 = 16
-	maxTimeStep       float64 = 250 // in milliseconds
-)
-
 type System interface {
 	Update(delta time.Duration)
 	RegisterEntity(entity entities.Entity)
@@ -57,24 +51,24 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 	var renderAccumulator float64
 	var fpsAccumulator float64
 
-	msPerFrame := float64(1000) / fps
+	msPerFrame := float64(1000) / settings.FPS
 	previousTimeStamp := float64(time.Now().UnixNano()) / 1000000
 
 	frameCount := 0
 	renderFunction := getRenderFunction()
 	for !g.gameOver {
 		now := float64(time.Now().UnixNano()) / 1000000
-		delta := math.Min(now-previousTimeStamp, maxTimeStep)
+		delta := math.Min(now-previousTimeStamp, settings.MaxTimeStepMS)
 		previousTimeStamp = now
 
 		accumulator += delta
 		renderAccumulator += delta
 
-		for accumulator >= msPerCommandFrame {
+		for accumulator >= settings.MSPerCommandFrame {
 			// input is handled once per command frame
 			g.HandleInput(pollInputFunc())
-			g.runCommandFrame(time.Duration(msPerCommandFrame) * time.Millisecond)
-			accumulator -= msPerCommandFrame
+			g.runCommandFrame(time.Duration(settings.MSPerCommandFrame) * time.Millisecond)
+			accumulator -= settings.MSPerCommandFrame
 		}
 
 		if renderAccumulator >= msPerFrame {

@@ -30,7 +30,12 @@ func handleGameStateUpdate(message *network.Message, world World) {
 		panic(err)
 	}
 
-	cfHistory := world.GetCommandFrameHistory().CommandFrames[gameStateupdate.LatestReceivedCommandFrame]
+	// we use a gcf adjusted command frame lookup because even though an input may happen on only one command
+	// frame, the entity can continue to be updated due to that command frame. Therefore we need to make sure
+	// we advance the command frame as much as the server has to see if we've mispredicted
+	deltaGCF := gameStateupdate.CurrentGlobalCommandFrame - gameStateupdate.LastInputGlobalCommandFrame
+	lookupCommandFrame := gameStateupdate.LastInputCommandFrame + deltaGCF
+	cfHistory := world.GetCommandFrameHistory().CommandFrames[lookupCommandFrame]
 
 	//TODO: terrible n^2
 	if cfHistory != nil {
@@ -38,9 +43,16 @@ func handleGameStateUpdate(message *network.Message, world World) {
 			for _, entitySnapshot := range gameStateupdate.Entities {
 				if historyEntity.ID == entitySnapshot.ID {
 					if historyEntity.Position == entitySnapshot.Position {
-						fmt.Println("HIT", gameStateupdate.LatestReceivedCommandFrame)
+						fmt.Println("HIT", gameStateupdate.LastInputCommandFrame, historyEntity.Position)
 					} else {
-						fmt.Println("MiSS", gameStateupdate.LatestReceivedCommandFrame, historyEntity.Position, entitySnapshot.Position)
+						fmt.Println(
+							"MISS",
+							gameStateupdate.LastInputCommandFrame,
+							gameStateupdate.LastInputGlobalCommandFrame,
+							gameStateupdate.CurrentGlobalCommandFrame,
+							historyEntity.Position,
+							entitySnapshot.Position,
+						)
 					}
 				}
 			}
@@ -77,7 +89,7 @@ func handleGameStateUpdate(message *network.Message, world World) {
 			// TODO: the rewinding here is forcibly making us MISS when comparing past command frames
 			// once we more intelligently apply these updates this should cause us to miss less frequently.
 			// currently using this hack
-			if entitySnapshot.ID == singleton.PlayerID {
+			if entitySnapshot.ID == singleton.PlayerID || entitySnapshot.ID == singleton.CameraID {
 				continue
 			}
 			cc := foundEntity.GetComponentContainer()

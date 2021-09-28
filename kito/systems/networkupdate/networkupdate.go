@@ -93,9 +93,10 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()
 
-	singleton := s.world.GetSingleton()
 	for _, player := range playerManager.GetPlayers() {
-		gameStateUpdate.LatestReceivedCommandFrame = singleton.PlayerCommandFrames[player.ID]
+		gameStateUpdate.LastInputCommandFrame = player.LastInputCommandFrame
+		gameStateUpdate.LastInputGlobalCommandFrame = player.LastInputGlobalCommandFrame
+		gameStateUpdate.CurrentGlobalCommandFrame = s.world.GetSingleton().CommandFrame
 		player.Client.SendMessage(network.MessageTypeGameStateUpdate, gameStateUpdate)
 	}
 }

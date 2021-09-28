@@ -8,9 +8,13 @@ type World interface {
 	CommandFrame() int
 }
 
+// TODO: make this an entity with components
 type Player struct {
 	ID     int
 	Client *network.Client
+
+	LastInputCommandFrame       int // the player's last command frame
+	LastInputGlobalCommandFrame int // the gcf when this input was received
 }
 
 type PlayerManager struct {

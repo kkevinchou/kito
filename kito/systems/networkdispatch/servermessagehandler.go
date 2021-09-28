@@ -41,16 +41,20 @@ func handlePlayerInput(player *player.Player, message *network.Message, world Wo
 		panic(err)
 	}
 
+	// fmt.Println("---------------")
+	// fmt.Println("RECEIVED MOVE ON GCF", singleton.CommandFrame, "CF", message.CommandFrame)
+
 	// TODO: This is to somewhat handle out of order messages coming to the server.
 	// we take the latest command frame. however the current implementation risks
 	// dropping inputs because we simply use only the latest
-	if inputMessage.CommandFrame > singleton.PlayerCommandFrames[player.ID] {
-		singleton.PlayerCommandFrames[player.ID] = inputMessage.CommandFrame
+	if inputMessage.CommandFrame > player.LastInputCommandFrame {
+		player.LastInputCommandFrame = inputMessage.CommandFrame
+		player.LastInputGlobalCommandFrame = world.GetSingleton().CommandFrame
 		singleton.PlayerInput[player.ID] = inputMessage.Input
 	}
 }
 
-// todo: in the future this should be handled by some other system via an event
+// TODO: in the future this should be handled by some other system via an event
 func handleCreatePlayer(player *player.Player, message *network.Message, world World) {
 	playerID := message.SenderID
 

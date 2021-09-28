@@ -9,14 +9,7 @@ import (
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/lib/input"
 )
-
-type InputBuffer struct {
-	bufferSize int
-	index      int
-	buffer     []input.Input
-}
 
 type World interface {
 	RegisterEntities([]entities.Entity)

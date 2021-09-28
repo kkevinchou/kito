@@ -11,6 +11,8 @@ func NewSDLInputPoller() *SDLInputPoller {
 	return &SDLInputPoller{}
 }
 
+// var lastInput time.Time
+
 func (i *SDLInputPoller) PollInput() Input {
 	sdl.PumpEvents()
 
@@ -32,17 +34,23 @@ func (i *SDLInputPoller) PollInput() Input {
 	var commands []interface{}
 	var event sdl.Event
 
+	// used as a flag for the network input system to determine whether the player
+	// has triggered new input which warrants notifying the server
+	newInput := false
+
 	// The same event type can be fired multiple times in the same PollEvent loop
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
 		case *sdl.QuitEvent:
 			commands = append(commands, QuitCommand{})
 		case *sdl.MouseButtonEvent:
+			newInput = true
 			// ?
 		case *sdl.MouseMotionEvent:
 			mouseInput.MouseMotionEvent.XRel += float64(e.XRel)
 			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
 		case *sdl.MouseWheelEvent:
+			newInput = true
 			mouseInput.MouseWheelDelta += int(e.Y)
 		}
 	}
@@ -56,6 +64,9 @@ func (i *SDLInputPoller) PollInput() Input {
 			continue
 		}
 		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
+		newInput = true
+		// fmt.Println("KEYBOARD EVENT")
+		// fmt.Println(KeyboardKey(key))
 		keyboardInput[key] = KeyState{
 			Key:   key,
 			Event: KeyboardEventDown,
@@ -63,6 +74,7 @@ func (i *SDLInputPoller) PollInput() Input {
 	}
 
 	input := Input{
+		NewInput:      newInput,
 		KeyboardInput: keyboardInput,
 		MouseInput:    mouseInput,
 		Commands:      commands,

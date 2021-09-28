@@ -54,6 +54,7 @@ type QuitCommand struct {
 }
 
 type Input struct {
+	NewInput      bool
 	KeyboardInput KeyboardInput
 	MouseInput    MouseInput
 	Commands      []interface{}

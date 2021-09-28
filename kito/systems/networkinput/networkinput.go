@@ -40,11 +40,25 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 	playerManager := directory.GetDirectory().PlayerManager()
 
 	player := playerManager.GetPlayer(singleton.PlayerID)
+	playerInput := singleton.PlayerInput[player.ID]
 
 	inputMessage := &network.InputMessage{
 		CommandFrame: singleton.CommandFrame,
-		Input:        singleton.PlayerInput[player.ID],
+		Input:        playerInput,
 	}
 
-	player.Client.SendMessage(network.MessageTypeInput, inputMessage)
+	// only send the input message if we detected new input
+	if playerInput.NewInput {
+		// fmt.Println("---------------")
+		// fmt.Println("SENT MOVE ON CF", singleton.CommandFrame)
+		// for _, e := range s.entities {
+		// 	if e.GetID() == singleton.PlayerID {
+		// 		t := e.GetComponentContainer().TransformComponent
+		// 		fmt.Println(t.Position)
+		// 	}
+		// }
+
+		player.Client.SendMessage(network.MessageTypeInput, inputMessage)
+	}
+
 }

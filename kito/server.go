@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/animation"
+	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
 	"github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
@@ -60,6 +61,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	animationSystem := animation.NewAnimationSystem(g)
 	cameraSystem := camera.NewCameraSystem(g)
 	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
+	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
 
 	g.systems = append(g.systems, []System{
 		networkListenerSystem,
@@ -69,5 +71,6 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		animationSystem,
 		cameraSystem,
 		networkUpdateSystem,
+		bookKeepingSystem,
 	}...)
 }
