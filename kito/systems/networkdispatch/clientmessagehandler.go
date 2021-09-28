@@ -37,32 +37,9 @@ func handleGameStateUpdate(message *network.Message, world World) {
 	lookupCommandFrame := gameStateupdate.LastInputCommandFrame + deltaGCF
 	cfHistory := world.GetCommandFrameHistory().CommandFrames[lookupCommandFrame]
 
-	//TODO: terrible n^2
-	if cfHistory != nil {
-		for _, historyEntity := range cfHistory.PostCFState {
-			for _, entitySnapshot := range gameStateupdate.Entities {
-				if historyEntity.ID == entitySnapshot.ID {
-					if historyEntity.Position == entitySnapshot.Position {
-						fmt.Println("HIT", gameStateupdate.LastInputCommandFrame, historyEntity.Position)
-					} else {
-						fmt.Println(
-							"MISS",
-							gameStateupdate.LastInputCommandFrame,
-							gameStateupdate.LastInputGlobalCommandFrame,
-							gameStateupdate.CurrentGlobalCommandFrame,
-							historyEntity.Position,
-							entitySnapshot.Position,
-						)
-					}
-				}
-			}
-		}
-	}
-
 	var newEntities []entities.Entity
 	for _, entitySnapshot := range gameStateupdate.Entities {
 		foundEntity, err := world.GetEntityByID(entitySnapshot.ID)
-
 		if err != nil {
 			if types.EntityType(entitySnapshot.Type) == types.EntityTypeBob {
 				newEntity := entities.NewBob(mgl64.Vec3{})
@@ -89,9 +66,36 @@ func handleGameStateUpdate(message *network.Message, world World) {
 			// TODO: the rewinding here is forcibly making us MISS when comparing past command frames
 			// once we more intelligently apply these updates this should cause us to miss less frequently.
 			// currently using this hack
-			if entitySnapshot.ID == singleton.PlayerID || entitySnapshot.ID == singleton.CameraID {
+			if entitySnapshot.ID == singleton.CameraID {
 				continue
 			}
+
+			if entitySnapshot.ID == singleton.PlayerID {
+				if cfHistory != nil {
+					historyEntity := cfHistory.PostCFState
+					// fmt.Println("HIT", gameStateupdate.LastInputCommandFrame, historyEntity.Position)
+					if historyEntity.Position != entitySnapshot.Position || historyEntity.Orientation != entitySnapshot.Orientation {
+						fmt.Println(
+							"CLIENT-SIDE PREDICTION MISS",
+							gameStateupdate.LastInputCommandFrame,
+							gameStateupdate.LastInputGlobalCommandFrame,
+							gameStateupdate.CurrentGlobalCommandFrame,
+							historyEntity,
+							entitySnapshot,
+						)
+
+						// if I was a god programmer I would re-apply historical user inputs to catch
+						// up from the latest command frame the server saw. for now I'm just going to
+						// snap the user to the server view which will show a bit of a hitch to the user
+						fmt.Println("SNAPPING", entitySnapshot.ID)
+						cc := foundEntity.GetComponentContainer()
+						cc.TransformComponent.Position = entitySnapshot.Position
+						cc.TransformComponent.Orientation = entitySnapshot.Orientation
+					}
+				}
+				continue
+			}
+
 			cc := foundEntity.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation

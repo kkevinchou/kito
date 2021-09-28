@@ -41,8 +41,8 @@ func handlePlayerInput(player *player.Player, message *network.Message, world Wo
 		panic(err)
 	}
 
-	// fmt.Println("---------------")
-	// fmt.Println("RECEIVED MOVE ON GCF", singleton.CommandFrame, "CF", message.CommandFrame)
+	fmt.Println("---------------")
+	fmt.Println("RECEIVED MOVE ON GCF", singleton.CommandFrame, "CF", message.CommandFrame)
 
 	// TODO: This is to somewhat handle out of order messages coming to the server.
 	// we take the latest command frame. however the current implementation risks

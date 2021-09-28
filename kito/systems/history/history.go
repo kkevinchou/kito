@@ -1,6 +1,7 @@
 package history
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/commandframe"
@@ -12,6 +13,7 @@ import (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
+	GetEntityByID(id int) (entities.Entity, error)
 }
 
 type HistorySystem struct {
@@ -41,5 +43,10 @@ func (s *HistorySystem) Update(delta time.Duration) {
 	playerInput := singleton.PlayerInput[singleton.PlayerID]
 
 	cfHistory := s.world.GetCommandFrameHistory()
-	cfHistory.AddCommandFrame(singleton.CommandFrame, playerInput, s.entities)
+	player, err := s.world.GetEntityByID(singleton.PlayerID)
+	if err != nil {
+		fmt.Println("history update failed to find player", err)
+		return
+	}
+	cfHistory.AddCommandFrame(singleton.CommandFrame, playerInput, player)
 }

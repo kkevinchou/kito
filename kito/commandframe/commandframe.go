@@ -16,7 +16,7 @@ type EntityState struct {
 type CommandFrame struct {
 	FrameNumber int
 	FrameInput  input.Input
-	PostCFState []EntityState
+	PostCFState EntityState
 }
 
 type CommandFrameHistory struct {
@@ -29,18 +29,17 @@ func NewCommandFrameHistory() *CommandFrameHistory {
 	}
 }
 
-func (h *CommandFrameHistory) AddCommandFrame(frameNumber int, frameInput input.Input, entities []entities.Entity) {
+func (h *CommandFrameHistory) AddCommandFrame(frameNumber int, frameInput input.Input, player entities.Entity) {
 	cf := &CommandFrame{
 		FrameNumber: frameNumber,
 		FrameInput:  frameInput.Copy(),
 	}
-	for _, e := range entities {
-		transformComponent := e.GetComponentContainer().TransformComponent
-		cf.PostCFState = append(cf.PostCFState, EntityState{
-			ID:          e.GetID(),
-			Position:    transformComponent.Position,
-			Orientation: transformComponent.Orientation,
-		})
+	transformComponent := player.GetComponentContainer().TransformComponent
+
+	cf.PostCFState = EntityState{
+		ID:          player.GetID(),
+		Position:    transformComponent.Position,
+		Orientation: transformComponent.Orientation,
 	}
 
 	h.CommandFrames[frameNumber] = cf
