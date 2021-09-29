@@ -49,6 +49,9 @@ func (i *SDLInputPoller) PollInput() Input {
 		case *sdl.MouseMotionEvent:
 			mouseInput.MouseMotionEvent.XRel += float64(e.XRel)
 			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
+			if mouseInput.LeftButtonDown {
+				newInput = true
+			}
 		case *sdl.MouseWheelEvent:
 			newInput = true
 			mouseInput.MouseWheelDelta += int(e.Y)
@@ -73,6 +76,7 @@ func (i *SDLInputPoller) PollInput() Input {
 		}
 	}
 
+	// TODO: make input return a null point on no new input for safety
 	input := Input{
 		NewInput:      newInput,
 		KeyboardInput: keyboardInput,

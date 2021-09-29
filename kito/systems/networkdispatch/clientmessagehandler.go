@@ -35,6 +35,10 @@ func handleGameStateUpdate(message *network.Message, world World) {
 	// we advance the command frame as much as the server has to see if we've mispredicted
 	deltaGCF := gameStateupdate.CurrentGlobalCommandFrame - gameStateupdate.LastInputGlobalCommandFrame
 	lookupCommandFrame := gameStateupdate.LastInputCommandFrame + deltaGCF
+
+	// TODO: we should use the latest cfHistory if we're not able to find an exact command frame history
+	// with the lookup. Standing "still" is still a prediction, and if some outside factor affects the
+	// player, we should detect that as a misprediction and move our character accordingly
 	cfHistory := world.GetCommandFrameHistory().CommandFrames[lookupCommandFrame]
 
 	var newEntities []entities.Entity
@@ -91,8 +95,18 @@ func handleGameStateUpdate(message *network.Message, world World) {
 						cc := foundEntity.GetComponentContainer()
 						cc.TransformComponent.Position = entitySnapshot.Position
 						cc.TransformComponent.Orientation = entitySnapshot.Orientation
+					} else {
+						// fmt.Println(
+						// 	"CLIENT-SIDE PREDICTION HIT",
+						// 	gameStateupdate.LastInputCommandFrame,
+						// 	gameStateupdate.LastInputGlobalCommandFrame,
+						// 	gameStateupdate.CurrentGlobalCommandFrame,
+						// )
 					}
+				} else {
+					// fmt.Println("empty cfHistory", gameStateupdate.LastInputCommandFrame, deltaGCF, len(world.GetCommandFrameHistory().CommandFrames))
 				}
+
 				continue
 			}
 

@@ -48,5 +48,6 @@ const (
 	InputBufferSize int = 150 / int(MSPerCommandFrame)
 
 	// Aritificial latency for debugging purposes mostly.
-	ArtificialClientLatency time.Duration = 60 * time.Millisecond
+	ArtificialClientLatency time.Duration = 0 * time.Millisecond
+	ArtificialServerLatency time.Duration = 0 * time.Millisecond
 )

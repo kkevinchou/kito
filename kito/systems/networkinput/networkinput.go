@@ -1,7 +1,6 @@
 package networkinput
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/directory"
@@ -50,8 +49,8 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 
 	// only send the input message if we detected new input
 	if playerInput.NewInput {
-		fmt.Println("---------------")
-		fmt.Println("SENT MOVE ON CF", singleton.CommandFrame)
+		// fmt.Println("---------------")
+		// fmt.Println("SENT MOVE ON CF", singleton.CommandFrame)
 		// for _, e := range s.entities {
 		// 	if e.GetID() == singleton.PlayerID {
 		// 		t := e.GetComponentContainer().TransformComponent

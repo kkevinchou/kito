@@ -54,7 +54,7 @@ func (s *Server) Start() error {
 				continue
 			}
 
-			s.SendMessage(conn, message)
+			sendMessage(conn, message)
 			if err != nil {
 				fmt.Println("error sending accept message:", err.Error())
 				continue
@@ -86,12 +86,13 @@ func (s *Server) PullIncomingConnections() []*Connection {
 	return connections
 }
 
-func (s *Server) SendMessage(connection net.Conn, message *Message) error {
+func sendMessage(connection net.Conn, message *Message) error {
 	encoder := json.NewEncoder(connection)
 	err := encoder.Encode(message)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

@@ -14,6 +14,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
+	"github.com/kkevinchou/kito/kito/systems/common"
 	historysys "github.com/kkevinchou/kito/kito/systems/history"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/kito/systems/networkinput"
@@ -47,12 +48,17 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	compileShaders()
 
 	// Connect to server
-	client, playerID, err := network.Connect(settings.RemoteHost, settings.Port, settings.ConnectionType, settings.ArtificialClientLatency)
+	nClient, playerID, err := network.Connect(settings.RemoteHost, settings.Port, settings.ConnectionType)
 	if err != nil {
 		panic(err)
 	}
 
-	client.SetCommandFrameFunction(func() int { return g.CommandFrame() })
+	nClient.SetCommandFrameFunction(func() int { return g.CommandFrame() })
+
+	var client types.NetworkClient = nClient
+	if settings.ArtificialClientLatency > 0 {
+		client = common.NewArtificallySlowClient(nClient, settings.ArtificialClientLatency)
+	}
 
 	err = client.SendMessage(network.MessageTypeCreatePlayer, nil)
 	if err != nil {

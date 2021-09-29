@@ -17,7 +17,7 @@ func TestBasic(t *testing.T) {
 		t.Errorf("failed to start server %s", err)
 	}
 
-	client, id, err := network.Connect(host, port, connectionType, 0)
+	client, id, err := network.Connect(host, port, connectionType)
 	if err != nil {
 		t.Errorf("failed to connect %s", err)
 	}

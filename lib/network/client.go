@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"time"
 )
 
 type commandFrameFunc func() int
@@ -18,22 +17,19 @@ type Client struct {
 	connection   net.Conn
 	messageQueue chan *Message
 
-	latency time.Duration
-
 	commandFrameFunc commandFrameFunc
 }
 
-func baseClient(latency time.Duration) *Client {
+func baseClient() *Client {
 	return &Client{
 		id:               UnsetClientID,
 		messageQueue:     make(chan *Message, messageQueueBufferSize),
 		commandFrameFunc: defaultCommandFrameFunc,
-		latency:          latency,
 	}
 }
 
 func NewClient(id int, connection net.Conn) *Client {
-	client := baseClient(0)
+	client := baseClient()
 	client.id = id
 	client.connection = connection
 	go queueIncomingMessages(client.connection, client.messageQueue)
@@ -44,14 +40,14 @@ func (c *Client) SetCommandFrameFunction(f commandFrameFunc) {
 	c.commandFrameFunc = f
 }
 
-func Connect(host, port, connectionType string, latency time.Duration) (*Client, int, error) {
+func Connect(host, port, connectionType string) (*Client, int, error) {
 	address := fmt.Sprintf("%s:%s", host, port)
 	fmt.Println("connecting to " + address + " via " + connectionType)
 	conn, err := net.Dial(connectionType, address)
 	if err != nil {
 		return nil, UnsetClientID, err
 	}
-	client := baseClient(latency)
+	client := baseClient()
 	client.connection = conn
 
 	acceptMessage, err := readAcceptMessage(conn)
@@ -80,15 +76,10 @@ func (c *Client) PullIncomingMessages() []*Message {
 
 func (c *Client) sendMessage(message *Message) error {
 	encoder := json.NewEncoder(c.connection)
-	go func() {
-		if c.latency > 0 {
-			time.Sleep(c.latency)
-		}
-		err := encoder.Encode(message)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}()
+	err := encoder.Encode(message)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return nil
 }

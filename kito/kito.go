@@ -59,6 +59,9 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 	for !g.gameOver {
 		now := float64(time.Now().UnixNano()) / 1000000
 		delta := math.Min(now-previousTimeStamp, settings.MaxTimeStepMS)
+		if delta == settings.MaxTimeStepMS {
+			fmt.Println("hit settings.MaxTimeStepMS - simulation time has been lost")
+		}
 		previousTimeStamp = now
 
 		accumulator += delta

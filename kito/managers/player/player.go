@@ -1,7 +1,7 @@
 package player
 
 import (
-	"github.com/kkevinchou/kito/lib/network"
+	"github.com/kkevinchou/kito/kito/types"
 )
 
 type World interface {
@@ -11,7 +11,7 @@ type World interface {
 // TODO: make this an entity with components
 type Player struct {
 	ID     int
-	Client *network.Client
+	Client types.NetworkClient
 
 	LastInputCommandFrame       int // the player's last command frame
 	LastInputGlobalCommandFrame int // the gcf when this input was received
@@ -31,7 +31,7 @@ func NewPlayerManager(world World) *PlayerManager {
 	}
 }
 
-func (p *PlayerManager) RegisterPlayer(id int, client *network.Client) {
+func (p *PlayerManager) RegisterPlayer(id int, client types.NetworkClient) {
 	player := &Player{ID: id, Client: client}
 	p.playerMap[id] = player
 	p.players = append(p.players, player)
