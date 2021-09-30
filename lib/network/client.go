@@ -78,7 +78,7 @@ func (c *Client) sendMessage(message *Message) error {
 	encoder := json.NewEncoder(c.connection)
 	err := encoder.Encode(message)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
 	return nil

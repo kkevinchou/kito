@@ -47,7 +47,7 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, 
 		commandFrameDelta := playerCommandFrame - lastCommandFrame.PlayerCommandFrame
 
 		// assuming a properly behaving client they should only send one input message per
-		// command frame. in the event that they send more than one, we naievly set it for
+		// command frame. in the event that they send more than one, we naively set it for
 		// the next command frame
 		if commandFrameDelta <= 0 {
 			commandFrameDelta = 1

@@ -11,8 +11,6 @@ func NewSDLInputPoller() *SDLInputPoller {
 	return &SDLInputPoller{}
 }
 
-// var lastInput time.Time
-
 func (i *SDLInputPoller) PollInput() Input {
 	sdl.PumpEvents()
 
@@ -76,7 +74,7 @@ func (i *SDLInputPoller) PollInput() Input {
 		}
 	}
 
-	// TODO: make input return a null point on no new input for safety
+	// TODO: make input return a null input on no new input for safety
 	input := Input{
 		NewInput:      newInput,
 		KeyboardInput: keyboardInput,
