@@ -43,7 +43,7 @@ func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, playerID int, receivedTime time.Time, networkInput *network.InputMessage) {
 	var targetGlobalCommandFrame int
 	if len(i.playerInputs[playerID]) > 0 {
-		lastCommandFrame := i.playerInputs[playerID][len(i.playerInputs)-1]
+		lastCommandFrame := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]
 		commandFrameDelta := playerCommandFrame - lastCommandFrame.PlayerCommandFrame
 
 		// assuming a properly behaving client they should only send one input message per
