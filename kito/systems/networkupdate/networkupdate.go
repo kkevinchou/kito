@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/lib/network"
 )
@@ -19,6 +20,7 @@ const (
 type World interface {
 	RegisterEntities([]entities.Entity)
 	GetEventBroker() eventbroker.EventBroker
+	GetSingleton() *singleton.Singleton
 }
 
 type NetworkUpdateSystem struct {
@@ -92,6 +94,9 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	playerManager := d.PlayerManager()
 
 	for _, player := range playerManager.GetPlayers() {
+		gameStateUpdate.LastInputCommandFrame = player.LastInputCommandFrame
+		gameStateUpdate.LastInputGlobalCommandFrame = player.LastInputGlobalCommandFrame
+		gameStateUpdate.CurrentGlobalCommandFrame = s.world.GetSingleton().CommandFrame
 		player.Client.SendMessage(network.MessageTypeGameStateUpdate, gameStateUpdate)
 	}
 }

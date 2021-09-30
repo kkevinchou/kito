@@ -54,7 +54,20 @@ type QuitCommand struct {
 }
 
 type Input struct {
+	NewInput      bool
 	KeyboardInput KeyboardInput
 	MouseInput    MouseInput
 	Commands      []interface{}
+}
+
+func (i Input) Copy() Input {
+	keyboardInput := KeyboardInput{}
+	for k, v := range i.KeyboardInput {
+		keyboardInput[k] = v
+	}
+
+	return Input{
+		KeyboardInput: keyboardInput,
+		MouseInput:    i.MouseInput,
+	}
 }

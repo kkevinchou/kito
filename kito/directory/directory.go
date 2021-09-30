@@ -7,8 +7,8 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/item"
 	"github.com/kkevinchou/kito/kito/managers/path"
 	"github.com/kkevinchou/kito/kito/managers/player"
+	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/modelspec"
-	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
 )
@@ -28,7 +28,7 @@ type IShaderManager interface {
 }
 
 type IPlayerManager interface {
-	RegisterPlayer(id int, client *network.Client)
+	RegisterPlayer(id int, client types.NetworkClient)
 	GetPlayer(id int) *player.Player
 	GetPlayers() []*player.Player
 }

@@ -1,6 +1,8 @@
 package network
 
 import (
+	"time"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/input"
 )
@@ -20,7 +22,8 @@ const (
 type Message struct {
 	SenderID     int         `json:"sender_id"`
 	MessageType  MessageType `json:"message_type"`
-	CommandFrame int         `json:"command_frame"`
+	CommandFrame int         `json:"command_frame"` // sender command frame
+	Timestamp    time.Time   `json:"timestamp"`     // receiving timestamp
 
 	Body []byte `json:"body"`
 }
@@ -57,11 +60,15 @@ type EventI interface {
 }
 
 type GameStateUpdateMessage struct {
-	Entities map[int]EntitySnapshot
-	Events   []Event
-	Events2  []EventI
+	LastInputCommandFrame       int
+	LastInputGlobalCommandFrame int
+	CurrentGlobalCommandFrame   int
+	Entities                    map[int]EntitySnapshot
+	Events                      []Event
+	Events2                     []EventI
 }
 
 type InputMessage struct {
-	Input input.Input `json:"input"`
+	CommandFrame int         `json:"command_frame"`
+	Input        input.Input `json:"input"`
 }

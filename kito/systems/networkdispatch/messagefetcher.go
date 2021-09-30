@@ -1,6 +1,8 @@
 package networkdispatch
 
 import (
+	"fmt"
+
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/lib/network"
 )
@@ -13,6 +15,9 @@ func connectedPlayersMessageFetcher(world World) []*network.Message {
 
 	for _, player := range playerManager.GetPlayers() {
 		messages := player.Client.PullIncomingMessages()
+		if len(messages) > 1 {
+			fmt.Println("server received more than 1 message from a player in the current frame")
+		}
 		allMessages = append(allMessages, messages...)
 	}
 

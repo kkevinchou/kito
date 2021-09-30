@@ -10,7 +10,6 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/systems/common"
 	"github.com/kkevinchou/kito/kito/types"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/input"
 	libutils "github.com/kkevinchou/kito/lib/libutils"
 )
@@ -42,10 +41,6 @@ func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *CharacterControllerSystem) Update(delta time.Duration) {
-	if utils.IsClient() {
-		// return
-	}
-
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()
 	singleton := s.world.GetSingleton()
@@ -55,11 +50,17 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 		if err != nil {
 			continue
 		}
-		updateCharacterController(entity, s.world, singleton.PlayerInput[player.ID])
+
+		cameraID := entity.GetComponentContainer().ThirdPersonControllerComponent.CameraID
+		camera, err := s.world.GetEntityByID(cameraID)
+		if err != nil {
+			continue
+		}
+		UpdateCharacterController(entity, camera, singleton.PlayerInput[player.ID])
 	}
 }
 
-func updateCharacterController(entity entities.Entity, world World, frameInput input.Input) {
+func UpdateCharacterController(entity entities.Entity, camera entities.Entity, frameInput input.Input) {
 	componentContainer := entity.GetComponentContainer()
 	physicsComponent := componentContainer.PhysicsComponent
 
@@ -71,10 +72,6 @@ func updateCharacterController(entity entities.Entity, world World, frameInput i
 	rightVector := mgl64.Vec3{1, 0, 0}
 
 	if tpcComponent := componentContainer.ThirdPersonControllerComponent; tpcComponent != nil {
-		camera, err := world.GetEntityByID(tpcComponent.CameraID)
-		if err != nil {
-			panic(err)
-		}
 		cameraComponentContainer := camera.GetComponentContainer()
 
 		forwardVector = cameraComponentContainer.TransformComponent.Orientation.Rotate(forwardVector)

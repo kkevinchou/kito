@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"time"
 )
 
 const (
@@ -35,6 +36,8 @@ func queueIncomingMessages(conn net.Conn, messageQueue chan *Message) {
 			fmt.Println("closing connection")
 			return
 		}
+
+		message.Timestamp = time.Now()
 
 		select {
 		case messageQueue <- &message:

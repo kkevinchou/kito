@@ -3,6 +3,7 @@ package networkdispatch
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/directory"
@@ -18,6 +19,7 @@ type MessageHandler func(world World, message *network.Message)
 func serverMessageHandler(world World, message *network.Message) {
 	playerManager := directory.GetDirectory().PlayerManager()
 	player := playerManager.GetPlayer(message.SenderID)
+	singleton := world.GetSingleton()
 	if player == nil {
 		fmt.Println(fmt.Errorf("failed to find player with id %d", message.SenderID))
 		return
@@ -26,25 +28,20 @@ func serverMessageHandler(world World, message *network.Message) {
 	if message.MessageType == network.MessageTypeCreatePlayer {
 		handleCreatePlayer(player, message, world)
 	} else if message.MessageType == network.MessageTypeInput {
-		handlePlayerInput(player, message, world)
+		inputMessage := network.InputMessage{}
+		err := json.Unmarshal(message.Body, &inputMessage)
+		if err != nil {
+			panic(err)
+		}
+		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, message.SenderID, time.Now(), &inputMessage)
+		singleton.IncomingPlayerMessage = message
+		singleton.IncomingPlayerInputMessage = &inputMessage
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}
 }
 
-func handlePlayerInput(player *player.Player, message *network.Message, world World) {
-	singleton := world.GetSingleton()
-
-	inputMessage := network.InputMessage{}
-	err := json.Unmarshal(message.Body, &inputMessage)
-	if err != nil {
-		panic(err)
-	}
-
-	singleton.PlayerInput[player.ID] = inputMessage.Input
-}
-
-// todo: in the future this should be handled by some other system via an event
+// TODO: in the future this should be handled by some other system via an event
 func handleCreatePlayer(player *player.Player, message *network.Message, world World) {
 	playerID := message.SenderID
 

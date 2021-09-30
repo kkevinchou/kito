@@ -7,6 +7,7 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
@@ -15,12 +16,6 @@ import (
 
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/types"
-)
-
-const (
-	fps               float64 = 60
-	msPerCommandFrame float64 = 16
-	maxTimeStep       float64 = 250 // in milliseconds
 )
 
 type System interface {
@@ -40,7 +35,8 @@ type Game struct {
 	systems   []System
 	entities  map[int]entities.Entity
 
-	eventBroker eventbroker.EventBroker
+	eventBroker         eventbroker.EventBroker
+	commandFrameHistory *commandframe.CommandFrameHistory
 }
 
 func (g *Game) runCommandFrame(delta time.Duration) {
@@ -55,24 +51,27 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 	var renderAccumulator float64
 	var fpsAccumulator float64
 
-	msPerFrame := float64(1000) / fps
+	msPerFrame := float64(1000) / settings.FPS
 	previousTimeStamp := float64(time.Now().UnixNano()) / 1000000
 
 	frameCount := 0
 	renderFunction := getRenderFunction()
 	for !g.gameOver {
 		now := float64(time.Now().UnixNano()) / 1000000
-		delta := math.Min(now-previousTimeStamp, maxTimeStep)
+		delta := math.Min(now-previousTimeStamp, settings.MaxTimeStepMS)
+		if delta == settings.MaxTimeStepMS {
+			fmt.Println("hit settings.MaxTimeStepMS - simulation time has been lost")
+		}
 		previousTimeStamp = now
 
 		accumulator += delta
 		renderAccumulator += delta
 
-		for accumulator >= msPerCommandFrame {
+		for accumulator >= settings.MSPerCommandFrame {
 			// input is handled once per command frame
 			g.HandleInput(pollInputFunc())
-			g.runCommandFrame(time.Duration(msPerCommandFrame) * time.Millisecond)
-			accumulator -= msPerCommandFrame
+			g.runCommandFrame(time.Duration(settings.MSPerCommandFrame) * time.Millisecond)
+			accumulator -= settings.MSPerCommandFrame
 		}
 
 		if renderAccumulator >= msPerFrame {
@@ -85,6 +84,7 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 
 		fpsAccumulator += delta
 		if fpsAccumulator > 1000 {
+			// fmt.Println("FPS:", frameCount)
 			frameCount = 0
 			fpsAccumulator -= 1000
 		}
@@ -123,6 +123,10 @@ func (g *Game) CommandFrame() int {
 
 func (g *Game) GetEventBroker() eventbroker.EventBroker {
 	return g.eventBroker
+}
+
+func (g *Game) GetCommandFrameHistory() *commandframe.CommandFrameHistory {
+	return g.commandFrameHistory
 }
 
 func compileShaders() {

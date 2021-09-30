@@ -80,6 +80,7 @@ func (c *Client) sendMessage(message *Message) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

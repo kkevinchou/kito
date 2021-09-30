@@ -18,10 +18,6 @@ const (
 	zoomDecay             float64 = 0.1
 )
 
-type Singleton interface {
-	GetKeyboardInputSet() *input.KeyboardInput
-}
-
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
