@@ -39,7 +39,8 @@ func handleGameStateUpdate(message *network.Message, world World) {
 	// TODO: we should use the latest cfHistory if we're not able to find an exact command frame history
 	// with the lookup. Standing "still" is still a prediction, and if some outside factor affects the
 	// player, we should detect that as a misprediction and move our character accordingly
-	cfHistory := world.GetCommandFrameHistory().CommandFrames[lookupCommandFrame]
+	cfHistory := world.GetCommandFrameHistory()
+	cf := cfHistory.GetCommandFrame(lookupCommandFrame)
 
 	var newEntities []entities.Entity
 	for _, entitySnapshot := range gameStateupdate.Entities {
@@ -75,17 +76,17 @@ func handleGameStateUpdate(message *network.Message, world World) {
 			}
 
 			if entitySnapshot.ID == singleton.PlayerID {
-				if cfHistory != nil {
-					historyEntity := cfHistory.PostCFState
+				if cf != nil {
+					historyEntity := cf.PostCFState
 					// fmt.Println("HIT", gameStateupdate.LastInputCommandFrame, historyEntity.Position)
 					if historyEntity.Position != entitySnapshot.Position || historyEntity.Orientation != entitySnapshot.Orientation {
-						fmt.Println(
-							"CLIENT-SIDE PREDICTION MISS",
+						fmt.Printf(
+							"CLIENT-SIDE PREDICTION MISS %d %d %d\n%v\n%v\n",
 							gameStateupdate.LastInputCommandFrame,
 							gameStateupdate.LastInputGlobalCommandFrame,
 							gameStateupdate.CurrentGlobalCommandFrame,
-							historyEntity,
-							entitySnapshot,
+							historyEntity.Position,
+							entitySnapshot.Position,
 						)
 
 						// if I was a god programmer I would re-apply historical user inputs to catch
@@ -102,6 +103,7 @@ func handleGameStateUpdate(message *network.Message, world World) {
 						// 	gameStateupdate.LastInputGlobalCommandFrame,
 						// 	gameStateupdate.CurrentGlobalCommandFrame,
 						// )
+						cfHistory.ClearUntilFrameNumber(lookupCommandFrame)
 					}
 				} else {
 					// fmt.Println("empty cfHistory", gameStateupdate.LastInputCommandFrame, deltaGCF, len(world.GetCommandFrameHistory().CommandFrames))

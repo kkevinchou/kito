@@ -17,6 +17,7 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEventBroker() eventbroker.EventBroker
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
+	CommandFrame() int
 }
 
 type NetworkDispatchSystem struct {

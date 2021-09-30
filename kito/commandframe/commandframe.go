@@ -20,27 +20,47 @@ type CommandFrame struct {
 }
 
 type CommandFrameHistory struct {
-	CommandFrames map[int]*CommandFrame
+	CommandFrames []CommandFrame
+	ReadOffset    int
 }
 
 func NewCommandFrameHistory() *CommandFrameHistory {
 	return &CommandFrameHistory{
-		CommandFrames: map[int]*CommandFrame{},
+		CommandFrames: []CommandFrame{},
 	}
 }
 
 func (h *CommandFrameHistory) AddCommandFrame(frameNumber int, frameInput input.Input, player entities.Entity) {
-	cf := &CommandFrame{
-		FrameNumber: frameNumber,
-		FrameInput:  frameInput.Copy(),
-	}
 	transformComponent := player.GetComponentContainer().TransformComponent
 
-	cf.PostCFState = EntityState{
-		ID:          player.GetID(),
-		Position:    transformComponent.Position,
-		Orientation: transformComponent.Orientation,
+	cf := CommandFrame{
+		FrameNumber: frameNumber,
+		FrameInput:  frameInput.Copy(),
+		PostCFState: EntityState{
+			ID:          player.GetID(),
+			Position:    transformComponent.Position,
+			Orientation: transformComponent.Orientation,
+		},
 	}
 
-	h.CommandFrames[frameNumber] = cf
+	h.CommandFrames = append(h.CommandFrames, cf)
+
+	// this handles the initial client startup phase where a command frame goes buy without recording a command frame.
+	// this is due to the player not existing yet. there's probably a cleaner way to handle this
+	if len(h.CommandFrames) == 1 {
+		h.ReadOffset = frameNumber
+	}
+}
+
+func (h *CommandFrameHistory) GetCommandFrame(frameNumber int) *CommandFrame {
+	if frameNumber-h.ReadOffset >= len(h.CommandFrames) {
+		return nil
+	}
+	return &h.CommandFrames[frameNumber-h.ReadOffset]
+}
+
+func (h *CommandFrameHistory) ClearUntilFrameNumber(frameNumber int) {
+	// fmt.Println(frameNumber-h.ReadOffset, len(h.CommandFrames))
+	h.CommandFrames = h.CommandFrames[frameNumber-h.ReadOffset:]
+	h.ReadOffset = frameNumber
 }

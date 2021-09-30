@@ -16,6 +16,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/networklistener"
 	"github.com/kkevinchou/kito/kito/systems/networkupdate"
 	"github.com/kkevinchou/kito/kito/systems/physics"
+	"github.com/kkevinchou/kito/kito/systems/playerinput"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/assets"
 )
@@ -62,10 +63,12 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	cameraSystem := camera.NewCameraSystem(g)
 	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
 	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
+	playerInputSystem := playerinput.NewPlayerInputSystem(g)
 
 	g.systems = append(g.systems, []System{
 		networkListenerSystem,
 		networkDispatchSystem,
+		playerInputSystem,
 		characterControllerSystem,
 		physicsSystem,
 		animationSystem,
