@@ -13,7 +13,6 @@ type BufferedState struct {
 
 type IncomingEntityUpdate struct {
 	targetCommandFrame     int
-	message                *network.Message
 	gameStateUpdateMessage *network.GameStateUpdateMessage
 }
 
@@ -30,13 +29,12 @@ func NewStateBuffer(maxStateBufferCommandFrames int) *StateBuffer {
 	}
 }
 
-func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, message *network.Message, gameStateUpdateMessage *network.GameStateUpdateMessage) {
+func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMessage *network.GameStateUpdateMessage) {
 	if len(s.incomingEntityUpdate) == 0 {
 		targetCommandFrame := playerCommandFrame + s.maxStateBufferCommandFrames
 		s.incomingEntityUpdate = append(
 			s.incomingEntityUpdate,
 			IncomingEntityUpdate{
-				message:                message,
 				gameStateUpdateMessage: gameStateUpdateMessage,
 				targetCommandFrame:     targetCommandFrame,
 			},
@@ -50,10 +48,9 @@ func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, message *network.
 	}
 
 	lastEntityUpdate := s.incomingEntityUpdate[len(s.incomingEntityUpdate)-1]
-	gcfDelta := message.CommandFrame - lastEntityUpdate.message.CommandFrame
+	gcfDelta := gameStateUpdateMessage.CurrentGlobalCommandFrame - lastEntityUpdate.gameStateUpdateMessage.CurrentGlobalCommandFrame
 
 	currentEntityUpdate := IncomingEntityUpdate{
-		message:                message,
 		gameStateUpdateMessage: gameStateUpdateMessage,
 		targetCommandFrame:     lastEntityUpdate.targetCommandFrame + gcfDelta,
 	}
@@ -77,8 +74,8 @@ func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, message *network.
 }
 
 func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdate, end IncomingEntityUpdate) {
-	startGCF := start.message.CommandFrame
-	endGCF := end.message.CommandFrame
+	startGCF := start.gameStateUpdateMessage.CurrentGlobalCommandFrame
+	endGCF := end.gameStateUpdateMessage.CurrentGlobalCommandFrame
 	gcfDelta := endGCF - startGCF
 	cfStep := float64(1) / float64(gcfDelta)
 

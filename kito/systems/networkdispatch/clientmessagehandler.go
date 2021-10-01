@@ -20,7 +20,7 @@ func clientMessageHandler(world World, message *network.Message) {
 		}
 
 		handleGameStateUpdate(&gameStateUpdate, world)
-		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), message, &gameStateUpdate)
+		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)
 	} else if message.MessageType == network.MessageTypeAckCreatePlayer {
 		handleAckCreatePlayer(message, world)
 	} else {
