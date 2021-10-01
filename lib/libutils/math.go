@@ -89,3 +89,51 @@ func Decompose(m mgl32.Mat4) (mgl32.Vec3, mgl32.Vec3, mgl32.Quat) {
 
 	return translation, scale, rotation
 }
+
+// Quaternion interpolation, reimplemented from: https://github.com/TheThinMatrix/OpenGL-Animation/blob/dde792fe29767192bcb60d30ac3e82d6bcff1110/Animation/animation/Quaternion.java#L158
+func QInterpolate(a, b mgl32.Quat, blend float32) mgl32.Quat {
+	var result mgl32.Quat = mgl32.Quat{}
+	var dot float32 = a.W*b.W + a.V.X()*b.V.X() + a.V.Y()*b.V.Y() + a.V.Z()*b.V.Z()
+	blendI := float32(1) - blend
+	if dot < 0 {
+		result.W = blendI*a.W + blend*-b.W
+		result.V = mgl32.Vec3{
+			blendI*a.V.X() + blend*-b.V.X(),
+			blendI*a.V.Y() + blend*-b.V.Y(),
+			blendI*a.V.Z() + blend*-b.V.Z(),
+		}
+	} else {
+		result.W = blendI*a.W + blend*b.W
+		result.V = mgl32.Vec3{
+			blendI*a.V.X() + blend*b.V.X(),
+			blendI*a.V.Y() + blend*b.V.Y(),
+			blendI*a.V.Z() + blend*b.V.Z(),
+		}
+	}
+
+	return result.Normalize()
+}
+
+// Quaternion interpolation, reimplemented from: https://github.com/TheThinMatrix/OpenGL-Animation/blob/dde792fe29767192bcb60d30ac3e82d6bcff1110/Animation/animation/Quaternion.java#L158
+func QInterpolate64(a, b mgl64.Quat, blend float64) mgl64.Quat {
+	var result mgl64.Quat = mgl64.Quat{}
+	var dot float64 = a.W*b.W + a.V.X()*b.V.X() + a.V.Y()*b.V.Y() + a.V.Z()*b.V.Z()
+	blendI := float64(1) - blend
+	if dot < 0 {
+		result.W = blendI*a.W + blend*-b.W
+		result.V = mgl64.Vec3{
+			blendI*a.V.X() + blend*-b.V.X(),
+			blendI*a.V.Y() + blend*-b.V.Y(),
+			blendI*a.V.Z() + blend*-b.V.Z(),
+		}
+	} else {
+		result.W = blendI*a.W + blend*b.W
+		result.V = mgl64.Vec3{
+			blendI*a.V.X() + blend*b.V.X(),
+			blendI*a.V.Y() + blend*b.V.Y(),
+			blendI*a.V.Z() + blend*b.V.Z(),
+		}
+	}
+
+	return result.Normalize()
+}

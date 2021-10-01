@@ -43,13 +43,7 @@ func (s *PlayerInputSystem) Update(delta time.Duration) {
 			// fmt.Println("TIME IN INPUT BUFFER", time.Since(bufferedInput.ReceivedTimestamp))
 			handlePlayerInput(player, bufferedInput.PlayerCommandFrame, bufferedInput.Input, s.world)
 		}
-
-		// if singleton.IncomingPlayerMessage != nil && singleton.IncomingPlayerInputMessage != nil {
-		// 	handlePlayerInput(player, singleton.IncomingPlayerMessage.CommandFrame, singleton.IncomingPlayerInputMessage.Input, s.world)
-		// }
 	}
-	singleton.IncomingPlayerMessage = nil
-	singleton.IncomingPlayerInputMessage = nil
 }
 
 func handlePlayerInput(player *player.Player, commandFrame int, input input.Input, world World) {

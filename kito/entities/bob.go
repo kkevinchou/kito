@@ -11,7 +11,7 @@ import (
 )
 
 func NewBob(position mgl64.Vec3) *EntityImpl {
-	modelName := "slime_kevin"
+	modelName := "guard_running"
 	shaderProgram := "model"
 	textureName := "default"
 
