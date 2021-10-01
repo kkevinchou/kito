@@ -34,8 +34,6 @@ func serverMessageHandler(world World, message *network.Message) {
 			panic(err)
 		}
 		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, message.SenderID, time.Now(), &inputMessage)
-		singleton.IncomingPlayerMessage = message
-		singleton.IncomingPlayerInputMessage = &inputMessage
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}

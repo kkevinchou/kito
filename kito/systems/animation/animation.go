@@ -6,6 +6,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/model"
 )
 
@@ -110,7 +111,7 @@ func interpolatePoses(k1, k2 *model.KeyFrame, progression float32) map[int]mgl32
 		// WTF - this lerp doesn't look right when interpolating keyframes???
 		// rotationQuat := mgl32.QuatLerp(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
 
-		rotationQuat := qInterpolate(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
+		rotationQuat := libutils.QInterpolate(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
 		rotation := rotationQuat.Mat4()
 
 		translation := k1JointTransform.Translation.Add(k2JointTransform.Translation.Sub(k1JointTransform.Translation).Mul(progression))
@@ -119,28 +120,4 @@ func interpolatePoses(k1, k2 *model.KeyFrame, progression float32) map[int]mgl32
 		interpolatedPose[jointID] = mgl32.Translate3D(translation.X(), translation.Y(), translation.Z()).Mul4(rotation).Mul4(mgl32.Scale3D(scale.X(), scale.Y(), scale.Z()))
 	}
 	return interpolatedPose
-}
-
-// Quaternion interpolation, reimplemented from: https://github.com/TheThinMatrix/OpenGL-Animation/blob/dde792fe29767192bcb60d30ac3e82d6bcff1110/Animation/animation/Quaternion.java#L158
-func qInterpolate(a, b mgl32.Quat, blend float32) mgl32.Quat {
-	var result mgl32.Quat = mgl32.Quat{}
-	var dot float32 = a.W*b.W + a.V.X()*b.V.X() + a.V.Y()*b.V.Y() + a.V.Z()*b.V.Z()
-	blendI := float32(1) - blend
-	if dot < 0 {
-		result.W = blendI*a.W + blend*-b.W
-		result.V = mgl32.Vec3{
-			blendI*a.V.X() + blend*-b.V.X(),
-			blendI*a.V.Y() + blend*-b.V.Y(),
-			blendI*a.V.Z() + blend*-b.V.Z(),
-		}
-	} else {
-		result.W = blendI*a.W + blend*b.W
-		result.V = mgl32.Vec3{
-			blendI*a.V.X() + blend*b.V.X(),
-			blendI*a.V.Y() + blend*b.V.Y(),
-			blendI*a.V.Z() + blend*b.V.Z(),
-		}
-	}
-	result.Normalize()
-	return result
 }

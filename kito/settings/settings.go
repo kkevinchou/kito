@@ -61,7 +61,9 @@ const (
 
 	// This is potentially overkill to avoiding absolutely no mispredictions on the client.
 	// The drawback of an input buffer is we now add a delay before we process user inputs.
-	MaxInputBufferCommandFrames int = 200 / int(MSPerCommandFrame)
+	MaxInputBufferCommandFrames int = 100 / int(MSPerCommandFrame)
+
+	MaxStateBufferCommandFrames int = 100 / int(MSPerCommandFrame)
 
 	// Aritificial latency for debugging purposes mostly.
 	ArtificialClientLatency time.Duration = 0 * time.Millisecond

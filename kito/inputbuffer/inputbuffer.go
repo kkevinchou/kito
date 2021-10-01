@@ -56,6 +56,9 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, 
 
 		targetGlobalCommandFrame = lastCommandFrame.TargetGlobalCommandFrame + commandFrameDelta
 	} else {
+		// TODO: there might be a smarter way to do this. rather than assume the worst case,
+		// we may want to push the targetGlocalCommandFrame forward depending on the most recently
+		// popped off input.
 		targetGlobalCommandFrame = globalCommandFrame + i.maxCommandFrames
 	}
 
