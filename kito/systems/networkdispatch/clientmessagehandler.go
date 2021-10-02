@@ -65,18 +65,24 @@ func handleGameStateUpdate(gameStateUpdate *network.GameStateUpdateMessage, worl
 	deltaGCF := gameStateUpdate.CurrentGlobalCommandFrame - gameStateUpdate.LastInputGlobalCommandFrame
 	lookupCommandFrame := gameStateUpdate.LastInputCommandFrame + deltaGCF
 
-	// TODO: we should use the latest cfHistory if we're not able to find an exact command frame history
-	// with the lookup. Standing "still" is still a prediction, and if some outside factor affects the
-	// player, we should detect that as a misprediction and move our character accordingly
 	cfHistory := world.GetCommandFrameHistory()
 	cf := cfHistory.GetCommandFrame(lookupCommandFrame)
+	if cf == nil {
+		// we should use the latest cfHistory if we're not able to find an exact command frame history
+		// with the lookup. Standing "still" is still a prediction, and if some outside factor affects the
+		// player, we should detect that as a misprediction and move our character accordingly
+
+		// sometimes the server is a single tick ahead
+		cf = cfHistory.GetCommandFrame(lookupCommandFrame - 1)
+	}
+
+	player := world.GetPlayer()
+	if player == nil {
+		fmt.Println("handleGameStateUpdate - could not find player")
+		return
+	}
 
 	entitySnapshot := gameStateUpdate.Entities[world.GetSingleton().PlayerID]
-	player, err := world.GetEntityByID(entitySnapshot.ID)
-	if err != nil {
-		// this sometimes fails on startup - probably some networking timing
-		panic(err)
-	}
 
 	if cf != nil {
 		historyEntity := cf.PostCFState

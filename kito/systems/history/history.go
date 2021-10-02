@@ -13,12 +13,12 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	GetEntityByID(id int) (entities.Entity, error)
+	GetPlayer() entities.Entity
 }
 
 type HistorySystem struct {
 	*base.BaseSystem
-	world    World
-	entities []entities.Entity
+	world World
 }
 
 func NewHistorySystem(world World) *HistorySystem {
@@ -29,12 +29,6 @@ func NewHistorySystem(world World) *HistorySystem {
 }
 
 func (s *HistorySystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	// TODO: emulating the filtering that physics systems do... pretty brittle
-	if componentContainer.PhysicsComponent != nil && componentContainer.TransformComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
 }
 
 func (s *HistorySystem) Update(delta time.Duration) {
@@ -42,9 +36,8 @@ func (s *HistorySystem) Update(delta time.Duration) {
 	playerInput := singleton.PlayerInput[singleton.PlayerID]
 
 	cfHistory := s.world.GetCommandFrameHistory()
-	player, err := s.world.GetEntityByID(singleton.PlayerID)
-	if err != nil {
-		// fmt.Println("history update failed to find player", err)
+	player := s.world.GetPlayer()
+	if player == nil {
 		return
 	}
 	cfHistory.AddCommandFrame(singleton.CommandFrame, playerInput, player)

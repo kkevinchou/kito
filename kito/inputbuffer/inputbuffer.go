@@ -40,7 +40,7 @@ func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 	}
 }
 
-func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, playerID int, receivedTime time.Time, networkInput *network.InputMessage) {
+func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *network.InputMessage) {
 	var targetGlobalCommandFrame int
 	if len(i.playerInputs[playerID]) > 0 {
 		lastCommandFrame := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]
@@ -56,9 +56,6 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, 
 
 		targetGlobalCommandFrame = lastCommandFrame.TargetGlobalCommandFrame + commandFrameDelta
 	} else {
-		// TODO: there might be a smarter way to do this. rather than assume the worst case,
-		// we may want to push the targetGlocalCommandFrame forward depending on the most recently
-		// popped off input.
 		targetGlobalCommandFrame = globalCommandFrame + i.maxCommandFrames
 	}
 

@@ -33,7 +33,7 @@ func serverMessageHandler(world World, message *network.Message) {
 		if err != nil {
 			panic(err)
 		}
-		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, message.SenderID, time.Now(), &inputMessage)
+		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, player.LastInputCommandFrame, message.SenderID, time.Now(), &inputMessage)
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}
