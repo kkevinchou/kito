@@ -19,6 +19,7 @@ type World interface {
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	CommandFrame() int
 	GetCamera() entities.Entity
+	GetPlayer() entities.Entity
 }
 
 type NetworkDispatchSystem struct {

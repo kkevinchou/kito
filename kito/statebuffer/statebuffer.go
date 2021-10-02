@@ -93,67 +93,20 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 				Type:        startSnapshot.Type,
 				Position:    endSnapshot.Position.Sub(startSnapshot.Position).Mul(float64(i) * cfStep).Add(startSnapshot.Position),
 				Orientation: libutils.QInterpolate64(startSnapshot.Orientation, endSnapshot.Orientation, float64(i)*cfStep),
-				// TODO: Orientation
 			}
 		}
 
 		s.timeline[start.targetCommandFrame+i] = BufferedState{
 			InterpolatedEntities: interpolatedEntities,
 		}
-		// fmt.Printf("cf %d size %d\n", start.targetCommandFrame+i, i)
 	}
-
-	// s.timeline[end.targetCommandFrame] = BufferedState{
-	// 	interpolatedEntities: end.gameStateUpdateMessage.Entities,
-	// }
 }
 
 func (s *StateBuffer) PullEntityInterpolations(cf int) *BufferedState {
 	if b, ok := s.timeline[cf]; ok {
-		// delete(s.timeline, cf)
-		// fmt.Printf("pulling %d\n", cf)
+		delete(s.timeline, cf)
+		// fmt.Println(len(s.timeline))
 		return &b
 	}
-	// fmt.Printf("pulling miss %d\n", cf)
 	return nil
 }
-
-// // AppendCF assumes updates are appended in order
-// func (s *StateBuffer) AppendCF(cf int, update *network.GameStateUpdateMessage) {
-// 	s.stateBuffer[cf] = &CommandFrame{
-// 		cf:     cf,
-// 		update: update,
-// 	}
-// 	s.cfBuffer = append(s.cfBuffer, cf)
-// }
-
-// func (s *StateBuffer) Interpolate(cf int) *network.GameStateUpdateMessage {
-// 	if len(s.cfBuffer) < s.bufferSize {
-// 		if len(s.cfBuffer) > 0 {
-// 			// if we're slow in receiving updates we shouldn't return nil
-// 			// TODO: have a less aggressive solution than halting the world
-// 			return s.stateBuffer[s.cfBuffer[0]].update
-// 		}
-// 		return nil
-// 	}
-
-// 	if cf < s.cfBuffer[0] {
-// 		// command frame is in the past
-// 		return nil
-// 	}
-
-// 	if cf == s.cfBuffer[0] {
-// 		return s.stateBuffer[cf].update
-// 	}
-
-// 	// TODO: handle cf that is beyond position 1
-// 	if cf == s.cfBuffer[1] {
-// 		delete(s.stateBuffer, s.cfBuffer[0])
-// 		s.cfBuffer = s.cfBuffer[1:]
-// 		return s.stateBuffer[cf].update
-// 	}
-
-// 	stateBundle := interpolate(cf, s.stateBuffer[s.cfBuffer[0]], s.stateBuffer[s.cfBuffer[1]])
-
-// 	return stateBundle.update
-// }

@@ -60,8 +60,6 @@ func applyPoseToJoints(joint *model.Joint, pose map[int]mgl32.Mat4, frozenJoints
 func applyPoseToJointsHelper(joint *model.Joint, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4, frozenJoints map[int]bool) {
 	localTransform := pose[joint.ID]
 
-	// TODO: is this what i actually want to do? probably need to refactor this
-	// when we start keyframing joints at different frames
 	if _, ok := pose[joint.ID]; !ok {
 		localTransform = joint.LocalBindTransform
 	}

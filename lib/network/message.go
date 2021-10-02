@@ -20,26 +20,26 @@ const (
 )
 
 type Message struct {
-	SenderID     int         `json:"sender_id"`
-	MessageType  MessageType `json:"message_type"`
-	CommandFrame int         `json:"command_frame"` // sender command frame
-	Timestamp    time.Time   `json:"timestamp"`     // receiving timestamp
+	SenderID     int
+	MessageType  MessageType
+	CommandFrame int
+	Timestamp    time.Time
 
-	Body []byte `json:"body"`
+	Body []byte
 }
 
 type AcceptMessage struct {
-	ID int `json:"id"`
+	ID int
 }
 
 type CreatePlayerMessage struct {
 }
 
 type AckCreatePlayerMessage struct {
-	ID          int        `json:"id"`
-	CameraID    int        `json:"camera_id"`
-	Position    mgl64.Vec3 `json:"transform"`
-	Orientation mgl64.Quat `json:"orientation"`
+	ID          int
+	CameraID    int
+	Position    mgl64.Vec3
+	Orientation mgl64.Quat
 }
 
 type EntitySnapshot struct {
@@ -69,6 +69,6 @@ type GameStateUpdateMessage struct {
 }
 
 type InputMessage struct {
-	CommandFrame int         `json:"command_frame"`
-	Input        input.Input `json:"input"`
+	CommandFrame int
+	Input        input.Input
 }

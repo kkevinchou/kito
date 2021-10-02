@@ -105,6 +105,13 @@ func (g *Game) GetEntityByID(id int) (entities.Entity, error) {
 	return nil, fmt.Errorf("%sfailed to find entity with ID %d", string(stack), id)
 }
 
+func (g *Game) GetPlayer() entities.Entity {
+	if entity, ok := g.entities[g.singleton.PlayerID]; ok {
+		return entity
+	}
+	return nil
+}
+
 func (g *Game) GetCamera() entities.Entity {
 	if entity, ok := g.entities[g.singleton.CameraID]; ok {
 		return entity

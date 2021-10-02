@@ -65,10 +65,6 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 		return
 	}
 
-	// TODO: perhaps it's better to have a stack of events that we pop off so we don't accidentally lose
-	// events?
-	defer s.clearEvents()
-
 	s.elapsedFrames %= commandFramesPerUpdate
 
 	gameStateUpdate := &network.GameStateUpdateMessage{
@@ -79,6 +75,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 		gameStateUpdate.Entities[entity.GetID()] = constructEntitySnapshot(entity)
 	}
 
+	defer s.clearEvents()
 	for _, event := range s.events {
 		bytes, err := event.Serialize()
 		if err != nil {
