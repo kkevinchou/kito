@@ -105,6 +105,7 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 func (s *StateBuffer) PullEntityInterpolations(cf int) *BufferedState {
 	if b, ok := s.timeline[cf]; ok {
 		delete(s.timeline, cf)
+		// fmt.Println(len(s.timeline))
 		return &b
 	}
 	return nil

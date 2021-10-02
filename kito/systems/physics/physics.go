@@ -5,6 +5,7 @@ import (
 
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/kito/utils/physutils"
 
 	"github.com/kkevinchou/kito/kito/entities"
@@ -12,6 +13,7 @@ import (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
+	GetPlayer() entities.Entity
 }
 
 type PhysicsSystem struct {
@@ -37,5 +39,12 @@ func (s *PhysicsSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *PhysicsSystem) Update(delta time.Duration) {
-	physutils.PhysicsStep(delta, s.entities, s.world.GetSingleton().PlayerID)
+	if utils.IsClient() {
+		player := s.world.GetPlayer()
+		if player != nil {
+			physutils.PhysicsStep(delta, s.world.GetPlayer())
+		}
+	} else {
+		physutils.PhysicsStepOnEntities(delta, s.entities)
+	}
 }

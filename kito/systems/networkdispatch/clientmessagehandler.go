@@ -23,7 +23,7 @@ func clientMessageHandler(world World, message *network.Message) {
 			panic(err)
 		}
 
-		handleGameStateUpdate(&gameStateUpdate, world)
+		validateClientPrediction(&gameStateUpdate, world)
 		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)
 	} else if message.MessageType == network.MessageTypeAckCreatePlayer {
 		handleAckCreatePlayer(message, world)
@@ -58,9 +58,9 @@ func handleAckCreatePlayer(message *network.Message, world World) {
 	})
 }
 
-func handleGameStateUpdate(gameStateUpdate *network.GameStateUpdateMessage, world World) {
-	// we use a gcf adjusted command frame lookup because even though an input may happen on only one command
-	// frame, the entity can continue to be updated due to that command frame. Therefore we need to make sure
+func validateClientPrediction(gameStateUpdate *network.GameStateUpdateMessage, world World) {
+	// We use a gcf adjusted command frame lookup because even though an input may happen on only one command
+	// frame, the entity can continue to be updated due to that input. Therefore we need to make sure
 	// we advance the command frame as much as the server has to see if we've mispredicted
 	deltaGCF := gameStateUpdate.CurrentGlobalCommandFrame - gameStateUpdate.LastInputGlobalCommandFrame
 	lookupCommandFrame := gameStateUpdate.LastInputCommandFrame + deltaGCF
@@ -68,11 +68,11 @@ func handleGameStateUpdate(gameStateUpdate *network.GameStateUpdateMessage, worl
 	cfHistory := world.GetCommandFrameHistory()
 	cf := cfHistory.GetCommandFrame(lookupCommandFrame)
 	if cf == nil {
-		// we should use the latest cfHistory if we're not able to find an exact command frame history
+		// We should use the latest cfHistory if we're not able to find an exact command frame history
 		// with the lookup. Standing "still" is still a prediction, and if some outside factor affects the
 		// player, we should detect that as a misprediction and move our character accordingly
 
-		// sometimes the server is a single tick ahead
+		// Sometimes the server is a single tick ahead
 		cf = cfHistory.GetCommandFrame(lookupCommandFrame - 1)
 	}
 
@@ -140,7 +140,8 @@ func replayInputs(
 	// replay inputs and add the new results to the command frame history
 	for i, cf := range cfs {
 		controllerutils.UpdateCharacterController(entity, camera, cf.FrameInput)
-		physutils.PhysicsStep(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, []entities.Entity{entity}, entity.GetID())
+		physutils.PhysicsStep(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity)
 		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
 	}
+	fmt.Printf("replayed %d inputs\n", len(cfs))
 }

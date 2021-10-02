@@ -56,8 +56,8 @@ func handlePlayerInput(player *player.Player, commandFrame int, input input.Inpu
 	// }
 	// fmt.Printf("[CF:%d] PRE PHYSICS %v\n", singleton.CommandFrame, e.GetComponentContainer().TransformComponent.Position)
 
-	// TODO: This is to somewhat handle out of order messages coming to the server.
-	// we take the latest command frame. however the current implementation risks
+	// This is to somewhat handle out of order messages coming to the server.
+	// we take the latest command frame. However the current implementation risks
 	// dropping inputs because we simply use only the latest
 	if commandFrame > player.LastInputCommandFrame {
 		player.LastInputCommandFrame = commandFrame
