@@ -88,13 +88,27 @@ func validateClientPrediction(gameStateUpdate *network.GameStateUpdateMessage, w
 		historyEntity := cf.PostCFState
 		if historyEntity.Position != entitySnapshot.Position || historyEntity.Orientation != entitySnapshot.Orientation {
 			fmt.Printf(
-				"CLIENT-SIDE PREDICTION MISS %d %d %d\n%v\n%v\n",
+				"--------------------------------------\nCLIENT-SIDE PREDICTION MISS lastCF: %d lastGlobalCF: %d currentGlobalCF: %d\n%v\n%v\n",
 				gameStateUpdate.LastInputCommandFrame,
 				gameStateUpdate.LastInputGlobalCommandFrame,
 				gameStateUpdate.CurrentGlobalCommandFrame,
 				historyEntity.Position,
 				entitySnapshot.Position,
 			)
+
+			prevHistoryEntity := cfHistory.GetCommandFrame(lookupCommandFrame - 1)
+			nextHistoryEntity := cfHistory.GetCommandFrame(lookupCommandFrame + 1)
+			prevHit := 0
+			nextHit := 0
+			if prevHistoryEntity.PostCFState.Position == entitySnapshot.Position && prevHistoryEntity.PostCFState.Orientation == entitySnapshot.Orientation {
+				prevHit = 1
+			}
+			if nextHistoryEntity != nil {
+				if nextHistoryEntity.PostCFState.Position == entitySnapshot.Position && nextHistoryEntity.PostCFState.Orientation == entitySnapshot.Orientation {
+					nextHit = 1
+				}
+			}
+			fmt.Printf("prevHit %d nextHit %d\n", prevHit, nextHit)
 
 			// When we miss the client-side prediction, we set the player's state to the snapshot state.
 			// what's important to note is that the snapshot state is in the past! At the very least,
