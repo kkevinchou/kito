@@ -6,6 +6,7 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/lib/libutils"
+	"github.com/kkevinchou/kito/lib/physics/phystypes"
 )
 
 const (
@@ -62,6 +63,7 @@ func PhysicsStep(delta time.Duration, entity entities.Entity) {
 		newPos[1] = 0
 		velocity[1] = 0
 		physicsComponent.Velocity[1] = 0
+		delete(physicsComponent.Impulses, phystypes.JumpImpulse)
 	}
 
 	transformComponent.Position = newPos

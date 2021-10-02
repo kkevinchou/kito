@@ -8,13 +8,10 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/lib/network"
-)
-
-const (
-	commandFramesPerUpdate = 10
 )
 
 type World interface {
@@ -61,11 +58,11 @@ func (s *NetworkUpdateSystem) RegisterEntity(entity entities.Entity) {
 
 func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	s.elapsedFrames++
-	if s.elapsedFrames < commandFramesPerUpdate {
+	if s.elapsedFrames < settings.CommandFramesPerServerUpdate {
 		return
 	}
 
-	s.elapsedFrames %= commandFramesPerUpdate
+	s.elapsedFrames %= settings.CommandFramesPerServerUpdate
 
 	gameStateUpdate := &network.GameStateUpdateMessage{
 		Entities: map[int]network.EntitySnapshot{},
@@ -103,12 +100,21 @@ func (s *NetworkUpdateSystem) clearEvents() {
 }
 
 func constructEntitySnapshot(entity entities.Entity) network.EntitySnapshot {
-	componentContainer := entity.GetComponentContainer()
+	cc := entity.GetComponentContainer()
+	transformComponent := cc.TransformComponent
+	physicsComponent := cc.PhysicsComponent
 
-	return network.EntitySnapshot{
+	snapshot := network.EntitySnapshot{
 		ID:          entity.GetID(),
 		Type:        int(entity.Type()),
-		Position:    componentContainer.TransformComponent.Position,
-		Orientation: componentContainer.TransformComponent.Orientation,
+		Position:    transformComponent.Position,
+		Orientation: transformComponent.Orientation,
 	}
+
+	if physicsComponent != nil {
+		snapshot.Velocity = physicsComponent.Velocity
+		snapshot.Impulses = physicsComponent.Impulses
+	}
+
+	return snapshot
 }

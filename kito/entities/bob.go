@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/model"
+	"github.com/kkevinchou/kito/lib/physics/phystypes"
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
@@ -58,7 +59,7 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 	}
 
 	physicsComponent := &components.PhysicsComponent{
-		Impulses: map[string]types.Impulse{},
+		Impulses: map[string]phystypes.Impulse{},
 	}
 
 	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{

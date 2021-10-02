@@ -88,7 +88,7 @@ func validateClientPrediction(gameStateUpdate *network.GameStateUpdateMessage, w
 		historyEntity := cf.PostCFState
 		if historyEntity.Position != entitySnapshot.Position || historyEntity.Orientation != entitySnapshot.Orientation {
 			fmt.Printf(
-				"--------------------------------------\nCLIENT-SIDE PREDICTION MISS lastCF: %d lastGlobalCF: %d currentGlobalCF: %d\n%v\n%v\n",
+				"--------------------------------------\nCLIENT-SIDE\nPREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
 				gameStateUpdate.LastInputCommandFrame,
 				gameStateUpdate.LastInputGlobalCommandFrame,
 				gameStateUpdate.CurrentGlobalCommandFrame,
@@ -118,6 +118,8 @@ func validateClientPrediction(gameStateUpdate *network.GameStateUpdateMessage, w
 			cc := player.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
+			cc.PhysicsComponent.Velocity = entitySnapshot.Velocity
+			cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 			replayInputs(player, world.GetCamera(), lookupCommandFrame, cfHistory)
 		} else {
 			// fmt.Println(

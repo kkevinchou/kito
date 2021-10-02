@@ -68,4 +68,6 @@ const (
 	// Aritificial latency for debugging purposes mostly.
 	ArtificialClientLatency time.Duration = 0 * time.Millisecond
 	ArtificialServerLatency time.Duration = 0 * time.Millisecond
+
+	CommandFramesPerServerUpdate = 5
 )

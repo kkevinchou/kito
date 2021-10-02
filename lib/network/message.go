@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/input"
+	"github.com/kkevinchou/kito/lib/physics/phystypes"
 )
 
 type MessageType int
@@ -47,6 +48,8 @@ type EntitySnapshot struct {
 	Type        int
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
+	Velocity    mgl64.Vec3
+	Impulses    map[string]phystypes.Impulse
 }
 
 type Event struct {

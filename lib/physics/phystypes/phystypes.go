@@ -1,9 +1,14 @@
-package types
+package phystypes
 
 import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+)
+
+const (
+	JumpImpulse       = "jump"
+	ControllerImpulse = "controller"
 )
 
 type Impulse struct {
