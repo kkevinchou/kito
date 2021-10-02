@@ -67,11 +67,6 @@ func (h *CommandFrameHistory) ClearUntilFrameNumber(frameNumber int) {
 	h.CommandFrames = h.CommandFrames[frameNumber-startFrameNumber:]
 }
 
-// func (h *CommandFrameHistory) PopUntilFrameNumberInclusive(frameNumber int) {
-// 	startFrameNumber := h.CommandFrames[0].FrameNumber
-// 	h.CommandFrames = h.CommandFrames[frameNumber-startFrameNumber:]
-// }
-
 func (h *CommandFrameHistory) ClearFrames() {
 	h.CommandFrames = []CommandFrame{}
 }

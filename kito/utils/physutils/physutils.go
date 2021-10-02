@@ -74,9 +74,5 @@ func PhysicsStep(delta time.Duration, entities []entities.Entity, playerID int) 
 			// This code will likely change when we do animation blending in the animator
 			transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, velocityWithoutY.Normalize(), mgl64.Vec3{0, 1, 0})
 		}
-
-		// if entity.GetID() == 70000 {
-		// 	fmt.Printf("[CF:%d] POST PHYSICS %v\n", world.GetSingleton().CommandFrame, transformComponent.Position)
-		// }
 	}
 }
