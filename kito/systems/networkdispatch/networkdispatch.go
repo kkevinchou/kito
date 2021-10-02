@@ -18,6 +18,7 @@ type World interface {
 	GetEventBroker() eventbroker.EventBroker
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	CommandFrame() int
+	GetCamera() entities.Entity
 }
 
 type NetworkDispatchSystem struct {

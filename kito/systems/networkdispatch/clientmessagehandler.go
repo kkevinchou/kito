@@ -3,10 +3,14 @@ package networkdispatch
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/settings"
+	"github.com/kkevinchou/kito/kito/utils/controllerutils"
+	"github.com/kkevinchou/kito/kito/utils/physutils"
 	"github.com/kkevinchou/kito/lib/network"
 )
 
@@ -68,7 +72,7 @@ func handleGameStateUpdate(gameStateUpdate *network.GameStateUpdateMessage, worl
 	cf := cfHistory.GetCommandFrame(lookupCommandFrame)
 
 	entitySnapshot := gameStateUpdate.Entities[world.GetSingleton().PlayerID]
-	foundEntity, err := world.GetEntityByID(entitySnapshot.ID)
+	player, err := world.GetEntityByID(entitySnapshot.ID)
 	if err != nil {
 		// this sometimes fails on startup - probably some networking timing
 		panic(err)
@@ -76,7 +80,6 @@ func handleGameStateUpdate(gameStateUpdate *network.GameStateUpdateMessage, worl
 
 	if cf != nil {
 		historyEntity := cf.PostCFState
-		// fmt.Println("HIT", gameStateupdate.LastInputCommandFrame, historyEntity.Position)
 		if historyEntity.Position != entitySnapshot.Position || historyEntity.Orientation != entitySnapshot.Orientation {
 			fmt.Printf(
 				"CLIENT-SIDE PREDICTION MISS %d %d %d\n%v\n%v\n",
@@ -87,23 +90,51 @@ func handleGameStateUpdate(gameStateUpdate *network.GameStateUpdateMessage, worl
 				entitySnapshot.Position,
 			)
 
-			// if I was a god programmer I would re-apply historical user inputs to catch
-			// up from the latest command frame the server saw. for now I'm just going to
-			// snap the user to the server view which will show a bit of a hitch to the user
-			fmt.Println("SNAPPING", entitySnapshot.ID)
-			cc := foundEntity.GetComponentContainer()
+			// When we miss the client-side prediction, we set the player's state to the snapshot state.
+			// what's important to note is that the snapshot state is in the past! At the very least,
+			// a whole RTT in the past. So, we want to replay our historical inputs to catch up to the player's
+			// present.
+
+			cc := player.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
+			replayInputs(player, world.GetCamera(), lookupCommandFrame, cfHistory)
 		} else {
 			// fmt.Println(
 			// 	"CLIENT-SIDE PREDICTION HIT",
-			// 	gameStateupdate.LastInputCommandFrame,
-			// 	gameStateupdate.LastInputGlobalCommandFrame,
-			// 	gameStateupdate.CurrentGlobalCommandFrame,
+			// 	gameStateUpdate.LastInputCommandFrame,
+			// 	gameStateUpdate.LastInputGlobalCommandFrame,
+			// 	gameStateUpdate.CurrentGlobalCommandFrame,
 			// )
 			cfHistory.ClearUntilFrameNumber(lookupCommandFrame)
 		}
 	} else {
-		// fmt.Println("empty cfHistory", gameStateupdate.LastInputCommandFrame, deltaGCF, len(world.GetCommandFrameHistory().CommandFrames))
+		// fmt.Println("empty cfHistory", gameStateUpdate.LastInputCommandFrame, deltaGCF, len(world.GetCommandFrameHistory().CommandFrames))
+	}
+}
+
+func replayInputs(
+	entity entities.Entity,
+	camera entities.Entity,
+	startFrame int,
+	cfHistory *commandframe.CommandFrameHistory,
+) {
+	frameIndex := startFrame + 1
+	cf := cfHistory.GetCommandFrame(frameIndex)
+
+	cfs := []*commandframe.CommandFrame{}
+	for cf != nil {
+		cfs = append(cfs, cf)
+		frameIndex += 1
+		cf = cfHistory.GetCommandFrame(frameIndex)
+	}
+
+	cfHistory.ClearFrames()
+
+	// replay inputs and add the new results to the command frame history
+	for i, cf := range cfs {
+		controllerutils.UpdateCharacterController(entity, camera, cf.FrameInput)
+		physutils.PhysicsStep(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, []entities.Entity{entity}, entity.GetID())
+		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
 	}
 }
