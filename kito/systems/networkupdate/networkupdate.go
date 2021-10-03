@@ -7,11 +7,11 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/lib/network"
 )
 
 type World interface {
@@ -64,8 +64,8 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 
 	s.elapsedFrames %= settings.CommandFramesPerServerUpdate
 
-	gameStateUpdate := &network.GameStateUpdateMessage{
-		Entities: map[int]network.EntitySnapshot{},
+	gameStateUpdate := &knetwork.GameStateUpdateMessage{
+		Entities: map[int]knetwork.EntitySnapshot{},
 	}
 
 	for _, entity := range s.entities {
@@ -80,7 +80,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		serializedEvent := network.Event{Type: int(event.Type()), Bytes: bytes}
+		serializedEvent := knetwork.Event{Type: int(event.Type()), Bytes: bytes}
 		gameStateUpdate.Events = append(gameStateUpdate.Events, serializedEvent)
 	}
 
@@ -91,7 +91,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 		gameStateUpdate.LastInputCommandFrame = player.LastInputCommandFrame
 		gameStateUpdate.LastInputGlobalCommandFrame = player.LastInputGlobalCommandFrame
 		gameStateUpdate.CurrentGlobalCommandFrame = s.world.GetSingleton().CommandFrame
-		player.Client.SendMessage(network.MessageTypeGameStateUpdate, gameStateUpdate)
+		player.Client.SendMessage(knetwork.MessageTypeGameStateUpdate, gameStateUpdate)
 	}
 }
 
@@ -99,12 +99,12 @@ func (s *NetworkUpdateSystem) clearEvents() {
 	s.events = []events.Event{}
 }
 
-func constructEntitySnapshot(entity entities.Entity) network.EntitySnapshot {
+func constructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 	cc := entity.GetComponentContainer()
 	transformComponent := cc.TransformComponent
 	physicsComponent := cc.PhysicsComponent
 
-	snapshot := network.EntitySnapshot{
+	snapshot := knetwork.EntitySnapshot{
 		ID:          entity.GetID(),
 		Type:        int(entity.Type()),
 		Position:    transformComponent.Position,

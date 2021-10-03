@@ -1,4 +1,4 @@
-package phystypes
+package types
 
 import (
 	"time"

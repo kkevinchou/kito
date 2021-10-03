@@ -5,9 +5,9 @@ import (
 
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/lib/network"
 )
 
 type World interface {
@@ -42,7 +42,7 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 	player := playerManager.GetPlayer(singleton.PlayerID)
 	playerInput := singleton.PlayerInput[player.ID]
 
-	inputMessage := &network.InputMessage{
+	inputMessage := &knetwork.InputMessage{
 		CommandFrame: singleton.CommandFrame,
 		Input:        playerInput,
 	}
@@ -58,7 +58,7 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 		// 	}
 		// }
 
-		player.Client.SendMessage(network.MessageTypeInput, inputMessage)
+		player.Client.SendMessage(knetwork.MessageTypeInput, inputMessage)
 	}
 
 }

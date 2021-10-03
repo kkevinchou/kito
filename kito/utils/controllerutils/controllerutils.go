@@ -4,9 +4,9 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/systems/common"
+	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/libutils"
-	"github.com/kkevinchou/kito/lib/physics/phystypes"
 )
 
 func UpdateCharacterController(entity entities.Entity, camera entities.Entity, frameInput input.Input) {
@@ -39,7 +39,7 @@ func UpdateCharacterController(entity entities.Entity, camera entities.Entity, f
 
 	if !libutils.Vec3IsZero(movementVector) {
 		normalizedMovementVector := movementVector.Normalize()
-		impulse := phystypes.Impulse{
+		impulse := types.Impulse{
 			Vector:    normalizedMovementVector.Mul(moveSpeed),
 			DecayRate: 5,
 		}
@@ -48,10 +48,10 @@ func UpdateCharacterController(entity entities.Entity, camera entities.Entity, f
 
 	// only allow jumping if the player is on the ground
 	if controlVector.Y() > 0 && componentContainer.TransformComponent.Position.Y() == 0 {
-		impulse := phystypes.Impulse{
+		impulse := types.Impulse{
 			Vector:    mgl64.Vec3{0, 100, 0},
 			DecayRate: 1,
 		}
-		physicsComponent.ApplyImpulse(phystypes.JumpImpulse, impulse)
+		physicsComponent.ApplyImpulse(types.JumpImpulse, impulse)
 	}
 }

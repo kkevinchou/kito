@@ -3,17 +3,17 @@ package statebuffer
 import (
 	"fmt"
 
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/lib/libutils"
-	"github.com/kkevinchou/kito/lib/network"
 )
 
 type BufferedState struct {
-	InterpolatedEntities map[int]network.EntitySnapshot
+	InterpolatedEntities map[int]knetwork.EntitySnapshot
 }
 
 type IncomingEntityUpdate struct {
 	targetCommandFrame     int
-	gameStateUpdateMessage *network.GameStateUpdateMessage
+	gameStateUpdateMessage *knetwork.GameStateUpdateMessage
 }
 
 type StateBuffer struct {
@@ -29,7 +29,7 @@ func NewStateBuffer(maxStateBufferCommandFrames int) *StateBuffer {
 	}
 }
 
-func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMessage *network.GameStateUpdateMessage) {
+func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMessage *knetwork.GameStateUpdateMessage) {
 	if len(s.incomingEntityUpdate) == 0 {
 		targetCommandFrame := playerCommandFrame + s.maxStateBufferCommandFrames
 		s.incomingEntityUpdate = append(
@@ -80,7 +80,7 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 	cfStep := float64(1) / float64(gcfDelta)
 
 	for i := 1; i <= gcfDelta; i++ {
-		interpolatedEntities := map[int]network.EntitySnapshot{}
+		interpolatedEntities := map[int]knetwork.EntitySnapshot{}
 
 		for id, startSnapshot := range start.gameStateUpdateMessage.Entities {
 			if _, ok := end.gameStateUpdateMessage.Entities[id]; !ok {
@@ -88,7 +88,7 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 			}
 
 			endSnapshot := end.gameStateUpdateMessage.Entities[id]
-			interpolatedEntities[id] = network.EntitySnapshot{
+			interpolatedEntities[id] = knetwork.EntitySnapshot{
 				ID:          startSnapshot.ID,
 				Type:        startSnapshot.Type,
 				Position:    endSnapshot.Position.Sub(startSnapshot.Position).Mul(float64(i) * cfStep).Add(startSnapshot.Position),

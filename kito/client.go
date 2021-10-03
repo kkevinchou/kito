@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/settings"
@@ -61,7 +62,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 		client = common.NewArtificallySlowClient(nClient, settings.ArtificialClientLatency)
 	}
 
-	err = client.SendMessage(network.MessageTypeCreatePlayer, nil)
+	err = client.SendMessage(knetwork.MessageTypeCreatePlayer, nil)
 	if err != nil {
 		panic(err)
 	}

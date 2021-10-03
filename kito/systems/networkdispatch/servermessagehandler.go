@@ -1,7 +1,6 @@
 package networkdispatch
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/network"
@@ -25,11 +25,11 @@ func serverMessageHandler(world World, message *network.Message) {
 		return
 	}
 
-	if message.MessageType == network.MessageTypeCreatePlayer {
+	if message.MessageType == knetwork.MessageTypeCreatePlayer {
 		handleCreatePlayer(player, message, world)
-	} else if message.MessageType == network.MessageTypeInput {
-		inputMessage := network.InputMessage{}
-		err := json.Unmarshal(message.Body, &inputMessage)
+	} else if message.MessageType == knetwork.MessageTypeInput {
+		inputMessage := knetwork.InputMessage{}
+		err := network.DeserializeBody(message, &inputMessage)
 		if err != nil {
 			panic(err)
 		}
@@ -57,7 +57,7 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 	world.RegisterEntities([]entities.Entity{bob, camera})
 	fmt.Println("Created and registered a new bob with id", bob.ID)
 
-	ack := &network.AckCreatePlayerMessage{
+	ack := &knetwork.AckCreatePlayerMessage{
 		ID:          playerID,
 		CameraID:    camera.ID,
 		Position:    cc.TransformComponent.Position,

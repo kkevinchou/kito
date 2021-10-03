@@ -85,11 +85,11 @@ func (c *Client) sendMessage(message *Message) error {
 }
 
 // SendMessage sends the message through the client
-func (c *Client) SendMessage(messageType MessageType, subMessage interface{}) error {
+func (c *Client) SendMessage(messageType int, messageBody interface{}) error {
 	var bodyBytes []byte
 	var err error
-	if subMessage != nil {
-		bodyBytes, err = json.Marshal(subMessage)
+	if messageBody != nil {
+		bodyBytes, err = json.Marshal(messageBody)
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ func (c *Client) SyncReceiveMessage() *Message {
 }
 
 func readAcceptMessage(conn net.Conn) (*AcceptMessage, error) {
-	message := Message{}
+	message := &Message{}
 	decoder := json.NewDecoder(conn)
 	err := decoder.Decode(&message)
 	if err != nil {
@@ -118,7 +118,7 @@ func readAcceptMessage(conn net.Conn) (*AcceptMessage, error) {
 	}
 
 	acceptMessage := AcceptMessage{}
-	err = json.Unmarshal(message.Body, &acceptMessage)
+	err = DeserializeBody(message, &acceptMessage)
 	if err != nil {
 		return nil, err
 	}
