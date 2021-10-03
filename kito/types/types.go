@@ -17,6 +17,6 @@ const (
 )
 
 type NetworkClient interface {
-	SendMessage(messageType int, subMessage interface{}) error
+	SendMessage(messageType int, messageBody interface{}) error
 	PullIncomingMessages() []*network.Message
 }

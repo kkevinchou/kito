@@ -1,7 +1,6 @@
 package networkdispatch
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -30,7 +29,7 @@ func serverMessageHandler(world World, message *network.Message) {
 		handleCreatePlayer(player, message, world)
 	} else if message.MessageType == knetwork.MessageTypeInput {
 		inputMessage := knetwork.InputMessage{}
-		err := json.Unmarshal(message.Body, &inputMessage)
+		err := network.DeserializeBody(message, &inputMessage)
 		if err != nil {
 			panic(err)
 		}

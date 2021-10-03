@@ -1,7 +1,6 @@
 package networkdispatch
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -19,7 +18,7 @@ func clientMessageHandler(world World, message *network.Message) {
 	if message.MessageType == knetwork.MessageTypeGameStateUpdate {
 		singleton := world.GetSingleton()
 		var gameStateUpdate knetwork.GameStateUpdateMessage
-		err := json.Unmarshal(message.Body, &gameStateUpdate)
+		err := network.DeserializeBody(message, &gameStateUpdate)
 		if err != nil {
 			panic(err)
 		}
@@ -34,22 +33,22 @@ func clientMessageHandler(world World, message *network.Message) {
 }
 
 func handleAckCreatePlayer(message *network.Message, world World) {
-	subMessage := &knetwork.AckCreatePlayerMessage{}
-	err := json.Unmarshal(message.Body, subMessage)
+	messageBody := &knetwork.AckCreatePlayerMessage{}
+	err := network.DeserializeBody(message, messageBody)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	singleton := world.GetSingleton()
-	singleton.PlayerID = subMessage.ID
-	singleton.CameraID = subMessage.CameraID
+	singleton.PlayerID = messageBody.ID
+	singleton.CameraID = messageBody.CameraID
 
 	bob := entities.NewBob(mgl64.Vec3{})
-	bob.ID = subMessage.ID
+	bob.ID = messageBody.ID
 
 	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())
-	camera.ID = subMessage.CameraID
+	camera.ID = messageBody.CameraID
 
 	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
 
