@@ -4,7 +4,6 @@ import (
 	"fmt"
 	_ "image/png"
 	"math"
-	"strings"
 	"time"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -193,79 +192,33 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		assetManager.GetTexture("back"),
 	)
 
-	floorModelMatrix := createModelMatrix(
-		mgl64.Scale3D(500, 500, 500),
-		mgl64.Ident4(),
-		mgl64.Ident4(),
-	)
-
-	drawThingy(
-		viewerContext,
-		lightContext,
-		s.shadowMap,
-		shaderManager.GetShaderProgram("basicShadow"),
-		assetManager.GetTexture("default"),
-		s.floor,
-		floorModelMatrix,
-	)
-
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
-		renderData := componentContainer.RenderComponent.GetRenderData()
 		entityPosition := componentContainer.TransformComponent.Position
 		orientation := componentContainer.TransformComponent.Orientation
 		translation := mgl64.Translate3D(entityPosition.X(), entityPosition.Y(), entityPosition.Z())
+		renderComponent := componentContainer.RenderComponent
+		meshComponent := componentContainer.MeshComponent
 
-		if !renderData.IsVisible() {
+		if !renderComponent.IsVisible {
 			continue
 		}
 
-		if modelRenderData, ok := renderData.(*components.ModelRenderData); ok {
-			var meshModelMatrix mgl64.Mat4
+		meshModelMatrix := createModelMatrix(
+			meshComponent.Scale,
+			orientation.Mat4().Mul4(meshComponent.Orientation),
+			translation,
+		)
 
-			if strings.Contains(modelRenderData.ID, "slime") {
-				// // accounting for blender change of axis
-				xr := mgl64.QuatRotate(mgl64.DegToRad(-90), mgl64.Vec3{1, 0, 0}).Mat4()
-				yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
-				meshModelMatrix = createModelMatrix(
-					mgl64.Scale3D(25, 25, 25),
-					orientation.Mat4().Mul4(yr).Mul4(xr),
-					translation,
-				)
-			} else if strings.Contains(modelRenderData.ID, "guard") {
-				// meshModelMatrix = createModelMatrix(
-				// 	mgl64.Scale3D(0.07, 0.07, 0.07),
-				// 	mgl64.Ident4(),
-				// 	mgl64.Translate3D(entityPosition.X(), entityPosition.Y(), entityPosition.Z()),
-				// )
-				yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
-				meshModelMatrix = createModelMatrix(
-					mgl64.Scale3D(0.07, 0.07, 0.07),
-					orientation.Mat4().Mul4(yr),
-					translation,
-				)
-			} else {
-				// // accounting for blender change of axis
-				xr := mgl64.QuatRotate(mgl64.DegToRad(-90), mgl64.Vec3{1, 0, 0}).Mat4()
-				yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
-				meshModelMatrix = createModelMatrix(
-					mgl64.Ident4(),
-					orientation.Mat4().Mul4(yr).Mul4(xr),
-					translation,
-				)
-			}
-
-			drawModel(
-				viewerContext,
-				lightContext,
-				s.shadowMap,
-				shaderManager.GetShaderProgram(modelRenderData.ShaderProgram),
-				componentContainer.MeshComponent,
-				componentContainer.AnimationComponent,
-				meshModelMatrix,
-			)
-		} else if _, ok := renderData.(*components.BlockRenderData); ok {
-		}
+		drawModel(
+			viewerContext,
+			lightContext,
+			s.shadowMap,
+			shaderManager.GetShaderProgram(meshComponent.ShaderProgram),
+			componentContainer.MeshComponent,
+			componentContainer.AnimationComponent,
+			meshModelMatrix,
+		)
 	}
 }
 

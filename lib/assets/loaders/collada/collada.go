@@ -43,7 +43,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	var effectSpec *modelspec.EffectSpec
 	var effectId Id
 
-	if len(rawCollada.LibraryEffects[0].Effect) > 0 {
+	if len(rawCollada.LibraryEffects) > 0 && len(rawCollada.LibraryEffects[0].Effect) > 0 {
 		if len(rawCollada.LibraryEffects[0].Effect) != 1 {
 			fmt.Println("More than 1 effect. Using only 1st one", documentPath)
 		}
@@ -90,20 +90,22 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 	}
 
-	libraryMaterial := rawCollada.LibraryMaterials[0]
 	var materialId Id
-	if len(libraryMaterial.Material) > 0 {
-		if len(libraryMaterial.Material) != 1 {
-			fmt.Println("More than 1 material. Using only 1st one", documentPath)
-		}
-		material := libraryMaterial.Material[0]
-		materialId = material.Id
-		// materialName := material.Name
-		instanceEffect := material.InstanceEffect
-		instanceEffectURL := instanceEffect.Url[1:] // remove leading "#"
+	if len(rawCollada.LibraryMaterials) > 0 {
+		libraryMaterial := rawCollada.LibraryMaterials[0]
+		if len(libraryMaterial.Material) > 0 {
+			if len(libraryMaterial.Material) != 1 {
+				fmt.Println("More than 1 material. Using only 1st one", documentPath)
+			}
+			material := libraryMaterial.Material[0]
+			materialId = material.Id
+			// materialName := material.Name
+			instanceEffect := material.InstanceEffect
+			instanceEffectURL := instanceEffect.Url[1:] // remove leading "#"
 
-		if string(instanceEffectURL) != string(effectId) {
-			panic("material effect not found")
+			if string(instanceEffectURL) != string(effectId) {
+				panic("material effect not found")
+			}
 		}
 	}
 

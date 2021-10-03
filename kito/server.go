@@ -40,8 +40,9 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
-	rigidBody := entities.NewRigidBody(mgl64.Vec3{-50, 0, -50})
-	return []entities.Entity{rigidBody}
+	scene := entities.NewScene(mgl64.Vec3{})
+	staticSlime := entities.NewSlime(mgl64.Vec3{-50, 0, -50})
+	return []entities.Entity{scene, staticSlime}
 }
 
 func serverSystemSetup(g *Game, assetsDirectory string) {

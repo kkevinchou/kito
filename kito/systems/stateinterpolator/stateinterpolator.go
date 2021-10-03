@@ -63,8 +63,17 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 				cc.TransformComponent.Orientation = entitySnapshot.Orientation
 
 				newEntities = append(newEntities, newEntity)
-			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeRigidBody {
-				newEntity := entities.NewRigidBody(entitySnapshot.Position)
+			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeScene {
+				newEntity := entities.NewScene(entitySnapshot.Position)
+				newEntity.ID = entitySnapshot.ID
+
+				cc := newEntity.GetComponentContainer()
+				cc.TransformComponent.Position = entitySnapshot.Position
+				cc.TransformComponent.Orientation = entitySnapshot.Orientation
+
+				newEntities = append(newEntities, newEntity)
+			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeStaticSlime {
+				newEntity := entities.NewSlime(entitySnapshot.Position)
 				newEntity.ID = entitySnapshot.ID
 
 				cc := newEntity.GetComponentContainer()
