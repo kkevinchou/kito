@@ -11,7 +11,7 @@ import (
 
 const (
 	fullDecayThreshold = float64(0.05)
-	gravity            = float64(60)
+	gravity            = float64(120)
 )
 
 var (
