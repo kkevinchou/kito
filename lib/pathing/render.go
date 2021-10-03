@@ -2,7 +2,6 @@ package pathing
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/kito/components"
 )
 
 type NavMeshRenderData struct {
@@ -16,10 +15,6 @@ func (n *NavMeshRenderData) IsVisible() bool {
 
 type RenderComponent struct {
 	RenderData *NavMeshRenderData
-}
-
-func (r *RenderComponent) GetRenderData() components.RenderData {
-	return r.RenderData
 }
 
 func (n *RenderComponent) Position() mgl64.Vec3 {

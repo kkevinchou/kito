@@ -1,11 +1,7 @@
 package components
 
 type RenderComponent struct {
-	RenderData RenderData
-}
-
-func (r *RenderComponent) GetRenderData() RenderData {
-	return r.RenderData
+	IsVisible bool
 }
 
 func (c *RenderComponent) AddToComponentContainer(container *ComponentContainer) {

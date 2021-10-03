@@ -68,7 +68,7 @@ void main()
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
 
-    vec3 color = texture(modelTexture, fs_in.TexCoord).xyz;
+    vec3 color = texture(modelTexture, fs_in.TexCoord*10).xyz;
     
     // calculate shadow
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, lightDir);

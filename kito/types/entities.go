@@ -7,4 +7,6 @@ const (
 	EntityTypeBlock
 	EntityTypeRigidBody
 	EntityTypeCamera
+	EntityTypeScene
+	EntityTypeStaticSlime
 )
