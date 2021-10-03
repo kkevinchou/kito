@@ -88,7 +88,8 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 		historyEntity := cf.PostCFState
 		if historyEntity.Position != entitySnapshot.Position || historyEntity.Orientation != entitySnapshot.Orientation {
 			fmt.Printf(
-				"--------------------------------------\nCLIENT-SIDE\nPREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
+				"--------------------------------------\n[CF:%d]CLIENT-SIDE PREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
+				world.CommandFrame(),
 				gameStateUpdate.LastInputCommandFrame,
 				gameStateUpdate.LastInputGlobalCommandFrame,
 				gameStateUpdate.CurrentGlobalCommandFrame,
