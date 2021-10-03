@@ -18,12 +18,6 @@ var (
 	accelerationDueToGravity = mgl64.Vec3{0, -gravity, 0}
 )
 
-func PhysicsStepOnEntities(delta time.Duration, entities []entities.Entity) {
-	for _, entity := range entities {
-		PhysicsStep(delta, entity)
-	}
-}
-
 func PhysicsStep(delta time.Duration, entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 	physicsComponent := componentContainer.PhysicsComponent

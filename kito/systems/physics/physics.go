@@ -45,6 +45,8 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 			physutils.PhysicsStep(delta, s.world.GetPlayer())
 		}
 	} else {
-		physutils.PhysicsStepOnEntities(delta, s.entities)
+		for _, entity := range s.entities {
+			physutils.PhysicsStep(delta, entity)
+		}
 	}
 }

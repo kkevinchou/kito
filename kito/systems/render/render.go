@@ -114,7 +114,6 @@ func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 func (s *RenderSystem) Render(delta time.Duration) {
 	transformComponent := s.GetCameraTransform()
 	if transformComponent == nil {
-		fmt.Println("camera not found in Render()")
 		return
 	}
 
