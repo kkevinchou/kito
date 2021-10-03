@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/lib/input"
-	"github.com/kkevinchou/kito/lib/network"
 )
 
 // InputBuffer is a buffer of inputs. Inputs are sent from clients and stored in the buffer
@@ -40,7 +40,7 @@ func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 	}
 }
 
-func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *network.InputMessage) {
+func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
 	var targetGlobalCommandFrame int
 	if len(i.playerInputs[playerID]) > 0 {
 		lastCommandFrame := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]

@@ -8,6 +8,7 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/utils/controllerutils"
 	"github.com/kkevinchou/kito/kito/utils/physutils"
@@ -15,9 +16,9 @@ import (
 )
 
 func clientMessageHandler(world World, message *network.Message) {
-	if message.MessageType == network.MessageTypeGameStateUpdate {
+	if message.MessageType == knetwork.MessageTypeGameStateUpdate {
 		singleton := world.GetSingleton()
-		var gameStateUpdate network.GameStateUpdateMessage
+		var gameStateUpdate knetwork.GameStateUpdateMessage
 		err := json.Unmarshal(message.Body, &gameStateUpdate)
 		if err != nil {
 			panic(err)
@@ -25,7 +26,7 @@ func clientMessageHandler(world World, message *network.Message) {
 
 		validateClientPrediction(&gameStateUpdate, world)
 		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)
-	} else if message.MessageType == network.MessageTypeAckCreatePlayer {
+	} else if message.MessageType == knetwork.MessageTypeAckCreatePlayer {
 		handleAckCreatePlayer(message, world)
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
@@ -33,7 +34,7 @@ func clientMessageHandler(world World, message *network.Message) {
 }
 
 func handleAckCreatePlayer(message *network.Message, world World) {
-	subMessage := &network.AckCreatePlayerMessage{}
+	subMessage := &knetwork.AckCreatePlayerMessage{}
 	err := json.Unmarshal(message.Body, subMessage)
 	if err != nil {
 		fmt.Println(err)
@@ -58,7 +59,7 @@ func handleAckCreatePlayer(message *network.Message, world World) {
 	})
 }
 
-func validateClientPrediction(gameStateUpdate *network.GameStateUpdateMessage, world World) {
+func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, world World) {
 	// We use a gcf adjusted command frame lookup because even though an input may happen on only one command
 	// frame, the entity can continue to be updated due to that input. Therefore we need to make sure
 	// we advance the command frame as much as the server has to see if we've mispredicted
@@ -130,8 +131,6 @@ func validateClientPrediction(gameStateUpdate *network.GameStateUpdateMessage, w
 			// )
 			cfHistory.ClearUntilFrameNumber(lookupCommandFrame)
 		}
-	} else {
-		// fmt.Println("empty cfHistory", gameStateUpdate.LastInputCommandFrame, deltaGCF, len(world.GetCommandFrameHistory().CommandFrames))
 	}
 }
 
