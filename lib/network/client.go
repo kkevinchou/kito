@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"time"
 )
 
 type commandFrameFunc func() int
@@ -99,6 +100,7 @@ func (c *Client) SendMessage(messageType int, messageBody interface{}) error {
 		SenderID:     c.id,
 		CommandFrame: c.commandFrameFunc(),
 		MessageType:  messageType,
+		Timestamp:    time.Now(),
 		Body:         bodyBytes,
 	}
 
