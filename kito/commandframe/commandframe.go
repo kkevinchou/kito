@@ -1,6 +1,8 @@
 package commandframe
 
 import (
+	"fmt"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/lib/input"
@@ -34,7 +36,7 @@ func (h *CommandFrameHistory) AddCommandFrame(frameNumber int, frameInput input.
 
 	cf := CommandFrame{
 		FrameNumber: frameNumber,
-		FrameInput:  frameInput.Copy(),
+		FrameInput:  frameInput,
 		PostCFState: EntityState{
 			ID:          player.GetID(),
 			Position:    transformComponent.Position,
@@ -54,7 +56,10 @@ func (h *CommandFrameHistory) GetCommandFrame(frameNumber int) *CommandFrame {
 	if frameNumber-startFrameNumber >= len(h.CommandFrames) {
 		return nil
 	}
-
+	if frameNumber-startFrameNumber < 0 {
+		fmt.Printf("unexpectedly doing command frame lookup < 0, frame: %d, startFrame %d", frameNumber, startFrameNumber)
+		return nil
+	}
 	return &h.CommandFrames[frameNumber-startFrameNumber]
 }
 

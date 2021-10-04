@@ -53,6 +53,10 @@ type KeyboardInput map[KeyboardKey]KeyState
 type QuitCommand struct {
 }
 
+// Input represents the input provided by a user during a command frame
+// Input should be only constructed by the input poller and should not be
+// written to by any systems, only read. Input is stored in a client side
+// command frame history which will copy the KeyboardInput by reference
 type Input struct {
 	NewInput      bool
 	KeyboardInput KeyboardInput
@@ -60,14 +64,14 @@ type Input struct {
 	Commands      []interface{}
 }
 
-func (i Input) Copy() Input {
-	keyboardInput := KeyboardInput{}
-	for k, v := range i.KeyboardInput {
-		keyboardInput[k] = v
-	}
+// func (i Input) Copy() Input {
+// 	keyboardInput := KeyboardInput{}
+// 	for k, v := range i.KeyboardInput {
+// 		keyboardInput[k] = v
+// 	}
 
-	return Input{
-		KeyboardInput: keyboardInput,
-		MouseInput:    i.MouseInput,
-	}
-}
+// 	return Input{
+// 		KeyboardInput: keyboardInput,
+// 		MouseInput:    i.MouseInput,
+// 	}
+// }
