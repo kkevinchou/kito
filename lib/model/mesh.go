@@ -3,15 +3,18 @@ package model
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
 type Mesh struct {
 	vertexCount int
+	Capsule     collider.Capsule
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
-	vertexAttributes, totalAttributeSize := constructMeshVertexAttributes(
+	vertexAttributes, totalAttributeSize, vertices := constructMeshVertexAttributes(
 		spec.TriIndices,
 		spec.TriIndicesStride,
 		spec.PositionSourceData,
@@ -24,6 +27,7 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 
 	return &Mesh{
 		vertexCount: len(vertexAttributes) / totalAttributeSize,
+		Capsule:     collider.CreateCapsule(vertices),
 	}
 }
 
@@ -34,7 +38,7 @@ func constructMeshVertexAttributes(
 	normalSourceData []mgl32.Vec3,
 	colorSourceData []mgl32.Vec3,
 	textureSourceData []mgl32.Vec2,
-) ([]float32, int) {
+) ([]float32, int, []mgl64.Vec3) {
 	vertexAttributes := []float32{}
 
 	totalAttributeSize := len(positionSourceData[0]) + len(normalSourceData[0]) + len(textureSourceData[0])
@@ -43,6 +47,8 @@ func constructMeshVertexAttributes(
 	if colorPresent {
 		totalAttributeSize += len(colorSourceData[0])
 	}
+
+	var vertices []mgl64.Vec3
 
 	// TODO: i'm still ordering vertex attributes by the face order, rather than keeping the original exported source order
 	// this current way will repeat data since i explicity store data for every vertex, rather than using indicies for lookup
@@ -64,9 +70,10 @@ func constructMeshVertexAttributes(
 			color := colorSourceData[triIndices[i+3]]
 			vertexAttributes = append(vertexAttributes, color.X(), color.Y(), color.Z())
 		}
+		vertices = append(vertices, mgl64.Vec3{float64(position.X()), float64(position.Y()), float64(position.Z())})
 	}
 
-	return vertexAttributes, totalAttributeSize
+	return vertexAttributes, totalAttributeSize, vertices
 }
 
 // lays out the vertex atrributes for:
