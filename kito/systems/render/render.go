@@ -13,8 +13,8 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
 const (
@@ -35,6 +35,7 @@ type World interface {
 type RenderSystem struct {
 	*base.BaseSystem
 	window    *sdl.Window
+	renderer  *sdl.Renderer
 	world     World
 	skybox    *SkyBox
 	floor     *Quad
@@ -47,6 +48,15 @@ type RenderSystem struct {
 
 	entities []entities.Entity
 }
+
+func init() {
+	err := ttf.Init()
+	if err != nil {
+		panic(err)
+	}
+}
+
+var textTexture *sdl.Texture
 
 func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
 	aspectRatio := float64(width) / float64(height)
@@ -63,8 +73,25 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
 	}
 
-	if utils.IsClient() {
+	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create renderer %s", err))
+	}
+	renderSystem.renderer = renderer
 
+	font, err := ttf.OpenFont("_assets/fonts/courier_new.ttf", 50)
+	if err != nil {
+		panic(err)
+	}
+
+	surface, err := font.RenderUTF8Solid("hello world", sdl.Color{255, 255, 255, 0})
+	if err != nil {
+		panic(err)
+	}
+
+	textTexture, err = renderSystem.renderer.CreateTextureFromSurface(surface)
+	if err != nil {
+		panic(err)
 	}
 
 	sdl.SetRelativeMouseMode(false)
@@ -80,7 +107,6 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 	gl.FrontFace(gl.CCW)
 	gl.Enable(gl.MULTISAMPLE)
 
-	var err error
 	renderSystem.shadowMap, err = NewShadowMap(shadowMapDimension, shadowMapDimension, far*shadowDistanceFactor)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create shadow map %s", err))
@@ -112,6 +138,14 @@ func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 }
 
 func (s *RenderSystem) Render(delta time.Duration) {
+	err := s.renderer.Copy(textTexture, nil, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	s.renderer.Present()
+	return
+
 	transformComponent := s.GetCameraTransform()
 	if transformComponent == nil {
 		return
