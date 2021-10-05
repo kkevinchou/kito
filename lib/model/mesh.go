@@ -11,6 +11,7 @@ import (
 type Mesh struct {
 	vertexCount int
 	Capsule     collider.Capsule
+	BoundingBox collider.BoundingBox
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
@@ -28,6 +29,7 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 	return &Mesh{
 		vertexCount: len(vertexAttributes) / totalAttributeSize,
 		Capsule:     collider.CreateCapsule(vertices),
+		BoundingBox: collider.CreateBoundingBox(vertices),
 	}
 }
 

@@ -8,8 +8,8 @@ import (
 
 type Capsule struct {
 	Radius float64
-	Tip    mgl64.Vec3
-	Base   mgl64.Vec3
+	Top    mgl64.Vec3
+	Bottom mgl64.Vec3
 }
 
 // CreateCapsuleFromMesh creates a capsule centered at the model space origin
@@ -53,7 +53,7 @@ func CreateCapsule(vertices []mgl64.Vec3) Capsule {
 
 	return Capsule{
 		Radius: radius,
-		Base:   mgl64.Vec3{0, radius, 0},
-		Tip:    mgl64.Vec3{0, topYValue - radius, 0},
+		Bottom: mgl64.Vec3{0, radius, 0},
+		Top:    mgl64.Vec3{0, topYValue - radius, 0},
 	}
 }

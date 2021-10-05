@@ -9,7 +9,7 @@ type BoundingBox struct {
 	MaxVertex mgl64.Vec3
 }
 
-func CreateBoundingBoxFromMesh(vertices []mgl64.Vec3) BoundingBox {
+func CreateBoundingBox(vertices []mgl64.Vec3) BoundingBox {
 	var minX, minY, minZ, maxX, maxY, maxZ float64
 
 	minX = vertices[0].X()
