@@ -278,7 +278,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		)
 	}
 
-	drawTexture(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.2)
+	drawTexture(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 1)
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {

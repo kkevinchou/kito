@@ -134,27 +134,6 @@ func drawHUDTextureToQuad(viewerContext ViewerContext, shader *shaders.ShaderPro
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawThingy(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, texture *textures.Texture, mesh Mesh, modelMatrix mgl64.Mat4) {
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, texture.ID)
-	gl.ActiveTexture(gl.TEXTURE31)
-	gl.BindTexture(gl.TEXTURE_2D, shadowMap.DepthTexture())
-
-	shader.Use()
-	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix))
-	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
-	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
-	shader.SetUniformVec3("viewPos", utils.Vec3F64ToF32(viewerContext.Position))
-	shader.SetUniformFloat("shadowDistance", float32(shadowMap.ShadowDistance()))
-	shader.SetUniformVec3("directionalLightDir", utils.Vec3F64ToF32(lightContext.DirectionalLightDir))
-	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToF32(lightContext.LightSpaceMatrix))
-	shader.SetUniformInt("mainTexture", 0)
-	shader.SetUniformInt("shadowMap", 31)
-
-	gl.BindVertexArray(mesh.GetVAO())
-	gl.DrawArrays(gl.TRIANGLES, 0, 6)
-}
-
 func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl64.Mat4) mgl64.Mat4 {
 	return translationMatrix.Mul4(rotationMatrix).Mul4(scaleMatrix)
 }
