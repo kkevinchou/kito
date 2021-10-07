@@ -1,6 +1,7 @@
 package render
 
 import (
+	"encoding/binary"
 	"fmt"
 	_ "image/png"
 	"math"
@@ -13,6 +14,7 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -56,7 +58,7 @@ func init() {
 	}
 }
 
-var textTexture *sdl.Texture
+var textTexture uint32
 
 func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
 	aspectRatio := float64(width) / float64(height)
@@ -79,20 +81,47 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 	}
 	renderSystem.renderer = renderer
 
-	font, err := ttf.OpenFont("_assets/fonts/courier_new.ttf", 50)
+	font, err := ttf.OpenFont("_assets/fonts/robotomono-regular.ttf", 100)
+	if err != nil {
+		panic(err)
+	}
+	font.SetHinting(ttf.HINTING_NORMAL)
+	font.SetStyle(ttf.STYLE_NORMAL)
+
+	surface, err := font.RenderUTF8Blended("hello", sdl.Color{R: 0, G: 21, B: 161, A: 255})
 	if err != nil {
 		panic(err)
 	}
 
-	surface, err := font.RenderUTF8Solid("hello world", sdl.Color{255, 255, 255, 0})
-	if err != nil {
-		panic(err)
+	textureWidth := int(surface.ClipRect.W)
+	textureHeight := int(surface.ClipRect.H)
+	pixels := make([]byte, len(surface.Pixels()))
+	surfacePixels := surface.Pixels()
+
+	bs := make([]byte, 4)
+	binary.LittleEndian.PutUint16(bs, 0x00)
+
+	index := 0
+	for j := 0; j < int(textureHeight); j++ {
+		for i := 0; i < int(textureWidth); i++ {
+			b := surfacePixels[index]
+			g := surfacePixels[index+1]
+			r := surfacePixels[index+2]
+			a := surfacePixels[index+3]
+			// a := surfacePixels[index+3]
+			// fmt.Println(a)
+
+			// y position is inverted
+			flippedIndex := (textureHeight-j-1)*4*textureWidth + 4*i
+			pixels[flippedIndex] = r
+			pixels[flippedIndex+1] = g
+			pixels[flippedIndex+2] = b
+			pixels[flippedIndex+3] = a
+			index += 4
+		}
 	}
 
-	textTexture, err = renderSystem.renderer.CreateTextureFromSurface(surface)
-	if err != nil {
-		panic(err)
-	}
+	textTexture = gltextures.NewFontTexture(pixels, surface.ClipRect.W, surface.ClipRect.H)
 
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
@@ -106,6 +135,8 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 	gl.CullFace(gl.BACK)
 	gl.FrontFace(gl.CCW)
 	gl.Enable(gl.MULTISAMPLE)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	gl.Enable(gl.BLEND)
 
 	renderSystem.shadowMap, err = NewShadowMap(shadowMapDimension, shadowMapDimension, far*shadowDistanceFactor)
 	if err != nil {
@@ -138,14 +169,6 @@ func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 }
 
 func (s *RenderSystem) Render(delta time.Duration) {
-	err := s.renderer.Copy(textTexture, nil, nil)
-	if err != nil {
-		panic(err)
-	}
-
-	s.renderer.Present()
-	return
-
 	transformComponent := s.GetCameraTransform()
 	if transformComponent == nil {
 		return
@@ -211,7 +234,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
-	drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
+	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
+	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.4)
 
 	drawSkyBox(
 		viewerContext,
@@ -253,6 +277,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			meshModelMatrix,
 		)
 	}
+
+	drawTexture(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.2)
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {

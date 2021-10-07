@@ -167,6 +167,9 @@ func compileShaders() {
 	if err := shaderManager.CompileShaderProgram("material", "model", "material"); err != nil {
 		panic(err)
 	}
+	if err := shaderManager.CompileShaderProgram("quadtex", "quadtex", "quadtex"); err != nil {
+		panic(err)
+	}
 }
 
 func initSeed() {
