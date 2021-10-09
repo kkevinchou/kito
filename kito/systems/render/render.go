@@ -37,7 +37,6 @@ type World interface {
 type RenderSystem struct {
 	*base.BaseSystem
 	window    *sdl.Window
-	renderer  *sdl.Renderer
 	world     World
 	skybox    *SkyBox
 	floor     *Quad
@@ -75,13 +74,7 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
 	}
 
-	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
-	if err != nil {
-		panic(fmt.Sprintf("failed to create renderer %s", err))
-	}
-	renderSystem.renderer = renderer
-
-	font, err := ttf.OpenFont("_assets/fonts/robotomono-regular.ttf", 100)
+	font, err := ttf.OpenFont("_assets/fonts/robotomono-regular.ttf", 12)
 	if err != nil {
 		panic(err)
 	}
@@ -278,7 +271,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		)
 	}
 
-	drawTexture(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 1)
+	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), "hello world\nhow are you?", 0.8, 0)
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {

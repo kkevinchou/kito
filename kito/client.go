@@ -29,11 +29,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const (
-	width  = 1024
-	height = 760
-)
-
 func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeClient
@@ -86,13 +81,13 @@ func clientEntitySetup(g *Game) []entities.Entity {
 func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	d := directory.GetDirectory()
 
-	window, err := initializeOpenGL(width, height)
+	window, err := initializeOpenGL(settings.Width, settings.Height)
 	if err != nil {
 		panic(err)
 	}
 
 	assetManager := assets.NewAssetManager(assetsDirectory, true)
-	renderSystem := render.NewRenderSystem(g, window, width, height)
+	renderSystem := render.NewRenderSystem(g, window, settings.Width, settings.Height)
 
 	// Managers
 	shaderManager := shaders.NewShaderManager(shaderDirectory)

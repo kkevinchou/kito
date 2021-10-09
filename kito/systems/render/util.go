@@ -7,6 +7,8 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
+	"github.com/kkevinchou/kito/kito/settings"
+	"github.com/kkevinchou/kito/lib/font"
 	utils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
@@ -55,17 +57,113 @@ func drawSkyBox(viewerContext ViewerContext, sb *SkyBox, shader *shaders.ShaderP
 	}
 }
 
+// drawText draws text at an x,y position that represents a fractional placement (0 -> 1)
+// drawText expects the glyphs within `font` to be of equal width and height
+func drawText(shader *shaders.ShaderProgram, font font.Font, text string, x, y float32) {
+	var vertices []float32
+
+	// assuming the height of all glyphs are equal - may not be the case in the future
+	var glyphHeight float32
+	for _, glyph := range font.Glyphs {
+		glyphHeight = float32(glyph.Height)
+		break
+	}
+
+	// convert porportion to pixel value
+	x = x * float32(settings.Width)
+	y = float32(settings.Height)*(1-y) - float32(glyphHeight)
+
+	var xOffset float32
+	var yOffset float32
+
+	textureID := font.TextureID
+	for _, c := range text {
+		stringChar := string(c)
+
+		if stringChar == "\n" {
+			xOffset = 0
+			yOffset++
+			continue
+		}
+
+		glyph := font.Glyphs[stringChar]
+		if _, ok := font.Glyphs[stringChar]; !ok {
+			panic("glyph not found in font")
+		}
+
+		width := float32(glyph.Width)
+		height := float32(glyph.Height)
+
+		textureX := float32(glyph.TextureCoords.X())
+		textureY := float32(glyph.TextureCoords.Y())
+		widthTextureCoord := (float32(glyph.Width) / float32(font.TotalWidth))
+		heightTextureCoord := (float32(glyph.Height) / float32(font.TotalHeight))
+
+		var characterVertices []float32 = []float32{
+			xOffset * width, -(yOffset * glyphHeight), -5, textureX, textureY,
+			xOffset*width + width, -(yOffset * glyphHeight), -5, textureX + widthTextureCoord, textureY,
+			xOffset*width + width, height - (yOffset * glyphHeight), -5, textureX + widthTextureCoord, heightTextureCoord,
+			xOffset*width + width, height - (yOffset * glyphHeight), -5, textureX + widthTextureCoord, heightTextureCoord,
+			xOffset * width, height - (yOffset * glyphHeight), -5, textureX, heightTextureCoord,
+			xOffset * width, -(yOffset * glyphHeight), -5, textureX, textureY,
+		}
+
+		xOffset += 1
+		vertices = append(vertices, characterVertices...)
+	}
+
+	// offset based on passed in x, y position which is constant across all characters
+	for i := 0; i < len(vertices); i += 5 {
+		vertices[i] = vertices[i] + x
+		vertices[i+1] = vertices[i+1] + y
+	}
+
+	var vbo, vao uint32
+	gl.GenBuffers(1, &vbo)
+	gl.GenVertexArrays(1, &vao)
+
+	gl.BindVertexArray(vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
+	gl.EnableVertexAttribArray(0)
+
+	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+	gl.EnableVertexAttribArray(1)
+
+	gl.BindVertexArray(vao)
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, textureID)
+
+	shader.Use()
+	shader.SetUniformMat4("model", mgl32.Ident4())
+	shader.SetUniformMat4("view", mgl32.Ident4())
+	shader.SetUniformMat4("projection", mgl32.Ortho(0, float32(settings.Width), 0, float32(settings.Height), 1, 100))
+
+	numCharacters := len(text)
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(numCharacters*6))
+}
+
 // drawHUDTextureToQuad does a shitty perspective based rendering of a flat texture
-func drawTexture(viewerContext ViewerContext, shader *shaders.ShaderProgram, texture uint32, hudScale float32) {
+func drawTexture(shader *shaders.ShaderProgram, texture uint32, x, y, width, height float32) {
+	// convert porportion to pixel value
+	x = x * float32(settings.Width)
+	y = float32(settings.Height)*(1-y) - height
+
 	// texture coords top left = 0,0 | bottom right = 1,1
 	var vertices []float32 = []float32{
-		// front
-		-1 * hudScale, -1 * hudScale, -5, 0.0, 0.0,
-		1 * hudScale, -1 * hudScale, -5, 1.0, 0.0,
-		1 * hudScale, 1 * hudScale, -5, 1.0, 1.0,
-		1 * hudScale, 1 * hudScale, -5, 1.0, 1.0,
-		-1 * hudScale, 1 * hudScale, -5, 0.0, 1.0,
-		-1 * hudScale, -1 * hudScale, -5, 0.0, 0.0,
+		0, 0, -5, 0.0, 0.0,
+		width, 0, -5, 1.0, 0.0,
+		width, height, -5, 1.0, 1.0,
+		width, height, -5, 1.0, 1.0,
+		0, height, -5, 0.0, 1.0,
+		0, 0, -5, 0.0, 0.0,
+	}
+
+	for i := 0; i < len(vertices); i += 5 {
+		vertices[i] = vertices[i] + x
+		vertices[i+1] = vertices[i+1] + y
 	}
 
 	var vbo, vao uint32
@@ -90,7 +188,7 @@ func drawTexture(viewerContext ViewerContext, shader *shaders.ShaderProgram, tex
 	// shader.SetUniformMat4("model", mgl32.Translate3D(1.2, 0.8, -2))
 	shader.SetUniformMat4("model", mgl32.Ident4())
 	shader.SetUniformMat4("view", mgl32.Ident4())
-	shader.SetUniformMat4("projection", mgl32.Ortho(-1, 1, -1, 1, 1, 100))
+	shader.SetUniformMat4("projection", mgl32.Ortho(0, float32(settings.Width), 0, float32(settings.Height), 1, 100))
 
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
