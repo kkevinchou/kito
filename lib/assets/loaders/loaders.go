@@ -5,7 +5,9 @@ import (
 	"strings"
 
 	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
+	"github.com/kkevinchou/kito/lib/assets/loaders/glfonts"
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
+	"github.com/kkevinchou/kito/lib/font"
 	utils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/modelspec"
 	"github.com/kkevinchou/kito/lib/textures"
@@ -52,4 +54,24 @@ func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecificati
 	}
 
 	return animationMap
+}
+
+func LoadFonts(directory string) map[string]font.Font {
+	var subDirectories []string = []string{"fonts"}
+
+	extensions := map[string]interface{}{
+		".ttf": nil,
+	}
+
+	fonts := map[string]font.Font{}
+	fileMetaData := utils.GetFileMetaData(directory, subDirectories, extensions)
+
+	for _, metaData := range fileMetaData {
+		if strings.HasPrefix(metaData.Name, "_") {
+			continue
+		}
+		fonts[metaData.Name] = glfonts.NewFont(metaData.Path, 12)
+	}
+
+	return fonts
 }

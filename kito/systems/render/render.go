@@ -13,8 +13,8 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
 const (
@@ -48,42 +48,45 @@ type RenderSystem struct {
 	entities []entities.Entity
 }
 
+func init() {
+	err := ttf.Init()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
-	aspectRatio := float64(width) / float64(height)
-	renderSystem := RenderSystem{
-		BaseSystem: &base.BaseSystem{},
-		window:     window,
-		world:      world,
-		skybox:     NewSkyBox(600),
-		floor:      NewQuad(quadZeroY),
-
-		width:       width,
-		height:      height,
-		aspectRatio: aspectRatio,
-		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
-	}
-
-	if utils.IsClient() {
-
-	}
-
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
-
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
-
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Enable(gl.CULL_FACE)
 	gl.CullFace(gl.BACK)
 	gl.FrontFace(gl.CCW)
 	gl.Enable(gl.MULTISAMPLE)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	gl.Enable(gl.BLEND)
 
-	var err error
-	renderSystem.shadowMap, err = NewShadowMap(shadowMapDimension, shadowMapDimension, far*shadowDistanceFactor)
+	aspectRatio := float64(width) / float64(height)
+	shadowMap, err := NewShadowMap(shadowMapDimension, shadowMapDimension, far*shadowDistanceFactor)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create shadow map %s", err))
+	}
+
+	renderSystem := RenderSystem{
+		BaseSystem: &base.BaseSystem{},
+		window:     window,
+		world:      world,
+		skybox:     NewSkyBox(600),
+		floor:      NewQuad(quadZeroY),
+		shadowMap:  shadowMap,
+
+		width:       width,
+		height:      height,
+		aspectRatio: aspectRatio,
+		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
 	}
 
 	return &renderSystem
@@ -177,7 +180,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
-	drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
+	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
+	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.4)
 
 	drawSkyBox(
 		viewerContext,
@@ -219,6 +223,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			meshModelMatrix,
 		)
 	}
+
+	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), "hello world\nhow are you?", 0.8, 0)
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {

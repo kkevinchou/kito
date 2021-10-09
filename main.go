@@ -26,7 +26,7 @@ const (
 )
 
 func main() {
-	var mode string = modeLocal
+	var mode string = modeClient
 	if len(os.Args) > 1 {
 		mode = strings.ToUpper(os.Args[1])
 		if mode != modeLocal && mode != modeClient && mode != modeServer {
@@ -35,17 +35,7 @@ func main() {
 	}
 
 	fmt.Println("starting game on mode:", mode)
-	if mode == modeLocal {
-		serverGame := kito.NewServerGame("_assets")
-
-		go func() {
-			serverGame.Start(input.NullInputPoller)
-		}()
-
-		game := kito.NewClientGame("_assets", "shaders")
-		inputPoller := input.NewSDLInputPoller()
-		game.Start(inputPoller.PollInput)
-	} else if mode == modeClient {
+	if mode == modeClient {
 		game := kito.NewClientGame("_assets", "shaders")
 		inputPoller := input.NewSDLInputPoller()
 		game.Start(inputPoller.PollInput)

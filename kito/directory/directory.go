@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/path"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/lib/font"
 	"github.com/kkevinchou/kito/lib/modelspec"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
@@ -15,6 +16,7 @@ import (
 
 type IAssetManager interface {
 	GetTexture(name string) *textures.Texture
+	GetFont(name string) font.Font
 	GetAnimatedModel(name string) *modelspec.ModelSpecification
 }
 

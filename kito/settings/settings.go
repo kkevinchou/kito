@@ -18,6 +18,9 @@ var (
 )
 
 const (
+	Width  int = 1024
+	Height int = 760
+
 	LoggingLevel          = 1
 	Seed           int64  = 1234567
 	Host           string = "localhost"
