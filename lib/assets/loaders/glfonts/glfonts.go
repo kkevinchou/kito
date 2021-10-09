@@ -8,7 +8,7 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-var supportedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ()[]{}!@#$%^&*+_,./?;'\"\n"
+var supportedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ()[]{}!@#$%^&*+_,./?;'\""
 
 func NewFont(fontFile string, size int) font.Font {
 	ttfFont, err := ttf.OpenFont(fontFile, size)

@@ -101,9 +101,10 @@ func drawText(shader *shaders.ShaderProgram, font font.Font, text string, x, y f
 
 		var characterVertices []float32 = []float32{
 			xOffset * width, -(yOffset * glyphHeight), -5, textureX, textureY,
-			xOffset*width + width, -(yOffset * glyphHeight), -5, textureX + widthTextureCoord, textureY,
-			xOffset*width + width, height - (yOffset * glyphHeight), -5, textureX + widthTextureCoord, heightTextureCoord,
-			xOffset*width + width, height - (yOffset * glyphHeight), -5, textureX + widthTextureCoord, heightTextureCoord,
+			(xOffset + 1) * width, -(yOffset * glyphHeight), -5, textureX + widthTextureCoord, textureY,
+			(xOffset + 1) * width, height - (yOffset * glyphHeight), -5, textureX + widthTextureCoord, heightTextureCoord,
+
+			(xOffset + 1) * width, height - (yOffset * glyphHeight), -5, textureX + widthTextureCoord, heightTextureCoord,
 			xOffset * width, height - (yOffset * glyphHeight), -5, textureX, heightTextureCoord,
 			xOffset * width, -(yOffset * glyphHeight), -5, textureX, textureY,
 		}

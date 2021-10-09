@@ -1,7 +1,6 @@
 package render
 
 import (
-	"encoding/binary"
 	"fmt"
 	_ "image/png"
 	"math"
@@ -14,7 +13,6 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -57,71 +55,11 @@ func init() {
 	}
 }
 
-var textTexture uint32
-
 func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
-	aspectRatio := float64(width) / float64(height)
-	renderSystem := RenderSystem{
-		BaseSystem: &base.BaseSystem{},
-		window:     window,
-		world:      world,
-		skybox:     NewSkyBox(600),
-		floor:      NewQuad(quadZeroY),
-
-		width:       width,
-		height:      height,
-		aspectRatio: aspectRatio,
-		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
-	}
-
-	font, err := ttf.OpenFont("_assets/fonts/robotomono-regular.ttf", 12)
-	if err != nil {
-		panic(err)
-	}
-	font.SetHinting(ttf.HINTING_NORMAL)
-	font.SetStyle(ttf.STYLE_NORMAL)
-
-	surface, err := font.RenderUTF8Blended("hello", sdl.Color{R: 0, G: 21, B: 161, A: 255})
-	if err != nil {
-		panic(err)
-	}
-
-	textureWidth := int(surface.ClipRect.W)
-	textureHeight := int(surface.ClipRect.H)
-	pixels := make([]byte, len(surface.Pixels()))
-	surfacePixels := surface.Pixels()
-
-	bs := make([]byte, 4)
-	binary.LittleEndian.PutUint16(bs, 0x00)
-
-	index := 0
-	for j := 0; j < int(textureHeight); j++ {
-		for i := 0; i < int(textureWidth); i++ {
-			b := surfacePixels[index]
-			g := surfacePixels[index+1]
-			r := surfacePixels[index+2]
-			a := surfacePixels[index+3]
-			// a := surfacePixels[index+3]
-			// fmt.Println(a)
-
-			// y position is inverted
-			flippedIndex := (textureHeight-j-1)*4*textureWidth + 4*i
-			pixels[flippedIndex] = r
-			pixels[flippedIndex+1] = g
-			pixels[flippedIndex+2] = b
-			pixels[flippedIndex+3] = a
-			index += 4
-		}
-	}
-
-	textTexture = gltextures.NewFontTexture(pixels, surface.ClipRect.W, surface.ClipRect.H)
-
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
-
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
-
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Enable(gl.CULL_FACE)
@@ -131,9 +69,24 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Enable(gl.BLEND)
 
-	renderSystem.shadowMap, err = NewShadowMap(shadowMapDimension, shadowMapDimension, far*shadowDistanceFactor)
+	aspectRatio := float64(width) / float64(height)
+	shadowMap, err := NewShadowMap(shadowMapDimension, shadowMapDimension, far*shadowDistanceFactor)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create shadow map %s", err))
+	}
+
+	renderSystem := RenderSystem{
+		BaseSystem: &base.BaseSystem{},
+		window:     window,
+		world:      world,
+		skybox:     NewSkyBox(600),
+		floor:      NewQuad(quadZeroY),
+		shadowMap:  shadowMap,
+
+		width:       width,
+		height:      height,
+		aspectRatio: aspectRatio,
+		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
 	}
 
 	return &renderSystem

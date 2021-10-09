@@ -74,5 +74,4 @@ func NewFontTexture(pixels []byte, width, height int32) uint32 {
 	)
 
 	return texture
-
 }
