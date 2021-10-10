@@ -14,10 +14,10 @@ type DataPoint struct {
 }
 
 type Metric struct {
-	cursor                      int
-	oneSecondMovingAverageIndex int
-	oneSecondSum                float64
-	data                        [bucketSize]DataPoint
+	cursor          int
+	oneSecondCursor int
+	oneSecondSum    float64
+	data            [bucketSize]DataPoint
 }
 
 type MetricsRegistry struct {
@@ -40,12 +40,12 @@ func (m *MetricsRegistry) Inc(name string, value float64) {
 	metric.data[metric.cursor] = dataPoint
 	metric.oneSecondSum += dataPoint.value
 
-	start := metric.data[metric.oneSecondMovingAverageIndex]
+	start := metric.data[metric.oneSecondCursor]
 	finish := dataPoint
-	for ((finish.recordedAt.Sub(start.recordedAt)) > time.Second) && metric.oneSecondMovingAverageIndex != metric.cursor {
+	for ((finish.recordedAt.Sub(start.recordedAt)) > time.Second) && metric.oneSecondCursor != metric.cursor {
 		metric.oneSecondSum -= start.value
-		metric.oneSecondMovingAverageIndex = (metric.oneSecondMovingAverageIndex + 1) % bucketSize
-		start = metric.data[metric.oneSecondMovingAverageIndex]
+		metric.oneSecondCursor = (metric.oneSecondCursor + 1) % bucketSize
+		start = metric.data[metric.oneSecondCursor]
 	}
 
 	metric.cursor = (metric.cursor + 1) % bucketSize
@@ -57,11 +57,11 @@ func (m *MetricsRegistry) GetOneSecondSum(name string) float64 {
 		return 0
 	}
 
-	start := metric.data[metric.oneSecondMovingAverageIndex]
-	for ((time.Since(start.recordedAt)) > time.Second) && metric.oneSecondMovingAverageIndex != metric.cursor {
+	start := metric.data[metric.oneSecondCursor]
+	for ((time.Since(start.recordedAt)) > time.Second) && metric.oneSecondCursor != metric.cursor {
 		metric.oneSecondSum -= start.value
-		metric.oneSecondMovingAverageIndex = (metric.oneSecondMovingAverageIndex + 1) % bucketSize
-		start = metric.data[metric.oneSecondMovingAverageIndex]
+		metric.oneSecondCursor = (metric.oneSecondCursor + 1) % bucketSize
+		start = metric.data[metric.oneSecondCursor]
 	}
 	return metric.oneSecondSum
 }
