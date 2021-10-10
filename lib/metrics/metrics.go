@@ -40,14 +40,7 @@ func (m *MetricsRegistry) Inc(name string, value float64) {
 	metric.data[metric.cursor] = dataPoint
 	metric.oneSecondSum += dataPoint.value
 
-	start := metric.data[metric.oneSecondCursor]
-	finish := dataPoint
-	for ((finish.recordedAt.Sub(start.recordedAt)) > time.Second) && metric.oneSecondCursor != metric.cursor {
-		metric.oneSecondSum -= start.value
-		metric.oneSecondCursor = (metric.oneSecondCursor + 1) % bucketSize
-		start = metric.data[metric.oneSecondCursor]
-	}
-
+	m.advanceMetricCursors(name, time.Second)
 	metric.cursor = (metric.cursor + 1) % bucketSize
 }
 
@@ -57,11 +50,19 @@ func (m *MetricsRegistry) GetOneSecondSum(name string) float64 {
 		return 0
 	}
 
+	m.advanceMetricCursors(name, time.Second)
+	return metric.oneSecondSum
+}
+
+func (m *MetricsRegistry) advanceMetricCursors(name string, duration time.Duration) {
+	metric := m.metrics[name]
+	if _, ok := m.metrics[name]; !ok {
+		return
+	}
 	start := metric.data[metric.oneSecondCursor]
-	for ((time.Since(start.recordedAt)) > time.Second) && metric.oneSecondCursor != metric.cursor {
+	for ((time.Since(start.recordedAt)) > duration) && metric.oneSecondCursor != metric.cursor {
 		metric.oneSecondSum -= start.value
 		metric.oneSecondCursor = (metric.oneSecondCursor + 1) % bucketSize
 		start = metric.data[metric.oneSecondCursor]
 	}
-	return metric.oneSecondSum
 }
