@@ -76,6 +76,7 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 
 		if renderAccumulator >= msPerFrame {
 			frameCount++
+			g.singleton.MetricsRegistry.Inc("fps", 1)
 			renderFunction(time.Duration(renderAccumulator) * time.Millisecond)
 			for renderAccumulator >= msPerFrame {
 				renderAccumulator -= msPerFrame

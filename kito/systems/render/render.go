@@ -178,6 +178,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
 	assetManager := d.AssetManager()
+	singleton := s.world.GetSingleton()
 
 	// render a debug shadow map for viewing
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
@@ -224,7 +225,11 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		)
 	}
 
-	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), "hello world\nhow are you?", 0.8, 0)
+	fps := int(singleton.MetricsRegistry.GetOneSecondSum("fps"))
+	predictionHit := int(singleton.MetricsRegistry.GetOneSecondSum("predictionHit"))
+	predictionMiss := int(singleton.MetricsRegistry.GetOneSecondSum("predictionMiss"))
+	renderText := fmt.Sprintf("--- General\nfps: %d\n--- Networking\nPrediction Hit: %d\nPrediction Miss: %d", fps, predictionHit, predictionMiss)
+	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), renderText, 0.8, 0)
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {
