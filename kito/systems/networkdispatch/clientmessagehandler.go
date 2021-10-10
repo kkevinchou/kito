@@ -59,6 +59,9 @@ func handleAckCreatePlayer(message *network.Message, world World) {
 }
 
 func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, world World) {
+	singleton := world.GetSingleton()
+	metricsRegistry := singleton.MetricsRegistry
+
 	// We use a gcf adjusted command frame lookup because even though an input may happen on only one command
 	// frame, the entity can continue to be updated due to that input. Therefore we need to make sure
 	// we advance the command frame as much as the server has to see if we've mispredicted
@@ -87,6 +90,7 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 	if cf != nil {
 		historyEntity := cf.PostCFState
 		if historyEntity.Position != entitySnapshot.Position || historyEntity.Orientation != entitySnapshot.Orientation {
+			metricsRegistry.Inc("predictionMiss", 1)
 			fmt.Printf(
 				"--------------------------------------\n[CF:%d] CLIENT-SIDE PREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
 				world.CommandFrame(),
@@ -123,6 +127,7 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 			replayInputs(player, world.GetCamera(), lookupCommandFrame, cfHistory)
 		} else {
+			metricsRegistry.Inc("predictionHit", 1)
 			// fmt.Println(
 			// 	"CLIENT-SIDE PREDICTION HIT",
 			// 	gameStateUpdate.LastInputCommandFrame,

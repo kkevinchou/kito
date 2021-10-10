@@ -88,7 +88,7 @@ func drawText(shader *shaders.ShaderProgram, font font.Font, text string, x, y f
 
 		glyph := font.Glyphs[stringChar]
 		if _, ok := font.Glyphs[stringChar]; !ok {
-			panic("glyph not found in font")
+			panic(fmt.Sprintf("glyph %s not found in font", stringChar))
 		}
 
 		width := float32(glyph.Width)
@@ -146,92 +146,92 @@ func drawText(shader *shaders.ShaderProgram, font font.Font, text string, x, y f
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(numCharacters*6))
 }
 
-// drawHUDTextureToQuad does a shitty perspective based rendering of a flat texture
-func drawTexture(shader *shaders.ShaderProgram, texture uint32, x, y, width, height float32) {
-	// convert porportion to pixel value
-	x = x * float32(settings.Width)
-	y = float32(settings.Height)*(1-y) - height
+// // drawHUDTextureToQuad does a shitty perspective based rendering of a flat texture
+// func drawTexture(shader *shaders.ShaderProgram, texture uint32, x, y, width, height float32) {
+// 	// convert porportion to pixel value
+// 	x = x * float32(settings.Width)
+// 	y = float32(settings.Height)*(1-y) - height
 
-	// texture coords top left = 0,0 | bottom right = 1,1
-	var vertices []float32 = []float32{
-		0, 0, -5, 0.0, 0.0,
-		width, 0, -5, 1.0, 0.0,
-		width, height, -5, 1.0, 1.0,
-		width, height, -5, 1.0, 1.0,
-		0, height, -5, 0.0, 1.0,
-		0, 0, -5, 0.0, 0.0,
-	}
+// 	// texture coords top left = 0,0 | bottom right = 1,1
+// 	var vertices []float32 = []float32{
+// 		0, 0, -5, 0.0, 0.0,
+// 		width, 0, -5, 1.0, 0.0,
+// 		width, height, -5, 1.0, 1.0,
+// 		width, height, -5, 1.0, 1.0,
+// 		0, height, -5, 0.0, 1.0,
+// 		0, 0, -5, 0.0, 0.0,
+// 	}
 
-	for i := 0; i < len(vertices); i += 5 {
-		vertices[i] = vertices[i] + x
-		vertices[i+1] = vertices[i+1] + y
-	}
+// 	for i := 0; i < len(vertices); i += 5 {
+// 		vertices[i] = vertices[i] + x
+// 		vertices[i+1] = vertices[i+1] + y
+// 	}
 
-	var vbo, vao uint32
-	gl.GenBuffers(1, &vbo)
-	gl.GenVertexArrays(1, &vao)
+// 	var vbo, vao uint32
+// 	gl.GenBuffers(1, &vbo)
+// 	gl.GenVertexArrays(1, &vao)
 
-	gl.BindVertexArray(vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+// 	gl.BindVertexArray(vao)
+// 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+// 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
-	gl.EnableVertexAttribArray(0)
+// 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
+// 	gl.EnableVertexAttribArray(0)
 
-	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
-	gl.EnableVertexAttribArray(1)
+// 	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+// 	gl.EnableVertexAttribArray(1)
 
-	gl.BindVertexArray(vao)
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
+// 	gl.BindVertexArray(vao)
+// 	gl.ActiveTexture(gl.TEXTURE0)
+// 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
-	shader.Use()
-	// shader.SetUniformMat4("model", mgl32.Translate3D(1.2, 0.8, -2))
-	shader.SetUniformMat4("model", mgl32.Ident4())
-	shader.SetUniformMat4("view", mgl32.Ident4())
-	shader.SetUniformMat4("projection", mgl32.Ortho(0, float32(settings.Width), 0, float32(settings.Height), 1, 100))
+// 	shader.Use()
+// 	// shader.SetUniformMat4("model", mgl32.Translate3D(1.2, 0.8, -2))
+// 	shader.SetUniformMat4("model", mgl32.Ident4())
+// 	shader.SetUniformMat4("view", mgl32.Ident4())
+// 	shader.SetUniformMat4("projection", mgl32.Ortho(0, float32(settings.Width), 0, float32(settings.Height), 1, 100))
 
-	gl.DrawArrays(gl.TRIANGLES, 0, 6)
-}
+// 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+// }
 
-// drawHUDTextureToQuad does a shitty perspective based rendering of a flat texture
-func drawHUDTextureToQuad(viewerContext ViewerContext, shader *shaders.ShaderProgram, texture uint32, hudScale float32) {
-	// texture coords top left = 0,0 | bottom right = 1,1
-	var vertices []float32 = []float32{
-		// front
-		-1 * hudScale, -1 * hudScale, 0, 0.0, 0.0,
-		1 * hudScale, -1 * hudScale, 0, 1.0, 0.0,
-		1 * hudScale, 1 * hudScale, 0, 1.0, 1.0,
-		1 * hudScale, 1 * hudScale, 0, 1.0, 1.0,
-		-1 * hudScale, 1 * hudScale, 0, 0.0, 1.0,
-		-1 * hudScale, -1 * hudScale, 0, 0.0, 0.0,
-	}
+// // drawHUDTextureToQuad does a shitty perspective based rendering of a flat texture
+// func drawHUDTextureToQuad(viewerContext ViewerContext, shader *shaders.ShaderProgram, texture uint32, hudScale float32) {
+// 	// texture coords top left = 0,0 | bottom right = 1,1
+// 	var vertices []float32 = []float32{
+// 		// front
+// 		-1 * hudScale, -1 * hudScale, 0, 0.0, 0.0,
+// 		1 * hudScale, -1 * hudScale, 0, 1.0, 0.0,
+// 		1 * hudScale, 1 * hudScale, 0, 1.0, 1.0,
+// 		1 * hudScale, 1 * hudScale, 0, 1.0, 1.0,
+// 		-1 * hudScale, 1 * hudScale, 0, 0.0, 1.0,
+// 		-1 * hudScale, -1 * hudScale, 0, 0.0, 0.0,
+// 	}
 
-	var vbo, vao uint32
-	gl.GenBuffers(1, &vbo)
-	gl.GenVertexArrays(1, &vao)
+// 	var vbo, vao uint32
+// 	gl.GenBuffers(1, &vbo)
+// 	gl.GenVertexArrays(1, &vao)
 
-	gl.BindVertexArray(vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+// 	gl.BindVertexArray(vao)
+// 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+// 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
-	gl.EnableVertexAttribArray(0)
+// 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
+// 	gl.EnableVertexAttribArray(0)
 
-	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
-	gl.EnableVertexAttribArray(1)
+// 	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+// 	gl.EnableVertexAttribArray(1)
 
-	gl.BindVertexArray(vao)
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
+// 	gl.BindVertexArray(vao)
+// 	gl.ActiveTexture(gl.TEXTURE0)
+// 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
-	shader.Use()
-	shader.SetUniformMat4("model", mgl32.Translate3D(1.2, 0.8, -2))
-	shader.SetUniformMat4("view", mgl32.Ident4())
-	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+// 	shader.Use()
+// 	shader.SetUniformMat4("model", mgl32.Translate3D(1.2, 0.8, -2))
+// 	shader.SetUniformMat4("view", mgl32.Ident4())
+// 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
 
-	gl.DrawArrays(gl.TRIANGLES, 0, 6)
-}
+// 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+// }
 
 func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl64.Mat4) mgl64.Mat4 {
 	return translationMatrix.Mul4(rotationMatrix).Mul4(scaleMatrix)
