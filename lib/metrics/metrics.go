@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	bucketSize = 10000
+	bucketSize = 1000
 )
 
 type DataPoint struct {
@@ -37,6 +37,7 @@ func (m *MetricsRegistry) Inc(name string, value float64) {
 
 	metric := m.metrics[name]
 	dataPoint := DataPoint{recordedAt: time.Now(), value: value}
+
 	metric.data[metric.cursor] = dataPoint
 	metric.oneSecondSum += dataPoint.value
 
@@ -54,6 +55,8 @@ func (m *MetricsRegistry) GetOneSecondSum(name string) float64 {
 	return metric.oneSecondSum
 }
 
+// TODO: handle overflowing - there's a chance we can overwrite into the bucket
+// if the bucket size is too small which causes weird math calculations
 func (m *MetricsRegistry) advanceMetricCursors(name string, duration time.Duration) {
 	metric := m.metrics[name]
 	if _, ok := m.metrics[name]; !ok {
