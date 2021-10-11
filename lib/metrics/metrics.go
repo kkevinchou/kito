@@ -55,6 +55,28 @@ func (m *MetricsRegistry) GetOneSecondSum(name string) float64 {
 	return metric.oneSecondSum
 }
 
+func (m *MetricsRegistry) GetOneSecondAverage(name string) float64 {
+	if _, ok := m.metrics[name]; !ok {
+		return 0
+	}
+
+	sum := m.GetOneSecondSum(name)
+	metric := m.metrics[name]
+
+	lastDataPointIndex := (metric.cursor - 1) % bucketSize
+	numDataPoints := lastDataPointIndex - metric.oneSecondCursor
+	if numDataPoints < 0 {
+		numDataPoints += bucketSize
+	}
+	numDataPoints++
+
+	if numDataPoints == 0 {
+		return 0
+	}
+
+	return sum / float64(numDataPoints)
+}
+
 // TODO: handle overflowing - there's a chance we can overwrite into the bucket
 // if the bucket size is too small which causes weird math calculations
 func (m *MetricsRegistry) advanceMetricCursors(name string, duration time.Duration) {

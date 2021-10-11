@@ -20,6 +20,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/kito/systems/networkinput"
 	"github.com/kkevinchou/kito/kito/systems/physics"
+	"github.com/kkevinchou/kito/kito/systems/ping"
 	"github.com/kkevinchou/kito/kito/systems/render"
 	"github.com/kkevinchou/kito/kito/systems/stateinterpolator"
 	"github.com/kkevinchou/kito/kito/types"
@@ -102,6 +103,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	historySystem := historysys.NewHistorySystem(g)
 	stateInterpolatorSystem := stateinterpolator.NewStateInterpolatorSystem(g)
+	pingSystem := ping.NewPingSystem(g)
 
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterAssetManager(assetManager)
@@ -117,6 +119,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 		animationSystem,
 		cameraSystem,
 		historySystem,
+		pingSystem,
 		renderSystem,
 	}...)
 }
