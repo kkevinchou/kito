@@ -1,6 +1,8 @@
 package knetwork
 
 import (
+	"time"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/input"
@@ -12,6 +14,8 @@ const (
 	MessageTypeInput
 	MessageTypeCreatePlayer
 	MessageTypeGameStateUpdate
+	MessageTypePing
+	MessageTypeAckPing
 )
 
 type AcceptMessage struct {
@@ -59,4 +63,12 @@ type GameStateUpdateMessage struct {
 type InputMessage struct {
 	CommandFrame int
 	Input        input.Input
+}
+
+type PingMessage struct {
+	SendTime time.Time
+}
+
+type AckPingMessage struct {
+	PingSendTime time.Time
 }

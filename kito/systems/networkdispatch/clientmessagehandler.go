@@ -15,8 +15,9 @@ import (
 )
 
 func clientMessageHandler(world World, message *network.Message) {
+	singleton := world.GetSingleton()
+	metricsRegistry := singleton.MetricsRegistry
 	if message.MessageType == knetwork.MessageTypeGameStateUpdate {
-		singleton := world.GetSingleton()
 		var gameStateUpdate knetwork.GameStateUpdateMessage
 		err := network.DeserializeBody(message, &gameStateUpdate)
 		if err != nil {
@@ -27,6 +28,14 @@ func clientMessageHandler(world World, message *network.Message) {
 		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)
 	} else if message.MessageType == knetwork.MessageTypeAckCreatePlayer {
 		handleAckCreatePlayer(message, world)
+	} else if message.MessageType == knetwork.MessageTypeAckPing {
+		var ackPingMessage knetwork.AckPingMessage
+		err := network.DeserializeBody(message, &ackPingMessage)
+		if err != nil {
+			fmt.Printf("error deserializing ackping message %s\n", err)
+		}
+
+		metricsRegistry.Inc("ping", float64(time.Since(ackPingMessage.PingSendTime).Milliseconds()))
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}

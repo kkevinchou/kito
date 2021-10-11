@@ -34,6 +34,17 @@ func serverMessageHandler(world World, message *network.Message) {
 			panic(err)
 		}
 		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, player.LastInputCommandFrame, message.SenderID, time.Now(), &inputMessage)
+	} else if message.MessageType == knetwork.MessageTypePing {
+		var pingMessage knetwork.PingMessage
+		err := network.DeserializeBody(message, &pingMessage)
+		if err != nil {
+			fmt.Printf("error deserializing ping body %s\n", err)
+		}
+		msg := knetwork.AckPingMessage{PingSendTime: pingMessage.SendTime}
+		err = player.Client.SendMessage(knetwork.MessageTypeAckPing, msg)
+		if err != nil {
+			fmt.Printf("error sending ackping message %s\n", err)
+		}
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}
