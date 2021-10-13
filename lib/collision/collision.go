@@ -2,7 +2,7 @@ package collision
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/collision/intersection"
+	"github.com/kkevinchou/kito/lib/collision/checks"
 	"github.com/kkevinchou/kito/lib/collision/primitives"
 )
 
@@ -29,7 +29,7 @@ func CheckCollision(capsule primitives.Capsule, triangulatedMesh primitives.Tria
 }
 
 func CheckCollisionCapsuleTriangle(capsule primitives.Capsule, triangle primitives.Triangle) *ContactManifold {
-	closestPoints, closestPointsDistance := intersection.ClosestPointsLineVSTriangle(
+	closestPoints, closestPointsDistance := checks.ClosestPointsLineVSTriangle(
 		primitives.Line{P1: capsule.Top, P2: capsule.Bottom},
 		triangle,
 	)
