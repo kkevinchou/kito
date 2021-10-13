@@ -1,11 +1,73 @@
 package collision
 
-import "github.com/kkevinchou/kito/lib/collision/collider"
+import (
+	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/collision/collider"
+	"github.com/kkevinchou/kito/lib/collision/intersection"
+)
 
-type ContactManifold struct {
+type Contact struct {
+	Point              mgl64.Vec3
+	Normal             mgl64.Vec3
+	SeparatingDistance float64
 }
 
-func CheckCollision(capsule collider.Capsule, boundingBox collider.BoundingBox) ContactManifold {
+type ContactManifold struct {
+	Contacts []Contact
+}
 
-	return ContactManifold{}
+func CheckCollision(capsule collider.Capsule, triangulatedMesh collider.TriangulatedMesh) *ContactManifold {
+	for _, tri := range triangulatedMesh.Triangles {
+		manifold := CheckCollisionCapsuleTriangle(capsule, tri)
+		// TODO: handle multiple collided triangles
+		if manifold != nil {
+			return manifold
+		}
+	}
+
+	return nil
+}
+
+// 1 - closest point on line segment to triangle
+// 2 - closest point becomes the reference point
+// 3 - intersect ray from reference point along inverted normal to surface of triangle for
+//	   intersection point
+// 4 - if distance between reference and interseection point is less than radius, we have
+//	   a collision
+func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.Triangle) *ContactManifold {
+	closestPoints, closestPointsDistance := intersection.ClosestPointsLineVSTriangle(
+		collider.Line{P1: capsule.Top, P2: capsule.Bottom},
+		triangle,
+	)
+	closestPointOnTriangle := closestPoints[1]
+
+	if closestPointsDistance < capsule.Radius {
+		return &ContactManifold{
+			Contacts: []Contact{
+				{
+					Point:              closestPointOnTriangle,
+					Normal:             triangle.Normal,
+					SeparatingDistance: closestPointsDistance,
+				},
+			},
+		}
+	}
+
+	return nil
+}
+
+func CheckCollisionSpherePoint(sphere collider.Sphere, point mgl64.Vec3) *ContactManifold {
+	lenSq := sphere.Center.Sub(mgl64.Vec3(point)).LenSqr()
+	if lenSq < sphere.RadiusSquared {
+		return &ContactManifold{
+			Contacts: []Contact{
+				{
+					Point:  mgl64.Vec3{point[0], point[1], point[2]},
+					Normal: sphere.Center.Sub(mgl64.Vec3(point)),
+				},
+			},
+		}
+	}
+
+	return nil
 }

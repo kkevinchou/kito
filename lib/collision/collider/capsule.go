@@ -13,7 +13,7 @@ type Capsule struct {
 }
 
 // CreateCapsuleFromMesh creates a capsule centered at the model space origin
-func CreateCapsule(vertices []mgl64.Vec3) Capsule {
+func NewCapsuleFromMeshVertices(vertices []mgl64.Vec3) Capsule {
 	var minX, minY, minZ, maxX, maxY, maxZ float64
 
 	minX = vertices[0].X()

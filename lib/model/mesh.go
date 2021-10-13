@@ -28,7 +28,7 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 
 	return &Mesh{
 		vertexCount: len(vertexAttributes) / totalAttributeSize,
-		Capsule:     collider.CreateCapsule(vertices),
+		Capsule:     collider.NewCapsuleFromMeshVertices(vertices),
 		BoundingBox: collider.CreateBoundingBox(vertices),
 	}
 }
