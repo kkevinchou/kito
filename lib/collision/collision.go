@@ -28,12 +28,6 @@ func CheckCollision(capsule collider.Capsule, triangulatedMesh collider.Triangul
 	return nil
 }
 
-// 1 - closest point on line segment to triangle
-// 2 - closest point becomes the reference point
-// 3 - intersect ray from reference point along inverted normal to surface of triangle for
-//	   intersection point
-// 4 - if distance between reference and interseection point is less than radius, we have
-//	   a collision
 func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.Triangle) *ContactManifold {
 	closestPoints, closestPointsDistance := intersection.ClosestPointsLineVSTriangle(
 		collider.Line{P1: capsule.Top, P2: capsule.Bottom},
