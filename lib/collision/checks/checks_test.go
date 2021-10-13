@@ -1,22 +1,22 @@
-package intersection_test
+package checks_test
 
 import (
 	"testing"
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/collision"
-	"github.com/kkevinchou/kito/lib/collision/collider"
-	"github.com/kkevinchou/kito/lib/collision/intersection"
+	"github.com/kkevinchou/kito/lib/collision/checks"
+	"github.com/kkevinchou/kito/lib/collision/primitives"
 )
 
 // Lines are perpendicular with separation along origin
 func TestClosestPointsLineVSLine(t *testing.T) {
-	points, distance := intersection.ClosestPointsLineVSLine(
-		collider.Line{
+	points, distance := checks.ClosestPointsLineVSLine(
+		primitives.Line{
 			P1: mgl64.Vec3{-1, 1, 0},
 			P2: mgl64.Vec3{1, 1, 0},
 		},
-		collider.Line{
+		primitives.Line{
 			P1: mgl64.Vec3{0, -1, -1},
 			P2: mgl64.Vec3{0, -1, 1},
 		},
@@ -38,7 +38,7 @@ func TestClosestPointsLineVSLine(t *testing.T) {
 
 // closest point is P1 one of the line segment and the center of the triangle
 func TestClosestPointsLineVsTriangle(t *testing.T) {
-	line := collider.Line{
+	line := primitives.Line{
 		P1: mgl64.Vec3{0, 1, -0.5},
 		P2: mgl64.Vec3{0, 2, -1},
 	}
@@ -48,8 +48,8 @@ func TestClosestPointsLineVsTriangle(t *testing.T) {
 		{-1, 0, -1},
 	}
 
-	triangle := collider.NewTriangle(trianglePoints)
-	points, distance := intersection.ClosestPointsLineVSTriangle(line, triangle)
+	triangle := primitives.NewTriangle(trianglePoints)
+	points, distance := checks.ClosestPointsLineVSTriangle(line, triangle)
 
 	expectedPoint0 := mgl64.Vec3{0, 1, -0.5}
 	if points[0] != expectedPoint0 {
@@ -67,7 +67,7 @@ func TestClosestPointsLineVsTriangle(t *testing.T) {
 
 // closest point is P2 one of the line segment and the center of the triangle
 func TestClosestPointsLineVsTriangle2(t *testing.T) {
-	line := collider.Line{
+	line := primitives.Line{
 		P1: mgl64.Vec3{0, 2, -1},
 		P2: mgl64.Vec3{0, 1, -0.5},
 	}
@@ -77,8 +77,8 @@ func TestClosestPointsLineVsTriangle2(t *testing.T) {
 		{-1, 0, -1},
 	}
 
-	triangle := collider.NewTriangle(trianglePoints)
-	points, distance := intersection.ClosestPointsLineVSTriangle(line, triangle)
+	triangle := primitives.NewTriangle(trianglePoints)
+	points, distance := checks.ClosestPointsLineVSTriangle(line, triangle)
 
 	expectedPoint0 := mgl64.Vec3{0, 1, -0.5}
 	if points[0] != expectedPoint0 {
@@ -95,7 +95,7 @@ func TestClosestPointsLineVsTriangle2(t *testing.T) {
 }
 
 func TestTriangleEdgeClosestToLine(t *testing.T) {
-	line := collider.Line{
+	line := primitives.Line{
 		P1: mgl64.Vec3{0, -1, -2},
 		P2: mgl64.Vec3{0, 1, -2},
 	}
@@ -105,8 +105,8 @@ func TestTriangleEdgeClosestToLine(t *testing.T) {
 		{-1, 0, -1},
 	}
 
-	triangle := collider.NewTriangle(trianglePoints)
-	points, distance := intersection.ClosestPointsLineVSTriangle(line, triangle)
+	triangle := primitives.NewTriangle(trianglePoints)
+	points, distance := checks.ClosestPointsLineVSTriangle(line, triangle)
 
 	expectedPoint0 := mgl64.Vec3{0, 0, -2}
 	if points[0] != expectedPoint0 {
@@ -123,7 +123,7 @@ func TestTriangleEdgeClosestToLine(t *testing.T) {
 }
 
 func TestCheckCollisionCapsuleTriangle(t *testing.T) {
-	capsule := collider.Capsule{
+	capsule := primitives.Capsule{
 		Radius: 1,
 		Top:    mgl64.Vec3{0, 10, -0.5},
 		Bottom: mgl64.Vec3{0, 0.5, -0.5},
@@ -135,7 +135,7 @@ func TestCheckCollisionCapsuleTriangle(t *testing.T) {
 		{-1, 0, -1},
 	}
 
-	triangle := collider.NewTriangle(trianglePoints)
+	triangle := primitives.NewTriangle(trianglePoints)
 	manifold := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
 
 	if len(manifold.Contacts) != 1 {

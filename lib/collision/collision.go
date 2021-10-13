@@ -2,8 +2,8 @@ package collision
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/collision/intersection"
+	"github.com/kkevinchou/kito/lib/collision/primitives"
 )
 
 type Contact struct {
@@ -16,7 +16,7 @@ type ContactManifold struct {
 	Contacts []Contact
 }
 
-func CheckCollision(capsule collider.Capsule, triangulatedMesh collider.TriangulatedMesh) *ContactManifold {
+func CheckCollision(capsule primitives.Capsule, triangulatedMesh primitives.TriangulatedMesh) *ContactManifold {
 	for _, tri := range triangulatedMesh.Triangles {
 		manifold := CheckCollisionCapsuleTriangle(capsule, tri)
 		// TODO: handle multiple collided triangles
@@ -28,9 +28,9 @@ func CheckCollision(capsule collider.Capsule, triangulatedMesh collider.Triangul
 	return nil
 }
 
-func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.Triangle) *ContactManifold {
+func CheckCollisionCapsuleTriangle(capsule primitives.Capsule, triangle primitives.Triangle) *ContactManifold {
 	closestPoints, closestPointsDistance := intersection.ClosestPointsLineVSTriangle(
-		collider.Line{P1: capsule.Top, P2: capsule.Bottom},
+		primitives.Line{P1: capsule.Top, P2: capsule.Bottom},
 		triangle,
 	)
 	closestPointOnTriangle := closestPoints[1]
@@ -50,7 +50,7 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 	return nil
 }
 
-func CheckCollisionSpherePoint(sphere collider.Sphere, point mgl64.Vec3) *ContactManifold {
+func CheckCollisionSpherePoint(sphere primitives.Sphere, point mgl64.Vec3) *ContactManifold {
 	lenSq := sphere.Center.Sub(mgl64.Vec3(point)).LenSqr()
 	if lenSq < sphere.RadiusSquared {
 		return &ContactManifold{

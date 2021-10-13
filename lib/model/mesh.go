@@ -4,14 +4,14 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/collision/collider"
+	"github.com/kkevinchou/kito/lib/collision/primitives"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
 type Mesh struct {
 	vertexCount int
-	Capsule     collider.Capsule
-	BoundingBox collider.BoundingBox
+	Capsule     primitives.Capsule
+	BoundingBox primitives.BoundingBox
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
@@ -28,8 +28,8 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 
 	return &Mesh{
 		vertexCount: len(vertexAttributes) / totalAttributeSize,
-		Capsule:     collider.NewCapsuleFromMeshVertices(vertices),
-		BoundingBox: collider.CreateBoundingBox(vertices),
+		Capsule:     primitives.NewCapsuleFromMeshVertices(vertices),
+		BoundingBox: primitives.CreateBoundingBox(vertices),
 	}
 }
 
