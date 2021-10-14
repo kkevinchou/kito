@@ -2,8 +2,8 @@ package primitives
 
 import "github.com/go-gl/mathgl/mgl64"
 
-type TriangulatedMesh struct {
-	Triangles []Triangle
+type Mesh interface {
+	Vertices() []mgl64.Vec3
 }
 
 type Triangle struct {
@@ -21,7 +21,31 @@ func NewTriangle(points []mgl64.Vec3) Triangle {
 	}
 }
 
-type Line struct {
-	P1 mgl64.Vec3
-	P2 mgl64.Vec3
+type TriMesh struct {
+	Triangles []Triangle
+}
+
+func NewBoxTriMesh(w, l, h float64) TriMesh {
+	halfW := w / 2
+	halfL := l / 2
+	triMesh := TriMesh{}
+	// font
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{-halfW, 0, halfL}, {halfW, 0, halfL}, {halfW, h, halfL}},
+	))
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{halfW, h, halfL}, {-halfW, h, halfL}, {-halfW, 0, halfL}},
+	))
+	// back
+	// left
+	// right
+	// bottom
+	// top
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{-halfW, h, halfL}, {halfW, h, halfL}, {halfW, h, -halfL}},
+	))
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{halfW, h, -halfL}, {-halfW, h, -halfL}, {-halfW, h, halfL}},
+	))
+	return triMesh
 }

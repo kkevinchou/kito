@@ -11,3 +11,8 @@ type Ray struct {
 	Origin    mgl64.Vec3
 	Direction mgl64.Vec3
 }
+
+type Line struct {
+	P1 mgl64.Vec3
+	P2 mgl64.Vec3
+}

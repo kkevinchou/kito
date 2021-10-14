@@ -230,13 +230,23 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		)
 
 		if componentContainer.ColliderComponent != nil {
-			drawCollider(
-				viewerContext,
-				lightContext,
-				shaderManager.GetShaderProgram("billboard"),
-				componentContainer.ColliderComponent,
-				collidermoddelMatrix,
-			)
+			if componentContainer.ColliderComponent.CapsuleCollider != nil {
+				drawCapsuleCollider(
+					viewerContext,
+					lightContext,
+					shaderManager.GetShaderProgram("billboard"),
+					componentContainer.ColliderComponent,
+					collidermoddelMatrix,
+				)
+			} else if componentContainer.ColliderComponent.TriMeshCollider != nil {
+				drawTriMeshCollider(
+					viewerContext,
+					lightContext,
+					shaderManager.GetShaderProgram("billboard"),
+					componentContainer.ColliderComponent,
+					mgl64.Ident4(),
+				)
+			}
 		}
 	}
 

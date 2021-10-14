@@ -9,10 +9,11 @@ import (
 
 type Mesh struct {
 	vertexCount int
+	vertices    []mgl64.Vec3
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
-	vertexAttributes, totalAttributeSize, _ := constructMeshVertexAttributes(
+	vertexAttributes, totalAttributeSize, vertices := constructMeshVertexAttributes(
 		spec.TriIndices,
 		spec.TriIndicesStride,
 		spec.PositionSourceData,
@@ -25,7 +26,12 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 
 	return &Mesh{
 		vertexCount: len(vertexAttributes) / totalAttributeSize,
+		vertices:    vertices,
 	}
+}
+
+func (m *Mesh) Vertices() []mgl64.Vec3 {
+	return m.vertices
 }
 
 func constructMeshVertexAttributes(

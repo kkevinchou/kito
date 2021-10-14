@@ -59,7 +59,7 @@ func NewBob() *EntityImpl {
 
 	capsule := primitives.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
 	colliderComponent := &components.ColliderComponent{
-		CapsuleCollider: capsule,
+		CapsuleCollider: &capsule,
 	}
 
 	physicsComponent := &components.PhysicsComponent{

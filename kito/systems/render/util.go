@@ -41,7 +41,37 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 	gl.DrawElements(gl.TRIANGLES, int32(meshComponent.ModelVertexCount), gl.UNSIGNED_INT, nil)
 }
 
-func drawCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, colliderComponent *components.ColliderComponent, modelMatrix mgl64.Mat4) {
+func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, colliderComponent *components.ColliderComponent, modelMatrix mgl64.Mat4) {
+	triMeshCollider := colliderComponent.TriMeshCollider
+
+	var vertices []float32
+
+	for _, triangle := range triMeshCollider.Triangles {
+		for _, point := range triangle.Points {
+			vertices = append(vertices, float32(point.X()), float32(point.Y()), float32(point.Z()))
+		}
+	}
+
+	var vbo, vao uint32
+	gl.GenBuffers(1, &vbo)
+	gl.GenVertexArrays(1, &vao)
+
+	gl.BindVertexArray(vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, nil)
+	gl.EnableVertexAttribArray(0)
+
+	gl.BindVertexArray(vao)
+	shader.Use()
+	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix))
+	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
+	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
+}
+
+func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, colliderComponent *components.ColliderComponent, modelMatrix mgl64.Mat4) {
 	radius := float32(colliderComponent.CapsuleCollider.Radius)
 	top := float32(colliderComponent.CapsuleCollider.Top.Y()) + radius
 	bottom := float32(colliderComponent.CapsuleCollider.Bottom.Y()) - radius
@@ -71,7 +101,7 @@ func drawCollider(viewerContext ViewerContext, lightContext LightContext, shader
 	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix))
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
-	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
 
 func drawSkyBox(viewerContext ViewerContext, sb *SkyBox, shader *shaders.ShaderProgram, frontTexture, topTexture, leftTexture, rightTexture, bottomTexture, backTexture *textures.Texture) {
