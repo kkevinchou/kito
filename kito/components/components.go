@@ -11,6 +11,7 @@ type ComponentContainer struct {
 	CameraComponent                *CameraComponent
 	NetworkComponent               *NetworkComponent
 	MeshComponent                  *MeshComponent
+	ColliderComponent              *ColliderComponent
 }
 
 type Component interface {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/knetwork"
@@ -53,7 +52,7 @@ func handleAckCreatePlayer(message *network.Message, world World) {
 	singleton.PlayerID = messageBody.ID
 	singleton.CameraID = messageBody.CameraID
 
-	bob := entities.NewBob(mgl64.Vec3{})
+	bob := entities.NewBob()
 	bob.ID = messageBody.ID
 
 	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())

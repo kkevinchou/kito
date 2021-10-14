@@ -4,18 +4,15 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/collision/primitives"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
 type Mesh struct {
 	vertexCount int
-	Capsule     primitives.Capsule
-	BoundingBox primitives.BoundingBox
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
-	vertexAttributes, totalAttributeSize, vertices := constructMeshVertexAttributes(
+	vertexAttributes, totalAttributeSize, _ := constructMeshVertexAttributes(
 		spec.TriIndices,
 		spec.TriIndicesStride,
 		spec.PositionSourceData,
@@ -28,8 +25,6 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 
 	return &Mesh{
 		vertexCount: len(vertexAttributes) / totalAttributeSize,
-		Capsule:     primitives.NewCapsuleFromMeshVertices(vertices),
-		BoundingBox: primitives.CreateBoundingBox(vertices),
 	}
 }
 

@@ -3,7 +3,6 @@ package stateinterpolator
 import (
 	"time"
 
-	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
@@ -55,7 +54,7 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 		foundEntity, err := world.GetEntityByID(entitySnapshot.ID)
 		if err != nil {
 			if types.EntityType(entitySnapshot.Type) == types.EntityTypeBob {
-				newEntity := entities.NewBob(mgl64.Vec3{})
+				newEntity := entities.NewBob()
 				newEntity.ID = entitySnapshot.ID
 
 				cc := newEntity.GetComponentContainer()

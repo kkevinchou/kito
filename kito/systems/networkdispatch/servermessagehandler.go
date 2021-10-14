@@ -54,7 +54,7 @@ func serverMessageHandler(world World, message *network.Message) {
 func handleCreatePlayer(player *player.Player, message *network.Message, world World) {
 	playerID := message.SenderID
 
-	bob := entities.NewBob(mgl64.Vec3{})
+	bob := entities.NewBob()
 	bob.ID = playerID
 
 	cc := bob.ComponentContainer

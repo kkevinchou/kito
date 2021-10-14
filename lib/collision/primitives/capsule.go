@@ -12,6 +12,14 @@ type Capsule struct {
 	Bottom mgl64.Vec3
 }
 
+func NewCapsule(top, bottom mgl64.Vec3, radius float64) Capsule {
+	return Capsule{
+		Radius: radius,
+		Top:    top,
+		Bottom: bottom,
+	}
+}
+
 // CreateCapsuleFromMesh creates a capsule centered at the model space origin
 func NewCapsuleFromMeshVertices(vertices []mgl64.Vec3) Capsule {
 	var minX, minY, minZ, maxX, maxY, maxZ float64
