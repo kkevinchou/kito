@@ -8,7 +8,7 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/settings"
-	"github.com/kkevinchou/kito/lib/collision/primitives"
+	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/font"
 	utils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/shaders"
@@ -42,7 +42,7 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 	gl.DrawElements(gl.TRIANGLES, int32(meshComponent.ModelVertexCount), gl.UNSIGNED_INT, nil)
 }
 
-func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, triMeshCollider *primitives.TriMesh, modelMatrix mgl64.Mat4) {
+func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, triMeshCollider *collider.TriMesh, modelMatrix mgl64.Mat4) {
 	var vertices []float32
 
 	for _, triangle := range triMeshCollider.Triangles {
@@ -70,7 +70,7 @@ func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext,
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
 
-func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, capsuleCollider *primitives.Capsule, modelMatrix mgl64.Mat4) {
+func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, capsuleCollider *collider.Capsule, modelMatrix mgl64.Mat4) {
 	radius := float32(capsuleCollider.Radius)
 	top := float32(capsuleCollider.Top.Y()) + radius
 	bottom := float32(capsuleCollider.Bottom.Y()) - radius

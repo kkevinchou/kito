@@ -2,14 +2,14 @@ package checks
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/collision/primitives"
+	"github.com/kkevinchou/kito/lib/collision/collider"
 )
 
 const (
 	epsilon float64 = 0.000001
 )
 
-func IntersectRayPlane(ray primitives.Ray, plane primitives.Plane) *mgl64.Vec3 {
+func IntersectRayPlane(ray collider.Ray, plane collider.Plane) *mgl64.Vec3 {
 	directionDotNormal := ray.Direction.Dot(plane.Normal)
 	if directionDotNormal == 0 {
 		return nil
@@ -41,7 +41,7 @@ func ClosestPointOnLineToPoint(a, b, c mgl64.Vec3) mgl64.Vec3 {
 // segment endpoint Q and plane of triangle (when Q projects inside ABC)
 
 // the first point belongs to the triangle, the second point belongs to the line
-func ClosestPointsLineVSTriangle(line primitives.Line, triangle primitives.Triangle) ([]mgl64.Vec3, float64) {
+func ClosestPointsLineVSTriangle(line collider.Line, triangle collider.Triangle) ([]mgl64.Vec3, float64) {
 	var closestPoints []mgl64.Vec3
 	var closestDistance float64
 
@@ -49,17 +49,17 @@ func ClosestPointsLineVSTriangle(line primitives.Line, triangle primitives.Trian
 	b := triangle.Points[1]
 	c := triangle.Points[2]
 
-	abPoints, abDist := ClosestPointsLineVSLine(line, primitives.Line{P1: a, P2: b})
+	abPoints, abDist := ClosestPointsLineVSLine(line, collider.Line{P1: a, P2: b})
 	closestPoints = abPoints
 	closestDistance = abDist
 
-	bcPoints, bcDist := ClosestPointsLineVSLine(line, primitives.Line{P1: b, P2: c})
+	bcPoints, bcDist := ClosestPointsLineVSLine(line, collider.Line{P1: b, P2: c})
 	if bcDist < closestDistance {
 		closestDistance = bcDist
 		closestPoints = bcPoints
 	}
 
-	caPoints, caDist := ClosestPointsLineVSLine(line, primitives.Line{P1: c, P2: a})
+	caPoints, caDist := ClosestPointsLineVSLine(line, collider.Line{P1: c, P2: a})
 	if caDist < closestDistance {
 		closestDistance = caDist
 		closestPoints = caPoints
@@ -88,7 +88,7 @@ func ClosestPointsLineVSTriangle(line primitives.Line, triangle primitives.Trian
 
 // Real Time Collision Detection - page 149
 // Some wacky math stuff.
-func ClosestPointsLineVSLine(line1 primitives.Line, line2 primitives.Line) ([]mgl64.Vec3, float64) {
+func ClosestPointsLineVSLine(line1 collider.Line, line2 collider.Line) ([]mgl64.Vec3, float64) {
 	p1 := line1.P1
 	q1 := line1.P2
 	p2 := line2.P1
@@ -146,12 +146,12 @@ func ClosestPointsLineVSLine(line1 primitives.Line, line2 primitives.Line) ([]mg
 	return []mgl64.Vec3{c1, c2}, c1.Sub(c2).Len()
 }
 
-func ProjectPointOnTriangle(point mgl64.Vec3, triangle primitives.Triangle) (mgl64.Vec3, bool) {
-	ray := primitives.Ray{
+func ProjectPointOnTriangle(point mgl64.Vec3, triangle collider.Triangle) (mgl64.Vec3, bool) {
+	ray := collider.Ray{
 		Origin:    point,
 		Direction: triangle.Normal.Mul(-1),
 	}
-	plane := primitives.Plane{
+	plane := collider.Plane{
 		Point:  triangle.Points[0],
 		Normal: triangle.Normal,
 	}
@@ -165,7 +165,7 @@ func ProjectPointOnTriangle(point mgl64.Vec3, triangle primitives.Triangle) (mgl
 }
 
 // Test if a point is in or on a triangle
-func PointInTriangle(point mgl64.Vec3, triangle primitives.Triangle) bool {
+func PointInTriangle(point mgl64.Vec3, triangle collider.Triangle) bool {
 	// reorient points onto origin based off of point
 	a := triangle.Points[0].Sub(point)
 	b := triangle.Points[1].Sub(point)

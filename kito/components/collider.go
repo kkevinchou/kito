@@ -1,10 +1,12 @@
 package components
 
-import "github.com/kkevinchou/kito/lib/collision/primitives"
+import (
+	"github.com/kkevinchou/kito/lib/collision/collider"
+)
 
 type ColliderComponent struct {
-	CapsuleCollider *primitives.Capsule
-	TriMeshCollider *primitives.TriMesh
+	CapsuleCollider *collider.Capsule
+	TriMeshCollider *collider.TriMesh
 }
 
 func (c *ColliderComponent) AddToComponentContainer(container *ComponentContainer) {

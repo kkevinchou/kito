@@ -1,4 +1,4 @@
-package primitives
+package collider
 
 import (
 	"math"

@@ -6,7 +6,7 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/lib/collision/primitives"
+	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 	"github.com/kkevinchou/kito/lib/textures"
 )
@@ -57,7 +57,7 @@ func NewBob() *EntityImpl {
 		Orientation:      yr,
 	}
 
-	capsule := primitives.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
+	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
 	colliderComponent := &components.ColliderComponent{
 		CapsuleCollider: &capsule,
 	}

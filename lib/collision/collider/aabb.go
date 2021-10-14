@@ -1,4 +1,4 @@
-package primitives
+package collider
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
