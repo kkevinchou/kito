@@ -235,7 +235,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 					viewerContext,
 					lightContext,
 					shaderManager.GetShaderProgram("billboard"),
-					componentContainer.ColliderComponent,
+					componentContainer.ColliderComponent.CapsuleCollider,
 					collidermoddelMatrix,
 				)
 			} else if componentContainer.ColliderComponent.TriMeshCollider != nil {
@@ -243,7 +243,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 					viewerContext,
 					lightContext,
 					shaderManager.GetShaderProgram("billboard"),
-					componentContainer.ColliderComponent,
+					componentContainer.ColliderComponent.TriMeshCollider,
 					mgl64.Ident4(),
 				)
 			}

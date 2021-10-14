@@ -16,7 +16,7 @@ type ContactManifold struct {
 	Contacts []Contact
 }
 
-func CheckCollision(capsule primitives.Capsule, triangulatedMesh primitives.TriangulatedMesh) *ContactManifold {
+func CheckCollision(capsule primitives.Capsule, triangulatedMesh primitives.TriMesh) *ContactManifold {
 	for _, tri := range triangulatedMesh.Triangles {
 		manifold := CheckCollisionCapsuleTriangle(capsule, tri)
 		// TODO: handle multiple collided triangles
