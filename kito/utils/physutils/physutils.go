@@ -23,6 +23,10 @@ func PhysicsStep(delta time.Duration, entity entities.Entity) {
 	physicsComponent := componentContainer.PhysicsComponent
 	transformComponent := componentContainer.TransformComponent
 
+	if physicsComponent.Static {
+		return
+	}
+
 	// calculate impulses and their decay, this is meant for controller
 	// actions that can "overwite" impulses
 	var totalImpulse mgl64.Vec3

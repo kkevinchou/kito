@@ -15,6 +15,8 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
+	"github.com/kkevinchou/kito/kito/systems/collision"
+	"github.com/kkevinchou/kito/kito/systems/collisionresolver"
 	"github.com/kkevinchou/kito/kito/systems/common"
 	historysys "github.com/kkevinchou/kito/kito/systems/history"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
@@ -104,6 +106,8 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	historySystem := historysys.NewHistorySystem(g)
 	stateInterpolatorSystem := stateinterpolator.NewStateInterpolatorSystem(g)
 	pingSystem := ping.NewPingSystem(g)
+	collisionSystem := collision.NewCollisionSystem(g)
+	collisionResolverSystem := collisionresolver.NewCollisionResolverSystem(g)
 
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterAssetManager(assetManager)
@@ -116,6 +120,8 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 		characterControllerSystem,
 		stateInterpolatorSystem,
 		physicsSystem,
+		collisionSystem,
+		collisionResolverSystem,
 		animationSystem,
 		cameraSystem,
 		historySystem,

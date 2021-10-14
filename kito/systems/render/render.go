@@ -244,7 +244,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 					lightContext,
 					shaderManager.GetShaderProgram("billboard"),
 					componentContainer.ColliderComponent.TriMeshCollider,
-					mgl64.Ident4(),
+					translation,
 				)
 			}
 		}

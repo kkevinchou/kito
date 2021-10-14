@@ -64,6 +64,10 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		IsVisible: true,
 	}
 
+	physicsComponent := &components.PhysicsComponent{
+		Static: true,
+	}
+
 	entity := NewEntity(
 		"rigidbody",
 		entityType,
@@ -73,6 +77,7 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 			&components.NetworkComponent{},
 			meshComponent,
 			colliderComponent,
+			physicsComponent,
 		),
 	)
 

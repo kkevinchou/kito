@@ -20,6 +20,12 @@ func NewCapsule(top, bottom mgl64.Vec3, radius float64) Capsule {
 	}
 }
 
+func (c Capsule) Transform(position mgl64.Vec3) Capsule {
+	newTop := position.Add(c.Top)
+	newBottom := position.Add(c.Bottom)
+	return NewCapsule(newTop, newBottom, c.Radius)
+}
+
 // CreateCapsuleFromMesh creates a capsule centered at the model space origin
 func NewCapsuleFromMeshVertices(vertices []mgl64.Vec3) Capsule {
 	var minX, minY, minZ, maxX, maxY, maxZ float64

@@ -6,6 +6,7 @@ import (
 )
 
 type PhysicsComponent struct {
+	Static   bool
 	Velocity mgl64.Vec3
 
 	// impulses have a name that can be reset or overwritten

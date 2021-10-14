@@ -9,6 +9,7 @@ import (
 type Contact struct {
 	Point              mgl64.Vec3
 	Normal             mgl64.Vec3
+	SeparatingVector   mgl64.Vec3
 	SeparatingDistance float64
 }
 
@@ -16,7 +17,7 @@ type ContactManifold struct {
 	Contacts []Contact
 }
 
-func CheckCollision(capsule collider.Capsule, triangulatedMesh collider.TriMesh) *ContactManifold {
+func CheckCollisionCapsuleTriMesh(capsule collider.Capsule, triangulatedMesh collider.TriMesh) *ContactManifold {
 	for _, tri := range triangulatedMesh.Triangles {
 		manifold := CheckCollisionCapsuleTriangle(capsule, tri)
 		// TODO: handle multiple collided triangles
@@ -41,6 +42,7 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 				{
 					Point:              closestPointOnTriangle,
 					Normal:             triangle.Normal,
+					SeparatingVector:   closestPoints[0].Sub(closestPoints[1]),
 					SeparatingDistance: closestPointsDistance,
 				},
 			},
