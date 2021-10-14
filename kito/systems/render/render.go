@@ -214,6 +214,11 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			translation,
 		)
 
+		center := mgl64.Vec3{componentContainer.TransformComponent.Position.X(), 0, componentContainer.TransformComponent.Position.Z()}
+		viewerArtificialCenter := mgl64.Vec3{viewerContext.Position.X(), 0, viewerContext.Position.Z()}
+		vecToViewer := viewerArtificialCenter.Sub(center).Normalize()
+		collidermoddelMatrix := translation.Mul4(mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, 1}, vecToViewer).Mat4())
+
 		drawModel(
 			viewerContext,
 			lightContext,
@@ -223,6 +228,26 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			componentContainer.AnimationComponent,
 			meshModelMatrix,
 		)
+
+		if componentContainer.ColliderComponent != nil {
+			if componentContainer.ColliderComponent.CapsuleCollider != nil {
+				drawCapsuleCollider(
+					viewerContext,
+					lightContext,
+					shaderManager.GetShaderProgram("billboard"),
+					componentContainer.ColliderComponent.CapsuleCollider,
+					collidermoddelMatrix,
+				)
+			} else if componentContainer.ColliderComponent.TriMeshCollider != nil {
+				drawTriMeshCollider(
+					viewerContext,
+					lightContext,
+					shaderManager.GetShaderProgram("billboard"),
+					componentContainer.ColliderComponent.TriMeshCollider,
+					mgl64.Ident4(),
+				)
+			}
+		}
 	}
 
 	fps := int(singleton.MetricsRegistry.GetOneSecondSum("fps"))

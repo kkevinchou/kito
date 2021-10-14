@@ -6,6 +6,7 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 	"github.com/kkevinchou/kito/lib/textures"
 )
@@ -54,6 +55,11 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		Orientation:      Orientation,
 	}
 
+	triBoxMesh := collider.NewBoxTriMesh(10, 20, 10)
+	colliderComponent := &components.ColliderComponent{
+		TriMeshCollider: &triBoxMesh,
+	}
+
 	renderComponent := &components.RenderComponent{
 		IsVisible: true,
 	}
@@ -66,6 +72,7 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 			renderComponent,
 			&components.NetworkComponent{},
 			meshComponent,
+			colliderComponent,
 		),
 	)
 

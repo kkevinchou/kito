@@ -215,7 +215,7 @@ type LibraryGeometries struct {
 	HasExtra
 }
 
-//Lines declares the binding of geometric primitives and vertex attributes for a <mesh>element.
+//Lines declares the binding of geometric collider.and vertex attributes for a <mesh>element.
 type Lines struct {
 	HasName
 	HasCount
@@ -225,7 +225,7 @@ type Lines struct {
 	HasExtra
 }
 
-//Linestrips declares a binding of geometric primitives and vertex attributes for a <mesh>element.
+//Linestrips declares a binding of geometric collider.and vertex attributes for a <mesh>element.
 type Linestrips struct {
 	HasName
 	HasCount
@@ -249,7 +249,7 @@ type Mesh struct {
 	HasExtra
 }
 
-//Polygons declares the binding of geometric primitives and vertex attributes for a <mesh>element.
+//Polygons declares the binding of geometric collider.and vertex attributes for a <mesh>element.
 type Polygons struct {
 	HasName
 	HasCount
@@ -268,7 +268,7 @@ type Ph struct {
 	H []*H `xml:"h"`
 }
 
-//Polylist declares the binding of geometric primitives and vertex attributes for a <mesh>element.
+//Polylist declares the binding of geometric collider.and vertex attributes for a <mesh>element.
 type Polylist struct {
 	HasName
 	HasCount

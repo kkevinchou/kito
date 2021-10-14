@@ -6,17 +6,18 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
-func NewBob(position mgl64.Vec3) *EntityImpl {
+func NewBob() *EntityImpl {
 	modelName := "guard_running"
 	shaderProgram := "model"
 	textureName := "default"
 
 	transformComponent := &components.TransformComponent{
-		Position:    position,
+		Position:    mgl64.Vec3{0, 15, 15},
 		Orientation: mgl64.QuatIdent(),
 	}
 
@@ -56,6 +57,11 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 		Orientation:      yr,
 	}
 
+	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
+	colliderComponent := &components.ColliderComponent{
+		CapsuleCollider: &capsule,
+	}
+
 	physicsComponent := &components.PhysicsComponent{
 		Impulses: map[string]types.Impulse{},
 	}
@@ -71,6 +77,7 @@ func NewBob(position mgl64.Vec3) *EntityImpl {
 		physicsComponent,
 		thirdPersonControllerComponent,
 		meshComponent,
+		colliderComponent,
 	}
 
 	if utils.IsClient() {
