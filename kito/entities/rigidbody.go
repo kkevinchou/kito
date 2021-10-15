@@ -34,15 +34,15 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 
 	assetManager := directory.GetDirectory().AssetManager()
 	modelSpec := assetManager.GetAnimatedModel(modelName)
-	var m *model.Model
+
 	var vao uint32
-	var vertexCount int
 	var texture *textures.Texture
 
+	m := model.NewModel(modelSpec)
+	vertexCount := m.VertexCount()
+
 	if utils.IsClient() {
-		m = model.NewModel(modelSpec)
 		vao = m.Bind()
-		vertexCount = m.VertexCount()
 		texture = assetManager.GetTexture(textureName)
 	}
 
