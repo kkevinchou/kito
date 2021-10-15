@@ -19,7 +19,7 @@ var (
 )
 
 func NewScene(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "scene", mgl64.Ident4(), defaultOrientation, types.EntityTypeScene, "default")
+	return NewRigidBody(position, "scene", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "default")
 }
 
 func NewSlime(position mgl64.Vec3) *EntityImpl {
@@ -55,8 +55,8 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		Orientation:      Orientation,
 	}
 
-	triMesh := collider.NewBoxTriMesh(40, 50, 20)
-	// triMesh := collider.NewTriMesh(m.Mesh.Vertices())
+	// triMesh := collider.NewBoxTriMesh(40, 50, 20)
+	triMesh := collider.NewTriMesh(m.Mesh.Vertices())
 	colliderComponent := &components.ColliderComponent{
 		TriMeshCollider: &triMesh,
 	}

@@ -39,7 +39,7 @@ func (s *CollisionSystem) RegisterEntity(entity entities.Entity) {
 func (s *CollisionSystem) Update(delta time.Duration) {
 	handledCollisions := map[int]map[int]bool{}
 	for _, e := range s.entities {
-		e.GetComponentContainer().ColliderComponent.ContactManifold = nil
+		e.GetComponentContainer().ColliderComponent.ContactManifolds = nil
 		handledCollisions[e.GetID()] = map[int]bool{}
 	}
 
@@ -60,9 +60,9 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 				if e2cc.ColliderComponent.TriMeshCollider != nil {
 					transformComponent := e1cc.TransformComponent
 					capsule := e1cc.ColliderComponent.CapsuleCollider.Transform(transformComponent.Position)
-					contactManifold := collision.CheckCollisionCapsuleTriMesh(capsule, *e2cc.ColliderComponent.TriMeshCollider)
-					if contactManifold != nil {
-						e1cc.ColliderComponent.ContactManifold = contactManifold
+					contactManifolds := collision.CheckCollisionCapsuleTriMesh(capsule, *e2cc.ColliderComponent.TriMeshCollider)
+					if contactManifolds != nil {
+						e1cc.ColliderComponent.ContactManifolds = contactManifolds
 						// fmt.Printf(
 						// 	"[%d] collision ids[%d, %d]\n    capsule transform %v\n    capBottom %v\n    point %v\n    separating vector%v\n",
 						// 	s.world.GetSingleton().CommandFrame,

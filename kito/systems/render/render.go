@@ -115,7 +115,6 @@ func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 }
 
 func (s *RenderSystem) Render(delta time.Duration) {
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	transformComponent := s.GetCameraTransform()
 	if transformComponent == nil {
 		return

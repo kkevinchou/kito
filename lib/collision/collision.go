@@ -17,16 +17,17 @@ type ContactManifold struct {
 	Contacts []Contact
 }
 
-func CheckCollisionCapsuleTriMesh(capsule collider.Capsule, triangulatedMesh collider.TriMesh) *ContactManifold {
+func CheckCollisionCapsuleTriMesh(capsule collider.Capsule, triangulatedMesh collider.TriMesh) []*ContactManifold {
+	var contactManifolds []*ContactManifold
 	for _, tri := range triangulatedMesh.Triangles {
-		manifold := CheckCollisionCapsuleTriangle(capsule, tri)
+		contactManifold := CheckCollisionCapsuleTriangle(capsule, tri)
 		// TODO: handle multiple collided triangles
-		if manifold != nil {
-			return manifold
+		if contactManifold != nil {
+			contactManifolds = append(contactManifolds, contactManifold)
 		}
 	}
 
-	return nil
+	return contactManifolds
 }
 
 func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.Triangle) *ContactManifold {
@@ -41,8 +42,7 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 		return &ContactManifold{
 			Contacts: []Contact{
 				{
-					Point: closestPointOnTriangle,
-					// Normal:             triangle.Normal,
+					Point:              closestPointOnTriangle,
 					SeparatingVector:   closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance),
 					SeparatingDistance: separatingDistance,
 				},

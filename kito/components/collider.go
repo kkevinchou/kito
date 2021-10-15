@@ -6,9 +6,9 @@ import (
 )
 
 type ColliderComponent struct {
-	CapsuleCollider *collider.Capsule
-	TriMeshCollider *collider.TriMesh
-	ContactManifold *collision.ContactManifold
+	CapsuleCollider  *collider.Capsule
+	TriMeshCollider  *collider.TriMesh
+	ContactManifolds []*collision.ContactManifold
 }
 
 func (c *ColliderComponent) AddToComponentContainer(container *ComponentContainer) {

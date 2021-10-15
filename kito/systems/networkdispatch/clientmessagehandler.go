@@ -97,7 +97,8 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 
 	if cf != nil {
 		historyEntity := cf.PostCFState
-		if historyEntity.Position != entitySnapshot.Position || historyEntity.Orientation != entitySnapshot.Orientation {
+
+		if !historyEntity.Position.ApproxEqual(entitySnapshot.Position) || !historyEntity.Orientation.ApproxEqual(entitySnapshot.Orientation) {
 			metricsRegistry.Inc("predictionMiss", 1)
 			fmt.Printf(
 				"--------------------------------------\n[CF:%d] CLIENT-SIDE PREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
@@ -109,19 +110,19 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 				entitySnapshot.Position,
 			)
 
-			prevHistoryEntity := cfHistory.GetCommandFrame(lookupCommandFrame - 1)
-			nextHistoryEntity := cfHistory.GetCommandFrame(lookupCommandFrame + 1)
-			prevHit := 0
-			nextHit := 0
-			if prevHistoryEntity.PostCFState.Position == entitySnapshot.Position && prevHistoryEntity.PostCFState.Orientation == entitySnapshot.Orientation {
-				prevHit = 1
-			}
-			if nextHistoryEntity != nil {
-				if nextHistoryEntity.PostCFState.Position == entitySnapshot.Position && nextHistoryEntity.PostCFState.Orientation == entitySnapshot.Orientation {
-					nextHit = 1
-				}
-			}
-			fmt.Printf("prevHit %d nextHit %d\n", prevHit, nextHit)
+			// prevHistoryEntity := cfHistory.GetCommandFrame(lookupCommandFrame - 1)
+			// nextHistoryEntity := cfHistory.GetCommandFrame(lookupCommandFrame + 1)
+			// prevHit := 0
+			// nextHit := 0
+			// if prevHistoryEntity.PostCFState.Position == entitySnapshot.Position && prevHistoryEntity.PostCFState.Orientation == entitySnapshot.Orientation {
+			// 	prevHit = 1
+			// }
+			// if nextHistoryEntity != nil {
+			// 	if nextHistoryEntity.PostCFState.Position == entitySnapshot.Position && nextHistoryEntity.PostCFState.Orientation == entitySnapshot.Orientation {
+			// 		nextHit = 1
+			// 	}
+			// }
+			// fmt.Printf("prevHit %d nextHit %d\n", prevHit, nextHit)
 
 			// When we miss the client-side prediction, we set the player's state to the snapshot state.
 			// what's important to note is that the snapshot state is in the past! At the very least,
@@ -171,5 +172,5 @@ func replayInputs(
 		physutils.PhysicsStep(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity)
 		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
 	}
-	fmt.Printf("replayed %d inputs\n", len(cfs))
+	// fmt.Printf("replayed %d inputs\n", len(cfs))
 }
