@@ -17,7 +17,7 @@ func NewBob() *EntityImpl {
 	textureName := "default"
 
 	transformComponent := &components.TransformComponent{
-		Position:    mgl64.Vec3{0, 15, 15},
+		Position:    mgl64.Vec3{0, 15, 40},
 		Orientation: mgl64.QuatIdent(),
 	}
 

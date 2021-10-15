@@ -29,7 +29,7 @@ func NewBoxTriMesh(w, l, h float64) TriMesh {
 	halfW := w / 2
 	halfL := l / 2
 	triMesh := TriMesh{}
-	// font
+	// front
 	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
 		[]mgl64.Vec3{{-halfW, 0, halfL}, {halfW, 0, halfL}, {halfW, h, halfL}},
 	))
@@ -37,9 +37,33 @@ func NewBoxTriMesh(w, l, h float64) TriMesh {
 		[]mgl64.Vec3{{halfW, h, halfL}, {-halfW, h, halfL}, {-halfW, 0, halfL}},
 	))
 	// back
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{halfW, 0, -halfL}, {-halfW, 0, -halfL}, {-halfW, h, -halfL}},
+	))
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{-halfW, h, -halfL}, {halfW, h, -halfL}, {halfW, 0, -halfL}},
+	))
 	// left
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{-halfW, 0, -halfL}, {-halfW, 0, halfL}, {-halfW, h, halfL}},
+	))
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{-halfW, h, halfL}, {-halfW, h, -halfL}, {-halfW, 0, -halfL}},
+	))
 	// right
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{halfW, 0, halfL}, {halfW, 0, -halfL}, {halfW, h, -halfL}},
+	))
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{halfW, h, -halfL}, {halfW, h, halfL}, {halfW, 0, halfL}},
+	))
 	// bottom
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{halfW, 0, halfL}, {-halfW, 0, halfL}, {-halfW, 0, halfL}},
+	))
+	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
+		[]mgl64.Vec3{{-halfW, 0, halfL}, {halfW, 0, -halfL}, {halfW, 0, halfL}},
+	))
 	// top
 	triMesh.Triangles = append(triMesh.Triangles, NewTriangle(
 		[]mgl64.Vec3{{-halfW, h, halfL}, {halfW, h, halfL}, {halfW, h, -halfL}},

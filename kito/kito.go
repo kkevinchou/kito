@@ -171,7 +171,7 @@ func compileShaders() {
 	if err := shaderManager.CompileShaderProgram("quadtex", "quadtex", "quadtex"); err != nil {
 		panic(err)
 	}
-	if err := shaderManager.CompileShaderProgram("billboard", "billboard", "billboard"); err != nil {
+	if err := shaderManager.CompileShaderProgram("basicsolid", "basicsolid", "basicsolid"); err != nil {
 		panic(err)
 	}
 }

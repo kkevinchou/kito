@@ -1,7 +1,6 @@
 package collision
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/entities"
@@ -64,7 +63,16 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 					contactManifold := collision.CheckCollisionCapsuleTriMesh(capsule, *e2cc.ColliderComponent.TriMeshCollider)
 					if contactManifold != nil {
 						e1cc.ColliderComponent.ContactManifold = contactManifold
-						fmt.Printf("collision detected %v, %f\n", contactManifold.Contacts[0].Point, contactManifold.Contacts[0].SeparatingVector)
+						// fmt.Printf(
+						// 	"[%d] collision ids[%d, %d]\n    capsule transform %v\n    capBottom %v\n    point %v\n    separating vector%v\n",
+						// 	s.world.GetSingleton().CommandFrame,
+						// 	e1.GetID(),
+						// 	e2.GetID(),
+						// 	transformComponent.Position,
+						// 	capsule.Bottom,
+						// 	contactManifold.Contacts[0].Point,
+						// 	contactManifold.Contacts[0].SeparatingVector,
+						// )
 					}
 				}
 			}

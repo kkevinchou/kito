@@ -234,7 +234,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 				drawCapsuleCollider(
 					viewerContext,
 					lightContext,
-					shaderManager.GetShaderProgram("billboard"),
+					shaderManager.GetShaderProgram("basicsolid"),
 					componentContainer.ColliderComponent.CapsuleCollider,
 					collidermoddelMatrix,
 				)
@@ -242,7 +242,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 				drawTriMeshCollider(
 					viewerContext,
 					lightContext,
-					shaderManager.GetShaderProgram("billboard"),
+					shaderManager.GetShaderProgram("basicsolid"),
 					componentContainer.ColliderComponent.TriMeshCollider,
 					translation,
 				)

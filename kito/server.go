@@ -42,9 +42,10 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
-	scene := entities.NewScene(mgl64.Vec3{})
-	staticSlime := entities.NewSlime(mgl64.Vec3{-50, 0, -50})
-	return []entities.Entity{scene, staticSlime}
+	return []entities.Entity{
+		entities.NewScene(mgl64.Vec3{}),
+		// entities.NewSlime(mgl64.Vec3{-50, 0, -50}),
+	}
 }
 
 func serverSystemSetup(g *Game, assetsDirectory string) {
