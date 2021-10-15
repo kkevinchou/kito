@@ -45,7 +45,8 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, triMeshCollider *collider.TriMesh, modelMatrix mgl64.Mat4) {
 	var vertices []float32
 
-	for _, triangle := range triMeshCollider.Triangles {
+	transformedTriMeshCollider := triMeshCollider.Transform(modelMatrix)
+	for _, triangle := range transformedTriMeshCollider.Triangles {
 		for _, point := range triangle.Points {
 			vertices = append(vertices, float32(point.X()), float32(point.Y()), float32(point.Z()))
 		}

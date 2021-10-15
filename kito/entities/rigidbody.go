@@ -55,9 +55,10 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		Orientation:      Orientation,
 	}
 
-	triBoxMesh := collider.NewBoxTriMesh(40, 50, 20)
+	// triMesh := collider.NewBoxTriMesh(40, 50, 20)
+	triMesh := collider.NewTriMesh(m.Mesh.Vertices())
 	colliderComponent := &components.ColliderComponent{
-		TriMeshCollider: &triBoxMesh,
+		TriMeshCollider: &triMesh,
 	}
 
 	renderComponent := &components.RenderComponent{
