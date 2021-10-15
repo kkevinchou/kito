@@ -8,8 +8,10 @@ import (
 )
 
 type Mesh struct {
-	vertexCount int
-	vertices    []mgl64.Vec3
+	vertexCount        int
+	vertices           []mgl64.Vec3
+	vertexAttributes   []float32
+	totalAttributeSize int
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
@@ -22,11 +24,11 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 		spec.TextureSourceData,
 	)
 
-	configureMeshVertexAttributes(vertexAttributes, totalAttributeSize)
-
 	return &Mesh{
-		vertexCount: len(vertexAttributes) / totalAttributeSize,
-		vertices:    vertices,
+		vertexCount:        len(vertexAttributes) / totalAttributeSize,
+		vertices:           vertices,
+		vertexAttributes:   vertexAttributes,
+		totalAttributeSize: totalAttributeSize,
 	}
 }
 
@@ -84,21 +86,21 @@ func constructMeshVertexAttributes(
 // 1 - normal           vec3
 // 2 - texture coord    vec2
 // 3 - color            vec3
-func configureMeshVertexAttributes(vertexAttributes []float32, totalAttributeSize int) {
+func (m *Mesh) BindVertexAttributes() {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertexAttributes)*4, gl.Ptr(vertexAttributes), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(m.vertexAttributes)*4, gl.Ptr(m.vertexAttributes), gl.STATIC_DRAW)
 
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(totalAttributeSize)*4, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, int32(m.totalAttributeSize)*4, nil)
 	gl.EnableVertexAttribArray(0)
 
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(3*4))
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, int32(m.totalAttributeSize)*4, gl.PtrOffset(3*4))
 	gl.EnableVertexAttribArray(1)
 
-	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(6*4))
+	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, int32(m.totalAttributeSize)*4, gl.PtrOffset(6*4))
 	gl.EnableVertexAttribArray(2)
 
-	gl.VertexAttribPointer(3, 3, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(8*4))
+	gl.VertexAttribPointer(3, 3, gl.FLOAT, false, int32(m.totalAttributeSize)*4, gl.PtrOffset(8*4))
 	gl.EnableVertexAttribArray(3)
 }

@@ -28,18 +28,15 @@ func NewBob() *EntityImpl {
 	assetManager := directory.GetDirectory().AssetManager()
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 
-	var m *model.Model
 	var vao uint32
-	var vertexCount int
 	var texture *textures.Texture
 
+	m := model.NewModel(modelSpec)
+	vertexCount := m.VertexCount()
+
 	if utils.IsClient() {
-		m = model.NewModel(modelSpec)
-		vao = m.VAO()
-		vertexCount = m.VertexCount()
+		vao = m.Bind()
 		texture = assetManager.GetTexture(textureName)
-	} else {
-		m = model.NewPlaceholderModel(modelSpec)
 	}
 
 	animationComponent := &components.AnimationComponent{

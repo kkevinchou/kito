@@ -29,6 +29,13 @@ type Animation struct {
 
 	KeyFrames []*KeyFrame
 	Length    time.Duration
+
+	triIndices             []int
+	triIndicesStride       int
+	jointWeightsSourceData []float32
+	jointIDs               [][]int
+	jointWeights           [][]int
+	maxWeights             int
 }
 
 // this is used by the server. ideally we don't even need to have joints set up
@@ -46,7 +53,6 @@ func NewJointOnlyAnimation(spec *modelspec.ModelSpecification) *Animation {
 }
 
 func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
-	configureJointVertexAttributes(spec.TriIndices, spec.TriIndicesStride, spec.JointWeightsSourceData, spec.JointIDs, spec.JointWeights, maxWeights)
 	joint := JointSpecToJoint(spec.Root)
 	jointMap := map[int]*Joint{}
 
@@ -56,6 +62,13 @@ func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
 
 		Length:    spec.Animation.Length,
 		KeyFrames: copyKeyFrames(spec.Animation),
+
+		triIndices:             spec.TriIndices,
+		triIndicesStride:       spec.TriIndicesStride,
+		jointWeightsSourceData: spec.JointWeightsSourceData,
+		jointIDs:               spec.JointIDs,
+		jointWeights:           spec.JointWeights,
+		maxWeights:             maxWeights,
 	}
 }
 
@@ -65,20 +78,20 @@ func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
 
 // regardless of the number of joints affecting the joint
 // we always pad out the full number of joints and weights with zeros
-func configureJointVertexAttributes(triIndices []int, triIndicesStride int, jointWeightsSourceData []float32, jointIDs [][]int, jointWeights [][]int, maxWeights int) {
+func (a *Animation) BindVertexAttributes() {
 	jointIDsAttribute := []int32{}
 	jointWeightsAttribute := []float32{}
 
-	for i := 0; i < len(triIndices); i += triIndicesStride {
-		vertexIndex := triIndices[i]
+	for i := 0; i < len(a.triIndices); i += a.triIndicesStride {
+		vertexIndex := a.triIndices[i]
 
-		for j, id := range jointIDs[vertexIndex] {
+		for j, id := range a.jointIDs[vertexIndex] {
 			if id == 38 || id == 50 || id == 51 {
-				jointWeights[vertexIndex][j] = 0
+				a.jointWeights[vertexIndex][j] = 0
 			}
 		}
 
-		ids, weights := FillWeights(jointIDs[vertexIndex], jointWeights[vertexIndex], jointWeightsSourceData, maxWeights)
+		ids, weights := FillWeights(a.jointIDs[vertexIndex], a.jointWeights[vertexIndex], a.jointWeightsSourceData, maxWeights)
 
 		for _, id := range ids {
 			jointIDsAttribute = append(jointIDsAttribute, int32(id))

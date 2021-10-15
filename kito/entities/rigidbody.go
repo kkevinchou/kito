@@ -40,8 +40,8 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 	var texture *textures.Texture
 
 	if utils.IsClient() {
-		m = model.NewMeshedModel(modelSpec)
-		vao = m.VAO()
+		m = model.NewModel(modelSpec)
+		vao = m.Bind()
 		vertexCount = m.VertexCount()
 		texture = assetManager.GetTexture(textureName)
 	}
@@ -55,8 +55,8 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		Orientation:      Orientation,
 	}
 
-	// triMesh := collider.NewBoxTriMesh(40, 50, 20)
-	triMesh := collider.NewTriMesh(m.Mesh.Vertices())
+	triMesh := collider.NewBoxTriMesh(40, 50, 20)
+	// triMesh := collider.NewTriMesh(m.Mesh.Vertices())
 	colliderComponent := &components.ColliderComponent{
 		TriMeshCollider: &triMesh,
 	}

@@ -20,7 +20,6 @@ type Model struct {
 // to pack the vertex and joint data into vertex buffers. It also holds animation
 // key frame data for the animation system
 func NewModel(spec *modelspec.ModelSpecification) *Model {
-	vao := configureVAO()
 	mesh := NewMesh(spec)
 
 	var animation *Animation
@@ -28,47 +27,31 @@ func NewModel(spec *modelspec.ModelSpecification) *Model {
 		animation = NewAnimation(spec)
 	}
 
-	configureIndexBuffer(mesh.vertexCount)
-
 	return &Model{
 		Mesh:      mesh,
 		Animation: animation,
-
-		vao: vao,
 	}
 }
 
 func (m *Model) VAO() uint32 {
 	return m.vao
 }
+
 func (m *Model) VertexCount() int {
 	return m.Mesh.vertexCount
 }
 
-func NewMeshedModel(spec *modelspec.ModelSpecification) *Model {
+func (m *Model) Bind() uint32 {
 	vao := configureVAO()
-	mesh := NewMesh(spec)
-	configureIndexBuffer(mesh.vertexCount)
+	m.vao = vao
 
-	return &Model{
-		Mesh: mesh,
-		vao:  vao,
+	m.Mesh.BindVertexAttributes()
+	if m.Animation != nil {
+		m.Animation.BindVertexAttributes()
 	}
-}
 
-// TODO: NewPlaceholderModel is meant for the server to create models without
-// the related GL calls. For now this is just to allow simualtion of animations
-// on the backend. this may not actually be needed
-func NewPlaceholderModel(spec *modelspec.ModelSpecification) *Model {
-	// if we're on the server and it's a static model, there will be no root joint
-	// skip the animation stuff
-	var animation *Animation
-	if spec.Root != nil {
-		animation = NewJointOnlyAnimation(spec)
-	}
-	return &Model{
-		Animation: animation,
-	}
+	configureIndexBuffer(m.Mesh.vertexCount)
+	return vao
 }
 
 func configureVAO() uint32 {
