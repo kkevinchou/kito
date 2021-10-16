@@ -1,6 +1,8 @@
 package kito
 
 import (
+	"fmt"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
@@ -59,7 +61,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	assetManager := assets.NewAssetManager(assetsDirectory, false)
 	d.RegisterAssetManager(assetManager)
 
-	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.Host, settings.Port, settings.ConnectionType)
+	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.Host, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)

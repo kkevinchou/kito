@@ -1,12 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"strings"
 
 	"github.com/kkevinchou/kito/kito"
+	"github.com/kkevinchou/kito/kito/config"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/input"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -26,6 +30,32 @@ const (
 )
 
 func main() {
+	configFile, err := os.Open("config.json")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	configBytes, err := io.ReadAll(configFile)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err = configFile.Close(); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var configSettings config.Config
+	err = json.Unmarshal(configBytes, &configSettings)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	loadConfig(configSettings)
+
 	var mode string = modeClient
 	if len(os.Args) > 1 {
 		mode = strings.ToUpper(os.Args[1])
@@ -45,4 +75,11 @@ func main() {
 	}
 
 	sdl.Quit()
+}
+
+func loadConfig(configSettings config.Config) {
+	settings.Host = configSettings.ServerIP
+	settings.Port = configSettings.ServerPort
+	settings.Width = configSettings.Width
+	settings.Height = configSettings.Height
 }

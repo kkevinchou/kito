@@ -9,23 +9,22 @@ import (
 type GameMode string
 
 var (
-	CurrentGameMode GameMode = GameModeUndefined
+	CurrentGameMode     GameMode = GameModeUndefined
+	CameraStartPosition          = mgl64.Vec3{0, 10, 30}
+	CameraStartView              = mgl64.Vec2{0, 0}
 )
 
+// dynamic settings loaded from config
 var (
-	CameraStartPosition = mgl64.Vec3{0, 10, 30}
-	CameraStartView     = mgl64.Vec2{0, 0}
+	Host   string = "localhost"
+	Port   int    = 8080
+	Width  int    = 1024
+	Height int    = 760
 )
 
 const (
-	Width  int = 1024
-	Height int = 760
-
 	LoggingLevel          = 1
 	Seed           int64  = 1234567
-	Host           string = "localhost"
-	RemoteHost     string = "localhost"
-	Port           string = "8080"
 	ConnectionType string = "tcp"
 
 	GameModeUndefined GameMode = "UNDEFINED"
