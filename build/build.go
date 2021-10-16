@@ -18,7 +18,7 @@ func main() {
 	cmd = exec.Command("mkdir", buildFolder)
 	runCMD(cmd)
 
-	cmd = exec.Command("cp", configFile, shaderFolder, buildFolder)
+	cmd = exec.Command("cp", configFile, buildFolder)
 	runCMD(cmd)
 
 	cmd = exec.Command("cp", "-r", shaderFolder, buildFolder)
