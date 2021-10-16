@@ -33,7 +33,7 @@ const (
 )
 
 func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
-	fmt.Println("Parsing", documentPath)
+	// fmt.Println("Parsing", documentPath)
 	rawCollada, err := LoadDocument(documentPath)
 	if err != nil {
 		return nil, err
