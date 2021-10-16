@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"fmt"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
@@ -19,7 +21,7 @@ var (
 )
 
 func NewScene(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "scene", mgl64.Ident4(), defaultOrientation, types.EntityTypeScene, "default")
+	return NewRigidBody(position, "sceneuv", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid")
 }
 
 func NewSlime(position mgl64.Vec3) *EntityImpl {
@@ -34,15 +36,15 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 
 	assetManager := directory.GetDirectory().AssetManager()
 	modelSpec := assetManager.GetAnimatedModel(modelName)
-	var m *model.Model
+
 	var vao uint32
-	var vertexCount int
 	var texture *textures.Texture
 
+	m := model.NewModel(modelSpec)
+	vertexCount := m.VertexCount()
+
 	if utils.IsClient() {
-		m = model.NewMeshedModel(modelSpec)
-		vao = m.VAO()
-		vertexCount = m.VertexCount()
+		vao = m.Bind()
 		texture = assetManager.GetTexture(textureName)
 	}
 
@@ -55,13 +57,24 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		Orientation:      Orientation,
 	}
 
-	triBoxMesh := collider.NewBoxTriMesh(10, 20, 10)
+	// triMesh := collider.NewBoxTriMesh(40, 50, 20)
+	triMesh := collider.NewTriMesh(m.Mesh.Vertices())
 	colliderComponent := &components.ColliderComponent{
-		TriMeshCollider: &triBoxMesh,
+		TriMeshCollider: &triMesh,
+	}
+	fmt.Println(len(triMesh.Triangles))
+	for _, t := range triMesh.Triangles {
+		fmt.Println("----------------")
+		fmt.Println(t.Points)
+		fmt.Println(t.Normal)
 	}
 
 	renderComponent := &components.RenderComponent{
 		IsVisible: true,
+	}
+
+	physicsComponent := &components.PhysicsComponent{
+		Static: true,
 	}
 
 	entity := NewEntity(
@@ -73,6 +86,7 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 			&components.NetworkComponent{},
 			meshComponent,
 			colliderComponent,
+			physicsComponent,
 		),
 	)
 

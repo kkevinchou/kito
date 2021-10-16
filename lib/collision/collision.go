@@ -7,8 +7,9 @@ import (
 )
 
 type Contact struct {
-	Point              mgl64.Vec3
-	Normal             mgl64.Vec3
+	Point mgl64.Vec3
+	// Normal             mgl64.Vec3
+	SeparatingVector   mgl64.Vec3
 	SeparatingDistance float64
 }
 
@@ -16,16 +17,17 @@ type ContactManifold struct {
 	Contacts []Contact
 }
 
-func CheckCollision(capsule collider.Capsule, triangulatedMesh collider.TriMesh) *ContactManifold {
+func CheckCollisionCapsuleTriMesh(capsule collider.Capsule, triangulatedMesh collider.TriMesh) []*ContactManifold {
+	var contactManifolds []*ContactManifold
 	for _, tri := range triangulatedMesh.Triangles {
-		manifold := CheckCollisionCapsuleTriangle(capsule, tri)
+		contactManifold := CheckCollisionCapsuleTriangle(capsule, tri)
 		// TODO: handle multiple collided triangles
-		if manifold != nil {
-			return manifold
+		if contactManifold != nil {
+			contactManifolds = append(contactManifolds, contactManifold)
 		}
 	}
 
-	return nil
+	return contactManifolds
 }
 
 func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.Triangle) *ContactManifold {
@@ -36,12 +38,13 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 	closestPointOnTriangle := closestPoints[1]
 
 	if closestPointsDistance < capsule.Radius {
+		separatingDistance := capsule.Radius - closestPointsDistance
 		return &ContactManifold{
 			Contacts: []Contact{
 				{
 					Point:              closestPointOnTriangle,
-					Normal:             triangle.Normal,
-					SeparatingDistance: closestPointsDistance,
+					SeparatingVector:   closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance),
+					SeparatingDistance: separatingDistance,
 				},
 			},
 		}
@@ -56,8 +59,8 @@ func CheckCollisionSpherePoint(sphere collider.Sphere, point mgl64.Vec3) *Contac
 		return &ContactManifold{
 			Contacts: []Contact{
 				{
-					Point:  mgl64.Vec3{point[0], point[1], point[2]},
-					Normal: sphere.Center.Sub(mgl64.Vec3(point)),
+					Point: mgl64.Vec3{point[0], point[1], point[2]},
+					// Normal: sphere.Center.Sub(mgl64.Vec3(point)),
 				},
 			},
 		}

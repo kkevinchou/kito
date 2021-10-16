@@ -12,44 +12,28 @@ func main() {
 	assetsFolder := "_assets"
 
 	cmd := exec.Command("rm", "-r", buildFolder)
-	if output, err := cmd.Output(); err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Print(string(output))
-	}
+	runCMD(cmd)
 
 	cmd = exec.Command("mkdir", buildFolder)
-	if output, err := cmd.Output(); err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Print(string(output))
-	}
+	runCMD(cmd)
 
 	cmd = exec.Command("cp", "-r", shaderFolder, buildFolder)
-	if output, err := cmd.Output(); err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Print(string(output))
-	}
+	runCMD(cmd)
 
 	cmd = exec.Command("cp", "-r", assetsFolder, buildFolder)
-	if output, err := cmd.Output(); err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Print(string(output))
-	}
+	runCMD(cmd)
 
 	cmd = exec.Command("cp", "-r", mainFolder+"/SDL2.dll", buildFolder)
-	if output, err := cmd.Output(); err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Print(string(output))
-	}
+	runCMD(cmd)
 
 	cmd = exec.Command("go", "build", "-o", buildFolder+"/kito.exe")
-	if output, err := cmd.Output(); err != nil {
-		fmt.Println(err)
+	runCMD(cmd)
+}
+
+func runCMD(cmd *exec.Cmd) {
+	if _, err := cmd.Output(); err != nil {
+		fmt.Printf("failed to run command %s\n%s\n", cmd.Path, err)
 	} else {
-		fmt.Print(string(output))
+		fmt.Printf("- %v\n", cmd.Args)
 	}
 }

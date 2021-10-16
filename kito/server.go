@@ -12,6 +12,8 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
 	"github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
+	"github.com/kkevinchou/kito/kito/systems/collision"
+	"github.com/kkevinchou/kito/kito/systems/collisionresolver"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/kito/systems/networklistener"
 	"github.com/kkevinchou/kito/kito/systems/networkupdate"
@@ -40,9 +42,10 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
-	scene := entities.NewScene(mgl64.Vec3{})
-	staticSlime := entities.NewSlime(mgl64.Vec3{-50, 0, -50})
-	return []entities.Entity{scene, staticSlime}
+	return []entities.Entity{
+		entities.NewScene(mgl64.Vec3{}),
+		// entities.NewSlime(mgl64.Vec3{-50, 0, -50}),
+	}
 }
 
 func serverSystemSetup(g *Game, assetsDirectory string) {
@@ -65,6 +68,8 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
 	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
 	playerInputSystem := playerinput.NewPlayerInputSystem(g)
+	collisionSystem := collision.NewCollisionSystem(g)
+	collisionResolverSystem := collisionresolver.NewCollisionResolverSystem(g)
 
 	g.systems = append(g.systems, []System{
 		networkListenerSystem,
@@ -72,6 +77,8 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		playerInputSystem,
 		characterControllerSystem,
 		physicsSystem,
+		collisionSystem,
+		collisionResolverSystem,
 		animationSystem,
 		cameraSystem,
 		networkUpdateSystem,

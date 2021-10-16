@@ -47,11 +47,12 @@ func UpdateCharacterController(entity entities.Entity, camera entities.Entity, f
 	}
 
 	// only allow jumping if the player is on the ground
-	if controlVector.Y() > 0 && componentContainer.TransformComponent.Position.Y() == 0 {
+	if controlVector.Y() > 0 && physicsComponent.Grounded {
 		impulse := types.Impulse{
 			Vector:    mgl64.Vec3{0, 100, 0},
 			DecayRate: 1,
 		}
 		physicsComponent.ApplyImpulse(types.JumpImpulse, impulse)
+		physicsComponent.Grounded = false
 	}
 }

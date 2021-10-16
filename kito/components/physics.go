@@ -6,7 +6,9 @@ import (
 )
 
 type PhysicsComponent struct {
+	Static   bool
 	Velocity mgl64.Vec3
+	Grounded bool
 
 	// impulses have a name that can be reset or overwritten
 	Impulses map[string]types.Impulse

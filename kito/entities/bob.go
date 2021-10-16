@@ -14,10 +14,10 @@ import (
 func NewBob() *EntityImpl {
 	modelName := "guard_running"
 	shaderProgram := "model"
-	textureName := "default"
+	textureName := "Guard_02__diffuse"
 
 	transformComponent := &components.TransformComponent{
-		Position:    mgl64.Vec3{0, 15, 15},
+		Position:    mgl64.Vec3{0, 50, 40},
 		Orientation: mgl64.QuatIdent(),
 	}
 
@@ -28,18 +28,15 @@ func NewBob() *EntityImpl {
 	assetManager := directory.GetDirectory().AssetManager()
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 
-	var m *model.Model
 	var vao uint32
-	var vertexCount int
 	var texture *textures.Texture
 
+	m := model.NewModel(modelSpec)
+	vertexCount := m.VertexCount()
+
 	if utils.IsClient() {
-		m = model.NewModel(modelSpec)
-		vao = m.VAO()
-		vertexCount = m.VertexCount()
+		vao = m.Bind()
 		texture = assetManager.GetTexture(textureName)
-	} else {
-		m = model.NewPlaceholderModel(modelSpec)
 	}
 
 	animationComponent := &components.AnimationComponent{

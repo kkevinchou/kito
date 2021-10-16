@@ -15,6 +15,8 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
+	"github.com/kkevinchou/kito/kito/systems/collision"
+	"github.com/kkevinchou/kito/kito/systems/collisionresolver"
 	"github.com/kkevinchou/kito/kito/systems/common"
 	historysys "github.com/kkevinchou/kito/kito/systems/history"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
@@ -104,6 +106,8 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	historySystem := historysys.NewHistorySystem(g)
 	stateInterpolatorSystem := stateinterpolator.NewStateInterpolatorSystem(g)
 	pingSystem := ping.NewPingSystem(g)
+	collisionSystem := collision.NewCollisionSystem(g)
+	collisionResolverSystem := collisionresolver.NewCollisionResolverSystem(g)
 
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterAssetManager(assetManager)
@@ -116,6 +120,8 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 		characterControllerSystem,
 		stateInterpolatorSystem,
 		physicsSystem,
+		collisionSystem,
+		collisionResolverSystem,
 		animationSystem,
 		cameraSystem,
 		historySystem,
@@ -138,6 +144,9 @@ func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
 	sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 1)
 	sdl.GLSetAttribute(sdl.GL_CONTEXT_FLAGS, sdl.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG)
 
+	// sdl.ShowCursor(sdl.DISABLE)
+	// sdl.SetRelativeMouseMode(true)
+	// window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), sdl.WINDOW_OPENGL|sdl.WINDOW_FULLSCREEN)
 	window, err := sdl.CreateWindow("test", 400, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), sdl.WINDOW_OPENGL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create window %s", err)
