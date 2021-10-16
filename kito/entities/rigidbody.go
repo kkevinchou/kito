@@ -1,8 +1,6 @@
 package entities
 
 import (
-	"fmt"
-
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
@@ -61,12 +59,6 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 	triMesh := collider.NewTriMesh(m.Mesh.Vertices())
 	colliderComponent := &components.ColliderComponent{
 		TriMeshCollider: &triMesh,
-	}
-	fmt.Println(len(triMesh.Triangles))
-	for _, t := range triMesh.Triangles {
-		fmt.Println("----------------")
-		fmt.Println(t.Points)
-		fmt.Println(t.Normal)
 	}
 
 	renderComponent := &components.RenderComponent{

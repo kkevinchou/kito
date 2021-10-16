@@ -69,7 +69,6 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     vec3 color = texture(modelTexture, fs_in.TexCoord).xyz;
-    // vec3 color = vec3(255, 0, 0);
     
     // calculate shadow
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, lightDir);
