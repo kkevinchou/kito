@@ -32,29 +32,28 @@ const (
 func main() {
 	configFile, err := os.Open("config.json")
 	if err != nil {
-		fmt.Println(err)
-		return
-	}
+		fmt.Printf("failed to load config.json, using defaults: %s\n", err)
+	} else {
+		configBytes, err := io.ReadAll(configFile)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	configBytes, err := io.ReadAll(configFile)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+		if err = configFile.Close(); err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	if err = configFile.Close(); err != nil {
-		fmt.Println(err)
-		return
-	}
+		var configSettings config.Config
+		err = json.Unmarshal(configBytes, &configSettings)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	var configSettings config.Config
-	err = json.Unmarshal(configBytes, &configSettings)
-	if err != nil {
-		fmt.Println(err)
-		return
+		loadConfig(configSettings)
 	}
-
-	loadConfig(configSettings)
 
 	var mode string = modeClient
 	if len(os.Args) > 1 {

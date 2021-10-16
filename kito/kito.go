@@ -178,7 +178,7 @@ func compileShaders() {
 
 func initSeed() {
 	seed := settings.Seed
-	fmt.Printf("Initializing with seed %d ...\n", seed)
+	fmt.Printf("initializing with seed %d ...\n", seed)
 	rand.Seed(seed)
 }
 
