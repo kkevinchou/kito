@@ -14,10 +14,10 @@ import (
 func NewBob() *EntityImpl {
 	modelName := "guard_running"
 	shaderProgram := "model"
-	textureName := "default"
+	textureName := "Guard_02__diffuse"
 
 	transformComponent := &components.TransformComponent{
-		Position:    mgl64.Vec3{0, 15, 40},
+		Position:    mgl64.Vec3{0, 50, 40},
 		Orientation: mgl64.QuatIdent(),
 	}
 

@@ -12,7 +12,7 @@ import (
 
 const (
 	// a value of 1 means the normal vector of what you're on must be exactly Vec3{0, 1, 0}
-	groundedStrictness = 0.95
+	groundedStrictness = 0.85
 )
 
 type World interface {
@@ -55,7 +55,7 @@ func (s *CollisionResolverSystem) Update(delta time.Duration) {
 			for _, contactManifold := range contactManifolds {
 				separatingVector = separatingVector.Add(contactManifold.Contacts[0].SeparatingVector)
 			}
-
+			// fmt.Println(separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}))
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				physicsComponent.Grounded = true
 			}

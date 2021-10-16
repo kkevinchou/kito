@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"fmt"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
@@ -19,7 +21,7 @@ var (
 )
 
 func NewScene(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "scene", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "default")
+	return NewRigidBody(position, "sceneuv", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid")
 }
 
 func NewSlime(position mgl64.Vec3) *EntityImpl {
@@ -59,6 +61,12 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 	triMesh := collider.NewTriMesh(m.Mesh.Vertices())
 	colliderComponent := &components.ColliderComponent{
 		TriMeshCollider: &triMesh,
+	}
+	fmt.Println(len(triMesh.Triangles))
+	for _, t := range triMesh.Triangles {
+		fmt.Println("----------------")
+		fmt.Println(t.Points)
+		fmt.Println(t.Normal)
 	}
 
 	renderComponent := &components.RenderComponent{

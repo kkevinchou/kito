@@ -100,15 +100,15 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 
 		if !historyEntity.Position.ApproxEqual(entitySnapshot.Position) || !historyEntity.Orientation.ApproxEqual(entitySnapshot.Orientation) {
 			metricsRegistry.Inc("predictionMiss", 1)
-			fmt.Printf(
-				"--------------------------------------\n[CF:%d] CLIENT-SIDE PREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
-				world.CommandFrame(),
-				gameStateUpdate.LastInputCommandFrame,
-				gameStateUpdate.LastInputGlobalCommandFrame,
-				gameStateUpdate.CurrentGlobalCommandFrame,
-				historyEntity.Position,
-				entitySnapshot.Position,
-			)
+			// fmt.Printf(
+			// 	"--------------------------------------\n[CF:%d] CLIENT-SIDE PREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
+			// 	world.CommandFrame(),
+			// 	gameStateUpdate.LastInputCommandFrame,
+			// 	gameStateUpdate.LastInputGlobalCommandFrame,
+			// 	gameStateUpdate.CurrentGlobalCommandFrame,
+			// 	historyEntity.Position,
+			// 	entitySnapshot.Position,
+			// )
 
 			// prevHistoryEntity := cfHistory.GetCommandFrame(lookupCommandFrame - 1)
 			// nextHistoryEntity := cfHistory.GetCommandFrame(lookupCommandFrame + 1)
