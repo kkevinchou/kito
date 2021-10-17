@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/statebuffer"
@@ -15,7 +14,6 @@ type World interface {
 	CommandFrame() int
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(int) (entities.Entity, error)
-	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	RegisterEntities([]entities.Entity)
 }
 
@@ -51,7 +49,7 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 
 		foundEntity, err := world.GetEntityByID(entitySnapshot.ID)
 		if err != nil {
-			fmt.Printf("[%d] failed to find entity with id %d to interpolate\n", world.CommandFrame(), entitySnapshot.ID)
+			fmt.Printf("[%d] failed to find entity with id %d type %d to interpolate\n", world.CommandFrame(), entitySnapshot.ID, entitySnapshot.Type)
 		} else {
 			cc := foundEntity.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position

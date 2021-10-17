@@ -3,7 +3,6 @@ package spawner
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/statebuffer"
@@ -15,7 +14,6 @@ type World interface {
 	CommandFrame() int
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(int) (entities.Entity, error)
-	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	RegisterEntities([]entities.Entity)
 }
 

@@ -3,6 +3,7 @@ package collision
 import (
 	"time"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
@@ -39,6 +40,18 @@ func (s *CollisionSystem) RegisterEntity(entity entities.Entity) {
 func (s *CollisionSystem) Update(delta time.Duration) {
 	handledCollisions := map[int]map[int]bool{}
 	for _, e := range s.entities {
+		cc := e.GetComponentContainer()
+
+		if cc.ColliderComponent.CapsuleCollider != nil {
+			capsule := cc.ColliderComponent.CapsuleCollider.Transform(cc.TransformComponent.Position)
+			cc.ColliderComponent.TransformedCapsuleCollider = &capsule
+		} else if cc.ColliderComponent.TriMeshCollider != nil {
+			transformMatrix := mgl64.Translate3D(cc.TransformComponent.Position.X(), cc.TransformComponent.Position.Y(), cc.TransformComponent.Position.Z())
+			triMesh := cc.ColliderComponent.TriMeshCollider.Transform(transformMatrix)
+			cc.ColliderComponent.TransformedTriMeshCollider = &triMesh
+
+		}
+
 		e.GetComponentContainer().ColliderComponent.ContactManifolds = nil
 		handledCollisions[e.GetID()] = map[int]bool{}
 	}
@@ -58,9 +71,7 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 
 			if e1cc.ColliderComponent.CapsuleCollider != nil {
 				if e2cc.ColliderComponent.TriMeshCollider != nil {
-					transformComponent := e1cc.TransformComponent
-					capsule := e1cc.ColliderComponent.CapsuleCollider.Transform(transformComponent.Position)
-					contactManifolds := collision.CheckCollisionCapsuleTriMesh(capsule, *e2cc.ColliderComponent.TriMeshCollider)
+					contactManifolds := collision.CheckCollisionCapsuleTriMesh(*e1cc.ColliderComponent.TransformedCapsuleCollider, *e2cc.ColliderComponent.TransformedTriMeshCollider)
 					if contactManifolds != nil {
 						e1cc.ColliderComponent.ContactManifolds = contactManifolds
 						// fmt.Printf(
