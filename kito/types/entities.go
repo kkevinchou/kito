@@ -9,4 +9,5 @@ const (
 	EntityTypeCamera
 	EntityTypeScene
 	EntityTypeStaticSlime
+	EntityTypeProjectile
 )

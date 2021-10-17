@@ -24,6 +24,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/physics"
 	"github.com/kkevinchou/kito/kito/systems/ping"
 	"github.com/kkevinchou/kito/kito/systems/render"
+	"github.com/kkevinchou/kito/kito/systems/spawner"
 	"github.com/kkevinchou/kito/kito/systems/stateinterpolator"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/assets"
@@ -105,6 +106,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	historySystem := historysys.NewHistorySystem(g)
 	stateInterpolatorSystem := stateinterpolator.NewStateInterpolatorSystem(g)
+	spawnerSystem := spawner.NewSpawnerSystem(g)
 	pingSystem := ping.NewPingSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
 	collisionResolverSystem := collisionresolver.NewCollisionResolverSystem(g)
@@ -118,6 +120,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 		networkInputSystem,
 		networkDispatchSystem,
 		characterControllerSystem,
+		spawnerSystem,
 		stateInterpolatorSystem,
 		physicsSystem,
 		collisionSystem,
