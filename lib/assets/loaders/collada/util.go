@@ -76,15 +76,13 @@ func parseFloatArrayString(s string) []float32 {
 	return result
 }
 
-func parseVect3String(s *FxCommonColorOrTextureType) mgl32.Vec3 {
+func parseVect3String(s *FxCommonColorOrTextureType) *mgl32.Vec3 {
 	if s == nil || s.Color == nil {
-		return mgl32.Vec3{
-			0, 0, 0,
-		}
+		return nil
 	}
 	// todo handle non colors
 	floats := parseFloatArrayString(s.Color.V)
-	return mgl32.Vec3{
+	return &mgl32.Vec3{
 		floats[0], floats[1], floats[2],
 	}
 }

@@ -2,17 +2,17 @@ package modelspec
 
 import "github.com/go-gl/mathgl/mgl32"
 
-type EffectSpec struct {
+type EffectSpec struct { // todo(kevin): rename to MaterialSpec
 	ID                     string
 	ShaderElement          string
-	EmissionColor          mgl32.Vec3
-	DiffuseColor           mgl32.Vec3
+	EmissionColor          *mgl32.Vec3
+	DiffuseColor           *mgl32.Vec3
 	IndexOfRefractionFloat float32
 	ReflectivityFloat      float32
-	ReflectivityColor      mgl32.Vec3
+	ReflectivityColor      *mgl32.Vec3
 	ShininessFloat         float32
 	TransparencyFloat      float32
-	TransparencyColor      mgl32.Vec3
+	TransparencyColor      *mgl32.Vec3
 }
 
 // ModelSpecification is the output of any parsed model files (e.g. from Blender, Maya, etc)

@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/modelspec"
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
@@ -13,6 +14,7 @@ type MeshComponent struct {
 	ShaderProgram    string
 	Scale            mgl64.Mat4
 	Orientation      mgl64.Mat4
+	Material         *modelspec.EffectSpec
 }
 
 func (c *MeshComponent) GetMeshComponent() *MeshComponent {

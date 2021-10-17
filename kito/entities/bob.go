@@ -52,6 +52,7 @@ func NewBob() *EntityImpl {
 		ShaderProgram:    shaderProgram,
 		Scale:            mgl64.Scale3D(0.07, 0.07, 0.07),
 		Orientation:      yr,
+		Material:         m.Mesh.Material(),
 	}
 
 	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)

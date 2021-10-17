@@ -53,6 +53,7 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		ShaderProgram:    "model_static",
 		Scale:            Scale,
 		Orientation:      Orientation,
+		Material:         m.Mesh.Material(),
 	}
 
 	// triMesh := collider.NewBoxTriMesh(40, 50, 20)

@@ -12,6 +12,7 @@ type Mesh struct {
 	vertices           []mgl64.Vec3
 	vertexAttributes   []float32
 	totalAttributeSize int
+	material           *modelspec.EffectSpec
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
@@ -29,11 +30,16 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 		vertices:           vertices,
 		vertexAttributes:   vertexAttributes,
 		totalAttributeSize: totalAttributeSize,
+		material:           spec.EffectSpecData,
 	}
 }
 
 func (m *Mesh) Vertices() []mgl64.Vec3 {
 	return m.vertices
+}
+
+func (m *Mesh) Material() *modelspec.EffectSpec {
+	return m.material
 }
 
 func constructMeshVertexAttributes(
