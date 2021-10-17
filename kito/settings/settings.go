@@ -35,6 +35,10 @@ const (
 	ServerIDStart int = 70000
 	EntityIDStart int = 80000
 
+	PProfEnabled    bool = false
+	PProfClientPort int  = 6060
+	PProfServerPort int  = 6061
+
 	// MSPerCommandFrame is the size of the simulation step for reading input,
 	// physics, etc.
 	MSPerCommandFrame float64 = 16

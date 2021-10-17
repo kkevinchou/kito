@@ -4,9 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
+	"net/http"
 	"os"
 	"runtime"
 	"strings"
+
+	_ "net/http/pprof"
 
 	"github.com/kkevinchou/kito/kito"
 	"github.com/kkevinchou/kito/kito/config"
@@ -61,6 +65,28 @@ func main() {
 		if mode != modeLocal && mode != modeClient && mode != modeServer {
 			panic(fmt.Sprintf("unexpected mode %s", mode))
 		}
+	}
+
+	// if mode == modeClient {
+	// 	f, err := os.Create("cpuprofile")
+	// 	if err != nil {
+	// 		log.Fatal("could not create CPU profile: ", err)
+	// 	}
+	// 	defer f.Close() // error handling omitted for example
+	// 	if err := pprof.StartCPUProfile(f); err != nil {
+	// 		log.Fatal("could not start CPU profile: ", err)
+	// 	}
+	// 	defer pprof.StopCPUProfile()
+	// }
+
+	if settings.PProfEnabled {
+		go func() {
+			if mode == modeClient {
+				log.Println(http.ListenAndServe(fmt.Sprintf("localhost:%d", settings.PProfClientPort), nil))
+			} else {
+				log.Println(http.ListenAndServe(fmt.Sprintf("localhost:%d", settings.PProfServerPort), nil))
+			}
+		}()
 	}
 
 	fmt.Println("starting game on mode:", mode)

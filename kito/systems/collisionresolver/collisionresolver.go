@@ -58,6 +58,8 @@ func (s *CollisionResolverSystem) Update(delta time.Duration) {
 			// fmt.Println(separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}))
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				physicsComponent.Grounded = true
+			} else {
+				physicsComponent.Grounded = false
 			}
 			transformComponent.Position = transformComponent.Position.Add(separatingVector)
 			physicsComponent.Impulses = map[string]types.Impulse{}
