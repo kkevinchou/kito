@@ -27,8 +27,6 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 	shader.SetUniformInt("shadowMap", 31)
 
 	if meshComponent.Material != nil && meshComponent.Material.DiffuseColor != nil {
-		fmt.Println("Yuf")
-		fmt.Println(meshComponent.Material.DiffuseColor)
 		shader.SetUniformInt("materialHasDiffuseColor", 1)
 		shader.SetUniformVec3("materialDiffuseColor", *meshComponent.Material.DiffuseColor)
 	} else {
