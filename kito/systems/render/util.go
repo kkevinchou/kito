@@ -49,11 +49,10 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 	gl.DrawElements(gl.TRIANGLES, int32(meshComponent.ModelVertexCount), gl.UNSIGNED_INT, nil)
 }
 
-func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, triMeshCollider *collider.TriMesh, modelMatrix mgl64.Mat4) {
+func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, triMeshCollider *collider.TriMesh) {
 	var vertices []float32
 
-	transformedTriMeshCollider := triMeshCollider.Transform(modelMatrix)
-	for _, triangle := range transformedTriMeshCollider.Triangles {
+	for _, triangle := range triMeshCollider.Triangles {
 		for _, point := range triangle.Points {
 			vertices = append(vertices, float32(point.X()), float32(point.Y()), float32(point.Z()))
 		}
@@ -72,13 +71,13 @@ func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext,
 
 	gl.BindVertexArray(vao)
 	shader.Use()
-	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix))
+	shader.SetUniformMat4("model", mgl32.Ident4())
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
 
-func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, capsuleCollider *collider.Capsule, modelMatrix mgl64.Mat4) {
+func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, capsuleCollider *collider.Capsule, billboardModelMatrix mgl64.Mat4) {
 	radius := float32(capsuleCollider.Radius)
 	top := float32(capsuleCollider.Top.Y()) + radius
 	bottom := float32(capsuleCollider.Bottom.Y()) - radius
@@ -91,6 +90,11 @@ func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext,
 		-radius, top, 0,
 		-radius, bottom, 0,
 	}
+
+	// for i := 0; i < len(vertices); i += 3 {
+	// 	vertices[i] = vertices[i] + float32(capsuleCollider.Bottom.X())
+	// 	vertices[i+2] = vertices[i+2] + float32(capsuleCollider.Bottom.Z())
+	// }
 
 	var vbo, vao uint32
 	gl.GenBuffers(1, &vbo)
@@ -105,7 +109,7 @@ func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext,
 
 	gl.BindVertexArray(vao)
 	shader.Use()
-	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix))
+	shader.SetUniformMat4("model", utils.Mat4F64ToF32(billboardModelMatrix))
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))

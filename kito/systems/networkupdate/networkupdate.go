@@ -12,6 +12,7 @@ import (
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/types"
 )
 
 type World interface {
@@ -69,6 +70,9 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	}
 
 	for _, entity := range s.entities {
+		if entity.Type() == types.EntityTypeCamera {
+			continue
+		}
 		gameStateUpdate.Entities[entity.GetID()] = constructEntitySnapshot(entity)
 	}
 

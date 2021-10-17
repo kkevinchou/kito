@@ -11,13 +11,13 @@ import (
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
-func NewBob() *EntityImpl {
-	modelName := "guard_running"
-	shaderProgram := "model"
-	textureName := "Guard_02__diffuse"
+func NewProjectile(position mgl64.Vec3) *EntityImpl {
+	modelName := "projectile"
+	shaderProgram := "model_static"
+	textureName := "color_grid"
 
 	transformComponent := &components.TransformComponent{
-		Position:    mgl64.Vec3{0, 50, 40},
+		Position:    position,
 		Orientation: mgl64.QuatIdent(),
 	}
 
@@ -39,49 +39,42 @@ func NewBob() *EntityImpl {
 		texture = assetManager.GetTexture(textureName)
 	}
 
-	animationComponent := &components.AnimationComponent{
-		Animation: m.Animation,
-	}
-	_ = animationComponent
+	// animationComponent := &components.AnimationComponent{
+	// 	Animation: m.Animation,
+	// }
 
-	yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
 	meshComponent := &components.MeshComponent{
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
 		ShaderProgram:    shaderProgram,
-		Scale:            mgl64.Scale3D(0.07, 0.07, 0.07),
-		Orientation:      yr,
-		Material:         m.Mesh.Material(),
+		Scale:            mgl64.Ident4(),
+		Orientation:      mgl64.Ident4(),
 	}
 
-	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
+	capsule := collider.NewCapsuleFromMeshVertices(m.Mesh.Vertices())
 	colliderComponent := &components.ColliderComponent{
 		CapsuleCollider: &capsule,
 	}
 
 	physicsComponent := &components.PhysicsComponent{
+		Static:   true,
 		Impulses: map[string]types.Impulse{},
-	}
-
-	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{
-		Controlled: true,
 	}
 
 	entityComponents := []components.Component{
 		&components.NetworkComponent{},
 		transformComponent,
-		animationComponent,
+		// animationComponent,
 		physicsComponent,
-		thirdPersonControllerComponent,
 		meshComponent,
 		colliderComponent,
 		renderComponent,
 	}
 
 	entity := NewEntity(
-		"bob",
-		types.EntityTypeBob,
+		"projectile",
+		types.EntityTypeProjectile,
 		components.NewComponentContainer(entityComponents...),
 	)
 

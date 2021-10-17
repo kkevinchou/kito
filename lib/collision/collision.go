@@ -53,18 +53,18 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 	return nil
 }
 
-func CheckCollisionSpherePoint(sphere collider.Sphere, point mgl64.Vec3) *ContactManifold {
-	lenSq := sphere.Center.Sub(mgl64.Vec3(point)).LenSqr()
-	if lenSq < sphere.RadiusSquared {
-		return &ContactManifold{
-			Contacts: []Contact{
-				{
-					Point: mgl64.Vec3{point[0], point[1], point[2]},
-					// Normal: sphere.Center.Sub(mgl64.Vec3(point)),
-				},
-			},
-		}
-	}
+// func CheckCollisionSpherePoint(sphere collider.Sphere, point mgl64.Vec3) *ContactManifold {
+// 	lenSq := sphere.Center.Sub(mgl64.Vec3(point)).LenSqr()
+// 	if lenSq < sphere.RadiusSquared {
+// 		return &ContactManifold{
+// 			Contacts: []Contact{
+// 				{
+// 					Point: mgl64.Vec3{point[0], point[1], point[2]},
+// 					// Normal: sphere.Center.Sub(mgl64.Vec3(point)),
+// 				},
+// 			},
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }

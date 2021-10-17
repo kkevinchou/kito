@@ -52,6 +52,7 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 		if err != nil {
 			continue
 		}
+
 		controllerutils.UpdateCharacterController(entity, camera, singleton.PlayerInput[player.ID])
 	}
 }

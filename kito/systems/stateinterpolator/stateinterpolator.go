@@ -1,21 +1,19 @@
 package stateinterpolator
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/statebuffer"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/kito/types"
 )
 
 type World interface {
 	CommandFrame() int
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(int) (entities.Entity, error)
-	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	RegisterEntities([]entities.Entity)
 }
 
@@ -44,8 +42,6 @@ func (s *StateInterpolatorSystem) Update(delta time.Duration) {
 func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World) {
 	singleton := world.GetSingleton()
 
-	// TODO: move new entities logic to a separate system / handler
-	var newEntities []entities.Entity
 	for _, entitySnapshot := range bufferedState.InterpolatedEntities {
 		if entitySnapshot.ID == world.GetSingleton().PlayerID || entitySnapshot.ID == singleton.CameraID {
 			continue
@@ -53,42 +49,11 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 
 		foundEntity, err := world.GetEntityByID(entitySnapshot.ID)
 		if err != nil {
-			if types.EntityType(entitySnapshot.Type) == types.EntityTypeBob {
-				newEntity := entities.NewBob()
-				newEntity.ID = entitySnapshot.ID
-
-				cc := newEntity.GetComponentContainer()
-				cc.TransformComponent.Position = entitySnapshot.Position
-				cc.TransformComponent.Orientation = entitySnapshot.Orientation
-
-				newEntities = append(newEntities, newEntity)
-			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeScene {
-				newEntity := entities.NewScene(entitySnapshot.Position)
-				newEntity.ID = entitySnapshot.ID
-
-				cc := newEntity.GetComponentContainer()
-				cc.TransformComponent.Position = entitySnapshot.Position
-				cc.TransformComponent.Orientation = entitySnapshot.Orientation
-
-				newEntities = append(newEntities, newEntity)
-			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeStaticSlime {
-				newEntity := entities.NewSlime(entitySnapshot.Position)
-				newEntity.ID = entitySnapshot.ID
-
-				cc := newEntity.GetComponentContainer()
-				cc.TransformComponent.Position = entitySnapshot.Position
-				cc.TransformComponent.Orientation = entitySnapshot.Orientation
-
-				newEntities = append(newEntities, newEntity)
-			} else {
-				continue
-			}
+			fmt.Printf("[%d] failed to find entity with id %d type %d to interpolate\n", world.CommandFrame(), entitySnapshot.ID, entitySnapshot.Type)
 		} else {
 			cc := foundEntity.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
 		}
 	}
-
-	world.RegisterEntities(newEntities)
 }

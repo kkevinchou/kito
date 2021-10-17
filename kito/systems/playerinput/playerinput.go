@@ -48,14 +48,6 @@ func (s *PlayerInputSystem) Update(delta time.Duration) {
 
 func handlePlayerInput(player *player.Player, commandFrame int, input input.Input, world World) {
 	singleton := world.GetSingleton()
-	// fmt.Println("---------------")
-	// fmt.Printf("[CF:%d] RECEIVED INPUT FROM PLAYER CF %d\n", singleton.CommandFrame, commandFrame)
-	// e, err := world.GetEntityByID(player.ID)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("[CF:%d] PRE PHYSICS %v\n", singleton.CommandFrame, e.GetComponentContainer().TransformComponent.Position)
-
 	// This is to somewhat handle out of order messages coming to the server.
 	// we take the latest command frame. However the current implementation risks
 	// dropping inputs because we simply use only the latest

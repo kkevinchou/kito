@@ -102,10 +102,17 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 	}
 }
 
-func (s *StateBuffer) PullEntityInterpolations(cf int) *BufferedState {
+func (s *StateBuffer) PeekEntityInterpolations(cf int) *BufferedState {
 	if b, ok := s.timeline[cf]; ok {
-		delete(s.timeline, cf)
 		return &b
+	}
+	return nil
+}
+
+func (s *StateBuffer) PullEntityInterpolations(cf int) *BufferedState {
+	if b := s.PeekEntityInterpolations(cf); b != nil {
+		delete(s.timeline, cf)
+		return b
 	}
 	return nil
 }
