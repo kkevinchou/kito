@@ -10,6 +10,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
+	"github.com/kkevinchou/kito/kito/systems/ability"
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
 	"github.com/kkevinchou/kito/kito/systems/camera"
@@ -44,10 +45,13 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
+	// projectile := entities.NewProjectile(mgl64.Vec3{0, 20, 0})
+	// projectile.GetComponentContainer().PhysicsComponent.Velocity = mgl64.Vec3{1, 0, -1}
+
 	return []entities.Entity{
 		entities.NewScene(mgl64.Vec3{}),
 		entities.NewSlime(mgl64.Vec3{-100, 0, -50}),
-		entities.NewProjectile(mgl64.Vec3{0, 20, 0}),
+		// projectile,
 		// entities.NewSlime(mgl64.Vec3{-50, 0, -50}),
 	}
 }
@@ -66,6 +70,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.Host, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
+	abilitySystem := ability.NewAbilitySystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	cameraSystem := camera.NewCameraSystem(g)
@@ -80,6 +85,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		networkDispatchSystem,
 		playerInputSystem,
 		characterControllerSystem,
+		abilitySystem,
 		physicsSystem,
 		collisionSystem,
 		collisionResolverSystem,

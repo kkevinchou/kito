@@ -58,8 +58,8 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	}
 
 	physicsComponent := &components.PhysicsComponent{
-		Static:   true,
-		Impulses: map[string]types.Impulse{},
+		IgnoreGravity: true,
+		Impulses:      map[string]types.Impulse{},
 	}
 
 	entityComponents := []components.Component{

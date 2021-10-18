@@ -29,6 +29,7 @@ const (
 	KeyboardKeyA KeyboardKey = "A"
 	KeyboardKeyS KeyboardKey = "S"
 	KeyboardKeyD KeyboardKey = "D"
+	KeyboardKeyQ KeyboardKey = "Q"
 
 	KeyboardKeyUp    KeyboardKey = "Up"
 	KeyboardKeyDown  KeyboardKey = "Down"

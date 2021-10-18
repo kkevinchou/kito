@@ -50,7 +50,10 @@ func PhysicsStep(delta time.Duration, entity entities.Entity) {
 	}
 
 	// calculate velocity adjusted by acceleration
-	totalAcceleration := accelerationDueToGravity
+	var totalAcceleration mgl64.Vec3
+	if !physicsComponent.IgnoreGravity {
+		totalAcceleration = totalAcceleration.Add(accelerationDueToGravity)
+	}
 	physicsComponent.Velocity = physicsComponent.Velocity.Add(totalAcceleration.Mul(delta.Seconds()))
 
 	velocity := physicsComponent.Velocity.Add(totalImpulse)

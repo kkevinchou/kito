@@ -36,6 +36,10 @@ func (i *SDLInputPoller) PollInput() Input {
 	// has triggered new input which warrants notifying the server
 	newInput := false
 
+	// Keyboard inputs
+	// TODO: only check for keys we care about - keyState contains 512 keys
+	keyboardInput := KeyboardInput{}
+
 	// The same event type can be fired multiple times in the same PollEvent loop
 	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch e := event.(type) {
@@ -53,24 +57,33 @@ func (i *SDLInputPoller) PollInput() Input {
 		case *sdl.MouseWheelEvent:
 			newInput = true
 			mouseInput.MouseWheelDelta += int(e.Y)
+		case *sdl.KeyboardEvent:
+			if e.Type == sdl.KEYUP {
+				newInput = true
+				key := KeyboardKey(sdl.GetScancodeName(e.Keysym.Scancode))
+				keyboardInput[key] = KeyState{
+					Key:   key,
+					Event: KeyboardEventUp,
+				}
+			}
+			// mouseInput.MouseWheelDelta += int(e.Y)
 		}
 	}
 
-	// Keyboard inputs
-	// TODO: only check for keys we care about - keyState contains 512 keys
-	keyboardInput := KeyboardInput{}
 	keyState := sdl.GetKeyboardState()
 	for k, v := range keyState {
 		if v <= 0 {
 			continue
 		}
-		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
 		newInput = true
-		// fmt.Println("KEYBOARD EVENT")
-		// fmt.Println(KeyboardKey(key))
-		keyboardInput[key] = KeyState{
-			Key:   key,
-			Event: KeyboardEventDown,
+		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
+
+		// don't overwrite keys we've fetched from sdl.PollEvent()
+		if _, ok := keyboardInput[key]; !ok {
+			keyboardInput[key] = KeyState{
+				Key:   key,
+				Event: KeyboardEventDown,
+			}
 		}
 	}
 
