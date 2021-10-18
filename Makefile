@@ -14,3 +14,6 @@ pprof:
 
 test:
 	go test ./...
+
+buildit:
+	go run build/build.go
