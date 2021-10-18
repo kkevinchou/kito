@@ -12,10 +12,7 @@ func main() {
 	assetsFolder := "_assets"
 	configFile := "config.json"
 
-	cmd := exec.Command("rm", "-r", buildFolder)
-	runCMD(cmd)
-
-	cmd = exec.Command("mkdir", buildFolder)
+	cmd := exec.Command("mkdir", buildFolder)
 	runCMD(cmd)
 
 	cmd = exec.Command("cp", configFile, buildFolder)
