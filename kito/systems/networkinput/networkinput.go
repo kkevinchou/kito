@@ -60,5 +60,4 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 
 		player.Client.SendMessage(knetwork.MessageTypeInput, inputMessage)
 	}
-
 }

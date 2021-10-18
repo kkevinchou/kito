@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/kito/utils"
 )
 
 const (
@@ -43,27 +44,39 @@ func (s *CollisionResolverSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *CollisionResolverSystem) Update(delta time.Duration) {
-	for _, e := range s.entities {
-		cc := e.GetComponentContainer()
-		colliderComponent := cc.ColliderComponent
-		transformComponent := cc.TransformComponent
-		physicsComponent := cc.PhysicsComponent
-		contactManifolds := colliderComponent.ContactManifolds
-		if contactManifolds != nil {
-			// naively add all separating vectors together
-			var separatingVector mgl64.Vec3
-			for _, contactManifold := range contactManifolds {
-				separatingVector = separatingVector.Add(contactManifold.Contacts[0].SeparatingVector)
-			}
-			// fmt.Println(separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}))
-			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
-				physicsComponent.Grounded = true
-			} else {
-				physicsComponent.Grounded = false
-			}
-			transformComponent.Position = transformComponent.Position.Add(separatingVector)
-			physicsComponent.Impulses = map[string]types.Impulse{}
-			physicsComponent.Velocity = mgl64.Vec3{}
+	if utils.IsClient() {
+		player := s.world.GetPlayer()
+		if player == nil {
+			return
 		}
+		s.resolve(player)
+	} else {
+		for _, entity := range s.entities {
+			s.resolve(entity)
+		}
+	}
+}
+
+func (s *CollisionResolverSystem) resolve(entity entities.Entity) {
+	cc := entity.GetComponentContainer()
+	colliderComponent := cc.ColliderComponent
+	transformComponent := cc.TransformComponent
+	physicsComponent := cc.PhysicsComponent
+	contactManifolds := colliderComponent.ContactManifolds
+	if contactManifolds != nil {
+		// naively add all separating vectors together
+		var separatingVector mgl64.Vec3
+		for _, contactManifold := range contactManifolds {
+			separatingVector = separatingVector.Add(contactManifold.Contacts[0].SeparatingVector)
+		}
+		// fmt.Println(separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}))
+		if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
+			physicsComponent.Grounded = true
+		} else {
+			physicsComponent.Grounded = false
+		}
+		transformComponent.Position = transformComponent.Position.Add(separatingVector)
+		physicsComponent.Impulses = map[string]types.Impulse{}
+		physicsComponent.Velocity = mgl64.Vec3{}
 	}
 }
