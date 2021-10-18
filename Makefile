@@ -1,3 +1,6 @@
+BUILD_FOLDER = "buildoutput"
+BUILD_LIBS_FOLDER = "buildlibs"
+
 # On Mac you'll need to run XServer from host machine
 .PHONY: client
 client:
@@ -18,8 +21,13 @@ test:
 
 .PHONY: build
 build: clean
-	go run build/build.go
+	mkdir $(BUILD_FOLDER)
+	cp config.json $(BUILD_FOLDER)/
+	cp -r shaders $(BUILD_FOLDER)/
+	cp -r _assets $(BUILD_FOLDER)/
+	cp -r $(BUILD_LIBS_FOLDER)/* $(BUILD_FOLDER)/
+	go build -o $(BUILD_FOLDER)/kito.exe
 
 .PHONY: clean
 clean:
-	rm -rf build_output
+	rm -rf $(BUILD_FOLDER)
