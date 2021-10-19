@@ -61,10 +61,6 @@ func constructMeshVertexAttributes(
 
 	var vertices []mgl64.Vec3
 
-	// TODO: i'm still ordering vertex attributes by the face order, rather than keeping the original exported source order
-	// this current way will repeat data since i explicity store data for every vertex, rather than using indicies for lookup
-	// in the future, i should refactor this to store the data in source data order then use an index buffer for VAO creation
-
 	// triIndicies format: position, normal, texture, color
 	for i := 0; i < len(triIndices); i += triIndicesStride {
 		// TODO: we are assuming this ordering of position, normal, texture but this is not
