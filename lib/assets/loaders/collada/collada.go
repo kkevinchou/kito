@@ -393,7 +393,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 
 		ColorSourceData: nil,
 
-		JointsSourceData:       joints,
 		JointWeightsSourceData: weights,
 
 		JointIDs:     jointIDs,
