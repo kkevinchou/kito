@@ -8,13 +8,6 @@ import (
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
-// KeyFrame contains a "Pose" which is the mapping from joint name to
-// the transformtations that should be applied to the joint for this pose
-type KeyFrame struct {
-	Pose  map[int]*JointTransform
-	Start time.Duration
-}
-
 // JointTransform represents the joint-space transformations that should be
 // applied to the joint for the KeyFrame it is associated with.
 type JointTransform struct {
@@ -102,26 +95,4 @@ func (a *Animation) BindVertexAttributes() {
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
 	gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
 	gl.EnableVertexAttribArray(5)
-}
-
-func copyKeyFrames(spec *modelspec.AnimationSpec) []*KeyFrame {
-	var keyFrames []*KeyFrame
-
-	for _, kf := range spec.KeyFrames {
-		keyFrame := &KeyFrame{
-			Start: kf.Start,
-			Pose:  map[int]*JointTransform{},
-		}
-
-		for idx, jointTransform := range kf.Pose {
-			keyFrame.Pose[idx] = &JointTransform{
-				Translation: jointTransform.Translation,
-				Rotation:    jointTransform.Rotation,
-				Scale:       jointTransform.Scale,
-			}
-		}
-
-		keyFrames = append(keyFrames, keyFrame)
-	}
-	return keyFrames
 }
