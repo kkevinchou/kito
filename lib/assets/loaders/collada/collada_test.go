@@ -72,7 +72,7 @@ func TestJointHierarchy(t *testing.T) {
 	}
 
 	jointIDs := []int{}
-	collectIDs(c.Root, &jointIDs)
+	collectIDs(c.RootJoint, &jointIDs)
 
 	for i, jointID := range jointIDs {
 		if i != jointID {
@@ -81,21 +81,21 @@ func TestJointHierarchy(t *testing.T) {
 	}
 
 	transforms := map[int]mgl32.Mat4{}
-	collectBindPoseAnimationTransforms(c.Root, transforms)
+	collectBindPoseAnimationTransforms(c.RootJoint, transforms)
 
 	if len(transforms) != 16 {
 		t.Fatalf("expected 16 transforms but intead got %d", len(transforms))
 	}
 }
 
-func collectBindPoseAnimationTransforms(joint *modelspec.JointSpecification, transforms map[int]mgl32.Mat4) {
+func collectBindPoseAnimationTransforms(joint *modelspec.JointSpec, transforms map[int]mgl32.Mat4) {
 	transforms[joint.ID] = joint.BindTransform
 	for _, child := range joint.Children {
 		collectBindPoseAnimationTransforms(child, transforms)
 	}
 }
 
-func collectIDs(joint *modelspec.JointSpecification, ids *[]int) {
+func collectIDs(joint *modelspec.JointSpec, ids *[]int) {
 	*ids = append(*ids, joint.ID)
 	for _, child := range joint.Children {
 		collectIDs(child, ids)

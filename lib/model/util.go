@@ -70,27 +70,17 @@ func (s byWeights) Less(i, j int) bool {
 	return s[i].Weight < s[j].Weight
 }
 
-func JointSpecToJoint(js *modelspec.JointSpecification) *Joint {
-	j := NewJoint(js.ID, js.Name, js.BindTransform, js.InverseBindTransform)
-	for _, c := range js.Children {
-		j.Children = append(j.Children, JointSpecToJoint(c))
-	}
-	// calculateInverseBindTransform(j, mgl32.Ident4())
-
-	return j
-}
-
 // careful with this method. i believe this assumes that the local bind pose is in a tpose but this isn't always the case.
 // in collada files it's more reliable to read the inv bind matrix from the data file itself rather than try to calculate it
-func calculateInverseBindTransform(joint *Joint, parentBindTransform mgl32.Mat4) {
-	bindTransform := parentBindTransform.Mul4(joint.LocalBindTransform) // model-space relative to the origin
+func calculateInverseBindTransform(joint *modelspec.JointSpec, parentBindTransform mgl32.Mat4) {
+	bindTransform := parentBindTransform.Mul4(joint.BindTransform) // model-space relative to the origin
 	joint.InverseBindTransform = bindTransform.Inv()
 	for _, child := range joint.Children {
 		calculateInverseBindTransform(child, bindTransform)
 	}
 }
 
-func getJointMap(joint *Joint, jointMap map[int]*Joint) map[int]*Joint {
+func getJointMap(joint *modelspec.JointSpec, jointMap map[int]*modelspec.JointSpec) map[int]*modelspec.JointSpec {
 	jointMap[joint.ID] = joint
 	for _, c := range joint.Children {
 		getJointMap(c, jointMap)

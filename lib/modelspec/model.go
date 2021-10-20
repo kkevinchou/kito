@@ -20,7 +20,16 @@ type EffectSpec struct { // todo(kevin): rename to MaterialSpec
 // animation data. This struct should be agnostic to the 3D modelling tool that produced the data.
 type ModelSpecification struct {
 	// Geometry
-	TriIndices       []int // vertex indices in triangle order. Each triplet defines a face
+	// TriIndices defines indices that are lookups for individual vertex properties
+	// TriIndicesStride defines how many contiguous indices within TriIndices define a vertex
+	//		Example arrangement:
+	//		[
+	//			triangle1PositionIndex, triangle1NormalIndex, triangle1TextureCoordIndex,
+	//			triangle2PositionIndex, triangle2NormalIndex, triangle2TextureCoordIndex,
+	//		]
+	// TriIndicesStride would have a value of 3 here
+	// Three contiguous vertices define a triangle, after which the next triangle is defined
+	TriIndices       []int
 	TriIndicesStride int
 
 	PositionSourceData []mgl32.Vec3
@@ -28,22 +37,17 @@ type ModelSpecification struct {
 	ColorSourceData    []mgl32.Vec3
 	TextureSourceData  []mgl32.Vec2
 
-	EffectSpecData *EffectSpec
-
-	// Controllers
-
 	// sorted by vertex order
-	JointIDs     [][]int
-	JointWeights [][]int
-
-	JointsSourceData       []string // index is the joint id, the string value is the name
+	JointIDs               [][]int
+	JointWeights           [][]int
 	JointWeightsSourceData []float32
 
-	// Joint Hierarchy
+	// Effects
+	EffectSpecData *EffectSpec
 
-	Root *JointSpecification
+	// Joint Hierarchy
+	RootJoint *JointSpec
 
 	// Animations
-
 	Animation *AnimationSpec
 }

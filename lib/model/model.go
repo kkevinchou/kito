@@ -62,10 +62,6 @@ func configureVAO() uint32 {
 }
 
 func configureIndexBuffer(vertexCount int) {
-	// super inefficient, the benefit of an EBO is that we don't have to store duplicate vertices.
-	// since we haven't actually removed duplicate vertices yet and our EBO isn't intelligently
-	// pointing to older vertices we do the dumb thing of keeping all the vertices and pointing
-	// to each in order (we store the vertices in draw order)
 	indices := []uint32{}
 	for i := 0; i < vertexCount; i++ {
 		indices = append(indices, uint32(i))
