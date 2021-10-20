@@ -398,15 +398,15 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 		JointIDs:     jointIDs,
 		JointWeights: jointWeights,
 
-		Root:      rootJoint,
+		RootJoint: rootJoint,
 		Animation: &modelspec.AnimationSpec{KeyFrames: keyFrames, Length: keyFrames[len(keyFrames)-1].Start},
 	}
 
 	return result, nil
 }
 
-func parseJointElement(node *Node, jointNamesToIndex map[string]int, inverseBindMatrices []mgl32.Mat4) *modelspec.JointSpecification {
-	children := []*modelspec.JointSpecification{}
+func parseJointElement(node *Node, jointNamesToIndex map[string]int, inverseBindMatrices []mgl32.Mat4) *modelspec.JointSpec {
+	children := []*modelspec.JointSpec{}
 
 	for _, childNode := range node.Node {
 		children = append(children, parseJointElement(childNode, jointNamesToIndex, inverseBindMatrices))
@@ -421,7 +421,7 @@ func parseJointElement(node *Node, jointNamesToIndex map[string]int, inverseBind
 	bindTransform := ParseMatrixArrayString(node.Matrix[0].V)
 	jointID := jointNamesToIndex[string(node.Id)]
 
-	joint := &modelspec.JointSpecification{
+	joint := &modelspec.JointSpec{
 		ID:                   jointID,
 		Name:                 string(node.Id),
 		BindTransform:        bindTransform,
@@ -443,7 +443,7 @@ func (s byFloat32) Less(i, j int) bool {
 	return s[i] < s[j]
 }
 
-func printHierarchy(j *modelspec.JointSpecification, level int) {
+func printHierarchy(j *modelspec.JointSpec, level int) {
 	indentation := ""
 	for i := 0; i < level; i++ {
 		indentation += "    "

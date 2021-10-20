@@ -24,11 +24,8 @@ type JointTransform struct {
 }
 
 type Animation struct {
-	RootJoint *Joint
-	JointMap  map[int]*Joint
-
-	KeyFrames []*KeyFrame
-	Length    time.Duration
+	rootJoint     *modelspec.JointSpec
+	animationSpec *modelspec.AnimationSpec
 
 	triIndices             []int
 	triIndicesStride       int
@@ -38,30 +35,22 @@ type Animation struct {
 	maxWeights             int
 }
 
-// this is used by the server. ideally we don't even need to have joints set up
-// not sure how important it is for the server to sim the animation state.
-func NewJointOnlyAnimation(spec *modelspec.ModelSpecification) *Animation {
-	joint := JointSpecToJoint(spec.Root)
-	jointMap := map[int]*Joint{}
-	return &Animation{
-		RootJoint: joint,
-		JointMap:  getJointMap(joint, jointMap),
+func (a *Animation) RootJoint() *modelspec.JointSpec {
+	return a.rootJoint
+}
 
-		Length:    spec.Animation.Length,
-		KeyFrames: copyKeyFrames(spec.Animation),
-	}
+func (a *Animation) KeyFrames() []*modelspec.KeyFrame {
+	return a.animationSpec.KeyFrames
+}
+
+func (a *Animation) Length() time.Duration {
+	return a.animationSpec.Length
 }
 
 func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
-	joint := JointSpecToJoint(spec.Root)
-	jointMap := map[int]*Joint{}
-
 	return &Animation{
-		RootJoint: joint,
-		JointMap:  getJointMap(joint, jointMap),
-
-		Length:    spec.Animation.Length,
-		KeyFrames: copyKeyFrames(spec.Animation),
+		animationSpec: spec.Animation,
+		rootJoint:     spec.RootJoint,
 
 		triIndices:             spec.TriIndices,
 		triIndicesStride:       spec.TriIndicesStride,

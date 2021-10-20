@@ -37,20 +37,17 @@ type ModelSpecification struct {
 	ColorSourceData    []mgl32.Vec3
 	TextureSourceData  []mgl32.Vec2
 
-	EffectSpecData *EffectSpec
-
-	// Controllers
-
 	// sorted by vertex order
 	JointIDs               [][]int
 	JointWeights           [][]int
 	JointWeightsSourceData []float32
 
-	// Joint Hierarchy
+	// Effects
+	EffectSpecData *EffectSpec
 
-	Root *JointSpecification
+	// Joint Hierarchy
+	RootJoint *JointSpec
 
 	// Animations
-
 	Animation *AnimationSpec
 }
