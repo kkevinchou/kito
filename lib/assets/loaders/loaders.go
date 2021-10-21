@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
 	"github.com/kkevinchou/kito/lib/assets/loaders/glfonts"
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
+	"github.com/kkevinchou/kito/lib/assets/loaders/gltf"
 	"github.com/kkevinchou/kito/lib/font"
 	utils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/modelspec"
@@ -32,25 +33,41 @@ func LoadTextures(directory string) map[string]*textures.Texture {
 }
 
 func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecification {
-	var subDirectories []string = []string{"collada"}
+	var subDirectories []string = []string{"collada", "gltf"}
 
 	extensions := map[string]interface{}{
 		".dae": nil,
+		".glb": nil,
 	}
 
 	animationMap := map[string]*modelspec.ModelSpecification{}
 	fileMetaData := utils.GetFileMetaData(directory, subDirectories, extensions)
 
+	var err error
+	var modelSpec *modelspec.ModelSpecification
+
 	for _, metaData := range fileMetaData {
 		if strings.HasPrefix(metaData.Name, "_") {
 			continue
 		}
-		parsedCollada, err := collada.ParseCollada(metaData.Path)
-		if err != nil {
-			fmt.Println("failed to parse collada for", metaData.Path, ", error:", err)
-			continue
+
+		if metaData.Extension == ".dae" {
+			modelSpec, err = collada.ParseCollada(metaData.Path)
+			if err != nil {
+				fmt.Println("failed to parse collada for", metaData.Path, ", error:", err)
+				continue
+			}
+		} else if metaData.Extension == ".glb" {
+			modelSpec, err = gltf.ParseGLTF(metaData.Path)
+			if err != nil {
+				fmt.Println("failed to parse gltf for", metaData.Path, ", error:", err)
+				continue
+			}
+		} else {
+			panic(fmt.Sprintf("wtf unexpected extension %s", metaData.Extension))
 		}
-		animationMap[metaData.Name] = parsedCollada
+
+		animationMap[metaData.Name] = modelSpec
 	}
 
 	return animationMap

@@ -19,17 +19,26 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	var normalSource []mgl32.Vec3
 	var textureSource []mgl32.Vec2
 	var triIndices []int
-	var jointIDs [][4]int
-	var jointWeights [][4]float32
+	var jointIDs [][]int
+	var jointWeights [][]float32
+
+	if len(document.Meshes) > 1 {
+		panic("unable to handle > 1 mesh")
+	}
 
 	for _, mesh := range document.Meshes {
 		for _, primitive := range mesh.Primitives {
 			acrIndex := *primitive.Indices
-			indices, err := modeler.ReadIndices(document, document.Accessors[int(acrIndex)], nil)
+			meshIndices, err := modeler.ReadIndices(document, document.Accessors[int(acrIndex)], nil)
 			if err != nil {
 				return nil, err
 			}
-			triIndices = uint32SliceToIntSlice(indices)
+			// triIndices = uint32SliceToIntSlice(meshIndices)
+			for _, index := range meshIndices {
+				triIndices = append(triIndices, int(index))
+				triIndices = append(triIndices, int(index))
+				triIndices = append(triIndices, int(index))
+			}
 
 			// attributes := primitive.Attributes
 			for attribute, index := range primitive.Attributes {
@@ -67,7 +76,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 					if err != nil {
 						return nil, err
 					}
-					jointWeights = weights
+					jointWeights = float32ArraySliceTofloat32SliceSlice(weights)
 				} else {
 					panic(fmt.Sprintf("unexpected attribute %s\n", attribute))
 				}
@@ -75,24 +84,18 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 	}
 
-	_ = jointIDs
-	_ = jointWeights
-
 	result := &modelspec.ModelSpecification{
 		TriIndices: triIndices,
-		// TriIndicesStride: len(polyInput),
+		// TODO: FIX tHIS NUMBER
+		TriIndicesStride: 3,
 
 		PositionSourceData: positionSource,
 		NormalSourceData:   normalSource,
 		TextureSourceData:  textureSource,
 		// EffectSpecData:     effectSpec,
 
-		// ColorSourceData: nil,
-
-		// JointWeightsSourceData: weights,
-
-		// JointIDs:     jointIDs,
-		// JointWeights: jointWeights,
+		JointIDs:     jointIDs,
+		JointWeights: jointWeights,
 
 		// RootJoint: rootJoint,
 		// Animation: &modelspec.AnimationSpec{KeyFrames: keyFrames, Length: keyFrames[len(keyFrames)-1].Start},
@@ -101,14 +104,24 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	return result, nil
 }
 
-func uint16SliceToIntSlice(uints [][4]uint16) [][4]int {
-	var result [][4]int
-	for _, props := range uints {
-		var casted [4]int
-		for i, uint := range props {
-			casted[i] = int(uint)
+func float32ArraySliceTofloat32SliceSlice(floats [][4]float32) [][]float32 {
+	result := make([][]float32, len(floats))
+	for i, children := range floats {
+		result[i] = make([]float32, len(children))
+		for j, float := range children {
+			result[i][j] = float
 		}
-		result = append(result, casted)
+	}
+	return result
+}
+
+func uint16SliceToIntSlice(uints [][4]uint16) [][]int {
+	result := make([][]int, len(uints))
+	for i, children := range uints {
+		result[i] = make([]int, len(children))
+		for j, uint := range children {
+			result[i][j] = int(uint)
+		}
 	}
 	return result
 }
