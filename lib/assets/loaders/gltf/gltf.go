@@ -86,7 +86,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 
 	result := &modelspec.ModelSpecification{
 		TriIndices: triIndices,
-		// TODO: FIX tHIS NUMBER
+		// TODO: FIX tHIS NUMBER WHEN WE ADD ANIMATIONS
 		TriIndicesStride: 3,
 
 		PositionSourceData: positionSource,
