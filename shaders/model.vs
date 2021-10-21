@@ -1,6 +1,6 @@
 #version 330 core
 const int MAX_JOINTS = 50;
-const int MAX_WEIGHTS = 3;
+const int MAX_WEIGHTS = 4;
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;

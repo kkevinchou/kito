@@ -5,10 +5,6 @@ import (
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
-const (
-	maxWeights int = 3
-)
-
 type Model struct {
 	Mesh      *Mesh
 	Animation *Animation

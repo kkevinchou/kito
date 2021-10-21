@@ -4,26 +4,27 @@ import (
 	"sort"
 
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
-// if we exceed maxWeights, drop the weakest weights and normalize
-// if we're below maxWeights, fill in dummy weights so we always have "maxWeights" number of weights
-func FillWeights(jointIDs []int, weights []int, jointWeightsSourceData []float32, maxWeights int) ([]int, []float32) {
+// if we exceed settings.AnimationMaxJointWeights, drop the weakest weights and normalize
+// if we're below settings.AnimationMaxJointWeights, fill in dummy weights so we always have "settings.AnimationMaxJointWeights" number of weights
+func FillWeights(jointIDs []int, weights []int, jointWeightsSourceData []float32) ([]int, []float32) {
 	j := []int{}
 	w := []float32{}
 
-	if len(jointIDs) <= maxWeights {
+	if len(jointIDs) <= settings.AnimationMaxJointWeights {
 		j = append(j, jointIDs...)
 		for _, weightIndex := range weights {
 			w = append(w, jointWeightsSourceData[weightIndex])
 		}
 		// fill in empty jointIDs and weights
-		for i := 0; i < maxWeights-len(jointIDs); i++ {
+		for i := 0; i < settings.AnimationMaxJointWeights-len(jointIDs); i++ {
 			j = append(j, 0)
 			w = append(w, 0)
 		}
-	} else if len(jointIDs) > maxWeights {
+	} else if len(jointIDs) > settings.AnimationMaxJointWeights {
 		jointWeights := []JointWeight{}
 		for i := range jointIDs {
 			jointWeights = append(jointWeights, JointWeight{JointID: jointIDs[i], Weight: jointWeightsSourceData[weights[i]]})
@@ -31,7 +32,7 @@ func FillWeights(jointIDs []int, weights []int, jointWeightsSourceData []float32
 		sort.Sort(sort.Reverse(byWeights(jointWeights)))
 
 		// take top 3 weights
-		jointWeights = jointWeights[:maxWeights]
+		jointWeights = jointWeights[:settings.AnimationMaxJointWeights]
 		NormalizeWeights(jointWeights)
 		for _, jw := range jointWeights {
 			j = append(j, jw.JointID)

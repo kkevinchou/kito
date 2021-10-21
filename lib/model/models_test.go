@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/model"
 )
 
@@ -11,9 +12,8 @@ func TestFillWeightsWithNoChange(t *testing.T) {
 	jointIDs := []int{0, 1, 2}
 	weights := []int{0, 1, 2}
 	jointWeightsSourceData := []float32{0.55, 0.25, 0.20}
-	maxWeights := 3
 
-	newJointIDs, newWeights := model.FillWeights(jointIDs, weights, jointWeightsSourceData, maxWeights)
+	newJointIDs, newWeights := model.FillWeights(jointIDs, weights, jointWeightsSourceData)
 	if !IntSliceEqual(jointIDs, newJointIDs) {
 		t.Fatal("expected jointIDs to match")
 	}
@@ -28,9 +28,8 @@ func TestFillWeightsDroppingWeight(t *testing.T) {
 	jointIDs := []int{0, 1, 2, 3}
 	weights := []int{0, 1, 2, 3}
 	jointWeightsSourceData := []float32{0.55, 0.25, 0.10, 0.20}
-	maxWeights := 3
 
-	newJointIDs, newWeights := model.FillWeights(jointIDs, weights, jointWeightsSourceData, maxWeights)
+	newJointIDs, newWeights := model.FillWeights(jointIDs, weights, jointWeightsSourceData)
 
 	expectedJointIDs := []int{0, 1, 3}
 	if !IntSliceEqual(expectedJointIDs, newJointIDs) {
@@ -47,9 +46,8 @@ func TestFillWeightsWithAddedWeight(t *testing.T) {
 	jointIDs := []int{0, 1}
 	weights := []int{0, 1}
 	jointWeightsSourceData := []float32{0.75, 0.25}
-	maxWeights := 3
 
-	newJointIDs, newWeights := model.FillWeights(jointIDs, weights, jointWeightsSourceData, maxWeights)
+	newJointIDs, newWeights := model.FillWeights(jointIDs, weights, jointWeightsSourceData)
 
 	expectedJointIDs := []int{0, 1, 0}
 	if !IntSliceEqual(expectedJointIDs, newJointIDs) {
@@ -61,8 +59,8 @@ func TestFillWeightsWithAddedWeight(t *testing.T) {
 		t.Fatal("expected weights to match")
 	}
 
-	if len(newJointIDs) != maxWeights {
-		t.Fatal("expected length of joint ids to match maxWeights")
+	if len(newJointIDs) != settings.AnimationMaxJointWeights {
+		t.Fatal("expected length of joint ids to match settings.AnimationMaxJointWeights")
 
 	}
 }

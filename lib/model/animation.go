@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
@@ -25,7 +26,6 @@ type Animation struct {
 	jointWeightsSourceData []float32
 	jointIDs               [][]int
 	jointWeights           [][]int
-	maxWeights             int
 }
 
 func (a *Animation) RootJoint() *modelspec.JointSpec {
@@ -50,7 +50,6 @@ func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
 		jointWeightsSourceData: spec.JointWeightsSourceData,
 		jointIDs:               spec.JointIDs,
 		jointWeights:           spec.JointWeights,
-		maxWeights:             maxWeights,
 	}
 }
 
@@ -73,7 +72,7 @@ func (a *Animation) BindVertexAttributes() {
 			}
 		}
 
-		ids, weights := FillWeights(a.jointIDs[vertexIndex], a.jointWeights[vertexIndex], a.jointWeightsSourceData, maxWeights)
+		ids, weights := FillWeights(a.jointIDs[vertexIndex], a.jointWeights[vertexIndex], a.jointWeightsSourceData)
 
 		for _, id := range ids {
 			jointIDsAttribute = append(jointIDsAttribute, int32(id))
@@ -86,13 +85,13 @@ func (a *Animation) BindVertexAttributes() {
 	gl.GenBuffers(1, &vboJointIDs)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointIDs)
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointIDsAttribute)*4, gl.Ptr(jointIDsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribIPointer(4, int32(maxWeights), gl.INT, int32(maxWeights)*4, nil)
+	gl.VertexAttribIPointer(4, int32(settings.AnimationMaxJointWeights), gl.INT, int32(settings.AnimationMaxJointWeights)*4, nil)
 	gl.EnableVertexAttribArray(4)
 
 	var vboJointWeights uint32
 	gl.GenBuffers(1, &vboJointWeights)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
+	gl.VertexAttribPointer(5, int32(settings.AnimationMaxJointWeights), gl.FLOAT, false, int32(settings.AnimationMaxJointWeights)*4, nil)
 	gl.EnableVertexAttribArray(5)
 }
