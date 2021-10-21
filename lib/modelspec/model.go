@@ -38,9 +38,8 @@ type ModelSpecification struct {
 	TextureSourceData  []mgl32.Vec2
 
 	// sorted by vertex order
-	JointIDs               [][]int
-	JointWeights           [][]int
-	JointWeightsSourceData []float32
+	JointIDs     [][]int
+	JointWeights [][]float32
 
 	// Effects
 	EffectSpecData *EffectSpec

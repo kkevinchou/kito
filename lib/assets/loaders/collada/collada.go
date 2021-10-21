@@ -199,20 +199,20 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	v := parseIntArrayString(skin.VertexWeights.V)
 
 	jointIDs := [][]int{}
-	jointWeights := [][]int{}
+	jointWeightIndices := [][]int{}
 	vIndex := 0
 	for _, numWeights := range vcount {
 		jointIDsList := []int{}
-		jointWeightsList := []int{}
+		jointWeightIndicesList := []int{}
 
 		for i := 0; i < numWeights; i++ {
 			jointID := v[vIndex+(i*2)]       // each weight takes up two spots (joint index, weight index)
 			weightIndex := v[vIndex+(i*2)+1] // each weight takes up two spots (joint index, weight index)
 			jointIDsList = append(jointIDsList, jointID)
-			jointWeightsList = append(jointWeightsList, weightIndex)
+			jointWeightIndicesList = append(jointWeightIndicesList, weightIndex)
 		}
 		jointIDs = append(jointIDs, jointIDsList)
-		jointWeights = append(jointWeights, jointWeightsList)
+		jointWeightIndices = append(jointWeightIndices, jointWeightIndicesList)
 		vIndex += (numWeights * 2)
 	}
 
@@ -235,7 +235,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	}
 
 	var joints []string
-	var weights []float32
+	var weightSourceData []float32
 	var inverseBindMatrices []mgl32.Mat4
 
 	for _, source := range skin.Source {
@@ -245,7 +245,7 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 				joints = append(joints, j)
 			}
 		} else if string(source.Id) == weightSourceID {
-			weights = parseFloatArrayString(source.FloatArray.Floats.V)
+			weightSourceData = parseFloatArrayString(source.FloatArray.Floats.V)
 		} else if string(source.Id) == inverseBindMatrixSourceID {
 			inverseBindMatrices = parseMultiMatrixArrayString(source.FloatArray.Floats.V)
 		}
@@ -376,6 +376,14 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 		})
 	}
 
+	jointWeights := make([][]float32, len(jointWeightIndices))
+	for i, indices := range jointWeightIndices {
+		jointWeights[i] = make([]float32, len(indices))
+		for j, index := range indices {
+			jointWeights[i][j] = weightSourceData[index]
+		}
+	}
+
 	// TODO: perform assertions on number of joints, verts, etc
 
 	// TODO clean up ModelSpecification. This represents the API between our loader logic
@@ -392,8 +400,6 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 		EffectSpecData:     effectSpec,
 
 		ColorSourceData: nil,
-
-		JointWeightsSourceData: weights,
 
 		JointIDs:     jointIDs,
 		JointWeights: jointWeights,

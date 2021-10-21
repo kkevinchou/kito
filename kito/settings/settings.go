@@ -77,5 +77,6 @@ const (
 
 	CommandFramesPerServerUpdate = 5
 
+	// Animation
 	AnimationMaxJointWeights = 4
 )

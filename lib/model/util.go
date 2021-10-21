@@ -10,15 +10,13 @@ import (
 
 // if we exceed settings.AnimationMaxJointWeights, drop the weakest weights and normalize
 // if we're below settings.AnimationMaxJointWeights, fill in dummy weights so we always have "settings.AnimationMaxJointWeights" number of weights
-func FillWeights(jointIDs []int, weights []int, jointWeightsSourceData []float32) ([]int, []float32) {
+func FillWeights(jointIDs []int, weights []float32) ([]int, []float32) {
 	j := []int{}
 	w := []float32{}
 
 	if len(jointIDs) <= settings.AnimationMaxJointWeights {
 		j = append(j, jointIDs...)
-		for _, weightIndex := range weights {
-			w = append(w, jointWeightsSourceData[weightIndex])
-		}
+		w = append(w, weights...)
 		// fill in empty jointIDs and weights
 		for i := 0; i < settings.AnimationMaxJointWeights-len(jointIDs); i++ {
 			j = append(j, 0)
@@ -27,7 +25,7 @@ func FillWeights(jointIDs []int, weights []int, jointWeightsSourceData []float32
 	} else if len(jointIDs) > settings.AnimationMaxJointWeights {
 		jointWeights := []JointWeight{}
 		for i := range jointIDs {
-			jointWeights = append(jointWeights, JointWeight{JointID: jointIDs[i], Weight: jointWeightsSourceData[weights[i]]})
+			jointWeights = append(jointWeights, JointWeight{JointID: jointIDs[i], Weight: weights[i]})
 		}
 		sort.Sort(sort.Reverse(byWeights(jointWeights)))
 
