@@ -17,8 +17,8 @@ type Mesh struct {
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 	vertexAttributes, totalAttributeSize, vertices := constructMeshVertexAttributes(
-		spec.TriIndices,
-		spec.TriIndicesStride,
+		spec.VertexAttributeIndices,
+		spec.VertexAttributesStride,
 		spec.PositionSourceData,
 		spec.NormalSourceData,
 		spec.ColorSourceData,
@@ -43,8 +43,8 @@ func (m *Mesh) Material() *modelspec.EffectSpec {
 }
 
 func constructMeshVertexAttributes(
-	triIndices []int,
-	triIndicesStride int,
+	vertexAttributeIndices []int,
+	vertexAttributesStride int,
 	positionSourceData []mgl32.Vec3,
 	normalSourceData []mgl32.Vec3,
 	colorSourceData []mgl32.Vec3,
@@ -62,19 +62,19 @@ func constructMeshVertexAttributes(
 	var vertices []mgl64.Vec3
 
 	// triIndicies format: position, normal, texture, color
-	for i := 0; i < len(triIndices); i += triIndicesStride {
+	for i := 0; i < len(vertexAttributeIndices); i += vertexAttributesStride {
 		// TODO: we are assuming this ordering of position, normal, texture but this is not
 		// necessarily the case. it depends on the <input> elements are ordered in the collada file
-		position := positionSourceData[triIndices[i]]
-		normal := normalSourceData[triIndices[i+1]]
-		texture := textureSourceData[triIndices[i+2]]
+		position := positionSourceData[vertexAttributeIndices[i]]
+		normal := normalSourceData[vertexAttributeIndices[i+1]]
+		texture := textureSourceData[vertexAttributeIndices[i+2]]
 
 		vertexAttributes = append(vertexAttributes, position.X(), position.Y(), position.Z())
 		vertexAttributes = append(vertexAttributes, normal.X(), normal.Y(), normal.Z())
 		vertexAttributes = append(vertexAttributes, texture.X(), texture.Y())
 
 		if colorPresent {
-			color := colorSourceData[triIndices[i+3]]
+			color := colorSourceData[vertexAttributeIndices[i+3]]
 			vertexAttributes = append(vertexAttributes, color.X(), color.Y(), color.Z())
 		}
 		vertices = append(vertices, mgl64.Vec3{float64(position.X()), float64(position.Y()), float64(position.Z())})

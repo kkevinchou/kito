@@ -180,8 +180,8 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	if len(rawCollada.LibraryControllers) == 0 || len(rawCollada.LibraryAnimations) == 0 {
 		// no animations
 		return &modelspec.ModelSpecification{
-			TriIndices:       triVertices,
-			TriIndicesStride: len(polyInput),
+			VertexAttributeIndices: triVertices,
+			VertexAttributesStride: len(polyInput),
 
 			PositionSourceData: positionSource,
 			NormalSourceData:   normalSource,
@@ -391,8 +391,8 @@ func ParseCollada(documentPath string) (*modelspec.ModelSpecification, error) {
 	// if we load a different file format which allows our internal model representation code
 	// to not require changes either.
 	result := &modelspec.ModelSpecification{
-		TriIndices:       triVertices,
-		TriIndicesStride: len(polyInput),
+		VertexAttributeIndices: triVertices,
+		VertexAttributesStride: len(polyInput),
 
 		PositionSourceData: positionSource,
 		NormalSourceData:   normalSource,

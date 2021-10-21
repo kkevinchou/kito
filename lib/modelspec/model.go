@@ -20,17 +20,17 @@ type EffectSpec struct { // todo(kevin): rename to MaterialSpec
 // animation data. This struct should be agnostic to the 3D modelling tool that produced the data.
 type ModelSpecification struct {
 	// Geometry
-	// TriIndices defines indices that are lookups for individual vertex properties
-	// TriIndicesStride defines how many contiguous indices within TriIndices define a vertex
+	// VertexAttributeIndices defines indices that are lookups for individual vertex properties
+	// VertexAttributesStride defines how many contiguous indices within VertexAttributeIndices define a vertex
 	//		Example arrangement:
 	//		[
 	//			triangle1PositionIndex, triangle1NormalIndex, triangle1TextureCoordIndex,
 	//			triangle2PositionIndex, triangle2NormalIndex, triangle2TextureCoordIndex,
 	//		]
-	// TriIndicesStride would have a value of 3 here
+	// VertexAttributesStride would have a value of 3 here
 	// Three contiguous vertices define a triangle, after which the next triangle is defined
-	TriIndices       []int
-	TriIndicesStride int
+	VertexAttributeIndices []int
+	VertexAttributesStride int
 
 	PositionSourceData []mgl32.Vec3
 	NormalSourceData   []mgl32.Vec3

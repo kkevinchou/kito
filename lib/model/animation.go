@@ -21,10 +21,10 @@ type Animation struct {
 	rootJoint     *modelspec.JointSpec
 	animationSpec *modelspec.AnimationSpec
 
-	triIndices       []int
-	triIndicesStride int
-	jointIDs         [][]int
-	jointWeights     [][]float32
+	vertexAttributeIndices []int
+	vertexAttributesStride int
+	jointIDs               [][]int
+	jointWeights           [][]float32
 }
 
 func (a *Animation) RootJoint() *modelspec.JointSpec {
@@ -44,10 +44,10 @@ func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
 		animationSpec: spec.Animation,
 		rootJoint:     spec.RootJoint,
 
-		triIndices:       spec.TriIndices,
-		triIndicesStride: spec.TriIndicesStride,
-		jointIDs:         spec.JointIDs,
-		jointWeights:     spec.JointWeights,
+		vertexAttributeIndices: spec.VertexAttributeIndices,
+		vertexAttributesStride: spec.VertexAttributesStride,
+		jointIDs:               spec.JointIDs,
+		jointWeights:           spec.JointWeights,
 	}
 }
 
@@ -61,8 +61,8 @@ func (a *Animation) BindVertexAttributes() {
 	jointIDsAttribute := []int32{}
 	jointWeightsAttribute := []float32{}
 
-	for i := 0; i < len(a.triIndices); i += a.triIndicesStride {
-		vertexIndex := a.triIndices[i]
+	for i := 0; i < len(a.vertexAttributeIndices); i += a.vertexAttributesStride {
+		vertexIndex := a.vertexAttributeIndices[i]
 
 		ids, weights := FillWeights(a.jointIDs[vertexIndex], a.jointWeights[vertexIndex])
 

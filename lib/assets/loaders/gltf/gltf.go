@@ -18,7 +18,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	var positionSource []mgl32.Vec3
 	var normalSource []mgl32.Vec3
 	var textureSource []mgl32.Vec2
-	var triIndices []int
+	var vertexAttributeIndices []int
 	var jointIDs [][]int
 	var jointWeights [][]float32
 
@@ -33,11 +33,11 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 			if err != nil {
 				return nil, err
 			}
-			// triIndices = uint32SliceToIntSlice(meshIndices)
+			// vertexAttributeIndices = uint32SliceToIntSlice(meshIndices)
 			for _, index := range meshIndices {
-				triIndices = append(triIndices, int(index))
-				triIndices = append(triIndices, int(index))
-				triIndices = append(triIndices, int(index))
+				vertexAttributeIndices = append(vertexAttributeIndices, int(index))
+				vertexAttributeIndices = append(vertexAttributeIndices, int(index))
+				vertexAttributeIndices = append(vertexAttributeIndices, int(index))
 			}
 
 			// attributes := primitive.Attributes
@@ -85,9 +85,9 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	}
 
 	result := &modelspec.ModelSpecification{
-		TriIndices: triIndices,
+		VertexAttributeIndices: vertexAttributeIndices,
 		// TODO: FIX tHIS NUMBER WHEN WE ADD ANIMATIONS
-		TriIndicesStride: 3,
+		VertexAttributesStride: 3,
 
 		PositionSourceData: positionSource,
 		NormalSourceData:   normalSource,
