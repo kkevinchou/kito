@@ -76,4 +76,7 @@ const (
 	ArtificialServerLatency time.Duration = 0 * time.Millisecond
 
 	CommandFramesPerServerUpdate = 5
+
+	// Animation
+	AnimationMaxJointWeights = 4
 )

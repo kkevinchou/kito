@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
@@ -20,12 +21,10 @@ type Animation struct {
 	rootJoint     *modelspec.JointSpec
 	animationSpec *modelspec.AnimationSpec
 
-	triIndices             []int
-	triIndicesStride       int
-	jointWeightsSourceData []float32
+	vertexAttributeIndices []int
+	vertexAttributesStride int
 	jointIDs               [][]int
-	jointWeights           [][]int
-	maxWeights             int
+	jointWeights           [][]float32
 }
 
 func (a *Animation) RootJoint() *modelspec.JointSpec {
@@ -45,12 +44,10 @@ func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
 		animationSpec: spec.Animation,
 		rootJoint:     spec.RootJoint,
 
-		triIndices:             spec.TriIndices,
-		triIndicesStride:       spec.TriIndicesStride,
-		jointWeightsSourceData: spec.JointWeightsSourceData,
+		vertexAttributeIndices: spec.VertexAttributeIndices,
+		vertexAttributesStride: spec.VertexAttributesStride,
 		jointIDs:               spec.JointIDs,
 		jointWeights:           spec.JointWeights,
-		maxWeights:             maxWeights,
 	}
 }
 
@@ -64,21 +61,14 @@ func (a *Animation) BindVertexAttributes() {
 	jointIDsAttribute := []int32{}
 	jointWeightsAttribute := []float32{}
 
-	for i := 0; i < len(a.triIndices); i += a.triIndicesStride {
-		vertexIndex := a.triIndices[i]
+	for i := 0; i < len(a.vertexAttributeIndices); i += a.vertexAttributesStride {
+		vertexIndex := a.vertexAttributeIndices[i]
 
-		for j, id := range a.jointIDs[vertexIndex] {
-			if id == 38 || id == 50 || id == 51 {
-				a.jointWeights[vertexIndex][j] = 0
-			}
-		}
-
-		ids, weights := FillWeights(a.jointIDs[vertexIndex], a.jointWeights[vertexIndex], a.jointWeightsSourceData, maxWeights)
+		ids, weights := FillWeights(a.jointIDs[vertexIndex], a.jointWeights[vertexIndex])
 
 		for _, id := range ids {
 			jointIDsAttribute = append(jointIDsAttribute, int32(id))
 		}
-
 		jointWeightsAttribute = append(jointWeightsAttribute, weights...)
 	}
 
@@ -86,13 +76,13 @@ func (a *Animation) BindVertexAttributes() {
 	gl.GenBuffers(1, &vboJointIDs)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointIDs)
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointIDsAttribute)*4, gl.Ptr(jointIDsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribIPointer(4, int32(maxWeights), gl.INT, int32(maxWeights)*4, nil)
+	gl.VertexAttribIPointer(4, int32(settings.AnimationMaxJointWeights), gl.INT, int32(settings.AnimationMaxJointWeights)*4, nil)
 	gl.EnableVertexAttribArray(4)
 
 	var vboJointWeights uint32
 	gl.GenBuffers(1, &vboJointWeights)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(5, int32(maxWeights), gl.FLOAT, false, int32(maxWeights)*4, nil)
+	gl.VertexAttribPointer(5, int32(settings.AnimationMaxJointWeights), gl.FLOAT, false, int32(settings.AnimationMaxJointWeights)*4, nil)
 	gl.EnableVertexAttribArray(5)
 }

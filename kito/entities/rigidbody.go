@@ -26,6 +26,10 @@ func NewSlime(position mgl64.Vec3) *EntityImpl {
 	return NewRigidBody(position, "slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime, "default")
 }
 
+func NewStaticRigidBody(position mgl64.Vec3) *EntityImpl {
+	return NewRigidBody(position, "cubetest", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default")
+}
+
 func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string) *EntityImpl {
 	transformComponent := &components.TransformComponent{
 		Position:    position,

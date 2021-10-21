@@ -51,6 +51,7 @@ func serverEntitySetup(g *Game) []entities.Entity {
 	return []entities.Entity{
 		entities.NewScene(mgl64.Vec3{}),
 		entities.NewSlime(mgl64.Vec3{-100, 0, -50}),
+		entities.NewStaticRigidBody(mgl64.Vec3{-5, 10, 0}),
 		// projectile,
 		// entities.NewSlime(mgl64.Vec3{-50, 0, -50}),
 	}
