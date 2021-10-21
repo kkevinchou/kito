@@ -33,7 +33,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 			if err != nil {
 				return nil, err
 			}
-			// vertexAttributeIndices = uint32SliceToIntSlice(meshIndices)
+
 			for _, index := range meshIndices {
 				vertexAttributeIndices = append(vertexAttributeIndices, int(index))
 				vertexAttributeIndices = append(vertexAttributeIndices, int(index))
@@ -48,35 +48,35 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 					if err != nil {
 						return nil, err
 					}
-					positionSource = float3SliceToVec3Slice(positions)
+					positionSource = loosenFloat32Array3ToVec(positions)
 				} else if attribute == gltf.NORMAL {
 					acr := document.Accessors[int(index)]
 					normals, err := modeler.ReadPosition(document, acr, nil)
 					if err != nil {
 						return nil, err
 					}
-					normalSource = float3SliceToVec3Slice(normals)
+					normalSource = loosenFloat32Array3ToVec(normals)
 				} else if attribute == gltf.TEXCOORD_0 {
 					acr := document.Accessors[int(index)]
 					textureCoords, err := modeler.ReadTextureCoord(document, acr, nil)
 					if err != nil {
 						return nil, err
 					}
-					textureSource = float2SliceToVec2Slice(textureCoords)
+					textureSource = loosenFloat32Array2ToVec(textureCoords)
 				} else if attribute == gltf.JOINTS_0 {
 					acr := document.Accessors[int(index)]
 					joints, err := modeler.ReadJoints(document, acr, nil)
 					if err != nil {
 						return nil, err
 					}
-					jointIDs = uint16SliceToIntSlice(joints)
+					jointIDs = loosenUint16Array(joints)
 				} else if attribute == gltf.WEIGHTS_0 {
 					acr := document.Accessors[int(index)]
 					weights, err := modeler.ReadWeights(document, acr, nil)
 					if err != nil {
 						return nil, err
 					}
-					jointWeights = float32ArraySliceTofloat32SliceSlice(weights)
+					jointWeights = loosenFloat32Array4(weights)
 				} else {
 					panic(fmt.Sprintf("unexpected attribute %s\n", attribute))
 				}
@@ -104,7 +104,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	return result, nil
 }
 
-func float32ArraySliceTofloat32SliceSlice(floats [][4]float32) [][]float32 {
+func loosenFloat32Array4(floats [][4]float32) [][]float32 {
 	result := make([][]float32, len(floats))
 	for i, children := range floats {
 		result[i] = make([]float32, len(children))
@@ -115,7 +115,7 @@ func float32ArraySliceTofloat32SliceSlice(floats [][4]float32) [][]float32 {
 	return result
 }
 
-func uint16SliceToIntSlice(uints [][4]uint16) [][]int {
+func loosenUint16Array(uints [][4]uint16) [][]int {
 	result := make([][]int, len(uints))
 	for i, children := range uints {
 		result[i] = make([]int, len(children))
@@ -126,7 +126,7 @@ func uint16SliceToIntSlice(uints [][4]uint16) [][]int {
 	return result
 }
 
-func float2SliceToVec2Slice(floats [][2]float32) []mgl32.Vec2 {
+func loosenFloat32Array2ToVec(floats [][2]float32) []mgl32.Vec2 {
 	var result []mgl32.Vec2
 	for _, props := range floats {
 		result = append(result, mgl32.Vec2(props))
@@ -134,18 +134,10 @@ func float2SliceToVec2Slice(floats [][2]float32) []mgl32.Vec2 {
 	return result
 }
 
-func float3SliceToVec3Slice(floats [][3]float32) []mgl32.Vec3 {
+func loosenFloat32Array3ToVec(floats [][3]float32) []mgl32.Vec3 {
 	var result []mgl32.Vec3
 	for _, props := range floats {
 		result = append(result, mgl32.Vec3(props))
-	}
-	return result
-}
-
-func uint32SliceToIntSlice(uints []uint32) []int {
-	var result []int
-	for _, uint := range uints {
-		result = append(result, int(uint))
 	}
 	return result
 }
