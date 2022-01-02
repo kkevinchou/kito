@@ -252,7 +252,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	fps := int(singleton.MetricsRegistry.GetOneSecondSum("fps"))
 	predictionMiss := int(singleton.MetricsRegistry.GetOneSecondSum("predictionMiss"))
 	ping := int(singleton.MetricsRegistry.GetOneSecondAverage("ping"))
-	renderText := fmt.Sprintf("--- General\nfps: %d\n--- Networking\nPing: %d\nPrediction Miss: %d", fps, ping, predictionMiss)
+	updateMessageSize := int(singleton.MetricsRegistry.GetOneSecondSum("update_message_size")) / 1000
+	renderText := fmt.Sprintf("--- General\nfps: %d\n--- Networking\nPing: %d\nPrediction Miss: %d\nUpdate Size: %d kb/s", fps, ping, predictionMiss, updateMessageSize)
 	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), renderText, 0.8, 0)
 }
 

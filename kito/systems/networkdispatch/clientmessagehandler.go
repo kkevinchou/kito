@@ -23,6 +23,8 @@ func clientMessageHandler(world World, message *network.Message) {
 			panic(err)
 		}
 
+		metricsRegistry.Inc("update_message_size", float64(len(message.Body)))
+
 		validateClientPrediction(&gameStateUpdate, world)
 		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)
 	} else if message.MessageType == knetwork.MessageTypeAckCreatePlayer {
