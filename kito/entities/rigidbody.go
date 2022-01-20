@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"fmt"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
@@ -19,18 +21,26 @@ var (
 )
 
 func NewScene(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "sceneuv", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid")
+	shaderProgram := "model_static"
+	return NewRigidBody(position, "sceneuv", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid", shaderProgram)
 }
 
 func NewSlime(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime, "default")
+	shaderProgram := "model"
+	return NewRigidBody(position, "slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime, "default", shaderProgram)
 }
 
 func NewStaticRigidBody(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "cubetest", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default")
+	shaderProgram := "model_static"
+	return NewRigidBody(position, "cubetest2", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default", shaderProgram)
 }
 
-func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string) *EntityImpl {
+func NewDynamicRigidBody(position mgl64.Vec3) *EntityImpl {
+	shaderProgram := "model"
+	return NewRigidBody(position, "cube_anim", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "default", shaderProgram)
+}
+
+func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string, shaderProgram string) *EntityImpl {
 	transformComponent := &components.TransformComponent{
 		Position:    position,
 		Orientation: mgl64.QuatIdent(),
@@ -54,7 +64,7 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
-		ShaderProgram:    "model_static",
+		ShaderProgram:    shaderProgram,
 		Scale:            Scale,
 		Orientation:      Orientation,
 		Material:         m.Mesh.Material(),
@@ -74,17 +84,27 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		Static: true,
 	}
 
+	componentList := []components.Component{
+		transformComponent,
+		renderComponent,
+		&components.NetworkComponent{},
+		meshComponent,
+		colliderComponent,
+		physicsComponent,
+	}
+
+	if m.Animation != nil {
+		fmt.Println("rigid body with animation", modelName)
+		animationComponent := &components.AnimationComponent{
+			Animation: m.Animation,
+		}
+		componentList = append(componentList, animationComponent)
+	}
+
 	entity := NewEntity(
 		"rigidbody",
 		entityType,
-		components.NewComponentContainer(
-			transformComponent,
-			renderComponent,
-			&components.NetworkComponent{},
-			meshComponent,
-			colliderComponent,
-			physicsComponent,
-		),
+		components.NewComponentContainer(componentList...),
 	)
 
 	return entity

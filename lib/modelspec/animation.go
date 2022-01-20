@@ -23,6 +23,14 @@ type KeyFrame struct {
 // applied to the joint for the KeyFrame it is associated with.
 type JointTransform struct {
 	Translation mgl32.Vec3
-	Scale       mgl32.Vec3
 	Rotation    mgl32.Quat
+	Scale       mgl32.Vec3
+}
+
+func NewDefaultJointTransform() *JointTransform {
+	return &JointTransform{
+		Translation: mgl32.Vec3{0, 0, 0},
+		Rotation:    mgl32.QuatIdent(),
+		Scale:       mgl32.Vec3{1, 1, 1},
+	}
 }

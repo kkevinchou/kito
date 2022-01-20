@@ -45,32 +45,30 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 		}
 
 		pose := calculateCurrentAnimationPose(animationComponent.ElapsedTime, animationComponent.Animation.KeyFrames())
-		animationTransforms := computeJointPoses(animationComponent.Animation.RootJoint(), pose, map[int]bool{1000: true})
+		animationTransforms := computeJointPoses(animationComponent.Animation.RootJoint(), pose)
 		animationComponent.AnimationTransforms = animationTransforms
 	}
 }
 
 // applyPoseToJoints returns the set of transforms that move the joint from the bind pose to the given pose
-func computeJointPoses(joint *modelspec.JointSpec, pose map[int]mgl32.Mat4, frozenJoints map[int]bool) map[int]mgl32.Mat4 {
+func computeJointPoses(joint *modelspec.JointSpec, pose map[int]mgl32.Mat4) map[int]mgl32.Mat4 {
 	animationTransforms := map[int]mgl32.Mat4{}
-	computeJointPosesHelper(joint, mgl32.Ident4(), pose, animationTransforms, frozenJoints)
+	computeJointPosesHelper(joint, mgl32.Ident4(), pose, animationTransforms)
 	return animationTransforms
 }
 
-func computeJointPosesHelper(joint *modelspec.JointSpec, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4, frozenJoints map[int]bool) {
+func computeJointPosesHelper(joint *modelspec.JointSpec, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4) {
 	localTransform := pose[joint.ID]
 
 	if _, ok := pose[joint.ID]; !ok {
+		// panic(fmt.Sprintf("joint with id %d does not have a pose", joint.ID))
 		localTransform = joint.BindTransform
 	}
 
 	poseTransform := parentTransform.Mul4(localTransform) // model-space relative to the origin
-	if _, ok := frozenJoints[joint.ID]; ok {
-		poseTransform = parentTransform.Mul4((joint.BindTransform))
-	}
 
 	for _, child := range joint.Children {
-		computeJointPosesHelper(child, poseTransform, pose, transforms, frozenJoints)
+		computeJointPosesHelper(child, poseTransform, pose, transforms)
 	}
 	transforms[joint.ID] = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
 }

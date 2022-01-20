@@ -7,7 +7,7 @@ import (
 )
 
 func TestBasic(t *testing.T) {
-	_, err := gltf.ParseGLTF("sample/basic.glb")
+	_, err := gltf.ParseGLTF("sample/cube_anim.gltf")
 	if err != nil {
 		t.Error(err)
 	}

@@ -14,6 +14,7 @@ import (
 func NewBob() *EntityImpl {
 	modelName := "guard_running"
 	shaderProgram := "model"
+	// shaderProgram := "model_static"
 	textureName := "Guard_02__diffuse"
 
 	transformComponent := &components.TransformComponent{
@@ -71,7 +72,7 @@ func NewBob() *EntityImpl {
 	entityComponents := []components.Component{
 		&components.NetworkComponent{},
 		transformComponent,
-		animationComponent,
+		// animationComponent,
 		physicsComponent,
 		thirdPersonControllerComponent,
 		meshComponent,
