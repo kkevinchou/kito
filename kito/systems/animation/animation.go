@@ -95,6 +95,8 @@ func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*model
 		}
 	}
 
+	// progression = 0
+	// startKeyFrame = keyFrames[0]
 	return interpolatePoses(startKeyFrame, endKeyFrame, progression)
 }
 

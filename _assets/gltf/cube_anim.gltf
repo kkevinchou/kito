@@ -14,7 +14,7 @@
     ],
     "nodes" : [
         {
-            "name" : "Bone.002",
+            "name" : "thejointc",
             "translation" : [
                 0,
                 1,
@@ -25,10 +25,10 @@
             "children" : [
                 0
             ],
-            "name" : "Bone",
+            "name" : "thejoint",
             "translation" : [
                 0,
-                1.8396263122558594,
+                9.584718704223633,
                 0
             ]
         },
@@ -42,12 +42,7 @@
                 2,
                 1
             ],
-            "name" : "Armature",
-            "translation" : [
-                0,
-                1.8396263122558594,
-                0
-            ]
+            "name" : "Armature"
         }
     ],
     "animations" : [
@@ -94,13 +89,6 @@
                         "node" : 0,
                         "path" : "scale"
                     }
-                },
-                {
-                    "sampler" : 6,
-                    "target" : {
-                        "node" : 3,
-                        "path" : "translation"
-                    }
                 }
             ],
             "name" : "ArmatureAction",
@@ -134,11 +122,6 @@
                     "input" : 7,
                     "interpolation" : "LINEAR",
                     "output" : 13
-                },
-                {
-                    "input" : 7,
-                    "interpolation" : "LINEAR",
-                    "output" : 14
                 }
             ]
         }
@@ -177,12 +160,12 @@
             "count" : 24,
             "max" : [
                 9.23636531829834,
-                20.429546356201172,
+                18.566070556640625,
                 9.23636531829834
             ],
             "min" : [
                 -9.23636531829834,
-                1.9568171501159668,
+                0.0933399349451065,
                 -9.23636531829834
             ],
             "type" : "VEC3"
@@ -226,9 +209,9 @@
         {
             "bufferView" : 7,
             "componentType" : 5126,
-            "count" : 30,
+            "count" : 6,
             "max" : [
-                1.25
+                1.0833333333333333
             ],
             "min" : [
                 0.041666666666666664
@@ -238,43 +221,37 @@
         {
             "bufferView" : 8,
             "componentType" : 5126,
-            "count" : 30,
+            "count" : 6,
             "type" : "VEC3"
         },
         {
             "bufferView" : 9,
             "componentType" : 5126,
-            "count" : 30,
+            "count" : 6,
             "type" : "VEC4"
         },
         {
             "bufferView" : 10,
             "componentType" : 5126,
-            "count" : 30,
+            "count" : 6,
             "type" : "VEC3"
         },
         {
             "bufferView" : 11,
             "componentType" : 5126,
-            "count" : 30,
+            "count" : 6,
             "type" : "VEC3"
         },
         {
             "bufferView" : 12,
             "componentType" : 5126,
-            "count" : 30,
+            "count" : 6,
             "type" : "VEC4"
         },
         {
             "bufferView" : 13,
             "componentType" : 5126,
-            "count" : 30,
-            "type" : "VEC3"
-        },
-        {
-            "bufferView" : 14,
-            "componentType" : 5126,
-            "count" : 30,
+            "count" : 6,
             "type" : "VEC3"
         }
     ],
@@ -316,49 +293,44 @@
         },
         {
             "buffer" : 0,
-            "byteLength" : 120,
+            "byteLength" : 24,
             "byteOffset" : 1448
         },
         {
             "buffer" : 0,
-            "byteLength" : 360,
-            "byteOffset" : 1568
+            "byteLength" : 72,
+            "byteOffset" : 1472
         },
         {
             "buffer" : 0,
-            "byteLength" : 480,
-            "byteOffset" : 1928
+            "byteLength" : 96,
+            "byteOffset" : 1544
         },
         {
             "buffer" : 0,
-            "byteLength" : 360,
-            "byteOffset" : 2408
+            "byteLength" : 72,
+            "byteOffset" : 1640
         },
         {
             "buffer" : 0,
-            "byteLength" : 360,
-            "byteOffset" : 2768
+            "byteLength" : 72,
+            "byteOffset" : 1712
         },
         {
             "buffer" : 0,
-            "byteLength" : 480,
-            "byteOffset" : 3128
+            "byteLength" : 96,
+            "byteOffset" : 1784
         },
         {
             "buffer" : 0,
-            "byteLength" : 360,
-            "byteOffset" : 3608
-        },
-        {
-            "buffer" : 0,
-            "byteLength" : 360,
-            "byteOffset" : 3968
+            "byteLength" : 72,
+            "byteOffset" : 1880
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 4328,
-            "uri" : "cube_anim_extra_joint.bin"
+            "byteLength" : 1952,
+            "uri" : "cube_anim.bin"
         }
     ]
 }

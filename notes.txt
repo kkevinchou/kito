@@ -57,3 +57,5 @@ automate navmesh generation based on geometry. geometry is tagged with a "layer"
 mark a player as a navmesh agent. this makes sense for destination based movement, less so for directional movement
 
 figre out 3d platformer movement (physics based?)
+
+make it such that removing the animation component of an entity will cause the renderer to render the model in the bind pose. need to be able to dynamically select the model shader

@@ -25,8 +25,9 @@ type ParsedMesh struct {
 }
 
 type ParsedSkin struct {
-	RootJoint *modelspec.JointSpec
-	Joints    map[int]*modelspec.JointSpec
+	RootJoint  *modelspec.JointSpec
+	Joints     map[int]*modelspec.JointSpec
+	JointOrder []int
 }
 
 type ParsedAnimation struct {
@@ -79,7 +80,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 			// found a node that has a mesh and skinning info
 			mesh := document.Meshes[*node.Mesh]
 
-			parsedMesh, err = parseMesh(document, mesh)
+			parsedMesh, err = parseMesh(document, mesh, parsedSkin.JointOrder)
 			if err != nil {
 				return nil, err
 			}
@@ -300,13 +301,14 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 	}
 
 	parsedSkin := &ParsedSkin{
-		RootJoint: root,
-		Joints:    joints,
+		RootJoint:  root,
+		Joints:     joints,
+		JointOrder: jointIDs,
 	}
 	return parsedSkin, nil
 }
 
-func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*ParsedMesh, error) {
+func parseMesh(document *gltf.Document, mesh *gltf.Mesh, jointOrder []int) (*ParsedMesh, error) {
 	parsedMesh := &ParsedMesh{}
 
 	if len(document.Meshes) > 1 {
@@ -352,12 +354,15 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*ParsedMesh, error) {
 				if err != nil {
 					return nil, err
 				}
-				jointIDs := loosenUint16Array(joints)
-				// for _, jids := range jointIDs {
-				// 	jids[0] = 1
-				// }
+				jointIndices := loosenUint16Array(joints)
+				for _, jointSet := range jointIndices {
+					for i, _ := range jointSet {
+						// convert from the joint index to the actual joint ID
+						jointSet[i] = jointOrder[jointSet[i]]
+					}
 
-				parsedMesh.JointIDs = jointIDs
+				}
+				parsedMesh.JointIDs = jointIndices
 			} else if attribute == gltf.WEIGHTS_0 {
 				acr := document.Accessors[int(index)]
 				weights, err := modeler.ReadWeights(document, acr, nil)
