@@ -53,11 +53,11 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 // applyPoseToJoints returns the set of transforms that move the joint from the bind pose to the given pose
 func computeJointTransforms(joint *modelspec.JointSpec, pose map[int]mgl32.Mat4) map[int]mgl32.Mat4 {
 	animationTransforms := map[int]mgl32.Mat4{}
-	computeJointPosesHelper(joint, mgl32.Ident4(), pose, animationTransforms)
+	computeJointTransformsHelper(joint, mgl32.Ident4(), pose, animationTransforms)
 	return animationTransforms
 }
 
-func computeJointPosesHelper(joint *modelspec.JointSpec, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4) {
+func computeJointTransformsHelper(joint *modelspec.JointSpec, parentTransform mgl32.Mat4, pose map[int]mgl32.Mat4, transforms map[int]mgl32.Mat4) {
 	localTransform := pose[joint.ID]
 
 	if _, ok := pose[joint.ID]; !ok {
@@ -65,12 +65,18 @@ func computeJointPosesHelper(joint *modelspec.JointSpec, parentTransform mgl32.M
 		localTransform = joint.BindTransform
 	}
 
-	poseTransform := parentTransform.Mul4(localTransform) // model-space relative to the origin
+	// model-space transform that includes all the parental transforms
+	// and the local transform, not meant to be used to transform any vertices
+	// until we multiply it by the inverse bind transform
+	poseTransform := parentTransform.Mul4(localTransform)
 
 	for _, child := range joint.Children {
-		computeJointPosesHelper(child, poseTransform, pose, transforms)
+		computeJointTransformsHelper(child, poseTransform, pose, transforms)
 	}
-	transforms[joint.ID] = poseTransform.Mul4(joint.InverseBindTransform) // model-space relative to the bind pose
+
+	// this is the model-space transform that can finally be used to transform
+	// any vertices it influences
+	transforms[joint.ID] = poseTransform.Mul4(joint.InverseBindTransform)
 }
 
 func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*modelspec.KeyFrame) map[int]mgl32.Mat4 {
