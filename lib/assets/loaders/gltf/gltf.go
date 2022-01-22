@@ -356,11 +356,26 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, jointOrder []int) (*Par
 				}
 				jointIndices := loosenUint16Array(joints)
 				for _, jointSet := range jointIndices {
+					var allZero bool = true
 					for i, _ := range jointSet {
+						if jointSet[i] != 0 {
+							allZero = false
+						}
 						// convert from the joint index to the actual joint ID
 						jointSet[i] = jointOrder[jointSet[i]]
+						// if jointSet[i] == 42 {
+						// 	jointSet[i] = 2
+						// }
 					}
 
+					// all joint indices were zero
+					// 42 - hips, 2 - headtop_end, 3 - head, 31 - spine
+					if allZero {
+						jointSet[0] = 2
+						jointSet[1] = 2
+						jointSet[2] = 2
+						jointSet[3] = 2
+					}
 				}
 				parsedMesh.JointIDs = jointIndices
 			} else if attribute == gltf.WEIGHTS_0 {

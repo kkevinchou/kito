@@ -45,13 +45,13 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 		}
 
 		pose := calculateCurrentAnimationPose(animationComponent.ElapsedTime, animationComponent.Animation.KeyFrames())
-		animationTransforms := computeJointPoses(animationComponent.Animation.RootJoint(), pose)
+		animationTransforms := computeJointTransforms(animationComponent.Animation.RootJoint(), pose)
 		animationComponent.AnimationTransforms = animationTransforms
 	}
 }
 
 // applyPoseToJoints returns the set of transforms that move the joint from the bind pose to the given pose
-func computeJointPoses(joint *modelspec.JointSpec, pose map[int]mgl32.Mat4) map[int]mgl32.Mat4 {
+func computeJointTransforms(joint *modelspec.JointSpec, pose map[int]mgl32.Mat4) map[int]mgl32.Mat4 {
 	animationTransforms := map[int]mgl32.Mat4{}
 	computeJointPosesHelper(joint, mgl32.Ident4(), pose, animationTransforms)
 	return animationTransforms
@@ -95,8 +95,8 @@ func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*model
 		}
 	}
 
-	progression = 0
-	startKeyFrame = keyFrames[0]
+	// progression = 0
+	// startKeyFrame = keyFrames[0]
 	return interpolatePoses(startKeyFrame, endKeyFrame, progression)
 }
 
