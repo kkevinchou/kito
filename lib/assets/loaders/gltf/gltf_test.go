@@ -14,7 +14,7 @@ import (
 // how we handled poses where a joint does not have any poses
 
 func TestBasic(t *testing.T) {
-	_, err := gltf.ParseGLTF("sample/guard_head_anim.gltf")
+	_, err := gltf.ParseGLTF("sample/guard.gltf")
 	if err != nil {
 		t.Error(err)
 	}

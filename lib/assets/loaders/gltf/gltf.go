@@ -12,6 +12,7 @@ import (
 )
 
 type jointMeta struct {
+	jointID           int
 	inverseBindMatrix mgl32.Mat4
 }
 
@@ -25,9 +26,10 @@ type ParsedMesh struct {
 }
 
 type ParsedSkin struct {
-	RootJoint  *modelspec.JointSpec
-	Joints     map[int]*modelspec.JointSpec
-	JointOrder []int
+	RootJoint       *modelspec.JointSpec
+	Joints          map[int]*modelspec.JointSpec
+	NodeIDToJointID map[int]int
+	JointOrder      []int
 }
 
 type ParsedAnimation struct {
@@ -80,7 +82,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 			// found a node that has a mesh and skinning info
 			mesh := document.Meshes[*node.Mesh]
 
-			parsedMesh, err = parseMesh(document, mesh, parsedSkin.JointOrder)
+			parsedMesh, err = parseMesh(document, mesh)
 			if err != nil {
 				return nil, err
 			}
@@ -111,14 +113,15 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 }
 
 func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedSkin *ParsedSkin) (*ParsedAnimation, error) {
-	joints := parsedSkin.Joints
 	keyFrames := map[float32]*modelspec.KeyFrame{}
 
 	for _, channel := range animation.Channels {
 		nodeID := int(*channel.Target.Node)
-		if _, ok := joints[nodeID]; !ok {
+		if _, ok := parsedSkin.NodeIDToJointID[nodeID]; !ok {
 			continue
 		}
+
+		jointID := parsedSkin.NodeIDToJointID[nodeID]
 		sampler := animation.Samplers[(*channel.Sampler)]
 		inputAccessorIndex := int(*sampler.Input)
 		outputAccessorIndex := int(*sampler.Output)
@@ -148,8 +151,8 @@ func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedSk
 		}
 
 		for _, timestamp := range timestamps {
-			if _, ok := keyFrames[timestamp].Pose[nodeID]; !ok {
-				keyFrames[timestamp].Pose[nodeID] = modelspec.NewDefaultJointTransform()
+			if _, ok := keyFrames[timestamp].Pose[jointID]; !ok {
+				keyFrames[timestamp].Pose[jointID] = modelspec.NewDefaultJointTransform()
 			}
 		}
 
@@ -168,7 +171,7 @@ func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedSk
 			f32OutputValues := output.([][3]float32)
 			for i, timestamp := range timestamps {
 				f32Output := f32OutputValues[i]
-				keyFrames[timestamp].Pose[nodeID].Translation = mgl32.Vec3{f32Output[0], f32Output[1], f32Output[2]}
+				keyFrames[timestamp].Pose[jointID].Translation = mgl32.Vec3{f32Output[0], f32Output[1], f32Output[2]}
 			}
 		} else if channel.Target.Path == gltf.TRSRotation {
 			if outputAccessor.ComponentType != gltf.ComponentFloat {
@@ -184,7 +187,7 @@ func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedSk
 			f32OutputValues := output.([][4]float32)
 			for i, timestamp := range timestamps {
 				f32Output := f32OutputValues[i]
-				keyFrames[timestamp].Pose[nodeID].Rotation = mgl32.Quat{V: mgl32.Vec3{f32Output[0], f32Output[1], f32Output[2]}, W: f32Output[3]}
+				keyFrames[timestamp].Pose[jointID].Rotation = mgl32.Quat{V: mgl32.Vec3{f32Output[0], f32Output[1], f32Output[2]}, W: f32Output[3]}
 			}
 		} else if channel.Target.Path == gltf.TRSScale {
 			if outputAccessor.ComponentType != gltf.ComponentFloat {
@@ -200,7 +203,7 @@ func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedSk
 			f32OutputValues := output.([][3]float32)
 			for i, timestamp := range timestamps {
 				f32Output := f32OutputValues[i]
-				keyFrames[timestamp].Pose[nodeID].Scale = mgl32.Vec3{f32Output[0], f32Output[1], f32Output[2]}
+				keyFrames[timestamp].Pose[jointID].Scale = mgl32.Vec3{f32Output[0], f32Output[1], f32Output[2]}
 			}
 		}
 	}
@@ -227,9 +230,15 @@ func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedSk
 
 func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 	jms := map[int]*jointMeta{}
-	jointIDs := uint32SliceToIntSlice(skin.Joints)
-	for _, id := range jointIDs {
-		jms[id] = &jointMeta{}
+	jointNodeIDs := uint32SliceToIntSlice(skin.Joints)
+	nodeIDToJointID := map[int]int{}
+
+	for jointID, nodeID := range jointNodeIDs {
+		nodeIDToJointID[nodeID] = jointID
+	}
+
+	for jointID := 0; jointID < len(jointNodeIDs); jointID++ {
+		jms[jointID] = &jointMeta{}
 	}
 
 	acr := document.Accessors[int(*skin.InverseBindMatrices)]
@@ -246,8 +255,8 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 	}
 
 	inverseBindMatrices := data.([][4][4]float32)
-	for i, jointID := range jointIDs {
-		matrix := inverseBindMatrices[i]
+	for jointID, _ := range jms {
+		matrix := inverseBindMatrices[jointID]
 		inverseBindMatrix := mgl32.Mat4FromRows(
 			mgl32.Vec4{matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3]},
 			mgl32.Vec4{matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3]},
@@ -258,39 +267,44 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 	}
 
 	joints := map[int]*modelspec.JointSpec{}
-	for i, node := range document.Nodes {
-		if jm, ok := jms[i]; ok {
-			// node is a joint
-			translation := node.Translation
-			rotation := node.Rotation
-			scale := node.Scale
+	for nodeID, node := range document.Nodes {
+		if _, ok := nodeIDToJointID[nodeID]; !ok {
+			continue
+		}
 
-			// from the gltf spec:
-			//
-			// When a node is targeted for animation (referenced by an animation.channel.target),
-			// only TRS properties MAY be present; matrix MUST NOT be present.
+		jointID := nodeIDToJointID[nodeID]
+		// node is a joint
+		translation := node.Translation
+		rotation := node.Rotation
+		scale := node.Scale
 
-			translationMatrix := mgl32.Translate3D(translation[0], translation[1], translation[2])
-			rotationMatrix := mgl32.Quat{V: mgl32.Vec3{rotation[0], rotation[1], rotation[2]}, W: rotation[3]}.Mat4()
-			scaleMatrix := mgl32.Scale3D(scale[0], scale[1], scale[2])
+		// from the gltf spec:
+		//
+		// When a node is targeted for animation (referenced by an animation.channel.target),
+		// only TRS properties MAY be present; matrix MUST NOT be present.
 
-			joints[i] = &modelspec.JointSpec{
-				Name:                 fmt.Sprintf("joint_%s_%d", node.Name, i),
-				ID:                   i,
-				BindTransform:        translationMatrix.Mul4(rotationMatrix.Mul4(scaleMatrix)),
-				InverseBindTransform: jm.inverseBindMatrix,
-			}
+		translationMatrix := mgl32.Translate3D(translation[0], translation[1], translation[2])
+		rotationMatrix := mgl32.Quat{V: mgl32.Vec3{rotation[0], rotation[1], rotation[2]}, W: rotation[3]}.Mat4()
+		scaleMatrix := mgl32.Scale3D(scale[0], scale[1], scale[2])
+
+		joints[jointID] = &modelspec.JointSpec{
+			Name:                 fmt.Sprintf("joint_%s_%d", node.Name, jointID),
+			ID:                   jointID,
+			BindTransform:        translationMatrix.Mul4(rotationMatrix.Mul4(scaleMatrix)),
+			InverseBindTransform: jms[jointID].inverseBindMatrix,
 		}
 	}
 
-	childIDSet := map[int]int{}
+	childIDSet := map[int]bool{}
 	// setup children slice
-	for id, joint := range joints {
-		children := uint32SliceToIntSlice(document.Nodes[id].Children)
-		for _, childID := range children {
-			childIDSet[childID] = childID
-			joint.Children = append(joint.Children, joints[childID])
+	for jointID, nodeID := range jointNodeIDs {
+		children := uint32SliceToIntSlice(document.Nodes[nodeID].Children)
+		for _, childNodeID := range children {
+			childJointID := nodeIDToJointID[childNodeID]
+			childIDSet[childJointID] = true
+			joints[jointID].Children = append(joints[jointID].Children, joints[childJointID])
 		}
+
 	}
 
 	var root *modelspec.JointSpec
@@ -301,14 +315,14 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 	}
 
 	parsedSkin := &ParsedSkin{
-		RootJoint:  root,
-		Joints:     joints,
-		JointOrder: jointIDs,
+		RootJoint:       root,
+		Joints:          joints,
+		NodeIDToJointID: nodeIDToJointID,
 	}
 	return parsedSkin, nil
 }
 
-func parseMesh(document *gltf.Document, mesh *gltf.Mesh, jointOrder []int) (*ParsedMesh, error) {
+func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*ParsedMesh, error) {
 	parsedMesh := &ParsedMesh{}
 
 	if len(document.Meshes) > 1 {
@@ -355,33 +369,6 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, jointOrder []int) (*Par
 					return nil, err
 				}
 				jointIndices := loosenUint16Array(joints)
-				for _, jointSet := range jointIndices {
-					var allZero bool = true
-					_ = allZero
-
-					for i, _ := range jointSet {
-						if jointSet[i] != 0 {
-							allZero = false
-						}
-						// convert from the joint index to the actual joint ID
-						jointSet[i] = jointOrder[jointSet[i]]
-						// if jointSet[i] == 42 {
-						// 	jointSet[i] = 2
-						// }
-					}
-
-					// vertex 5640 - gl position 0, 0, 0
-					// joint 41 causing problems?
-
-					// all joint indices were zero
-					// 42 - hips, 2 - headtop_end, 3 - head, 31 - spine
-					// if allZero {
-					// 	jointSet[0] = 2
-					// 	jointSet[1] = 2
-					// 	jointSet[2] = 2
-					// 	jointSet[3] = 2
-					// }
-				}
 				parsedMesh.JointIDs = jointIndices
 			} else if attribute == gltf.WEIGHTS_0 {
 				acr := document.Accessors[int(index)]
