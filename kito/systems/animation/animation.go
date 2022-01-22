@@ -95,8 +95,8 @@ func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*model
 		}
 	}
 
-	// progression = 0
-	// startKeyFrame = keyFrames[0]
+	progression = 0
+	startKeyFrame = keyFrames[0]
 	return interpolatePoses(startKeyFrame, endKeyFrame, progression)
 }
 
@@ -117,5 +117,7 @@ func interpolatePoses(k1, k2 *modelspec.KeyFrame, progression float32) map[int]m
 
 		interpolatedPose[jointID] = mgl32.Translate3D(translation.X(), translation.Y(), translation.Z()).Mul4(rotation).Mul4(mgl32.Scale3D(scale.X(), scale.Y(), scale.Z()))
 	}
+	// pause hip joint
+	// interpolatedPose[42] = mgl32.Ident4()
 	return interpolatedPose
 }

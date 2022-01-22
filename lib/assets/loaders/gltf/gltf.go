@@ -275,7 +275,7 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 			scaleMatrix := mgl32.Scale3D(scale[0], scale[1], scale[2])
 
 			joints[i] = &modelspec.JointSpec{
-				Name:                 fmt.Sprintf("joint_%d", i),
+				Name:                 fmt.Sprintf("joint_%s_%d", node.Name, i),
 				ID:                   i,
 				BindTransform:        translationMatrix.Mul4(rotationMatrix.Mul4(scaleMatrix)),
 				InverseBindTransform: jm.inverseBindMatrix,

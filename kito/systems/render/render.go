@@ -20,7 +20,7 @@ import (
 const (
 	fovx float64 = 90
 	near float64 = 1
-	far  float64 = 500
+	far  float64 = 1000
 
 	// shadow map parameters
 	shadowMapDimension   int     = 8000
