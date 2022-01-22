@@ -214,11 +214,16 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			translation,
 		)
 
+		shader := "model_static"
+		if componentContainer.AnimationComponent != nil {
+			shader = "model"
+		}
+
 		drawModel(
 			viewerContext,
 			lightContext,
 			s.shadowMap,
-			shaderManager.GetShaderProgram(meshComponent.ShaderProgram),
+			shaderManager.GetShaderProgram(shader),
 			componentContainer.MeshComponent,
 			componentContainer.AnimationComponent,
 			meshModelMatrix,

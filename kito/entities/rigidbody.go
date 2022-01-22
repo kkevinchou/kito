@@ -21,26 +21,22 @@ var (
 )
 
 func NewScene(position mgl64.Vec3) *EntityImpl {
-	shaderProgram := "model_static"
-	return NewRigidBody(position, "sceneuv", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid", shaderProgram)
+	return NewRigidBody(position, "sceneuv", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid")
 }
 
 func NewSlime(position mgl64.Vec3) *EntityImpl {
-	shaderProgram := "model"
-	return NewRigidBody(position, "slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime, "default", shaderProgram)
+	return NewRigidBody(position, "slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime, "default")
 }
 
 func NewStaticRigidBody(position mgl64.Vec3) *EntityImpl {
-	shaderProgram := "model_static"
-	return NewRigidBody(position, "cubetest2", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default", shaderProgram)
+	return NewRigidBody(position, "cubetest2", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default")
 }
 
 func NewDynamicRigidBody(position mgl64.Vec3) *EntityImpl {
-	shaderProgram := "model"
-	return NewRigidBody(position, "guard", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "color_grid", shaderProgram)
+	return NewRigidBody(position, "guard", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "color_grid")
 }
 
-func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string, shaderProgram string) *EntityImpl {
+func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string) *EntityImpl {
 	transformComponent := &components.TransformComponent{
 		Position:    position,
 		Orientation: mgl64.QuatIdent(),
@@ -64,7 +60,6 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
-		ShaderProgram:    shaderProgram,
 		Scale:            Scale,
 		Orientation:      Orientation,
 		Material:         m.Mesh.Material(),

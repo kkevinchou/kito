@@ -12,10 +12,7 @@ import (
 )
 
 func NewBob() *EntityImpl {
-	// modelName := "guard_running"
-	modelName := "slime_kevin"
-	shaderProgram := "model_static"
-	// shaderProgram := "model_static"
+	modelName := "guard_running"
 	textureName := "Guard_02__diffuse"
 
 	transformComponent := &components.TransformComponent{
@@ -51,7 +48,6 @@ func NewBob() *EntityImpl {
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
-		ShaderProgram:    shaderProgram,
 		Scale:            mgl64.Scale3D(0.07, 0.07, 0.07),
 		Orientation:      yr,
 		Material:         m.Mesh.Material(),
@@ -73,7 +69,7 @@ func NewBob() *EntityImpl {
 	entityComponents := []components.Component{
 		&components.NetworkComponent{},
 		transformComponent,
-		// animationComponent,
+		animationComponent,
 		physicsComponent,
 		thirdPersonControllerComponent,
 		meshComponent,
