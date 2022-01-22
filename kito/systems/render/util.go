@@ -35,6 +35,7 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 
 	if animationComponent != nil {
 		animationTransforms := animationComponent.AnimationTransforms
+		fmt.Println(len(animationTransforms))
 		for i := 0; i < len(animationTransforms); i++ {
 			shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
 		}

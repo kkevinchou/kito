@@ -12,7 +12,8 @@ import (
 )
 
 func NewBob() *EntityImpl {
-	modelName := "guard_running"
+	// modelName := "guard_running"
+	modelName := "slime_kevin"
 	shaderProgram := "model_static"
 	// shaderProgram := "model_static"
 	textureName := "Guard_02__diffuse"

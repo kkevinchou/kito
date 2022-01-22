@@ -37,7 +37,7 @@ func NewStaticRigidBody(position mgl64.Vec3) *EntityImpl {
 
 func NewDynamicRigidBody(position mgl64.Vec3) *EntityImpl {
 	shaderProgram := "model"
-	return NewRigidBody(position, "guard_head_anim", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "color_grid", shaderProgram)
+	return NewRigidBody(position, "guard", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "color_grid", shaderProgram)
 }
 
 func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string, shaderProgram string) *EntityImpl {

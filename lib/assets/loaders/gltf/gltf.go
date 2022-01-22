@@ -357,6 +357,8 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, jointOrder []int) (*Par
 				jointIndices := loosenUint16Array(joints)
 				for _, jointSet := range jointIndices {
 					var allZero bool = true
+					_ = allZero
+
 					for i, _ := range jointSet {
 						if jointSet[i] != 0 {
 							allZero = false
@@ -368,14 +370,17 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, jointOrder []int) (*Par
 						// }
 					}
 
+					// vertex 5640 - gl position 0, 0, 0
+					// joint 41 causing problems?
+
 					// all joint indices were zero
 					// 42 - hips, 2 - headtop_end, 3 - head, 31 - spine
-					if allZero {
-						jointSet[0] = 2
-						jointSet[1] = 2
-						jointSet[2] = 2
-						jointSet[3] = 2
-					}
+					// if allZero {
+					// 	jointSet[0] = 2
+					// 	jointSet[1] = 2
+					// 	jointSet[2] = 2
+					// 	jointSet[3] = 2
+					// }
 				}
 				parsedMesh.JointIDs = jointIndices
 			} else if attribute == gltf.WEIGHTS_0 {
