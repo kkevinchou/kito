@@ -12,7 +12,6 @@ import (
 )
 
 type jointMeta struct {
-	jointID           int
 	inverseBindMatrix mgl32.Mat4
 }
 
@@ -25,7 +24,7 @@ type ParsedMesh struct {
 	JointWeights           [][]float32
 }
 
-type ParsedSkin struct {
+type ParsedJoints struct {
 	RootJoint       *modelspec.JointSpec
 	Joints          map[int]*modelspec.JointSpec
 	NodeIDToJointID map[int]int
@@ -47,10 +46,9 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		panic("unable to handle > 1 mesh")
 	}
 
-	// Parse skinning info to construct the joint hierarchy
-	var parsedSkin *ParsedSkin
+	var parsedJoints *ParsedJoints
 	for _, skin := range document.Skins {
-		parsedSkin, err = parseSkin(document, skin)
+		parsedJoints, err = parseJoints(document, skin)
 		if err != nil {
 			return nil, err
 		}
@@ -58,25 +56,13 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 
 	var parsedAnimation *ParsedAnimation
 	for _, animation := range document.Animations {
-		parsedAnimation, err = parseAnimation(document, animation, parsedSkin)
+		parsedAnimation, err = parseAnimation(document, animation, parsedJoints)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	// animation info
-	// iterate channels
-	// only consider nodes that are joints (as determined by skinning info)
-	// collect all the samplers
-	//     the "input" for the sampler is the key frame time stamp. use this to create each key frame
-	//     the "output" for the sampler is the value for the transform
-	//     the type of transformation is based off of the channel "path" field
-	// each sampler does a create/update on a keyframe. keyframe is added to a map, key: timestamp
-	// key frames are sorted by time stamp and placed in the animation spec
-
 	var parsedMesh *ParsedMesh
-
-	// should theoretically only find one node with a mesh/skin
 	for _, node := range document.Nodes {
 		if node.Mesh != nil && node.Skin != nil {
 			// found a node that has a mesh and skinning info
@@ -93,7 +79,6 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 
 	result := &modelspec.ModelSpecification{
 		VertexAttributeIndices: parsedMesh.VertexAttributeIndices,
-		// TODO: FIX tHIS NUMBER WHEN WE ADD ANIMATIONS
 		VertexAttributesStride: 3,
 
 		PositionSourceData: parsedMesh.PositionSource,
@@ -104,24 +89,23 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		JointIDs:     parsedMesh.JointIDs,
 		JointWeights: parsedMesh.JointWeights,
 
-		RootJoint: parsedSkin.RootJoint,
+		RootJoint: parsedJoints.RootJoint,
 		Animation: parsedAnimation.AnimationSpec,
-		// Animation: &modelspec.AnimationSpec{KeyFrames: keyFrames, Length: keyFrames[len(keyFrames)-1].Start},
 	}
 
 	return result, nil
 }
 
-func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedSkin *ParsedSkin) (*ParsedAnimation, error) {
+func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedJoints *ParsedJoints) (*ParsedAnimation, error) {
 	keyFrames := map[float32]*modelspec.KeyFrame{}
 
 	for _, channel := range animation.Channels {
 		nodeID := int(*channel.Target.Node)
-		if _, ok := parsedSkin.NodeIDToJointID[nodeID]; !ok {
+		if _, ok := parsedJoints.NodeIDToJointID[nodeID]; !ok {
 			continue
 		}
 
-		jointID := parsedSkin.NodeIDToJointID[nodeID]
+		jointID := parsedJoints.NodeIDToJointID[nodeID]
 		sampler := animation.Samplers[(*channel.Sampler)]
 		inputAccessorIndex := int(*sampler.Input)
 		outputAccessorIndex := int(*sampler.Output)
@@ -228,7 +212,7 @@ func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedSk
 	}, nil
 }
 
-func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
+func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error) {
 	jms := map[int]*jointMeta{}
 	jointNodeIDs := uint32SliceToIntSlice(skin.Joints)
 	nodeIDToJointID := map[int]int{}
@@ -273,7 +257,6 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 		}
 
 		jointID := nodeIDToJointID[nodeID]
-		// node is a joint
 		translation := node.Translation
 		rotation := node.Rotation
 		scale := node.Scale
@@ -295,8 +278,8 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 		}
 	}
 
+	// set up the joint hierarchy
 	childIDSet := map[int]bool{}
-	// setup children slice
 	for jointID, nodeID := range jointNodeIDs {
 		children := uint32SliceToIntSlice(document.Nodes[nodeID].Children)
 		for _, childNodeID := range children {
@@ -307,6 +290,7 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 
 	}
 
+	// find the root
 	var root *modelspec.JointSpec
 	for id, _ := range joints {
 		if _, ok := childIDSet[id]; !ok {
@@ -314,20 +298,17 @@ func parseSkin(document *gltf.Document, skin *gltf.Skin) (*ParsedSkin, error) {
 		}
 	}
 
-	parsedSkin := &ParsedSkin{
+	parsedJoints := &ParsedJoints{
 		RootJoint:       root,
 		Joints:          joints,
 		NodeIDToJointID: nodeIDToJointID,
 	}
-	return parsedSkin, nil
+	return parsedJoints, nil
 }
 
 func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*ParsedMesh, error) {
 	parsedMesh := &ParsedMesh{}
 
-	if len(document.Meshes) > 1 {
-		panic("unable to handle > 1 mesh")
-	}
 	for _, primitive := range mesh.Primitives {
 		acrIndex := *primitive.Indices
 		meshIndices, err := modeler.ReadIndices(document, document.Accessors[int(acrIndex)], nil)
@@ -336,10 +317,10 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*ParsedMesh, error) {
 		}
 
 		for _, index := range meshIndices {
+			// TODO: this seems like an odd implementation detail that we force all the loaders to know about and implement.
 			parsedMesh.VertexAttributeIndices = append(parsedMesh.VertexAttributeIndices, []int{int(index), int(index), int(index)}...)
 		}
 
-		// attributes := primitive.Attributes
 		for attribute, index := range primitive.Attributes {
 			if attribute == gltf.POSITION {
 				acr := document.Accessors[int(index)]
@@ -368,8 +349,8 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*ParsedMesh, error) {
 				if err != nil {
 					return nil, err
 				}
-				jointIndices := loosenUint16Array(joints)
-				parsedMesh.JointIDs = jointIndices
+				jointIDs := loosenUint16Array(joints)
+				parsedMesh.JointIDs = jointIDs
 			} else if attribute == gltf.WEIGHTS_0 {
 				acr := document.Accessors[int(index)]
 				weights, err := modeler.ReadWeights(document, acr, nil)
