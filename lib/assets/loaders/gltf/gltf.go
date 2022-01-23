@@ -355,7 +355,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*ParsedMesh, error) {
 				jointWeights := loosenFloat32Array4(weights)
 				parsedMesh.JointWeights = jointWeights
 			} else {
-				fmt.Printf("unhandled attribute %s\n", attribute)
+				fmt.Printf("[%s] unhandled attribute %s\n", mesh.Name, attribute)
 			}
 		}
 	}
