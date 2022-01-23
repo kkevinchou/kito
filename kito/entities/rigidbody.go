@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"fmt"
+
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
@@ -27,7 +29,11 @@ func NewSlime(position mgl64.Vec3) *EntityImpl {
 }
 
 func NewStaticRigidBody(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "cubetest", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default")
+	return NewRigidBody(position, "cubetest2", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default")
+}
+
+func NewDynamicRigidBody(position mgl64.Vec3) *EntityImpl {
+	return NewRigidBody(position, "guard", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "color_grid")
 }
 
 func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string) *EntityImpl {
@@ -54,7 +60,6 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
-		ShaderProgram:    "model_static",
 		Scale:            Scale,
 		Orientation:      Orientation,
 		Material:         m.Mesh.Material(),
@@ -74,17 +79,27 @@ func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orien
 		Static: true,
 	}
 
+	componentList := []components.Component{
+		transformComponent,
+		renderComponent,
+		&components.NetworkComponent{},
+		meshComponent,
+		colliderComponent,
+		physicsComponent,
+	}
+
+	if m.Animation != nil {
+		fmt.Println("rigid body with animation", modelName)
+		animationComponent := &components.AnimationComponent{
+			Animation: m.Animation,
+		}
+		componentList = append(componentList, animationComponent)
+	}
+
 	entity := NewEntity(
 		"rigidbody",
 		entityType,
-		components.NewComponentContainer(
-			transformComponent,
-			renderComponent,
-			&components.NetworkComponent{},
-			meshComponent,
-			colliderComponent,
-			physicsComponent,
-		),
+		components.NewComponentContainer(componentList...),
 	)
 
 	return entity

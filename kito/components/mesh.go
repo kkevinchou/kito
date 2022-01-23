@@ -11,7 +11,6 @@ type MeshComponent struct {
 	ModelVAO         uint32
 	ModelVertexCount int
 	Texture          *textures.Texture
-	ShaderProgram    string
 	Scale            mgl64.Mat4
 	Orientation      mgl64.Mat4
 	Material         *modelspec.EffectSpec

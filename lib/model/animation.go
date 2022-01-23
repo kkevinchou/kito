@@ -61,11 +61,15 @@ func (a *Animation) BindVertexAttributes() {
 	jointIDsAttribute := []int32{}
 	jointWeightsAttribute := []float32{}
 
+	// TODO: it seems like we currently duplicate vertex data in a vertex array rather than using an EBO store indices to the vertices
+	// this is probably less efficient? we store redundant data for the same vertex as if it were a new vertex. e.g. duplicated positions and
+	// joint weights
+
 	for i := 0; i < len(a.vertexAttributeIndices); i += a.vertexAttributesStride {
+		// vertex index is the index of the position which we assume to be the first property
 		vertexIndex := a.vertexAttributeIndices[i]
 
 		ids, weights := FillWeights(a.jointIDs[vertexIndex], a.jointWeights[vertexIndex])
-
 		for _, id := range ids {
 			jointIDsAttribute = append(jointIDsAttribute, int32(id))
 		}

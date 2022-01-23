@@ -103,6 +103,7 @@ func (m *Mesh) BindVertexAttributes() {
 	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, int32(m.totalAttributeSize)*4, gl.PtrOffset(6*4))
 	gl.EnableVertexAttribArray(2)
 
-	gl.VertexAttribPointer(3, 3, gl.FLOAT, false, int32(m.totalAttributeSize)*4, gl.PtrOffset(8*4))
-	gl.EnableVertexAttribArray(3)
+	// TODO: deprecate this, color not really useful
+	// gl.VertexAttribPointer(3, 3, gl.FLOAT, false, int32(m.totalAttributeSize)*4, gl.PtrOffset(8*4))
+	// gl.EnableVertexAttribArray(3)
 }

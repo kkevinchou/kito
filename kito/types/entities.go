@@ -10,5 +10,6 @@ const (
 	EntityTypeScene
 	EntityTypeStaticSlime
 	EntityTypeStaticRigidBody
+	EntityTypeDynamicRigidBody
 	EntityTypeProjectile
 )

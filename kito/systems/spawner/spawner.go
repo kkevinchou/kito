@@ -60,6 +60,9 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeStaticSlime {
 				newEntity = entities.NewSlime(entitySnapshot.Position)
 				newEntity.ID = entitySnapshot.ID
+			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeDynamicRigidBody {
+				newEntity = entities.NewDynamicRigidBody(entitySnapshot.Position)
+				newEntity.ID = entitySnapshot.ID
 			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeStaticRigidBody {
 				newEntity = entities.NewStaticRigidBody(entitySnapshot.Position)
 				newEntity.ID = entitySnapshot.ID

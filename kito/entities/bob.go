@@ -13,7 +13,6 @@ import (
 
 func NewBob() *EntityImpl {
 	modelName := "guard_running"
-	shaderProgram := "model"
 	textureName := "Guard_02__diffuse"
 
 	transformComponent := &components.TransformComponent{
@@ -49,7 +48,6 @@ func NewBob() *EntityImpl {
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
-		ShaderProgram:    shaderProgram,
 		Scale:            mgl64.Scale3D(0.07, 0.07, 0.07),
 		Orientation:      yr,
 		Material:         m.Mesh.Material(),

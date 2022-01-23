@@ -36,8 +36,8 @@ func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecificati
 	var subDirectories []string = []string{"collada", "gltf"}
 
 	extensions := map[string]interface{}{
-		".dae": nil,
-		".glb": nil,
+		".dae":  nil,
+		".gltf": nil,
 	}
 
 	animationMap := map[string]*modelspec.ModelSpecification{}
@@ -57,7 +57,7 @@ func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecificati
 				fmt.Println("failed to parse collada for", metaData.Path, ", error:", err)
 				continue
 			}
-		} else if metaData.Extension == ".glb" {
+		} else if metaData.Extension == ".gltf" {
 			modelSpec, err = gltf.ParseGLTF(metaData.Path)
 			if err != nil {
 				fmt.Println("failed to parse gltf for", metaData.Path, ", error:", err)

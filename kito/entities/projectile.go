@@ -13,7 +13,6 @@ import (
 
 func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	modelName := "projectile"
-	shaderProgram := "model_static"
 	textureName := "color_grid"
 
 	transformComponent := &components.TransformComponent{
@@ -47,7 +46,6 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
-		ShaderProgram:    shaderProgram,
 		Scale:            mgl64.Ident4(),
 		Orientation:      mgl64.Ident4(),
 	}

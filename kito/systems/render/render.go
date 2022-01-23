@@ -214,39 +214,44 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			translation,
 		)
 
+		shader := "model_static"
+		if componentContainer.AnimationComponent != nil {
+			shader = "model"
+		}
+
 		drawModel(
 			viewerContext,
 			lightContext,
 			s.shadowMap,
-			shaderManager.GetShaderProgram(meshComponent.ShaderProgram),
+			shaderManager.GetShaderProgram(shader),
 			componentContainer.MeshComponent,
 			componentContainer.AnimationComponent,
 			meshModelMatrix,
 		)
 
-		// if componentContainer.ColliderComponent != nil {
-		// 	if componentContainer.ColliderComponent.CapsuleCollider != nil {
-		// 		// lots of hacky rendering stuff to get the rectangle to billboard
-		// 		center := mgl64.Vec3{componentContainer.TransformComponent.Position.X(), 0, componentContainer.TransformComponent.Position.Z()}
-		// 		viewerArtificialCenter := mgl64.Vec3{viewerContext.Position.X(), 0, viewerContext.Position.Z()}
-		// 		vecToViewer := viewerArtificialCenter.Sub(center).Normalize()
-		// 		billboardModelMatrix := translation.Mul4(mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, 1}, vecToViewer).Mat4())
-		// 		drawCapsuleCollider(
-		// 			viewerContext,
-		// 			lightContext,
-		// 			shaderManager.GetShaderProgram("basicsolid"),
-		// 			componentContainer.ColliderComponent.CapsuleCollider,
-		// 			billboardModelMatrix,
-		// 		)
-		// 	} else if componentContainer.ColliderComponent.TransformedTriMeshCollider != nil {
-		// 		drawTriMeshCollider(
-		// 			viewerContext,
-		// 			lightContext,
-		// 			shaderManager.GetShaderProgram("basicsolid"),
-		// 			componentContainer.ColliderComponent.TransformedTriMeshCollider,
-		// 		)
-		// 	}
-		// }
+		if componentContainer.ColliderComponent != nil {
+			if componentContainer.ColliderComponent.CapsuleCollider != nil {
+				// lots of hacky rendering stuff to get the rectangle to billboard
+				center := mgl64.Vec3{componentContainer.TransformComponent.Position.X(), 0, componentContainer.TransformComponent.Position.Z()}
+				viewerArtificialCenter := mgl64.Vec3{viewerContext.Position.X(), 0, viewerContext.Position.Z()}
+				vecToViewer := viewerArtificialCenter.Sub(center).Normalize()
+				billboardModelMatrix := translation.Mul4(mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, 1}, vecToViewer).Mat4())
+				drawCapsuleCollider(
+					viewerContext,
+					lightContext,
+					shaderManager.GetShaderProgram("basicsolid"),
+					componentContainer.ColliderComponent.CapsuleCollider,
+					billboardModelMatrix,
+				)
+			} else if componentContainer.ColliderComponent.TransformedTriMeshCollider != nil {
+				drawTriMeshCollider(
+					viewerContext,
+					lightContext,
+					shaderManager.GetShaderProgram("basicsolid"),
+					componentContainer.ColliderComponent.TransformedTriMeshCollider,
+				)
+			}
+		}
 	}
 
 	fps := int(singleton.MetricsRegistry.GetOneSecondSum("fps"))
