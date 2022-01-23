@@ -12,8 +12,8 @@ import (
 )
 
 func NewBob() *EntityImpl {
-	modelName := "guard_running"
-	textureName := "Guard_02__diffuse"
+	modelName := "guard"
+	textureName := "color_grid"
 
 	transformComponent := &components.TransformComponent{
 		Position:    mgl64.Vec3{0, 50, 40},

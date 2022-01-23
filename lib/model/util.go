@@ -3,7 +3,6 @@ package model
 import (
 	"sort"
 
-	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
@@ -71,13 +70,13 @@ func (s byWeights) Less(i, j int) bool {
 
 // careful with this method. i believe this assumes that the local bind pose is in a tpose but this isn't always the case.
 // in collada files it's more reliable to read the inv bind matrix from the data file itself rather than try to calculate it
-func calculateInverseBindTransform(joint *modelspec.JointSpec, parentBindTransform mgl32.Mat4) {
-	bindTransform := parentBindTransform.Mul4(joint.BindTransform) // model-space relative to the origin
-	joint.InverseBindTransform = bindTransform.Inv()
-	for _, child := range joint.Children {
-		calculateInverseBindTransform(child, bindTransform)
-	}
-}
+// func calculateInverseBindTransform(joint *modelspec.JointSpec, parentBindTransform mgl32.Mat4) {
+// 	bindTransform := parentBindTransform.Mul4(joint.BindTransform) // model-space relative to the origin
+// 	joint.InverseBindTransform = bindTransform.Inv()
+// 	for _, child := range joint.Children {
+// 		calculateInverseBindTransform(child, bindTransform)
+// 	}
+// }
 
 func getJointMap(joint *modelspec.JointSpec, jointMap map[int]*modelspec.JointSpec) map[int]*modelspec.JointSpec {
 	jointMap[joint.ID] = joint
