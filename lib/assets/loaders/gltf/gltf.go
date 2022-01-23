@@ -62,38 +62,33 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 	}
 
-	var parsedMesh *ParsedMesh
-	for _, node := range document.Nodes {
-		if node.Mesh != nil && node.Skin != nil {
-			// found a node that has a mesh and skinning info
-			mesh := document.Meshes[*node.Mesh]
-
-			parsedMesh, err = parseMesh(document, mesh)
-			if err != nil {
-				return nil, err
-			}
-
-			break
-		}
+	parsedMesh, err := parseMesh(document, document.Meshes[0])
+	if err != nil {
+		return nil, err
 	}
 
-	result := &modelspec.ModelSpecification{
+	modelSpec := &modelspec.ModelSpecification{
 		VertexAttributeIndices: parsedMesh.VertexAttributeIndices,
 		VertexAttributesStride: 3,
 
 		PositionSourceData: parsedMesh.PositionSource,
 		NormalSourceData:   parsedMesh.NormalSource,
 		TextureSourceData:  parsedMesh.TextureSource,
+
 		// EffectSpecData:     effectSpec,
-
-		JointIDs:     parsedMesh.JointIDs,
-		JointWeights: parsedMesh.JointWeights,
-
-		RootJoint: parsedJoints.RootJoint,
-		Animation: parsedAnimation.AnimationSpec,
 	}
 
-	return result, nil
+	if parsedJoints != nil {
+		modelSpec.RootJoint = parsedJoints.RootJoint
+		modelSpec.JointIDs = parsedMesh.JointIDs
+		modelSpec.JointWeights = parsedMesh.JointWeights
+	}
+
+	if parsedAnimation != nil {
+		modelSpec.Animation = parsedAnimation.AnimationSpec
+	}
+
+	return modelSpec, nil
 }
 
 func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedJoints *ParsedJoints) (*ParsedAnimation, error) {

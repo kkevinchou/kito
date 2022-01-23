@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kkevinchou/kito/lib/assets/loaders/collada"
 	"github.com/kkevinchou/kito/lib/assets/loaders/glfonts"
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltextures"
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltf"
@@ -15,7 +14,7 @@ import (
 )
 
 func LoadTextures(directory string) map[string]*textures.Texture {
-	var subDirectories []string = []string{"images", "collada", "icons"}
+	var subDirectories []string = []string{"images", "icons", "gltf"}
 
 	extensions := map[string]interface{}{
 		".png": nil,
@@ -26,6 +25,9 @@ func LoadTextures(directory string) map[string]*textures.Texture {
 
 	for _, metaData := range fileMetaData {
 		textureID := gltextures.NewTexture(metaData.Path)
+		if _, ok := textureMap[metaData.Name]; ok {
+			panic(fmt.Sprintf("texture with duplicate name %s found", metaData.Name))
+		}
 		textureMap[metaData.Name] = &textures.Texture{ID: textureID}
 	}
 
@@ -33,10 +35,9 @@ func LoadTextures(directory string) map[string]*textures.Texture {
 }
 
 func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecification {
-	var subDirectories []string = []string{"collada", "gltf"}
+	var subDirectories []string = []string{"gltf"}
 
 	extensions := map[string]interface{}{
-		".dae":  nil,
 		".gltf": nil,
 	}
 
@@ -51,13 +52,7 @@ func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecificati
 			continue
 		}
 
-		if metaData.Extension == ".dae" {
-			modelSpec, err = collada.ParseCollada(metaData.Path)
-			if err != nil {
-				fmt.Println("failed to parse collada for", metaData.Path, ", error:", err)
-				continue
-			}
-		} else if metaData.Extension == ".gltf" {
+		if metaData.Extension == ".gltf" {
 			modelSpec, err = gltf.ParseGLTF(metaData.Path)
 			if err != nil {
 				fmt.Println("failed to parse gltf for", metaData.Path, ", error:", err)
