@@ -2,6 +2,7 @@ package camera
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
@@ -14,8 +15,7 @@ import (
 )
 
 const (
-	mouseWheelSensitivity float64 = 0.5
-	zoomDecay             float64 = 0.1
+	mouseWheelSensitivity float64 = 2
 )
 
 type World interface {
@@ -109,23 +109,24 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	zoomDirection := libutils.NormalizeF64(followComponent.ZoomSpeed)
 
 	if mouseInput.MouseWheelDelta != 0 {
-		// allow the buildup of zoom velocity if we have continuous mouse wheeling
+		currentMouseZoomDirection := libutils.NormalizeF64(float64(mouseInput.MouseWheelDelta))
+
 		// allow instantaneous direction change
-		if !libutils.SameSign(zoomDirection, float64(mouseInput.MouseWheelDelta)) {
+		if !libutils.SameSign(zoomDirection, currentMouseZoomDirection) {
 			followComponent.ZoomSpeed = 0
 		}
 
-		zoomDirection = libutils.NormalizeF64(float64(mouseInput.MouseWheelDelta))
-		followComponent.ZoomSpeed += float64(mouseInput.MouseWheelDelta)
+		zoomDirection = currentMouseZoomDirection
+		followComponent.ZoomSpeed = zoomDirection * mouseWheelSensitivity
 	}
 
 	// decay zoom velocity
-	followComponent.ZoomSpeed -= zoomDecay * zoomDirection
-	if !libutils.SameSign(zoomDirection, followComponent.ZoomSpeed) {
+	followComponent.ZoomSpeed *= 0.95
+	if !libutils.SameSign(zoomDirection, followComponent.ZoomSpeed) || math.Abs(followComponent.ZoomSpeed) < 0.01 {
 		followComponent.ZoomSpeed = 0
 	}
 
-	followComponent.Zoom += followComponent.ZoomSpeed * mouseWheelSensitivity
+	followComponent.Zoom += followComponent.ZoomSpeed
 
 	if followComponent.FollowDistance-followComponent.Zoom >= followComponent.MaxFollowDistance {
 		followComponent.Zoom = -(followComponent.MaxFollowDistance - followComponent.FollowDistance)
