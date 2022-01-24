@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
@@ -16,14 +15,7 @@ type Mesh struct {
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
-	vertexAttributes, totalAttributeSize, vertices := constructMeshVertexAttributes(
-		spec.VertexAttributeIndices,
-		spec.VertexAttributesStride,
-		spec.PositionSourceData,
-		spec.NormalSourceData,
-		spec.ColorSourceData,
-		spec.TextureSourceData,
-	)
+	vertexAttributes, totalAttributeSize, vertices := constructMeshVertexAttributes(spec)
 
 	return &Mesh{
 		vertexCount:        len(vertexAttributes) / totalAttributeSize,
@@ -43,43 +35,35 @@ func (m *Mesh) Material() *modelspec.EffectSpec {
 }
 
 func constructMeshVertexAttributes(
-	vertexAttributeIndices []int,
-	vertexAttributesStride int,
-	positionSourceData []mgl32.Vec3,
-	normalSourceData []mgl32.Vec3,
-	colorSourceData []mgl32.Vec3,
-	textureSourceData []mgl32.Vec2,
+	spec *modelspec.ModelSpecification,
 ) ([]float32, int, []mgl64.Vec3) {
+	var vertices []mgl64.Vec3
 	vertexAttributes := []float32{}
 
-	totalAttributeSize := len(positionSourceData[0]) + len(normalSourceData[0]) + len(textureSourceData[0])
+	for _, mesh := range spec.Meshes {
+		positionSourceData := mesh.PositionSourceData
+		normalSourceData := mesh.NormalSourceData
+		textureSourceData := mesh.TextureSourceData
+		vertexAttributeIndices := mesh.VertexAttributeIndices
+		vertexAttributesStride := mesh.VertexAttributesStride
 
-	colorPresent := colorSourceData != nil
-	if colorPresent {
-		totalAttributeSize += len(colorSourceData[0])
-	}
+		// triIndicies format: position, normal, texture, color
+		for i := 0; i < len(vertexAttributeIndices); i += vertexAttributesStride {
+			// TODO: we are assuming this ordering of position, normal, texture but this is not
+			// necessarily the case. it depends on the <input> elements are ordered in the collada file
+			position := positionSourceData[vertexAttributeIndices[i]]
+			normal := normalSourceData[vertexAttributeIndices[i+1]]
+			texture := textureSourceData[vertexAttributeIndices[i+2]]
 
-	var vertices []mgl64.Vec3
+			vertexAttributes = append(vertexAttributes, position.X(), position.Y(), position.Z())
+			vertexAttributes = append(vertexAttributes, normal.X(), normal.Y(), normal.Z())
+			vertexAttributes = append(vertexAttributes, texture.X(), texture.Y())
 
-	// triIndicies format: position, normal, texture, color
-	for i := 0; i < len(vertexAttributeIndices); i += vertexAttributesStride {
-		// TODO: we are assuming this ordering of position, normal, texture but this is not
-		// necessarily the case. it depends on the <input> elements are ordered in the collada file
-		position := positionSourceData[vertexAttributeIndices[i]]
-		normal := normalSourceData[vertexAttributeIndices[i+1]]
-		texture := textureSourceData[vertexAttributeIndices[i+2]]
-
-		vertexAttributes = append(vertexAttributes, position.X(), position.Y(), position.Z())
-		vertexAttributes = append(vertexAttributes, normal.X(), normal.Y(), normal.Z())
-		vertexAttributes = append(vertexAttributes, texture.X(), texture.Y())
-
-		if colorPresent {
-			color := colorSourceData[vertexAttributeIndices[i+3]]
-			vertexAttributes = append(vertexAttributes, color.X(), color.Y(), color.Z())
+			vertices = append(vertices, mgl64.Vec3{float64(position.X()), float64(position.Y()), float64(position.Z())})
 		}
-		vertices = append(vertices, mgl64.Vec3{float64(position.X()), float64(position.Y()), float64(position.Z())})
 	}
 
+	totalAttributeSize := len(spec.Meshes[0].PositionSourceData[0]) + len(spec.Meshes[0].NormalSourceData[0]) + len(spec.Meshes[0].TextureSourceData[0])
 	return vertexAttributes, totalAttributeSize, vertices
 }
 

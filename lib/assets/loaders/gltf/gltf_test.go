@@ -12,9 +12,9 @@ import (
 // this means the original animation looked wonky probably because there was no pose info
 // for the joint which our animation loading code did not understand. likely need to see
 // how we handled poses where a joint does not have any poses
-
+// C:\Users\kkevi\goprojects\kito\lib\assets\loaders\gltf\gltf_test.go
 func TestBasic(t *testing.T) {
-	_, err := gltf.ParseGLTF("sample/sceneuv.gltf")
+	_, err := gltf.ParseGLTF("../../../../_assets/gltf/xbot.gltf")
 	if err != nil {
 		t.Error(err)
 	}

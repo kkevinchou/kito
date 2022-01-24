@@ -40,20 +40,27 @@ func (a *Animation) Length() time.Duration {
 }
 
 func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
+	// TODO: handle animations for multiple meshes
+	mesh := spec.Meshes[0]
+	vertexAttributeIndices := mesh.VertexAttributeIndices
+	vertexAttributesStride := mesh.VertexAttributesStride
+	jointIDs := mesh.JointIDs
+	jointWeights := mesh.JointWeights
+
 	return &Animation{
 		animationSpec: spec.Animation,
 		rootJoint:     spec.RootJoint,
 
-		vertexAttributeIndices: spec.VertexAttributeIndices,
-		vertexAttributesStride: spec.VertexAttributesStride,
-		jointIDs:               spec.JointIDs,
-		jointWeights:           spec.JointWeights,
+		vertexAttributeIndices: vertexAttributeIndices,
+		vertexAttributesStride: vertexAttributesStride,
+		jointIDs:               jointIDs,
+		jointWeights:           jointWeights,
 	}
 }
 
 // lays out the vertex atrributes for:
-// 4 - joint indices    vec3
-// 5 - joint weights    vec3
+// 3 - joint indices    vec3
+// 4 - joint weights    vec3
 
 // regardless of the number of joints affecting the joint
 // we always pad out the full number of joints and weights with zeros
@@ -80,13 +87,13 @@ func (a *Animation) BindVertexAttributes() {
 	gl.GenBuffers(1, &vboJointIDs)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointIDs)
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointIDsAttribute)*4, gl.Ptr(jointIDsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribIPointer(4, int32(settings.AnimationMaxJointWeights), gl.INT, int32(settings.AnimationMaxJointWeights)*4, nil)
-	gl.EnableVertexAttribArray(4)
+	gl.VertexAttribIPointer(3, int32(settings.AnimationMaxJointWeights), gl.INT, int32(settings.AnimationMaxJointWeights)*4, nil)
+	gl.EnableVertexAttribArray(3)
 
 	var vboJointWeights uint32
 	gl.GenBuffers(1, &vboJointWeights)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(5, int32(settings.AnimationMaxJointWeights), gl.FLOAT, false, int32(settings.AnimationMaxJointWeights)*4, nil)
-	gl.EnableVertexAttribArray(5)
+	gl.VertexAttribPointer(4, int32(settings.AnimationMaxJointWeights), gl.FLOAT, false, int32(settings.AnimationMaxJointWeights)*4, nil)
+	gl.EnableVertexAttribArray(4)
 }

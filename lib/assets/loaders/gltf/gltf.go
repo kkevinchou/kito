@@ -42,10 +42,6 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		return nil, err
 	}
 
-	if len(document.Meshes) > 1 {
-		panic("unable to handle > 1 mesh")
-	}
-
 	var parsedJoints *ParsedJoints
 	for _, skin := range document.Skins {
 		parsedJoints, err = parseJoints(document, skin)
@@ -62,26 +58,36 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 	}
 
-	parsedMesh, err := parseMesh(document, document.Meshes[0])
-	if err != nil {
-		return nil, err
+	modelSpec := &modelspec.ModelSpecification{
+		// EffectSpecData:     effectSpec,
 	}
 
-	modelSpec := &modelspec.ModelSpecification{
-		VertexAttributeIndices: parsedMesh.VertexAttributeIndices,
-		VertexAttributesStride: 3,
+	for _, mesh := range document.Meshes {
+		parsedMesh, err := parseMesh(document, mesh)
+		if err != nil {
+			return nil, err
+		}
 
-		PositionSourceData: parsedMesh.PositionSource,
-		NormalSourceData:   parsedMesh.NormalSource,
-		TextureSourceData:  parsedMesh.TextureSource,
+		meshSpec := &modelspec.MeshSpecification{
+			VertexAttributeIndices: parsedMesh.VertexAttributeIndices,
+			VertexAttributesStride: 3,
 
-		// EffectSpecData:     effectSpec,
+			PositionSourceData: parsedMesh.PositionSource,
+			NormalSourceData:   parsedMesh.NormalSource,
+			TextureSourceData:  parsedMesh.TextureSource,
+		}
+
+		if parsedJoints != nil {
+			meshSpec.JointIDs = parsedMesh.JointIDs
+			meshSpec.JointWeights = parsedMesh.JointWeights
+		}
+
+		modelSpec.Meshes = append(modelSpec.Meshes, meshSpec)
+		break
 	}
 
 	if parsedJoints != nil {
 		modelSpec.RootJoint = parsedJoints.RootJoint
-		modelSpec.JointIDs = parsedMesh.JointIDs
-		modelSpec.JointWeights = parsedMesh.JointWeights
 	}
 
 	if parsedAnimation != nil {

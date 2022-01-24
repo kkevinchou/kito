@@ -15,10 +15,7 @@ type EffectSpec struct { // todo(kevin): rename to MaterialSpec
 	TransparencyColor      *mgl32.Vec3
 }
 
-// ModelSpecification is the output of any parsed model files (e.g. from Blender, Maya, etc)
-// and acts a the blueprint for the model that contains all the associated vertex and
-// animation data. This struct should be agnostic to the 3D modelling tool that produced the data.
-type ModelSpecification struct {
+type MeshSpecification struct {
 	// Geometry
 	// VertexAttributeIndices defines indices that are lookups for individual vertex properties
 	// VertexAttributesStride defines how many contiguous indices within VertexAttributeIndices define a vertex
@@ -34,12 +31,18 @@ type ModelSpecification struct {
 
 	PositionSourceData []mgl32.Vec3
 	NormalSourceData   []mgl32.Vec3
-	ColorSourceData    []mgl32.Vec3
 	TextureSourceData  []mgl32.Vec2
 
 	// sorted by vertex order
 	JointIDs     [][]int
 	JointWeights [][]float32
+}
+
+// ModelSpecification is the output of any parsed model files (e.g. from Blender, Maya, etc)
+// and acts a the blueprint for the model that contains all the associated vertex and
+// animation data. This struct should be agnostic to the 3D modelling tool that produced the data.
+type ModelSpecification struct {
+	Meshes []*MeshSpecification
 
 	// Effects
 	EffectSpecData *EffectSpec

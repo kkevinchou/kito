@@ -5,9 +5,8 @@ const int MAX_WEIGHTS = 4;
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
-layout (location = 3) in vec3 aColor;
-layout (location = 4) in ivec3 jointIndices;
-layout (location = 5) in vec3 jointWeights;
+layout (location = 3) in ivec3 jointIndices;
+layout (location = 4) in vec3 jointWeights;
 
 out VS_OUT {
     vec3 FragPos;
@@ -27,7 +26,7 @@ void main() {
     vec4 totalLocalPos = vec4(0.0);
 	vec4 totalNormal = vec4(0.0);
 
-	for(int i = 0; i < MAX_WEIGHTS; i++){
+	for(int i = 0; i < 1; i++){
 		int jointIndex = jointIndices[i];
 
 		mat4 jointTransform = jointTransforms[jointIndex];

@@ -160,6 +160,7 @@ func (s *RenderSystem) Render(delta time.Duration) {
 func (s *RenderSystem) renderToDepthMap(viewerContext ViewerContext, lightContext LightContext) {
 	defer resetGLRenderSettings()
 	s.shadowMap.Prepare()
+
 	s.renderScene(viewerContext, lightContext)
 }
 
