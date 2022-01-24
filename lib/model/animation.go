@@ -86,13 +86,13 @@ func (a *Animation) BindVertexAttributes() {
 	gl.GenBuffers(1, &vboJointIDs)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointIDs)
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointIDsAttribute)*4, gl.Ptr(jointIDsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribIPointer(4, int32(settings.AnimationMaxJointWeights), gl.INT, int32(settings.AnimationMaxJointWeights)*4, nil)
-	gl.EnableVertexAttribArray(4)
+	gl.VertexAttribIPointer(3, int32(settings.AnimationMaxJointWeights), gl.INT, int32(settings.AnimationMaxJointWeights)*4, nil)
+	gl.EnableVertexAttribArray(3)
 
 	var vboJointWeights uint32
 	gl.GenBuffers(1, &vboJointWeights)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
 	gl.BufferData(gl.ARRAY_BUFFER, len(jointWeightsAttribute)*4, gl.Ptr(jointWeightsAttribute), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(5, int32(settings.AnimationMaxJointWeights), gl.FLOAT, false, int32(settings.AnimationMaxJointWeights)*4, nil)
-	gl.EnableVertexAttribArray(5)
+	gl.VertexAttribPointer(4, int32(settings.AnimationMaxJointWeights), gl.FLOAT, false, int32(settings.AnimationMaxJointWeights)*4, nil)
+	gl.EnableVertexAttribArray(4)
 }

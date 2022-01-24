@@ -3,7 +3,6 @@ package kito
 import (
 	"fmt"
 
-	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
@@ -49,7 +48,7 @@ func serverEntitySetup(g *Game) []entities.Entity {
 	// projectile.GetComponentContainer().PhysicsComponent.Velocity = mgl64.Vec3{1, 0, -1}
 
 	return []entities.Entity{
-		entities.NewScene(mgl64.Vec3{}),
+		// entities.NewScene(mgl64.Vec3{}),
 		// entities.NewSlime(mgl64.Vec3{-100, 0, -50}),
 		// entities.NewStaticRigidBody(mgl64.Vec3{-5, 10, 0}),
 		// entities.NewDynamicRigidBody(mgl64.Vec3{-5, 10, 0}),
