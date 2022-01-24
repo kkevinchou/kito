@@ -295,7 +295,11 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 	var root *modelspec.JointSpec
 	for id, _ := range joints {
 		if _, ok := childIDSet[id]; !ok {
-			root = joints[id]
+			joint := joints[id]
+			if len(joint.Children) > 0 {
+				// sometimes people put joints as control objects that aren't actual parents
+				root = joint
+			}
 		}
 	}
 
