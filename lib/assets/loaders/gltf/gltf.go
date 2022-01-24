@@ -42,10 +42,6 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		return nil, err
 	}
 
-	if len(document.Meshes) > 1 {
-		panic("unable to handle > 1 mesh")
-	}
-
 	var parsedJoints *ParsedJoints
 	for _, skin := range document.Skins {
 		parsedJoints, err = parseJoints(document, skin)
@@ -66,6 +62,12 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	parsedMesh2, err := parseMesh(document, document.Meshes[1])
+	if err != nil {
+		return nil, err
+	}
+	_ = parsedMesh2
 
 	modelSpec := &modelspec.ModelSpecification{
 		VertexAttributeIndices: parsedMesh.VertexAttributeIndices,
