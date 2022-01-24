@@ -48,9 +48,11 @@ func NewBob() *EntityImpl {
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
-		Scale:            mgl64.Scale3D(0.07, 0.07, 0.07),
-		Orientation:      yr,
-		Material:         m.Mesh.Material(),
+		Scale:            mgl64.Scale3D(0.1, 0.1, 0.1),
+		// Scale:       mgl64.Scale3D(1, 1, 1),
+		// Orientation: mgl64.Ident4(),
+		Orientation: yr,
+		Material:    m.Mesh.Material(),
 	}
 
 	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)

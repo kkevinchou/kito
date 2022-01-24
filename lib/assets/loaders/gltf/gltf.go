@@ -83,6 +83,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 
 		modelSpec.Meshes = append(modelSpec.Meshes, meshSpec)
+		break
 	}
 
 	if parsedJoints != nil {

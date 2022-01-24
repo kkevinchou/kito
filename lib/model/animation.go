@@ -40,6 +40,7 @@ func (a *Animation) Length() time.Duration {
 }
 
 func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
+	// TODO: handle animations for multiple meshes
 	mesh := spec.Meshes[0]
 	vertexAttributeIndices := mesh.VertexAttributeIndices
 	vertexAttributesStride := mesh.VertexAttributesStride
@@ -58,8 +59,8 @@ func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
 }
 
 // lays out the vertex atrributes for:
-// 4 - joint indices    vec3
-// 5 - joint weights    vec3
+// 3 - joint indices    vec3
+// 4 - joint weights    vec3
 
 // regardless of the number of joints affecting the joint
 // we always pad out the full number of joints and weights with zeros
