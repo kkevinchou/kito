@@ -12,7 +12,7 @@ import (
 )
 
 func NewBob() *EntityImpl {
-	modelName := "xbot"
+	modelName := "guard"
 	textureName := "color_grid"
 
 	transformComponent := &components.TransformComponent{

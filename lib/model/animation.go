@@ -40,14 +40,20 @@ func (a *Animation) Length() time.Duration {
 }
 
 func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
+	mesh := spec.Meshes[0]
+	vertexAttributeIndices := mesh.VertexAttributeIndices
+	vertexAttributesStride := mesh.VertexAttributesStride
+	jointIDs := mesh.JointIDs
+	jointWeights := mesh.JointWeights
+
 	return &Animation{
 		animationSpec: spec.Animation,
 		rootJoint:     spec.RootJoint,
 
-		vertexAttributeIndices: spec.VertexAttributeIndices,
-		vertexAttributesStride: spec.VertexAttributesStride,
-		jointIDs:               spec.JointIDs,
-		jointWeights:           spec.JointWeights,
+		vertexAttributeIndices: vertexAttributeIndices,
+		vertexAttributesStride: vertexAttributesStride,
+		jointIDs:               jointIDs,
+		jointWeights:           jointWeights,
 	}
 }
 

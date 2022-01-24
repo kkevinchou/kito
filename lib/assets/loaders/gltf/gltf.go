@@ -58,32 +58,35 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 	}
 
-	parsedMesh, err := parseMesh(document, document.Meshes[0])
-	if err != nil {
-		return nil, err
-	}
-
-	parsedMesh2, err := parseMesh(document, document.Meshes[1])
-	if err != nil {
-		return nil, err
-	}
-	_ = parsedMesh2
-
 	modelSpec := &modelspec.ModelSpecification{
-		VertexAttributeIndices: parsedMesh.VertexAttributeIndices,
-		VertexAttributesStride: 3,
-
-		PositionSourceData: parsedMesh.PositionSource,
-		NormalSourceData:   parsedMesh.NormalSource,
-		TextureSourceData:  parsedMesh.TextureSource,
-
 		// EffectSpecData:     effectSpec,
+	}
+
+	for _, mesh := range document.Meshes {
+		parsedMesh, err := parseMesh(document, mesh)
+		if err != nil {
+			return nil, err
+		}
+
+		meshSpec := &modelspec.MeshSpecification{
+			VertexAttributeIndices: parsedMesh.VertexAttributeIndices,
+			VertexAttributesStride: 3,
+
+			PositionSourceData: parsedMesh.PositionSource,
+			NormalSourceData:   parsedMesh.NormalSource,
+			TextureSourceData:  parsedMesh.TextureSource,
+		}
+
+		if parsedJoints != nil {
+			meshSpec.JointIDs = parsedMesh.JointIDs
+			meshSpec.JointWeights = parsedMesh.JointWeights
+		}
+
+		modelSpec.Meshes = append(modelSpec.Meshes, meshSpec)
 	}
 
 	if parsedJoints != nil {
 		modelSpec.RootJoint = parsedJoints.RootJoint
-		modelSpec.JointIDs = parsedMesh.JointIDs
-		modelSpec.JointWeights = parsedMesh.JointWeights
 	}
 
 	if parsedAnimation != nil {
