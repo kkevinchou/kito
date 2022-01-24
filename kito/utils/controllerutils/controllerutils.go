@@ -53,6 +53,5 @@ func UpdateCharacterController(entity entities.Entity, camera entities.Entity, f
 			DecayRate: 1,
 		}
 		physicsComponent.ApplyImpulse(types.JumpImpulse, impulse)
-		physicsComponent.Grounded = false
 	}
 }

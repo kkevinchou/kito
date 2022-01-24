@@ -69,14 +69,18 @@ func (s *CollisionResolverSystem) resolve(entity entities.Entity) {
 		for _, contactManifold := range contactManifolds {
 			separatingVector = separatingVector.Add(contactManifold.Contacts[0].SeparatingVector)
 		}
-		// fmt.Println(separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}))
+
 		if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 			physicsComponent.Grounded = true
+			physicsComponent.Velocity = mgl64.Vec3{}
 		} else {
 			physicsComponent.Grounded = false
 		}
+
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		physicsComponent.Impulses = map[string]types.Impulse{}
-		physicsComponent.Velocity = mgl64.Vec3{}
+	} else {
+		// no collisions were detected (i.e. the ground)
+		physicsComponent.Grounded = false
 	}
 }
