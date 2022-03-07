@@ -22,6 +22,15 @@ var (
 	Height int    = 760
 )
 
+// Debugging constants
+const (
+	DebugRenderCollisionVolume = false
+
+	// Aritificial latency for debugging purposes mostly.
+	ArtificialClientLatency time.Duration = 0 * time.Millisecond
+	ArtificialServerLatency time.Duration = 0 * time.Millisecond
+)
+
 const (
 	LoggingLevel          = 1
 	Seed           int64  = 1234567
@@ -70,10 +79,6 @@ const (
 	MaxInputBufferCommandFrames int = 0 / int(MSPerCommandFrame)
 
 	MaxStateBufferCommandFrames int = 100 / int(MSPerCommandFrame)
-
-	// Aritificial latency for debugging purposes mostly.
-	ArtificialClientLatency time.Duration = 0 * time.Millisecond
-	ArtificialServerLatency time.Duration = 0 * time.Millisecond
 
 	CommandFramesPerServerUpdate = 5
 
