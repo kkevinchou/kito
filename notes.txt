@@ -49,7 +49,6 @@ NETWORKING
 * Might want to add an indicator that an entity is replicated and shouldn't be simulated. Systems might
   unintentionally start manipulating replicated entities
 
-
 Mixamo for free assets www.mixamo.com
 check out using the collada loader from: https://github.com/g3n/engine/tree/master/loader/collada
 
@@ -57,5 +56,3 @@ automate navmesh generation based on geometry. geometry is tagged with a "layer"
 mark a player as a navmesh agent. this makes sense for destination based movement, less so for directional movement
 
 figre out 3d platformer movement (physics based?)
-
-make it such that removing the animation component of an entity will cause the renderer to render the model in the bind pose. need to be able to dynamically select the model shader
