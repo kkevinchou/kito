@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	fullDecayThreshold = float64(0.05)
-	gravity            = float64(120)
+	fullDecayThreshold float64 = 0.05
+	gravity            float64 = 120
+	minYPosition       float64 = -1000
 )
 
 var (
@@ -60,7 +61,7 @@ func PhysicsStep(delta time.Duration, entity entities.Entity) {
 	newPos := transformComponent.Position.Add(velocity.Mul(delta.Seconds()))
 
 	// temporary hack to not fall through the ground
-	if newPos[1] < 0 {
+	if newPos[1] < minYPosition {
 		newPos[1] = 0
 		velocity[1] = 0
 		physicsComponent.Velocity[1] = 0
