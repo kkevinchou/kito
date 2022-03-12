@@ -6,8 +6,9 @@ import (
 )
 
 type Model struct {
-	Mesh      *Mesh
-	Animation *Animation
+	Mesh       *Mesh
+	Animation  *Animation
+	Animations map[string]*Animation
 
 	vao uint32
 }
@@ -23,9 +24,15 @@ func NewModel(spec *modelspec.ModelSpecification) *Model {
 		animation = NewAnimation(spec)
 	}
 
+	var animations map[string]*Animation
+	if spec.Animations != nil {
+		animations = NewAnimations(spec)
+	}
+
 	return &Model{
-		Mesh:      mesh,
-		Animation: animation,
+		Mesh:       mesh,
+		Animation:  animation,
+		Animations: animations,
 	}
 }
 

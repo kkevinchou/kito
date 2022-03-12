@@ -31,11 +31,6 @@ type ParsedJoints struct {
 	JointOrder      []int
 }
 
-type ParsedAnimation struct {
-	Name          string
-	AnimationSpec *modelspec.AnimationSpec
-}
-
 func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	document, err := gltf.Open(documentPath)
 	if err != nil {
@@ -50,9 +45,10 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 	}
 
-	var parsedAnimation *ParsedAnimation
+	parsedAnimations := map[string]*modelspec.AnimationSpec{}
 	for _, animation := range document.Animations {
-		parsedAnimation, err = parseAnimation(document, animation, parsedJoints)
+		parsedAnimation, err := parseAnimation(document, animation, parsedJoints)
+		parsedAnimations[animation.Name] = parsedAnimation
 		if err != nil {
 			return nil, err
 		}
@@ -89,14 +85,20 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		modelSpec.RootJoint = parsedJoints.RootJoint
 	}
 
-	if parsedAnimation != nil {
-		modelSpec.Animation = parsedAnimation.AnimationSpec
+	// temporary for backwards compatibility. We should be using .Animations rather than .Animation
+	// since a gltf file can contain multiple animations
+	if len(parsedAnimations) > 0 {
+		for _, animation := range parsedAnimations {
+			modelSpec.Animation = animation
+			break
+		}
 	}
+	modelSpec.Animations = parsedAnimations
 
 	return modelSpec, nil
 }
 
-func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedJoints *ParsedJoints) (*ParsedAnimation, error) {
+func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedJoints *ParsedJoints) (*modelspec.AnimationSpec, error) {
 	keyFrames := map[float32]*modelspec.KeyFrame{}
 
 	for _, channel := range animation.Channels {
@@ -203,12 +205,10 @@ func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedJo
 		keyFrameSlice = append(keyFrameSlice, keyFrames[timestamp])
 	}
 
-	return &ParsedAnimation{
-		Name: animation.Name,
-		AnimationSpec: &modelspec.AnimationSpec{
-			KeyFrames: keyFrameSlice,
-			Length:    keyFrameSlice[len(keyFrameSlice)-1].Start,
-		},
+	return &modelspec.AnimationSpec{
+		Name:      animation.Name,
+		KeyFrames: keyFrameSlice,
+		Length:    keyFrameSlice[len(keyFrameSlice)-1].Start,
 	}, nil
 }
 

@@ -16,7 +16,7 @@ func NewBob() *EntityImpl {
 	textureName := "color_grid"
 
 	transformComponent := &components.TransformComponent{
-		Position:    mgl64.Vec3{0, 50, 40},
+		Position:    mgl64.Vec3{0, 100, 40},
 		Orientation: mgl64.QuatIdent(),
 	}
 
@@ -39,7 +39,8 @@ func NewBob() *EntityImpl {
 	}
 
 	animationComponent := &components.AnimationComponent{
-		Animation: m.Animation,
+		Animation:  m.Animation,
+		Animations: m.Animations,
 	}
 	_ = animationComponent
 

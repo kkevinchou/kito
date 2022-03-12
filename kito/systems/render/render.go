@@ -14,6 +14,7 @@ import (
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -258,14 +259,48 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		}
 	}
 
+	var renderText string
+	renderText += s.generalInfoText()
+	renderText += s.networkInfoText()
+
+	player, err := s.world.GetEntityByID(singleton.PlayerID)
+	if player != nil && err == nil {
+		renderText += s.entityInfoText(player)
+	}
+	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), renderText, 0.8, 0)
+}
+
+func (s *RenderSystem) generalInfoText() string {
+	singleton := s.world.GetSingleton()
 	fps := int(singleton.MetricsRegistry.GetOneSecondSum("fps"))
+	renderText := fmt.Sprintf("--- General\nfps: %d\n", fps)
+
+	return renderText
+}
+
+func (s *RenderSystem) networkInfoText() string {
+	singleton := s.world.GetSingleton()
 	predictionMiss := int(singleton.MetricsRegistry.GetOneSecondSum("predictionMiss"))
 	predictionHit := int(singleton.MetricsRegistry.GetOneSecondSum("predictionHit"))
 	ping := int(singleton.MetricsRegistry.GetOneSecondAverage("ping"))
 	updateMessageSize := int(singleton.MetricsRegistry.GetOneSecondSum("update_message_size")) / 1000
-	renderText := fmt.Sprintf("--- General\nfps: %d\n", fps)
-	renderText += fmt.Sprintf("--- Networking\nPing: %d\nPrediction Miss: %d\nPrediction Hit: %d\nUpdate Size: %d kb/s", ping, predictionMiss, predictionHit, updateMessageSize)
-	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), renderText, 0.8, 0)
+
+	renderText := fmt.Sprintf("--- Networking\nPing: %d\nPrediction Miss: %d\nPrediction Hit: %d\nUpdate Size: %d kb/s\n", ping, predictionMiss, predictionHit, updateMessageSize)
+	return renderText
+}
+
+func (s *RenderSystem) entityInfoText(entity entities.Entity) string {
+	componentContainer := entity.GetComponentContainer()
+	entityPosition := componentContainer.TransformComponent.Position
+	orientation := componentContainer.TransformComponent.Orientation
+	velocity := componentContainer.PhysicsComponent.Velocity
+
+	renderText := fmt.Sprintf("--- Entity %d\n", entity.GetID())
+	renderText += fmt.Sprintf("position %s\n", utils.PPrintVec(entityPosition))
+	renderText += fmt.Sprintf("velocity %s\n", utils.PPrintVec(velocity))
+	renderText += fmt.Sprintf("orientation %v\n", utils.PPrintQuatAsVec(orientation))
+
+	return renderText
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {

@@ -19,7 +19,7 @@ type IncomingEntityUpdate struct {
 type StateBuffer struct {
 	maxStateBufferCommandFrames int
 	timeline                    map[int]BufferedState
-	incomingEntityUpdate        []IncomingEntityUpdate
+	incomingEntityUpdates       []IncomingEntityUpdate
 }
 
 func NewStateBuffer(maxStateBufferCommandFrames int) *StateBuffer {
@@ -30,10 +30,11 @@ func NewStateBuffer(maxStateBufferCommandFrames int) *StateBuffer {
 }
 
 func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMessage *knetwork.GameStateUpdateMessage) {
-	if len(s.incomingEntityUpdate) == 0 {
+	if len(s.incomingEntityUpdates) == 0 {
+		fmt.Println("entity update 0")
 		targetCommandFrame := playerCommandFrame + s.maxStateBufferCommandFrames
-		s.incomingEntityUpdate = append(
-			s.incomingEntityUpdate,
+		s.incomingEntityUpdates = append(
+			s.incomingEntityUpdates,
 			IncomingEntityUpdate{
 				gameStateUpdateMessage: gameStateUpdateMessage,
 				targetCommandFrame:     targetCommandFrame,
@@ -47,7 +48,7 @@ func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMe
 		return
 	}
 
-	lastEntityUpdate := s.incomingEntityUpdate[len(s.incomingEntityUpdate)-1]
+	lastEntityUpdate := s.incomingEntityUpdates[len(s.incomingEntityUpdates)-1]
 	gcfDelta := gameStateUpdateMessage.CurrentGlobalCommandFrame - lastEntityUpdate.gameStateUpdateMessage.CurrentGlobalCommandFrame
 
 	currentEntityUpdate := IncomingEntityUpdate{
@@ -55,13 +56,13 @@ func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMe
 		targetCommandFrame:     lastEntityUpdate.targetCommandFrame + gcfDelta,
 	}
 
-	s.incomingEntityUpdate = append(
-		s.incomingEntityUpdate,
+	s.incomingEntityUpdates = append(
+		s.incomingEntityUpdates,
 		currentEntityUpdate,
 	)
 
 	s.generateIntermediateStateUpdates(lastEntityUpdate, currentEntityUpdate)
-	s.incomingEntityUpdate = s.incomingEntityUpdate[1:]
+	s.incomingEntityUpdates = s.incomingEntityUpdates[1:]
 	// fmt.Println("----------------------")
 	// fmt.Println(playerCommandFrame)
 	// max := 0
@@ -73,6 +74,7 @@ func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMe
 	// fmt.Println(max)
 }
 
+// TODO: move interpolation logic in stateinterpolator system?
 func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdate, end IncomingEntityUpdate) {
 	startGCF := start.gameStateUpdateMessage.CurrentGlobalCommandFrame
 	endGCF := end.gameStateUpdateMessage.CurrentGlobalCommandFrame

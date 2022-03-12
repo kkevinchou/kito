@@ -18,8 +18,8 @@ var (
 var (
 	Host   string = "localhost"
 	Port   int    = 8080
-	Width  int    = 1024
-	Height int    = 760
+	Width  int    = 0
+	Height int    = 0
 )
 
 // Debugging constants
@@ -76,10 +76,11 @@ const (
 
 	// This is potentially overkill to avoiding absolutely no mispredictions on the client.
 	// The drawback of an input buffer is we now add a delay before we process user inputs.
-	MaxInputBufferCommandFrames int = 0 / int(MSPerCommandFrame)
+	MaxInputBufferCommandFrames int = 100 / int(MSPerCommandFrame)
 
-	MaxStateBufferCommandFrames int = 100 / int(MSPerCommandFrame)
+	MaxStateBufferCommandFrames int = 1000 / int(MSPerCommandFrame)
 
+	// The number of command frames on the server before a server update is sent to clients
 	CommandFramesPerServerUpdate = 5
 
 	// Animation

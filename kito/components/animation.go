@@ -12,9 +12,11 @@ type AnimationComponent struct {
 	ElapsedTime         time.Duration
 	Pose                map[int]mgl32.Mat4
 	AnimationTransforms map[int]mgl32.Mat4
+	CurrentAnimation    string
 
 	// these fields are from the loaded animation and should not be modified
-	Animation *model.Animation
+	Animation  *model.Animation
+	Animations map[string]*model.Animation
 }
 
 func (c *AnimationComponent) GetAnimationComponent() *AnimationComponent {

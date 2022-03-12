@@ -8,6 +8,7 @@ import (
 
 // This is static data that we read from the animation data files
 type AnimationSpec struct {
+	Name      string
 	KeyFrames []*KeyFrame
 	Length    time.Duration
 }

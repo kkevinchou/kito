@@ -39,6 +39,30 @@ func (a *Animation) Length() time.Duration {
 	return a.animationSpec.Length
 }
 
+func NewAnimations(spec *modelspec.ModelSpecification) map[string]*Animation {
+	// TODO: handle animations for multiple meshes
+	mesh := spec.Meshes[0]
+	vertexAttributeIndices := mesh.VertexAttributeIndices
+	vertexAttributesStride := mesh.VertexAttributesStride
+	jointIDs := mesh.JointIDs
+	jointWeights := mesh.JointWeights
+
+	animations := map[string]*Animation{}
+	for name, animation := range spec.Animations {
+		animations[name] = &Animation{
+			animationSpec: animation,
+			rootJoint:     spec.RootJoint,
+
+			vertexAttributeIndices: vertexAttributeIndices,
+			vertexAttributesStride: vertexAttributesStride,
+			jointIDs:               jointIDs,
+			jointWeights:           jointWeights,
+		}
+	}
+
+	return animations
+}
+
 func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
 	// TODO: handle animations for multiple meshes
 	mesh := spec.Meshes[0]

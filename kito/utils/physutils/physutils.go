@@ -57,7 +57,11 @@ func PhysicsStep(delta time.Duration, entity entities.Entity) {
 	}
 	physicsComponent.Velocity = physicsComponent.Velocity.Add(totalAcceleration.Mul(delta.Seconds()))
 
+	// fmt.Println("-================")
+	// fmt.Println(physicsComponent.Velocity)
+	// fmt.Println(totalImpulse)
 	velocity := physicsComponent.Velocity.Add(totalImpulse)
+	// fmt.Println(velocity)
 	newPos := transformComponent.Position.Add(velocity.Mul(delta.Seconds()))
 
 	// temporary hack to not fall through the ground

@@ -43,8 +43,8 @@ func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
 	var targetGlobalCommandFrame int
 	if len(i.playerInputs[playerID]) > 0 {
-		lastCommandFrame := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]
-		commandFrameDelta := playerCommandFrame - lastCommandFrame.PlayerCommandFrame
+		lastPlayerInput := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]
+		commandFrameDelta := playerCommandFrame - lastPlayerInput.PlayerCommandFrame
 
 		// assuming a properly behaving client they should only send one input message per
 		// command frame. in the event that they send more than one, we naively set it for
@@ -54,7 +54,7 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, 
 			fmt.Println("warning: received more than one input for a given command frame")
 		}
 
-		targetGlobalCommandFrame = lastCommandFrame.TargetGlobalCommandFrame + commandFrameDelta
+		targetGlobalCommandFrame = lastPlayerInput.TargetGlobalCommandFrame + commandFrameDelta
 	} else {
 		targetGlobalCommandFrame = globalCommandFrame + i.maxCommandFrames
 	}
