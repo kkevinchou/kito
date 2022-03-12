@@ -90,7 +90,6 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	if len(parsedAnimations) > 0 {
 		for _, animation := range parsedAnimations {
 			modelSpec.Animation = animation
-			break
 		}
 	}
 	modelSpec.Animations = parsedAnimations

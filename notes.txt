@@ -56,3 +56,5 @@ automate navmesh generation based on geometry. geometry is tagged with a "layer"
 mark a player as a navmesh agent. this makes sense for destination based movement, less so for directional movement
 
 figre out 3d platformer movement (physics based?)
+
+camera rotations causing prediction misses even with no key inputs when sliding down a ramp

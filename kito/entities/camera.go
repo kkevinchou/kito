@@ -8,7 +8,8 @@ import (
 
 const (
 	maxFollowDistance     float64 = 500
-	defaultFollowDistance float64 = 40
+	defaultFollowDistance float64 = 60
+	defaultFollowY        float64 = 15
 )
 
 func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTargetEntityID int) *EntityImpl {
@@ -16,7 +17,7 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTarg
 		FollowTargetEntityID: followTargetEntityID,
 		FollowDistance:       defaultFollowDistance,
 		MaxFollowDistance:    maxFollowDistance,
-		YOffset:              5,
+		YOffset:              defaultFollowY,
 	}
 
 	transformComponent := &components.TransformComponent{
