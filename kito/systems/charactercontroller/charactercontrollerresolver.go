@@ -3,10 +3,9 @@ package charactercontroller
 import (
 	"time"
 
-	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/lib/collision"
+	"github.com/kkevinchou/kito/kito/utils/controllerutils"
 
 	"github.com/kkevinchou/kito/kito/entities"
 )
@@ -44,49 +43,11 @@ func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
 	if utils.IsClient() {
 		player := s.world.GetPlayer()
 		if player != nil {
-			s.resolve(player)
+			controllerutils.ResolveControllerCollision(player)
 		}
 	} else {
 		for _, entity := range s.entities {
-			s.resolve(entity)
+			controllerutils.ResolveControllerCollision(entity)
 		}
 	}
-}
-
-func (s *CharacterControllerResolverSystem) resolve(entity entities.Entity) {
-	cc := entity.GetComponentContainer()
-	colliderComponent := cc.ColliderComponent
-	transformComponent := cc.TransformComponent
-	contactManifolds := colliderComponent.ContactManifolds
-	if contactManifolds != nil {
-		separatingVector := combineSeparatingVectors(contactManifolds)
-		transformComponent.Position = transformComponent.Position.Add(separatingVector)
-	} else {
-		// no collisions were detected (i.e. the ground)
-		// physicsComponent.Grounded = false
-	}
-}
-
-func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
-	// only add separating vectors which we haven't seen before. ideally
-	// this should handle cases where separating vectors are a basis of another
-	// and avoid "overcounting" separating vectors
-	seenSeparatingVectors := []mgl64.Vec3{}
-	var separatingVector mgl64.Vec3
-	for _, contactManifold := range contactManifolds {
-		for _, contact := range contactManifold.Contacts {
-			seen := false
-			for _, v := range seenSeparatingVectors {
-				if contact.SeparatingVector.ApproxEqual(v) {
-					seen = true
-					break
-				}
-			}
-			if !seen {
-				separatingVector = separatingVector.Add(contact.SeparatingVector)
-				seenSeparatingVectors = append(seenSeparatingVectors, contact.SeparatingVector)
-			}
-		}
-	}
-	return separatingVector
 }

@@ -54,6 +54,6 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		controllerutils.UpdateCharacterController(entity, camera, singleton.PlayerInput[player.ID])
+		controllerutils.UpdateCharacterController(delta, entity, camera, singleton.PlayerInput[player.ID])
 	}
 }

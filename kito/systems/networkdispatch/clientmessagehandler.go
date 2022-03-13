@@ -133,7 +133,7 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			cc := player.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
-			// cc.PhysicsComponent.Velocity = entitySnapshot.Velocity
+			cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
 			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 
 			// TODO: re-enable this when we decide how to implemetn character controller resolution
@@ -171,8 +171,9 @@ func replayInputs(
 
 	// replay inputs and add the new results to the command frame history
 	for i, cf := range cfs {
-		controllerutils.UpdateCharacterController(entity, camera, cf.FrameInput)
-		// TODO: handle collision and resolution
+		controllerutils.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*
+			time.Millisecond, entity, camera, cf.FrameInput)
+		controllerutils.ResolveControllerCollision(entity)
 		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
 	}
 }
