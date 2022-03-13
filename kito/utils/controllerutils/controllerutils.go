@@ -4,21 +4,19 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/systems/common"
-	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/input"
-	"github.com/kkevinchou/kito/lib/libutils"
 )
 
 func UpdateCharacterController(entity entities.Entity, camera entities.Entity, frameInput input.Input) {
 	componentContainer := entity.GetComponentContainer()
-	physicsComponent := componentContainer.PhysicsComponent
+	transformComponent := componentContainer.TransformComponent
 
 	keyboardInput := frameInput.KeyboardInput
-
 	controlVector := common.GetControlVector(keyboardInput)
 
 	forwardVector := mgl64.Vec3{0, 0, -1}
 	rightVector := mgl64.Vec3{1, 0, 0}
+	upVector := mgl64.Vec3{0, 1, 0}
 
 	if tpcComponent := componentContainer.ThirdPersonControllerComponent; tpcComponent != nil {
 		cameraComponentContainer := camera.GetComponentContainer()
@@ -34,24 +32,10 @@ func UpdateCharacterController(entity entities.Entity, camera entities.Entity, f
 
 	forwardVector = forwardVector.Mul(controlVector.Z())
 	rightVector = rightVector.Mul(controlVector.X())
-	movementVector := forwardVector.Add(rightVector)
-	var moveSpeed float64 = 100
+	upVector = upVector.Mul(controlVector.Y())
 
-	if !libutils.Vec3IsZero(movementVector) {
-		normalizedMovementVector := movementVector.Normalize()
-		impulse := types.Impulse{
-			Vector:    normalizedMovementVector.Mul(moveSpeed),
-			DecayRate: 5,
-		}
-		physicsComponent.ApplyImpulse("controllerMove", impulse)
-	}
+	movementVector := forwardVector.Add(rightVector).Add(upVector.Mul(5))
 
-	// only allow jumping if the player is on the ground
-	if controlVector.Y() > 0 && physicsComponent.Grounded {
-		impulse := types.Impulse{
-			Vector:    mgl64.Vec3{0, 100, 0},
-			DecayRate: 1,
-		}
-		physicsComponent.ApplyImpulse(types.JumpImpulse, impulse)
-	}
+	componentContainer.ThirdPersonControllerComponent.MovementVector = movementVector
+	transformComponent.Position = transformComponent.Position.Add(movementVector).Add(mgl64.Vec3{0, -1, 0})
 }

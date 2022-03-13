@@ -109,6 +109,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 	spawnerSystem := spawner.NewSpawnerSystem(g)
 	pingSystem := ping.NewPingSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
+	controllerResolverSystem := charactercontroller.NewCharacterControllerResolverSystem(g)
 	collisionResolverSystem := collisionresolver.NewCollisionResolverSystem(g)
 
 	d.RegisterRenderSystem(renderSystem)
@@ -124,6 +125,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 		stateInterpolatorSystem,
 		physicsSystem,
 		collisionSystem,
+		controllerResolverSystem,
 		collisionResolverSystem,
 		animationSystem,
 		cameraSystem,

@@ -61,10 +61,6 @@ func NewBob() *EntityImpl {
 		CapsuleCollider: &capsule,
 	}
 
-	physicsComponent := &components.PhysicsComponent{
-		Impulses: map[string]types.Impulse{},
-	}
-
 	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{
 		Controlled: true,
 	}
@@ -73,7 +69,6 @@ func NewBob() *EntityImpl {
 		&components.NetworkComponent{},
 		transformComponent,
 		animationComponent,
-		physicsComponent,
 		thirdPersonControllerComponent,
 		meshComponent,
 		colliderComponent,

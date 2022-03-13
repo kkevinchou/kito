@@ -293,11 +293,11 @@ func (s *RenderSystem) entityInfoText(entity entities.Entity) string {
 	componentContainer := entity.GetComponentContainer()
 	entityPosition := componentContainer.TransformComponent.Position
 	orientation := componentContainer.TransformComponent.Orientation
-	velocity := componentContainer.PhysicsComponent.Velocity
+	// velocity := componentContainer.PhysicsComponent.Velocity
 
 	renderText := fmt.Sprintf("--- Entity %d\n", entity.GetID())
 	renderText += fmt.Sprintf("position %s\n", utils.PPrintVec(entityPosition))
-	renderText += fmt.Sprintf("velocity %s\n", utils.PPrintVec(velocity))
+	// renderText += fmt.Sprintf("velocity %s\n", utils.PPrintVec(velocity))
 	renderText += fmt.Sprintf("orientation %v\n", utils.PPrintQuatAsVec(orientation))
 
 	return renderText

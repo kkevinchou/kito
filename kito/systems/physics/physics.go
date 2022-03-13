@@ -39,14 +39,12 @@ func (s *PhysicsSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *PhysicsSystem) Update(delta time.Duration) {
+	// physics simulation is done on the server and the results are synchronized to the client
 	if utils.IsClient() {
-		player := s.world.GetPlayer()
-		if player != nil {
-			physutils.PhysicsStep(delta, s.world.GetPlayer())
-		}
-	} else {
-		for _, entity := range s.entities {
-			physutils.PhysicsStep(delta, entity)
-		}
+		return
+	}
+
+	for _, entity := range s.entities {
+		physutils.PhysicsStep(delta, entity)
 	}
 }
