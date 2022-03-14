@@ -14,7 +14,6 @@ import (
 const (
 	gravity   float64 = 250
 	jumpSpeed float64 = 150
-	moveSpeed float64 = 100
 )
 
 var (
@@ -32,14 +31,11 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 
 	forwardVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
 	forwardVector[1] = 0
-	forwardVector = forwardVector.Normalize()
+	forwardVector = forwardVector.Normalize().Mul(controlVector.Z())
 
 	rightVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0})
 	rightVector[1] = 0
-	rightVector.Normalize()
-
-	forwardVector = forwardVector.Mul(controlVector.Z())
-	rightVector = rightVector.Mul(controlVector.X())
+	rightVector = rightVector.Normalize().Mul(controlVector.X())
 
 	if tpcComponent.Grounded {
 		jumpVelocity := mgl64.Vec3{0, 1, 0}.Mul(controlVector.Y() * jumpSpeed)
@@ -47,15 +43,21 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 		tpcComponent.Grounded = false
 	}
 	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
-	movementVelocity := forwardVector.Add(rightVector).Mul(moveSpeed)
+
+	tpcComponent.MovementSpeed = computeMoveSpeed(tpcComponent.MovementSpeed)
+	movementVelocity := forwardVector.Add(rightVector).Mul(tpcComponent.MovementSpeed)
 	tpcComponent.Velocity = tpcComponent.BaseVelocity.Add(movementVelocity)
 	transformComponent.Position = transformComponent.Position.Add(tpcComponent.Velocity.Mul(delta.Seconds()))
+
+	// safeguard falling off the map
 	if transformComponent.Position[1] < -1000 {
 		transformComponent.Position[1] = 25
 	}
 
-	if !libutils.Vec3IsZero(movementVelocity) {
+	if controlVector[0] != 0 || controlVector[2] != 0 {
 		transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, movementVelocity.Normalize(), mgl64.Vec3{0, 1, 0})
+	} else {
+		tpcComponent.MovementSpeed = 0
 	}
 }
 
@@ -99,4 +101,13 @@ func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl
 		}
 	}
 	return separatingVector
+}
+
+func computeMoveSpeed(movementSpeed float64) float64 {
+	if movementSpeed < 60 {
+		return movementSpeed + 15
+	} else if movementSpeed < 100 {
+		return movementSpeed + 2
+	}
+	return movementSpeed
 }
