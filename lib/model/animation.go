@@ -63,25 +63,6 @@ func NewAnimations(spec *modelspec.ModelSpecification) map[string]*Animation {
 	return animations
 }
 
-func NewAnimation(spec *modelspec.ModelSpecification) *Animation {
-	// TODO: handle animations for multiple meshes
-	mesh := spec.Meshes[0]
-	vertexAttributeIndices := mesh.VertexAttributeIndices
-	vertexAttributesStride := mesh.VertexAttributesStride
-	jointIDs := mesh.JointIDs
-	jointWeights := mesh.JointWeights
-
-	return &Animation{
-		animationSpec: spec.Animation,
-		rootJoint:     spec.RootJoint,
-
-		vertexAttributeIndices: vertexAttributeIndices,
-		vertexAttributesStride: vertexAttributesStride,
-		jointIDs:               jointIDs,
-		jointWeights:           jointWeights,
-	}
-}
-
 // lays out the vertex atrributes for:
 // 3 - joint indices    vec3
 // 4 - joint weights    vec3

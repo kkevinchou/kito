@@ -38,6 +38,18 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
 		animationComponent := componentContainer.AnimationComponent
+		tpcComponent := componentContainer.ThirdPersonControllerComponent
+
+		targetAnimation := "Idle"
+		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
+			targetAnimation = "Walk"
+		}
+
+		if animationComponent.CurrentAnimation != targetAnimation {
+			animationComponent.CurrentAnimation = targetAnimation
+			animationComponent.ElapsedTime = 0
+			animationComponent.Animation = animationComponent.Animations[targetAnimation]
+		}
 
 		animationComponent.ElapsedTime += delta
 		for animationComponent.ElapsedTime.Milliseconds() > animationComponent.Animation.Length().Milliseconds() {

@@ -71,8 +71,8 @@ func ResolveControllerCollision(entity entities.Entity) {
 		separatingVector := combineSeparatingVectors(contactManifolds)
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		tpcComponent.Grounded = true
-		tpcComponent.Velocity = mgl64.Vec3{}
-		tpcComponent.BaseVelocity = mgl64.Vec3{}
+		tpcComponent.Velocity[1] = 0
+		tpcComponent.BaseVelocity[1] = 0
 	} else {
 		// no collisions were detected (i.e. the ground)
 		// physicsComponent.Grounded = false
