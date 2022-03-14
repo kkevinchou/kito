@@ -22,30 +22,25 @@ var (
 
 func UpdateCharacterController(delta time.Duration, entity entities.Entity, camera entities.Entity, frameInput input.Input) {
 	componentContainer := entity.GetComponentContainer()
-	cameraComponentContainer := camera.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
 	tpcComponent := componentContainer.ThirdPersonControllerComponent
 
 	keyboardInput := frameInput.KeyboardInput
 	controlVector := common.GetControlVector(keyboardInput)
 
-	forwardVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
-	forwardVector[1] = 0
-	forwardVector = forwardVector.Normalize().Mul(controlVector.Z())
-
-	rightVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0})
-	rightVector[1] = 0
-	rightVector = rightVector.Normalize().Mul(controlVector.X())
-
-	if tpcComponent.Grounded {
+	// handle jumping
+	if controlVector.Y() > 0 && tpcComponent.Grounded {
 		jumpVelocity := mgl64.Vec3{0, 1, 0}.Mul(controlVector.Y() * jumpSpeed)
 		tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(jumpVelocity)
 		tpcComponent.Grounded = false
 	}
-	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
 
+	// handle controller movement
+	movementDir := calculateMovementDir(camera, controlVector)
 	tpcComponent.MovementSpeed = computeMoveSpeed(tpcComponent.MovementSpeed)
-	movementVelocity := forwardVector.Add(rightVector).Mul(tpcComponent.MovementSpeed)
+	movementVelocity := movementDir.Mul(tpcComponent.MovementSpeed)
+
+	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
 	tpcComponent.Velocity = tpcComponent.BaseVelocity.Add(movementVelocity)
 	transformComponent.Position = transformComponent.Position.Add(tpcComponent.Velocity.Mul(delta.Seconds()))
 
@@ -54,7 +49,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 		transformComponent.Position[1] = 25
 	}
 
-	if controlVector[0] != 0 || controlVector[2] != 0 {
+	if movementDir.LenSqr() > 0 {
 		transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, movementVelocity.Normalize(), mgl64.Vec3{0, 1, 0})
 	} else {
 		tpcComponent.MovementSpeed = 0
@@ -110,4 +105,23 @@ func computeMoveSpeed(movementSpeed float64) float64 {
 		return movementSpeed + 2
 	}
 	return movementSpeed
+}
+
+// movementDir does not include Y values
+func calculateMovementDir(camera entities.Entity, controlVector mgl64.Vec3) mgl64.Vec3 {
+	cameraComponentContainer := camera.GetComponentContainer()
+	forwardVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
+	forwardVector[1] = 0
+	forwardVector = forwardVector.Normalize().Mul(controlVector.Z())
+
+	rightVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0})
+	rightVector[1] = 0
+	rightVector = rightVector.Normalize().Mul(controlVector.X())
+
+	movementDir := forwardVector.Add(rightVector)
+	if movementDir.LenSqr() > 0 {
+		return movementDir.Normalize()
+	}
+
+	return movementDir
 }
