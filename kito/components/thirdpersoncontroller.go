@@ -8,7 +8,8 @@ type ThirdPersonControllerComponent struct {
 	MovementVector mgl64.Vec3
 	Grounded       bool
 
-	Velocity mgl64.Vec3
+	Velocity     mgl64.Vec3
+	BaseVelocity mgl64.Vec3
 }
 
 func (c *ThirdPersonControllerComponent) AddToComponentContainer(container *ComponentContainer) {

@@ -120,7 +120,7 @@ func constructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 		snapshot.Velocity = physicsComponent.Velocity
 		snapshot.Impulses = physicsComponent.Impulses
 	} else if tpcComponent != nil {
-		snapshot.Velocity = tpcComponent.Velocity
+		snapshot.Velocity = tpcComponent.BaseVelocity
 	}
 
 	return snapshot

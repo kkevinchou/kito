@@ -8,11 +8,13 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/common"
 	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/input"
+	"github.com/kkevinchou/kito/lib/libutils"
 )
 
 const (
-	gravity   float64 = 2
-	jumpSpeed float64 = 3
+	gravity   float64 = 250
+	jumpSpeed float64 = 150
+	moveSpeed float64 = 100
 )
 
 var (
@@ -28,14 +30,11 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	keyboardInput := frameInput.KeyboardInput
 	controlVector := common.GetControlVector(keyboardInput)
 
-	forwardVector := mgl64.Vec3{0, 0, -1}
-	rightVector := mgl64.Vec3{1, 0, 0}
-
-	forwardVector = cameraComponentContainer.TransformComponent.Orientation.Rotate(forwardVector)
+	forwardVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
 	forwardVector[1] = 0
 	forwardVector = forwardVector.Normalize()
 
-	rightVector = cameraComponentContainer.TransformComponent.Orientation.Rotate(rightVector)
+	rightVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0})
 	rightVector[1] = 0
 	rightVector.Normalize()
 
@@ -43,15 +42,21 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	rightVector = rightVector.Mul(controlVector.X())
 
 	if tpcComponent.Grounded {
+		jumpVelocity := mgl64.Vec3{0, 1, 0}.Mul(controlVector.Y() * jumpSpeed)
+		tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(jumpVelocity)
 		tpcComponent.Grounded = false
-		jumpVector := mgl64.Vec3{0, 1, 0}.Mul(controlVector.Y() * jumpSpeed)
-		tpcComponent.Velocity = tpcComponent.Velocity.Add(jumpVector)
 	}
-	tpcComponent.Velocity = tpcComponent.Velocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
+	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
+	movementVelocity := forwardVector.Add(rightVector).Mul(moveSpeed)
+	tpcComponent.Velocity = tpcComponent.BaseVelocity.Add(movementVelocity)
+	transformComponent.Position = transformComponent.Position.Add(tpcComponent.Velocity.Mul(delta.Seconds()))
+	if transformComponent.Position[1] < -1000 {
+		transformComponent.Position[1] = 25
+	}
 
-	movementVector := forwardVector.Add(rightVector)
-	componentContainer.ThirdPersonControllerComponent.MovementVector = movementVector
-	transformComponent.Position = transformComponent.Position.Add(movementVector).Add(tpcComponent.Velocity)
+	if !libutils.Vec3IsZero(movementVelocity) {
+		transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, movementVelocity.Normalize(), mgl64.Vec3{0, 1, 0})
+	}
 }
 
 func ResolveControllerCollision(entity entities.Entity) {
@@ -65,6 +70,7 @@ func ResolveControllerCollision(entity entities.Entity) {
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		tpcComponent.Grounded = true
 		tpcComponent.Velocity = mgl64.Vec3{}
+		tpcComponent.BaseVelocity = mgl64.Vec3{}
 	} else {
 		// no collisions were detected (i.e. the ground)
 		// physicsComponent.Grounded = false
