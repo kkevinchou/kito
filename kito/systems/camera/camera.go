@@ -107,15 +107,8 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	}
 
 	zoomDirection := libutils.NormalizeF64(followComponent.ZoomSpeed)
-
 	if mouseInput.MouseWheelDelta != 0 {
 		currentMouseZoomDirection := libutils.NormalizeF64(float64(mouseInput.MouseWheelDelta))
-
-		// allow instantaneous direction change
-		if !libutils.SameSign(zoomDirection, currentMouseZoomDirection) {
-			followComponent.ZoomSpeed = 0
-		}
-
 		zoomDirection = currentMouseZoomDirection
 		followComponent.ZoomSpeed = zoomDirection * mouseWheelSensitivity
 	}

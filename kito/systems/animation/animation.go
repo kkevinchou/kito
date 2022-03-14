@@ -1,7 +1,6 @@
 package animation
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -39,17 +38,6 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
 		animationComponent := componentContainer.AnimationComponent
-		physicsComponent := componentContainer.PhysicsComponent
-
-		if physicsComponent.Velocity.Len() >= 0.1 {
-			// fmt.Println(physicsComponent.Velocity)
-		} else {
-			// fmt.Println(physicsComponent.Velocity)
-		}
-
-		if physicsComponent.Velocity[1] > 0 {
-			fmt.Println(physicsComponent.Velocity)
-		}
 
 		animationComponent.ElapsedTime += delta
 		for animationComponent.ElapsedTime.Milliseconds() > animationComponent.Animation.Length().Milliseconds() {

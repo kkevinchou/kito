@@ -80,6 +80,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
 	playerInputSystem := playerinput.NewPlayerInputSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
+	controllerResolverSystem := charactercontroller.NewCharacterControllerResolverSystem(g)
 	collisionResolverSystem := collisionresolver.NewCollisionResolverSystem(g)
 
 	g.systems = append(g.systems, []System{
@@ -90,6 +91,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		abilitySystem,
 		physicsSystem,
 		collisionSystem,
+		controllerResolverSystem,
 		collisionResolverSystem,
 		animationSystem,
 		cameraSystem,

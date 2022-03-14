@@ -9,7 +9,6 @@ import (
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/utils/controllerutils"
-	"github.com/kkevinchou/kito/kito/utils/physutils"
 	"github.com/kkevinchou/kito/lib/network"
 )
 
@@ -134,8 +133,10 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			cc := player.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
-			cc.PhysicsComponent.Velocity = entitySnapshot.Velocity
-			cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
+			cc.ThirdPersonControllerComponent.BaseVelocity = entitySnapshot.Velocity
+			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
+
+			// TODO: re-enable this when we decide how to implemetn character controller resolution
 			replayInputs(player, world.GetCamera(), lookupCommandFrame, cfHistory)
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
@@ -170,9 +171,9 @@ func replayInputs(
 
 	// replay inputs and add the new results to the command frame history
 	for i, cf := range cfs {
-		controllerutils.UpdateCharacterController(entity, camera, cf.FrameInput)
-		physutils.PhysicsStep(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity)
+		controllerutils.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*
+			time.Millisecond, entity, camera, cf.FrameInput)
+		controllerutils.ResolveControllerCollision(entity)
 		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
 	}
-	// fmt.Printf("replayed %d inputs\n", len(cfs))
 }

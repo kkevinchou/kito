@@ -13,6 +13,7 @@ import (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
+	GetPlayer() entities.Entity
 }
 
 type CharacterControllerSystem struct {
@@ -53,6 +54,6 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		controllerutils.UpdateCharacterController(entity, camera, singleton.PlayerInput[player.ID])
+		controllerutils.UpdateCharacterController(delta, entity, camera, singleton.PlayerInput[player.ID])
 	}
 }

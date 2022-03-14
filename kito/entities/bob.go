@@ -11,12 +11,16 @@ import (
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
+const (
+	startY = 50
+)
+
 func NewBob() *EntityImpl {
 	modelName := "human"
 	textureName := "color_grid"
 
 	transformComponent := &components.TransformComponent{
-		Position:    mgl64.Vec3{0, 100, 40},
+		Position:    mgl64.Vec3{0, startY, 40},
 		Orientation: mgl64.QuatIdent(),
 	}
 
@@ -61,10 +65,6 @@ func NewBob() *EntityImpl {
 		CapsuleCollider: &capsule,
 	}
 
-	physicsComponent := &components.PhysicsComponent{
-		Impulses: map[string]types.Impulse{},
-	}
-
 	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{
 		Controlled: true,
 	}
@@ -73,7 +73,6 @@ func NewBob() *EntityImpl {
 		&components.NetworkComponent{},
 		transformComponent,
 		animationComponent,
-		physicsComponent,
 		thirdPersonControllerComponent,
 		meshComponent,
 		colliderComponent,

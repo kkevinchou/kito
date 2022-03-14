@@ -107,6 +107,7 @@ func constructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 	cc := entity.GetComponentContainer()
 	transformComponent := cc.TransformComponent
 	physicsComponent := cc.PhysicsComponent
+	tpcComponent := cc.ThirdPersonControllerComponent
 
 	snapshot := knetwork.EntitySnapshot{
 		ID:          entity.GetID(),
@@ -118,6 +119,8 @@ func constructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 	if physicsComponent != nil {
 		snapshot.Velocity = physicsComponent.Velocity
 		snapshot.Impulses = physicsComponent.Impulses
+	} else if tpcComponent != nil {
+		snapshot.Velocity = tpcComponent.BaseVelocity
 	}
 
 	return snapshot

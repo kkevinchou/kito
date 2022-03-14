@@ -12,6 +12,7 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
+	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/input"
 
 	"github.com/kkevinchou/kito/kito/singleton"
@@ -107,6 +108,10 @@ func (g *Game) GetEntityByID(id int) (entities.Entity, error) {
 }
 
 func (g *Game) GetPlayer() entities.Entity {
+	if utils.IsServer() {
+		panic("invalid call to GetPlayer() as server")
+	}
+
 	if entity, ok := g.entities[g.singleton.PlayerID]; ok {
 		return entity
 	}

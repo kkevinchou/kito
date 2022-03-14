@@ -38,22 +38,19 @@ func NewCollisionResolverSystem(world World) *CollisionResolverSystem {
 func (s *CollisionResolverSystem) RegisterEntity(entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 
-	if componentContainer.ColliderComponent != nil && componentContainer.TransformComponent != nil {
+	if componentContainer.ColliderComponent != nil && componentContainer.TransformComponent != nil && componentContainer.PhysicsComponent != nil {
 		s.entities = append(s.entities, entity)
 	}
 }
 
 func (s *CollisionResolverSystem) Update(delta time.Duration) {
+	// collision resolution is synchronized from the server to the client
 	if utils.IsClient() {
-		player := s.world.GetPlayer()
-		if player == nil {
-			return
-		}
-		s.resolve(player)
-	} else {
-		for _, entity := range s.entities {
-			s.resolve(entity)
-		}
+		return
+	}
+
+	for _, entity := range s.entities {
+		s.resolve(entity)
 	}
 }
 
