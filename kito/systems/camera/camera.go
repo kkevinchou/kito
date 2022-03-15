@@ -15,7 +15,8 @@ import (
 )
 
 const (
-	mouseWheelSensitivity float64 = 2
+	farMouseWheelSensitivity  float64 = 2.5
+	nearMouseWheelSensitivity float64 = 1.5
 )
 
 type World interface {
@@ -106,25 +107,28 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 		newOrientation = transformComponent.Orientation
 	}
 
-	zoomDirection := libutils.NormalizeF64(followComponent.ZoomSpeed)
+	mouseWheelSensitivity := farMouseWheelSensitivity
+	if followComponent.FollowDistance < 50 {
+		mouseWheelSensitivity = nearMouseWheelSensitivity
+	}
+
 	if mouseInput.MouseWheelDelta != 0 {
 		currentMouseZoomDirection := libutils.NormalizeF64(float64(mouseInput.MouseWheelDelta))
-		zoomDirection = currentMouseZoomDirection
-		followComponent.ZoomSpeed = zoomDirection * mouseWheelSensitivity
+		followComponent.ZoomSpeed = currentMouseZoomDirection * -mouseWheelSensitivity
 	}
 
 	// decay zoom velocity
-	followComponent.ZoomSpeed *= 0.95
-	if !libutils.SameSign(zoomDirection, followComponent.ZoomSpeed) || math.Abs(followComponent.ZoomSpeed) < 0.01 {
+	followComponent.ZoomSpeed *= 0.90
+	if math.Abs(followComponent.ZoomSpeed) < 0.01 {
 		followComponent.ZoomSpeed = 0
 	}
 
-	followComponent.Zoom += followComponent.ZoomSpeed
+	followComponent.FollowDistance += followComponent.ZoomSpeed
 
-	if followComponent.FollowDistance-followComponent.Zoom >= followComponent.MaxFollowDistance {
-		followComponent.Zoom = -(followComponent.MaxFollowDistance - followComponent.FollowDistance)
-	} else if followComponent.FollowDistance-followComponent.Zoom < 5 {
-		followComponent.Zoom = followComponent.FollowDistance - 5
+	if followComponent.FollowDistance >= followComponent.MaxFollowDistance {
+		followComponent.FollowDistance = followComponent.MaxFollowDistance
+	} else if followComponent.FollowDistance < 5 {
+		followComponent.FollowDistance = 5
 	}
 
 	target, err := world.GetEntityByID(followComponent.FollowTargetEntityID)
@@ -134,6 +138,6 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	}
 	targetComponentContainer := target.GetComponentContainer()
 	targetPosition := targetComponentContainer.TransformComponent.Position.Add(mgl64.Vec3{0, followComponent.YOffset, 0})
-	transformComponent.Position = newOrientation.Rotate(mgl64.Vec3{0, 0, followComponent.FollowDistance - followComponent.Zoom}).Add(targetPosition)
+	transformComponent.Position = newOrientation.Rotate(mgl64.Vec3{0, 0, followComponent.FollowDistance}).Add(targetPosition)
 	transformComponent.Orientation = newOrientation
 }

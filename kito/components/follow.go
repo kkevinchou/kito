@@ -7,7 +7,6 @@ type FollowComponent struct {
 	YOffset              float64
 
 	// this zoom stuff probably doesn't belong here
-	Zoom      float64
 	ZoomSpeed float64
 }
 

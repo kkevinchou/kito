@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	maxFollowDistance     float64 = 500
+	maxFollowDistance     float64 = 300
 	defaultFollowDistance float64 = 60
 	defaultFollowY        float64 = 15
 )
