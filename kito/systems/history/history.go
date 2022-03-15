@@ -37,8 +37,5 @@ func (s *HistorySystem) Update(delta time.Duration) {
 
 	cfHistory := s.world.GetCommandFrameHistory()
 	player := s.world.GetPlayer()
-	if player == nil {
-		return
-	}
 	cfHistory.AddCommandFrame(singleton.CommandFrame, playerInput, player)
 }

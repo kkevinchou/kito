@@ -15,7 +15,6 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
 	"github.com/kkevinchou/kito/kito/systems/collision"
 	"github.com/kkevinchou/kito/kito/systems/collisionresolver"
-	"github.com/kkevinchou/kito/kito/systems/common"
 	historysys "github.com/kkevinchou/kito/kito/systems/history"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/kito/systems/networkinput"
@@ -24,7 +23,6 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/render"
 	"github.com/kkevinchou/kito/kito/systems/spawner"
 	"github.com/kkevinchou/kito/kito/systems/stateinterpolator"
-	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
@@ -38,35 +36,25 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	g := NewGame()
 	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
 
-	clientSystemSetup(g, assetsDirectory, shaderDirectory)
-	compileShaders()
-
 	// Connect to server
-	nClient, playerID, err := network.Connect(settings.Host, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
+	client, _, err := network.Connect(settings.Host, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
 	if err != nil {
 		panic(err)
 	}
-
-	nClient.SetCommandFrameFunction(func() int { return g.CommandFrame() })
-
-	var client types.NetworkClient = nClient
-	if settings.ArtificialClientLatency > 0 {
-		client = common.NewArtificallySlowClient(nClient, settings.ArtificialClientLatency)
-	}
+	client.SetCommandFrameFunction(func() int { return g.CommandFrame() })
 
 	err = client.SendMessage(knetwork.MessageTypeCreatePlayer, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	directory := directory.GetDirectory()
-	directory.PlayerManager().RegisterPlayer(playerID, client)
-	g.GetSingleton().PlayerID = playerID
+	clientSystemSetup(g, assetsDirectory, shaderDirectory)
+	ackCreatePlayer(g, client)
 
 	initialEntities := clientEntitySetup(g)
 	g.RegisterEntities(initialEntities)
 
-	fmt.Println("successfully received ack player creation with id", playerID)
+	compileShaders()
 
 	return g
 }
@@ -130,7 +118,7 @@ func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
 
 func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		return nil, fmt.Errorf("Failed to init SDL %s", err)
+		return nil, fmt.Errorf("failed to init SDL %s", err)
 	}
 
 	// Enable hints for multisampling which allows opengl to use the default
@@ -192,4 +180,34 @@ func compileShaders() {
 	if err := shaderManager.CompileShaderProgram("basicsolid", "basicsolid", "basicsolid"); err != nil {
 		panic(err)
 	}
+}
+
+func ackCreatePlayer(g *Game, client *network.Client) {
+	message := client.SyncReceiveMessage()
+	messageBody := &knetwork.AckCreatePlayerMessage{}
+	err := network.DeserializeBody(message, messageBody)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	singleton := g.GetSingleton()
+	singleton.PlayerID = messageBody.ID
+	singleton.CameraID = messageBody.CameraID
+
+	directory := directory.GetDirectory()
+	directory.PlayerManager().RegisterPlayer(messageBody.ID, client)
+
+	bob := entities.NewBob()
+	bob.ID = messageBody.ID
+
+	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())
+	camera.ID = messageBody.CameraID
+
+	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
+
+	g.RegisterEntities([]entities.Entity{
+		bob,
+		camera,
+	})
 }

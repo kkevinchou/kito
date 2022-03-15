@@ -22,7 +22,6 @@ func connectedPlayersMessageFetcher(world World) []*network.Message {
 func clientMessageFetcher(world World) []*network.Message {
 	singleton := world.GetSingleton()
 	playerManager := directory.GetDirectory().PlayerManager()
-
 	player := playerManager.GetPlayer(singleton.PlayerID)
 	return player.Client.PullIncomingMessages()
 }

@@ -57,4 +57,5 @@ mark a player as a navmesh agent. this makes sense for destination based movemen
 
 figre out 3d platformer movement (physics based?)
 
-camera rotations causing prediction misses even with no key inputs when sliding down a ramp
+camera rotations causing prediction misses even with no key inputs when sliding down a ramp. probably not properly
+handling client side prediction when some external force not involving key presses causes our player to move

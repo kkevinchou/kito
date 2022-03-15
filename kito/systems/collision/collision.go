@@ -59,9 +59,6 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 
 	if utils.IsClient() {
 		player := s.world.GetPlayer()
-		if player == nil {
-			return
-		}
 		s.collide(player, handledCollisions)
 	} else {
 		for _, e1 := range s.entities {
