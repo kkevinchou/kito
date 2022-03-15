@@ -1,13 +1,12 @@
 package components
 
 type FollowComponent struct {
-	FollowTargetEntityID  int
-	DefaultFollowDistance float64
-	MaxFollowDistance     float64
-	YOffset               float64
+	FollowTargetEntityID int
+	FollowDistance       float64
+	MaxFollowDistance    float64
+	YOffset              float64
 
 	// this zoom stuff probably doesn't belong here
-	Zoom      float64
 	ZoomSpeed float64
 }
 
