@@ -27,7 +27,8 @@ func clientMessageHandler(world World, message *network.Message) {
 		validateClientPrediction(&gameStateUpdate, world)
 		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)
 	} else if message.MessageType == knetwork.MessageTypeAckCreatePlayer {
-		panic("this should be handled in the client code and not handled here")
+		fmt.Println("this should be handled in the client code and not handled here")
+		// panic("this should be handled in the client code and not handled here")
 	} else if message.MessageType == knetwork.MessageTypeAckPing {
 		var ackPingMessage knetwork.AckPingMessage
 		err := network.DeserializeBody(message, &ackPingMessage)

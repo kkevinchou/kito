@@ -14,15 +14,15 @@ const (
 
 func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTargetEntityID int) *EntityImpl {
 	followComponent := &components.FollowComponent{
-		FollowTargetEntityID: followTargetEntityID,
-		FollowDistance:       defaultFollowDistance,
-		MaxFollowDistance:    maxFollowDistance,
-		YOffset:              defaultFollowY,
+		FollowTargetEntityID:  followTargetEntityID,
+		DefaultFollowDistance: defaultFollowDistance,
+		MaxFollowDistance:     maxFollowDistance,
+		YOffset:               defaultFollowY,
 	}
 
 	transformComponent := &components.TransformComponent{
 		Orientation: mgl64.QuatIdent(),
-		Position:    mgl64.Vec3{0, followComponent.YOffset, followComponent.FollowDistance},
+		Position:    mgl64.Vec3{0, followComponent.YOffset, followComponent.DefaultFollowDistance},
 	}
 
 	entity := NewEntity(
