@@ -33,6 +33,7 @@ const (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
+	GetPlayer() entities.Entity
 	MetricsRegistry() *metrics.MetricsRegistry
 }
 
@@ -183,7 +184,6 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
 	assetManager := d.AssetManager()
-	singleton := s.world.GetSingleton()
 
 	// render a debug shadow map for viewing
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
@@ -265,10 +265,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	renderText += s.generalInfoText()
 	renderText += s.networkInfoText()
 
-	player, err := s.world.GetEntityByID(singleton.PlayerID)
-	if player != nil && err == nil {
-		renderText += s.entityInfoText(player)
-	}
+	player := s.world.GetPlayer()
+	renderText += s.entityInfoText(player)
 	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), renderText, 0.8, 0)
 }
 

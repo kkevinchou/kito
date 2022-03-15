@@ -42,9 +42,7 @@ func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
 	// collision resolution is synchronized from the server to the client
 	if utils.IsClient() {
 		player := s.world.GetPlayer()
-		if player != nil {
-			controllerutils.ResolveControllerCollision(player)
-		}
+		controllerutils.ResolveControllerCollision(player)
 	} else {
 		for _, entity := range s.entities {
 			controllerutils.ResolveControllerCollision(entity)

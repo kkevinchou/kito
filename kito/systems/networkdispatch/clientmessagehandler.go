@@ -27,7 +27,7 @@ func clientMessageHandler(world World, message *network.Message) {
 		validateClientPrediction(&gameStateUpdate, world)
 		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)
 	} else if message.MessageType == knetwork.MessageTypeAckCreatePlayer {
-		handleAckCreatePlayer(message, world)
+		panic("this should be handled in the client code and not handled here")
 	} else if message.MessageType == knetwork.MessageTypeAckPing {
 		var ackPingMessage knetwork.AckPingMessage
 		err := network.DeserializeBody(message, &ackPingMessage)
@@ -39,32 +39,6 @@ func clientMessageHandler(world World, message *network.Message) {
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}
-}
-
-func handleAckCreatePlayer(message *network.Message, world World) {
-	messageBody := &knetwork.AckCreatePlayerMessage{}
-	err := network.DeserializeBody(message, messageBody)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	singleton := world.GetSingleton()
-	singleton.PlayerID = messageBody.ID
-	singleton.CameraID = messageBody.CameraID
-
-	bob := entities.NewBob()
-	bob.ID = messageBody.ID
-
-	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())
-	camera.ID = messageBody.CameraID
-
-	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
-
-	world.RegisterEntities([]entities.Entity{
-		bob,
-		camera,
-	})
 }
 
 func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, world World) {
@@ -88,11 +62,6 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 	}
 
 	player := world.GetPlayer()
-	if player == nil {
-		fmt.Println("handleGameStateUpdate - could not find player")
-		return
-	}
-
 	entitySnapshot := gameStateUpdate.Entities[world.GetSingleton().PlayerID]
 
 	if cf != nil {
