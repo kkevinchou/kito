@@ -19,11 +19,6 @@ type Model struct {
 func NewModel(spec *modelspec.ModelSpecification) *Model {
 	mesh := NewMesh(spec)
 
-	var animation *Animation
-	if spec.Animation != nil {
-		animation = NewAnimation(spec)
-	}
-
 	var animations map[string]*Animation
 	if spec.Animations != nil {
 		animations = NewAnimations(spec)
@@ -31,7 +26,6 @@ func NewModel(spec *modelspec.ModelSpecification) *Model {
 
 	return &Model{
 		Mesh:       mesh,
-		Animation:  animation,
 		Animations: animations,
 	}
 }
@@ -49,8 +43,13 @@ func (m *Model) Bind() uint32 {
 	m.vao = vao
 
 	m.Mesh.BindVertexAttributes()
-	if m.Animation != nil {
-		m.Animation.BindVertexAttributes()
+	if len(m.Animations) > 0 {
+		// TODO: is this safe?
+		// assume vertex attributes of first animation is the same for all animations
+		for _, animation := range m.Animations {
+			animation.BindVertexAttributes()
+			break
+		}
 	}
 
 	configureIndexBuffer(m.Mesh.vertexCount)

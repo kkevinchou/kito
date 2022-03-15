@@ -51,6 +51,5 @@ type ModelSpecification struct {
 	RootJoint *JointSpec
 
 	// Animations
-	Animation  *AnimationSpec
 	Animations map[string]*AnimationSpec
 }

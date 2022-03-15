@@ -43,8 +43,9 @@ func NewBob() *EntityImpl {
 	}
 
 	animationComponent := &components.AnimationComponent{
-		Animation:  m.Animation,
-		Animations: m.Animations,
+		CurrentAnimation: "Idle",
+		Animation:        m.Animations["Idle"],
+		Animations:       m.Animations,
 	}
 	_ = animationComponent
 

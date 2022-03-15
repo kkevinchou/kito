@@ -85,13 +85,6 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		modelSpec.RootJoint = parsedJoints.RootJoint
 	}
 
-	// temporary for backwards compatibility. We should be using .Animations rather than .Animation
-	// since a gltf file can contain multiple animations
-	if len(parsedAnimations) > 0 {
-		for _, animation := range parsedAnimations {
-			modelSpec.Animation = animation
-		}
-	}
 	modelSpec.Animations = parsedAnimations
 
 	return modelSpec, nil
