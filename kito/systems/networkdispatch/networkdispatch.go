@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/metrics"
 )
 
 type World interface {
@@ -20,6 +21,7 @@ type World interface {
 	CommandFrame() int
 	GetCamera() entities.Entity
 	GetPlayer() entities.Entity
+	MetricsRegistry() *metrics.MetricsRegistry
 }
 
 type NetworkDispatchSystem struct {

@@ -14,7 +14,7 @@ import (
 
 func clientMessageHandler(world World, message *network.Message) {
 	singleton := world.GetSingleton()
-	metricsRegistry := singleton.MetricsRegistry
+	metricsRegistry := world.MetricsRegistry()
 	if message.MessageType == knetwork.MessageTypeGameStateUpdate {
 		var gameStateUpdate knetwork.GameStateUpdateMessage
 		err := network.DeserializeBody(message, &gameStateUpdate)
@@ -68,8 +68,7 @@ func handleAckCreatePlayer(message *network.Message, world World) {
 }
 
 func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, world World) {
-	singleton := world.GetSingleton()
-	metricsRegistry := singleton.MetricsRegistry
+	metricsRegistry := world.MetricsRegistry()
 
 	// We use a gcf adjusted command frame lookup because even though an input may happen on only one command
 	// frame, the entity can continue to be updated due to that input. Therefore we need to make sure

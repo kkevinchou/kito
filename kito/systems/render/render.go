@@ -15,6 +15,7 @@ import (
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/metrics"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -32,6 +33,7 @@ const (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
+	MetricsRegistry() *metrics.MetricsRegistry
 }
 
 type RenderSystem struct {
@@ -271,19 +273,19 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 }
 
 func (s *RenderSystem) generalInfoText() string {
-	singleton := s.world.GetSingleton()
-	fps := int(singleton.MetricsRegistry.GetOneSecondSum("fps"))
+	metricsRegistry := s.world.MetricsRegistry()
+	fps := int(metricsRegistry.GetOneSecondSum("fps"))
 	renderText := fmt.Sprintf("--- General\nfps: %d\n", fps)
 
 	return renderText
 }
 
 func (s *RenderSystem) networkInfoText() string {
-	singleton := s.world.GetSingleton()
-	predictionMiss := int(singleton.MetricsRegistry.GetOneSecondSum("predictionMiss"))
-	predictionHit := int(singleton.MetricsRegistry.GetOneSecondSum("predictionHit"))
-	ping := int(singleton.MetricsRegistry.GetOneSecondAverage("ping"))
-	updateMessageSize := int(singleton.MetricsRegistry.GetOneSecondSum("update_message_size")) / 1000
+	metricsRegistry := s.world.MetricsRegistry()
+	predictionMiss := int(metricsRegistry.GetOneSecondSum("predictionMiss"))
+	predictionHit := int(metricsRegistry.GetOneSecondSum("predictionHit"))
+	ping := int(metricsRegistry.GetOneSecondAverage("ping"))
+	updateMessageSize := int(metricsRegistry.GetOneSecondSum("update_message_size")) / 1000
 
 	renderText := fmt.Sprintf("--- Networking\nPing: %d\nPrediction Miss: %d\nPrediction Hit: %d\nUpdate Size: %d kb/s\n", ping, predictionMiss, predictionHit, updateMessageSize)
 	return renderText

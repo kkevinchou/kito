@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"runtime/debug"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/commandframe"
@@ -12,8 +11,8 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/input"
+	"github.com/kkevinchou/kito/lib/metrics"
 
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/types"
@@ -36,14 +35,20 @@ type Game struct {
 	systems   []System
 	entities  map[int]entities.Entity
 
-	eventBroker         eventbroker.EventBroker
+	eventBroker     eventbroker.EventBroker
+	metricsRegistry *metrics.MetricsRegistry
+
+	// Client
 	commandFrameHistory *commandframe.CommandFrameHistory
 }
 
-func (g *Game) runCommandFrame(delta time.Duration) {
-	g.singleton.CommandFrame++
-	for _, system := range g.systems {
-		system.Update(delta)
+func NewGame() *Game {
+	return &Game{
+		gameMode:        types.GameModePlaying,
+		singleton:       singleton.NewSingleton(),
+		entities:        map[int]entities.Entity{},
+		eventBroker:     eventbroker.NewEventBroker(),
+		metricsRegistry: metrics.New(),
 	}
 }
 
@@ -77,7 +82,7 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 
 		if renderAccumulator >= msPerFrame {
 			frameCount++
-			g.singleton.MetricsRegistry.Inc("fps", 1)
+			g.metricsRegistry.Inc("fps", 1)
 			renderFunction(time.Duration(renderAccumulator) * time.Millisecond)
 			for renderAccumulator >= msPerFrame {
 				renderAccumulator -= msPerFrame
@@ -93,91 +98,10 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 	}
 }
 
-func (g *Game) GetSingleton() *singleton.Singleton {
-	return g.singleton
-}
-
-func (g *Game) GetEntityByID(id int) (entities.Entity, error) {
-	if entity, ok := g.entities[id]; ok {
-		return entity, nil
-	}
-
-	stack := debug.Stack()
-
-	return nil, fmt.Errorf("%sfailed to find entity with ID %d", string(stack), id)
-}
-
-func (g *Game) GetPlayer() entities.Entity {
-	if utils.IsServer() {
-		panic("invalid call to GetPlayer() as server")
-	}
-
-	if entity, ok := g.entities[g.singleton.PlayerID]; ok {
-		return entity
-	}
-	return nil
-}
-
-func (g *Game) GetCamera() entities.Entity {
-	if entity, ok := g.entities[g.singleton.CameraID]; ok {
-		return entity
-	}
-	return nil
-}
-
-func (g *Game) RegisterEntities(entityList []entities.Entity) {
-	for _, entity := range entityList {
-		g.entities[entity.GetID()] = entity
-	}
-
-	for _, entity := range entityList {
-		for _, system := range g.systems {
-			system.RegisterEntity(entity)
-		}
-	}
-}
-
-func (g *Game) CommandFrame() int {
-	return g.singleton.CommandFrame
-}
-
-func (g *Game) GetEventBroker() eventbroker.EventBroker {
-	return g.eventBroker
-}
-
-func (g *Game) GetCommandFrameHistory() *commandframe.CommandFrameHistory {
-	return g.commandFrameHistory
-}
-
-func compileShaders() {
-	d := directory.GetDirectory()
-	shaderManager := d.ShaderManager()
-	if err := shaderManager.CompileShaderProgram("basic", "basic", "basic"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("basicShadow", "basicshadow", "basicshadow"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("skybox", "skybox", "skybox"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("model", "model", "model"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("model_static", "model_static", "model"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("material", "model", "material"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("quadtex", "quadtex", "quadtex"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("basicsolid", "basicsolid", "basicsolid"); err != nil {
-		panic(err)
+func (g *Game) runCommandFrame(delta time.Duration) {
+	g.singleton.CommandFrame++
+	for _, system := range g.systems {
+		system.Update(delta)
 	}
 }
 

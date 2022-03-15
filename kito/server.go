@@ -6,10 +6,8 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
-	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/settings"
-	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/ability"
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
@@ -22,7 +20,6 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/networkupdate"
 	"github.com/kkevinchou/kito/kito/systems/physics"
 	"github.com/kkevinchou/kito/kito/systems/playerinput"
-	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/assets"
 )
 
@@ -30,12 +27,7 @@ func NewServerGame(assetsDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeServer
 
-	g := &Game{
-		gameMode:    types.GameModePlaying,
-		singleton:   singleton.NewSingleton(),
-		entities:    map[int]entities.Entity{},
-		eventBroker: eventbroker.NewEventBroker(),
-	}
+	g := NewGame()
 
 	serverSystemSetup(g, assetsDirectory)
 	initialEntities := serverEntitySetup(g)

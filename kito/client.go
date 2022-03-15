@@ -8,10 +8,8 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/knetwork"
-	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/settings"
-	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
@@ -37,13 +35,8 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeClient
 
-	g := &Game{
-		gameMode:            types.GameModePlaying,
-		singleton:           singleton.NewSingleton(),
-		entities:            map[int]entities.Entity{},
-		eventBroker:         eventbroker.NewEventBroker(),
-		commandFrameHistory: commandframe.NewCommandFrameHistory(),
-	}
+	g := NewGame()
+	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
 
 	clientSystemSetup(g, assetsDirectory, shaderDirectory)
 	compileShaders()
@@ -167,4 +160,36 @@ func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
 	}
 
 	return window, nil
+}
+
+func compileShaders() {
+	d := directory.GetDirectory()
+	shaderManager := d.ShaderManager()
+	if err := shaderManager.CompileShaderProgram("basic", "basic", "basic"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("basicShadow", "basicshadow", "basicshadow"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("skybox", "skybox", "skybox"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("model", "model", "model"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("model_static", "model_static", "model"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("material", "model", "material"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("quadtex", "quadtex", "quadtex"); err != nil {
+		panic(err)
+	}
+	if err := shaderManager.CompileShaderProgram("basicsolid", "basicsolid", "basicsolid"); err != nil {
+		panic(err)
+	}
 }
