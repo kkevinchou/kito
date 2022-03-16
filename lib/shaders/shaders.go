@@ -64,7 +64,7 @@ func (s *ShaderManager) GetShaderProgram(name string) *ShaderProgram {
 }
 
 func loadShaders(directory string, shaderType uint32, extension string) map[string]uint32 {
-	extensions := map[string]interface{}{
+	extensions := map[string]any{
 		extension: nil,
 	}
 

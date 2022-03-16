@@ -8,7 +8,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-type Node interface{}
+type Node any
 
 // type Node struct {
 // 	Label    string
@@ -16,8 +16,8 @@ type Node interface{}
 // }
 
 type BehaviorNode struct {
-	Type       string      `yaml:"type"`
-	Definition interface{} `yaml:"definition"`
+	Type       string `yaml:"type"`
+	Definition any    `yaml:"definition"`
 }
 
 type Behavior struct {

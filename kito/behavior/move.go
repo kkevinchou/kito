@@ -22,7 +22,7 @@ type Move struct {
 	pathIndex int
 }
 
-func (m *Move) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {
+func (m *Move) Tick(input any, state behavior.AIState, delta time.Duration) (any, behavior.Status) {
 	logger.Debug("Move - ENTER")
 
 	if m.path == nil {

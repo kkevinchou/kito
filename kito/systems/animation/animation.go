@@ -10,7 +10,7 @@ import (
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
-type World interface{}
+type World any
 
 type AnimationSystem struct {
 	*base.BaseSystem

@@ -16,7 +16,7 @@ func NewArtificallySlowClient(client *network.Client, latency time.Duration) *Ar
 	return &ArtificallySlowClient{client: client, latency: latency}
 }
 
-func (c *ArtificallySlowClient) SendMessage(messageType int, messageBody interface{}) error {
+func (c *ArtificallySlowClient) SendMessage(messageType int, messageBody any) error {
 	go func() {
 		time.Sleep(c.latency)
 		err := c.client.SendMessage(messageType, messageBody)

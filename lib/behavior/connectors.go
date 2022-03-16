@@ -3,12 +3,12 @@ package behavior
 import "time"
 
 type Memory struct {
-	data map[string]interface{}
+	data map[string]any
 }
 
 func NewMemory() *Memory {
 	return &Memory{
-		data: map[string]interface{}{},
+		data: map[string]any{},
 	}
 }
 
@@ -27,7 +27,7 @@ func (m *Memory) Get(key string) *Get {
 }
 
 func (m *Memory) Reset() {
-	m.data = map[string]interface{}{}
+	m.data = map[string]any{}
 }
 
 type Set struct {
@@ -35,7 +35,7 @@ type Set struct {
 	key    string
 }
 
-func (s *Set) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+func (s *Set) Tick(input any, state AIState, delta time.Duration) (any, Status) {
 	s.memory.data[s.key] = input
 	return input, SUCCESS
 }
@@ -49,7 +49,7 @@ type Get struct {
 	key    string
 }
 
-func (g *Get) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+func (g *Get) Tick(input any, state AIState, delta time.Duration) (any, Status) {
 	if value, ok := g.memory.data[g.key]; ok {
 		return value, SUCCESS
 	}

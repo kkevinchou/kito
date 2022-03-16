@@ -16,7 +16,7 @@ type Positionable interface {
 	Position() mgl64.Vec3
 }
 
-func (p *Position) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {
+func (p *Position) Tick(input any, state behavior.AIState, delta time.Duration) (any, behavior.Status) {
 	if positionable, ok := input.(Positionable); ok {
 		return positionable.Position(), behavior.SUCCESS
 	}
