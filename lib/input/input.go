@@ -62,7 +62,7 @@ type Input struct {
 	NewInput      bool
 	KeyboardInput KeyboardInput
 	MouseInput    MouseInput
-	Commands      []interface{}
+	Commands      []any
 }
 
 // func (i Input) Copy() Input {

@@ -7,7 +7,7 @@ type Selector struct {
 	cache    NodeCache
 }
 
-func (s *Selector) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+func (s *Selector) Tick(input any, state AIState, delta time.Duration) (any, Status) {
 	var status Status
 
 	for _, child := range s.children {

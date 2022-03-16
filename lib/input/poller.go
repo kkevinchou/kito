@@ -29,7 +29,7 @@ func (i *SDLInputPoller) PollInput() Input {
 	}
 
 	// Event inputs
-	var commands []interface{}
+	var commands []any
 	var event sdl.Event
 
 	// used as a flag for the network input system to determine whether the player

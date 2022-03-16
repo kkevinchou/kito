@@ -16,7 +16,7 @@ import (
 func LoadTextures(directory string) map[string]*textures.Texture {
 	var subDirectories []string = []string{"images", "icons", "gltf"}
 
-	extensions := map[string]interface{}{
+	extensions := map[string]any{
 		".png": nil,
 	}
 
@@ -37,7 +37,7 @@ func LoadTextures(directory string) map[string]*textures.Texture {
 func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecification {
 	var subDirectories []string = []string{"gltf"}
 
-	extensions := map[string]interface{}{
+	extensions := map[string]any{
 		".gltf": nil,
 	}
 
@@ -71,7 +71,7 @@ func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecificati
 func LoadFonts(directory string) map[string]font.Font {
 	var subDirectories []string = []string{"fonts"}
 
-	extensions := map[string]interface{}{
+	extensions := map[string]any{
 		".ttf": nil,
 	}
 

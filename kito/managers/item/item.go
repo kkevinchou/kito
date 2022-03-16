@@ -8,7 +8,7 @@ import (
 )
 
 type Manager struct {
-	items map[types.Item]interface{}
+	items map[types.Item]any
 }
 
 func (i *Manager) Register(item types.Item) {
@@ -50,6 +50,6 @@ func (i *Manager) Drop(owner types.ItemGiver, item types.Item) error {
 
 func NewManager() *Manager {
 	return &Manager{
-		items: map[types.Item]interface{}{},
+		items: map[types.Item]any{},
 	}
 }

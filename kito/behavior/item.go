@@ -13,7 +13,7 @@ type PickupItem struct {
 	Entity types.ItemReceiver
 }
 
-func (p *PickupItem) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {
+func (p *PickupItem) Tick(input any, state behavior.AIState, delta time.Duration) (any, behavior.Status) {
 	logger.Debug("PickupItem - ENTER")
 	var item types.Item
 	var ok bool
@@ -41,7 +41,7 @@ type DropItem struct {
 	Entity types.ItemGiver
 }
 
-func (d *DropItem) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {
+func (d *DropItem) Tick(input any, state behavior.AIState, delta time.Duration) (any, behavior.Status) {
 	logger.Debug("DropItem - ENTER")
 
 	var item types.Item
@@ -67,7 +67,7 @@ func (d *DropItem) Reset() {}
 
 type RandomItem struct{}
 
-func (r *RandomItem) Tick(input interface{}, state behavior.AIState, delta time.Duration) (interface{}, behavior.Status) {
+func (r *RandomItem) Tick(input any, state behavior.AIState, delta time.Duration) (any, behavior.Status) {
 	logger.Debug("RandomItem - ENTER")
 	itemManager := directory.GetDirectory().ItemManager()
 	item, err := itemManager.Random()

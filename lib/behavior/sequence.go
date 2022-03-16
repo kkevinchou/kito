@@ -15,7 +15,7 @@ func NewSequence() *Sequence {
 	return &Sequence{children: []Node{}, cache: NewNodeCache()}
 }
 
-func (s *Sequence) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+func (s *Sequence) Tick(input any, state AIState, delta time.Duration) (any, Status) {
 	var status Status
 
 	for _, child := range s.children {

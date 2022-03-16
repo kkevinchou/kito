@@ -86,7 +86,7 @@ func (c *Client) sendMessage(message *Message) error {
 }
 
 // SendMessage sends the message through the client
-func (c *Client) SendMessage(messageType int, messageBody interface{}) error {
+func (c *Client) SendMessage(messageType int, messageBody any) error {
 	var bodyBytes []byte
 	var err error
 	if messageBody != nil {

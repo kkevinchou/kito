@@ -3,10 +3,10 @@ package behavior
 import "time"
 
 type Value struct {
-	Value interface{}
+	Value any
 }
 
-func (v *Value) Tick(input interface{}, state AIState, delta time.Duration) (interface{}, Status) {
+func (v *Value) Tick(input any, state AIState, delta time.Duration) (any, Status) {
 	return v.Value, SUCCESS
 }
 

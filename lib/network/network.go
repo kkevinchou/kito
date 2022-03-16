@@ -47,6 +47,6 @@ func queueIncomingMessages(conn net.Conn, messageQueue chan *Message) {
 	}
 }
 
-func DeserializeBody(message *Message, messageBody interface{}) error {
+func DeserializeBody(message *Message, messageBody any) error {
 	return json.Unmarshal(message.Body, messageBody)
 }
