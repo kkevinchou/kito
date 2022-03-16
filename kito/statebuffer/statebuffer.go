@@ -31,7 +31,6 @@ func NewStateBuffer(maxStateBufferCommandFrames int) *StateBuffer {
 
 func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMessage *knetwork.GameStateUpdateMessage) {
 	if len(s.incomingEntityUpdates) == 0 {
-		fmt.Println("entity update 0")
 		targetCommandFrame := playerCommandFrame + s.maxStateBufferCommandFrames
 		s.incomingEntityUpdates = append(
 			s.incomingEntityUpdates,

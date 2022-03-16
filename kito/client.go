@@ -183,12 +183,22 @@ func compileShaders() {
 }
 
 func ackCreatePlayer(g *Game, client *network.Client) {
-	message := client.SyncReceiveMessage()
-	messageBody := &knetwork.AckCreatePlayerMessage{}
-	err := network.DeserializeBody(message, messageBody)
-	if err != nil {
-		fmt.Println(err)
-		return
+	var messageBody *knetwork.AckCreatePlayerMessage
+	for messageBody == nil {
+		message := client.SyncReceiveMessage()
+		// discard any messages that are not for acking the create player
+		if message.MessageType != network.MessageTypeAckCreatePlayer {
+			fmt.Printf("during ack create player, discarded message %s\n", string(message.Body))
+			continue
+		}
+
+		messageBody = &knetwork.AckCreatePlayerMessage{}
+		err := network.DeserializeBody(message, messageBody)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		break
 	}
 
 	singleton := g.GetSingleton()
