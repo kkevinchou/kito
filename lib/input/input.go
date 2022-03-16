@@ -59,7 +59,6 @@ type QuitCommand struct {
 // written to by any systems, only read. Input is stored in a client side
 // command frame history which will copy the KeyboardInput by reference
 type Input struct {
-	NewInput      bool
 	KeyboardInput KeyboardInput
 	MouseInput    MouseInput
 	Commands      []any

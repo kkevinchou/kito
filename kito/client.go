@@ -132,8 +132,8 @@ func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
 
 	// sdl.ShowCursor(sdl.DISABLE)
 	// sdl.SetRelativeMouseMode(true)
-	// window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), sdl.WINDOW_OPENGL|sdl.WINDOW_FULLSCREEN)
-	window, err := sdl.CreateWindow("test", 400, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), sdl.WINDOW_OPENGL)
+	// window, err := sdl.CreateWindow("KITO DEMO", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), sdl.WINDOW_OPENGL|sdl.WINDOW_FULLSCREEN)
+	window, err := sdl.CreateWindow("KITO DEMO", 400, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), sdl.WINDOW_OPENGL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create window %s", err)
 	}

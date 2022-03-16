@@ -23,6 +23,7 @@ func clientMessageHandler(world World, message *network.Message) {
 		}
 
 		metricsRegistry.Inc("update_message_size", float64(len(message.Body)))
+		metricsRegistry.Inc("update_message_count", 1)
 
 		validateClientPrediction(&gameStateUpdate, world)
 		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)

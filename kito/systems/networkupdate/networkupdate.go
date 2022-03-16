@@ -19,6 +19,7 @@ type World interface {
 	RegisterEntities([]entities.Entity)
 	GetEventBroker() eventbroker.EventBroker
 	GetSingleton() *singleton.Singleton
+	CommandFrame() int
 }
 
 type NetworkUpdateSystem struct {
@@ -94,7 +95,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	for _, player := range playerManager.GetPlayers() {
 		gameStateUpdate.LastInputCommandFrame = player.LastInputCommandFrame
 		gameStateUpdate.LastInputGlobalCommandFrame = player.LastInputGlobalCommandFrame
-		gameStateUpdate.CurrentGlobalCommandFrame = s.world.GetSingleton().CommandFrame
+		gameStateUpdate.CurrentGlobalCommandFrame = s.world.CommandFrame()
 		player.Client.SendMessage(knetwork.MessageTypeGameStateUpdate, gameStateUpdate)
 	}
 }

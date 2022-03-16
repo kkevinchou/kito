@@ -284,8 +284,11 @@ func (s *RenderSystem) networkInfoText() string {
 	predictionHit := int(metricsRegistry.GetOneSecondSum("predictionHit"))
 	ping := int(metricsRegistry.GetOneSecondAverage("ping"))
 	updateMessageSize := int(metricsRegistry.GetOneSecondSum("update_message_size")) / 1000
+	updateCount := int(metricsRegistry.GetOneSecondSum("update_message_count"))
+	newInput := int(metricsRegistry.GetOneSecondSum("newinput"))
 
-	renderText := fmt.Sprintf("--- Networking\nPing: %d\nPrediction Miss: %d\nPrediction Hit: %d\nUpdate Size: %d kb/s\n", ping, predictionMiss, predictionHit, updateMessageSize)
+	renderText := fmt.Sprintf("--- Networking\nPing: %d\nPrediction Miss: %d\nPrediction Hit: %d\n", ping, predictionMiss, predictionHit)
+	renderText += fmt.Sprintf("Update Count: %d\nUpdate Size: %d kb/s\nNew Input: %d\n", updateCount, updateMessageSize, newInput)
 	return renderText
 }
 

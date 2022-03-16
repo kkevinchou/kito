@@ -32,10 +32,6 @@ func (i *SDLInputPoller) PollInput() Input {
 	var commands []any
 	var event sdl.Event
 
-	// used as a flag for the network input system to determine whether the player
-	// has triggered new input which warrants notifying the server
-	newInput := false
-
 	// Keyboard inputs
 	// TODO: only check for keys we care about - keyState contains 512 keys
 	keyboardInput := KeyboardInput{}
@@ -46,20 +42,14 @@ func (i *SDLInputPoller) PollInput() Input {
 		case *sdl.QuitEvent:
 			commands = append(commands, QuitCommand{})
 		case *sdl.MouseButtonEvent:
-			newInput = true
 			// ?
 		case *sdl.MouseMotionEvent:
 			mouseInput.MouseMotionEvent.XRel += float64(e.XRel)
 			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
-			if mouseInput.LeftButtonDown {
-				newInput = true
-			}
 		case *sdl.MouseWheelEvent:
-			newInput = true
 			mouseInput.MouseWheelDelta += int(e.Y)
 		case *sdl.KeyboardEvent:
 			if e.Type == sdl.KEYUP {
-				newInput = true
 				key := KeyboardKey(sdl.GetScancodeName(e.Keysym.Scancode))
 				keyboardInput[key] = KeyState{
 					Key:   key,
@@ -75,7 +65,6 @@ func (i *SDLInputPoller) PollInput() Input {
 		if v <= 0 {
 			continue
 		}
-		newInput = true
 		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
 
 		// don't overwrite keys we've fetched from sdl.PollEvent()
@@ -89,7 +78,6 @@ func (i *SDLInputPoller) PollInput() Input {
 
 	// TODO: make input return a null input on no new input for safety
 	input := Input{
-		NewInput:      newInput,
 		KeyboardInput: keyboardInput,
 		MouseInput:    mouseInput,
 		Commands:      commands,

@@ -47,13 +47,14 @@ func (s *PlayerInputSystem) Update(delta time.Duration) {
 }
 
 func handlePlayerInput(player *player.Player, commandFrame int, input input.Input, world World) {
-	singleton := world.GetSingleton()
 	// This is to somewhat handle out of order messages coming to the server.
 	// we take the latest command frame. However the current implementation risks
 	// dropping inputs because we simply use only the latest
 	if commandFrame > player.LastInputCommandFrame {
 		player.LastInputCommandFrame = commandFrame
 		player.LastInputGlobalCommandFrame = world.CommandFrame()
+
+		singleton := world.GetSingleton()
 		singleton.PlayerInput[player.ID] = input
 	} else {
 		fmt.Printf("received input out of order, last saw %d but got %d\n", player.LastInputCommandFrame, commandFrame)
