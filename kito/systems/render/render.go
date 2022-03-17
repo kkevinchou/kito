@@ -6,6 +6,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/AllenDang/imgui-go"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
@@ -61,6 +62,55 @@ func init() {
 	}
 }
 
+var imguiio imgui.IO
+var w *sdl.Window
+var fontTexture uint32
+
+func createFontsTexture() {
+	// Build texture atlas
+	io := imgui.CurrentIO()
+	image := io.Fonts().TextureDataAlpha8()
+
+	// Upload texture to graphics system
+	var lastTexture int32
+	gl.GetIntegerv(gl.TEXTURE_BINDING_2D, &lastTexture)
+	gl.GenTextures(1, &fontTexture)
+	gl.BindTexture(gl.TEXTURE_2D, fontTexture)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.PixelStorei(gl.UNPACK_ROW_LENGTH, 0)
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RED, int32(image.Width), int32(image.Height),
+		0, gl.RED, gl.UNSIGNED_BYTE, image.Pixels)
+
+	// Store our identifier
+	io.Fonts().SetTextureID(imgui.TextureID(fontTexture))
+
+	// Restore state
+	gl.BindTexture(gl.TEXTURE_2D, uint32(lastTexture))
+}
+
+func imguiInit(window *sdl.Window) {
+	imgui.CreateContext(nil)
+	w = window
+	imguiio = imgui.CurrentIO()
+	createFontsTexture()
+}
+
+func newFrame() {
+	f := float32(0)
+	width, height := w.GetSize()
+	imguiio.SetDisplaySize(imgui.Vec2{X: float32(width), Y: float32(height)})
+	const fallbackDelta = 1.0 / 60.0
+	imguiio.SetDeltaTime(fallbackDelta)
+	imgui.NewFrame()
+
+	imgui.Text("Hello, world!") // Display some text
+	imgui.SliderFloat("float", &f, 0.0, 1.0)
+	imgui.Render()
+	// dd := imgui.RenderedDrawData()
+	// fmt.Println(len(dd.CommandLists()))
+}
+
 func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
@@ -80,6 +130,8 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 	if err != nil {
 		panic(fmt.Sprintf("failed to create shadow map %s", err))
 	}
+
+	imguiInit(window)
 
 	renderSystem := RenderSystem{
 		BaseSystem: &base.BaseSystem{},
@@ -159,6 +211,8 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	s.renderToDepthMap(lightViewerContext, lightContext)
 	s.renderToDisplay(cameraViewerContext, lightContext)
+
+	newFrame()
 
 	s.window.GLSwap()
 }
