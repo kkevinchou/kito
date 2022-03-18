@@ -22,7 +22,7 @@ import (
 
 type BufferedInput struct {
 	TargetGlobalCommandFrame int
-	PlayerCommandFrame       int
+	LocalCommandFrame        int
 	PlayerID                 int
 	Input                    input.Input
 	ReceivedTimestamp        time.Time
@@ -40,11 +40,11 @@ func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 	}
 }
 
-func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
+func (i *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
 	var targetGlobalCommandFrame int
 	if len(i.playerInputs[playerID]) > 0 {
 		lastPlayerInput := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]
-		commandFrameDelta := playerCommandFrame - lastPlayerInput.PlayerCommandFrame
+		commandFrameDelta := localCommandFrame - lastPlayerInput.LocalCommandFrame
 
 		// assuming a properly behaving client they should only send one input message per
 		// command frame. in the event that they send more than one, we naively set it for
@@ -56,13 +56,19 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, 
 
 		targetGlobalCommandFrame = lastPlayerInput.TargetGlobalCommandFrame + commandFrameDelta
 	} else {
+		if _, ok := networkInput.Input.KeyboardInput[input.KeyboardKeySpace]; ok {
+		}
 		targetGlobalCommandFrame = globalCommandFrame + i.maxCommandFrames
 	}
+	if _, ok := networkInput.Input.KeyboardInput[input.KeyboardKeySpace]; ok {
+		fmt.Printf("targetcf %d\n", targetGlobalCommandFrame)
+	}
+	// fmt.Println("---------------------", targetGlobalCommandFrame)
 
 	i.playerInputs[playerID] = append(
 		i.playerInputs[playerID],
 		BufferedInput{
-			PlayerCommandFrame:       playerCommandFrame,
+			LocalCommandFrame:        localCommandFrame,
 			PlayerID:                 playerID,
 			Input:                    networkInput.Input,
 			ReceivedTimestamp:        receivedTime,

@@ -1,6 +1,7 @@
 package networkinput
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/directory"
@@ -8,12 +9,14 @@ import (
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/metrics"
 )
 
 type World interface {
 	GetSingleton() *singleton.Singleton
 	MetricsRegistry() *metrics.MetricsRegistry
+	CommandFrame() int
 }
 
 type NetworkInputSystem struct {
@@ -43,6 +46,9 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 
 	player := playerManager.GetPlayer(singleton.PlayerID)
 	playerInput := singleton.PlayerInput[player.ID]
+	if _, ok := playerInput.KeyboardInput[input.KeyboardKeySpace]; ok {
+		fmt.Println("SPACE", s.world.CommandFrame())
+	}
 
 	inputMessage := &knetwork.InputMessage{
 		CommandFrame: singleton.CommandFrame,

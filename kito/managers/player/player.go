@@ -13,7 +13,7 @@ type Player struct {
 	ID     int
 	Client types.NetworkClient
 
-	LastInputCommandFrame       int // the player's last command frame
+	LastInputLocalCommandFrame  int // the player's last command frame
 	LastInputGlobalCommandFrame int // the gcf when this input was received
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/network"
 )
 
@@ -33,7 +34,12 @@ func serverMessageHandler(world World, message *network.Message) {
 		if err != nil {
 			panic(err)
 		}
-		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, player.LastInputCommandFrame, message.SenderID, time.Now(), &inputMessage)
+
+		if _, ok := inputMessage.Input.KeyboardInput[input.KeyboardKeySpace]; ok {
+			fmt.Printf("recv space player[%d], gcf %d, pcf %d\n", message.SenderID, world.CommandFrame(), message.CommandFrame)
+		}
+		// fmt.Printf("push player[%d], gcf %d, pcf %d\n", message.SenderID, world.CommandFrame(), message.CommandFrame)
+		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, player.LastInputLocalCommandFrame, message.SenderID, time.Now(), &inputMessage)
 	} else if message.MessageType == knetwork.MessageTypePing {
 		var pingMessage knetwork.PingMessage
 		err := network.DeserializeBody(message, &pingMessage)
