@@ -40,9 +40,6 @@ func (s *PlayerInputSystem) Update(delta time.Duration) {
 	for _, player := range players {
 		bufferedInput := singleton.InputBuffer.PullInput(singleton.CommandFrame, player.ID)
 		if bufferedInput != nil {
-			if _, ok := bufferedInput.Input.KeyboardInput[input.KeyboardKeySpace]; ok {
-				fmt.Printf("pull input player[%d], gcf %d, pcf %d\n", player.ID, s.world.CommandFrame(), bufferedInput.LocalCommandFrame)
-			}
 			handlePlayerInput(player, bufferedInput.LocalCommandFrame, bufferedInput.Input, s.world)
 		}
 	}

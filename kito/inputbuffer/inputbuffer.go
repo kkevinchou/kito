@@ -31,16 +31,34 @@ type BufferedInput struct {
 type InputBuffer struct {
 	playerInputs     map[int][]BufferedInput
 	maxCommandFrames int
+	seenInputs       map[int]map[int]any
 }
 
 func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 	return &InputBuffer{
 		playerInputs:     map[int][]BufferedInput{},
 		maxCommandFrames: maxCommandFrames,
+		seenInputs:       map[int]map[int]any{},
 	}
 }
 
+func (i *InputBuffer) StartFrame(gcf int) {
+	// clear out the old seen inputs
+	if _, ok := i.seenInputs[gcf-1]; ok {
+		delete(i.seenInputs, gcf-1)
+	}
+	i.seenInputs[gcf] = map[int]any{}
+}
+
 func (i *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
+	// this handles the case where a client can spam the server with inputs (e.g. if they hold down the title bar and stack up a bunch of network requests).
+	// we avoid processing all the inputs so that we don't lag for the inputs of that user. This is because we only process one input for each command frame.
+	// the result is that we only process the first input and drop the rest.
+	if _, ok := i.seenInputs[globalCommandFrame][playerID]; ok {
+		return
+	}
+	i.seenInputs[globalCommandFrame][playerID] = true
+
 	var targetGlobalCommandFrame int
 	if len(i.playerInputs[playerID]) > 0 {
 		lastPlayerInput := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]

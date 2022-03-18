@@ -1,7 +1,6 @@
 package networkinput
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/directory"
@@ -9,7 +8,6 @@ import (
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/metrics"
 )
 
@@ -46,24 +44,12 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 
 	player := playerManager.GetPlayer(singleton.PlayerID)
 	playerInput := singleton.PlayerInput[player.ID]
-	if _, ok := playerInput.KeyboardInput[input.KeyboardKeySpace]; ok {
-		fmt.Println("SPACE", s.world.CommandFrame())
-	}
 
 	inputMessage := &knetwork.InputMessage{
 		CommandFrame: singleton.CommandFrame,
 		Input:        playerInput,
 	}
 
-	// only send the input message if we detected new input
-	// fmt.Println("---------------")
-	// fmt.Printf("[CF:%d] SENT MOVE\n", singleton.CommandFrame)
-	// for _, e := range s.entities {
-	// 	if e.GetID() == singleton.PlayerID {
-	// 		t := e.GetComponentContainer().TransformComponent
-	// 		fmt.Printf("[CF:%d] PRE PHYSICS %v\n", singleton.CommandFrame, t.Position)
-	// 	}
-	// }
 	s.world.MetricsRegistry().Inc("newinput", 1)
 	player.Client.SendMessage(knetwork.MessageTypeInput, inputMessage)
 }
