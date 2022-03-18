@@ -8,7 +8,6 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/kito/systems/common"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/network"
 )
@@ -50,9 +49,6 @@ func (s *NetworkListenerSystem) Update(delta time.Duration) {
 		client.SetCommandFrameFunction(s.world.CommandFrame)
 
 		var playerClient types.NetworkClient = client
-		if settings.ArtificialServerLatency > 0 {
-			playerClient = common.NewArtificallySlowClient(client, settings.ArtificialServerLatency)
-		}
 		playerManager.RegisterPlayer(incomingConnection.ID, playerClient)
 	}
 }

@@ -78,10 +78,6 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, l
 		}
 		targetGlobalCommandFrame = globalCommandFrame + i.maxCommandFrames
 	}
-	if _, ok := networkInput.Input.KeyboardInput[input.KeyboardKeySpace]; ok {
-		fmt.Printf("targetcf %d\n", targetGlobalCommandFrame)
-	}
-	// fmt.Println("---------------------", targetGlobalCommandFrame)
 
 	i.playerInputs[playerID] = append(
 		i.playerInputs[playerID],
