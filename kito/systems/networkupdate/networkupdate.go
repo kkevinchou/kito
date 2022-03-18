@@ -93,7 +93,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	playerManager := d.PlayerManager()
 
 	for _, player := range playerManager.GetPlayers() {
-		gameStateUpdate.LastInputCommandFrame = player.LastInputCommandFrame
+		gameStateUpdate.LastInputCommandFrame = player.LastInputLocalCommandFrame
 		gameStateUpdate.LastInputGlobalCommandFrame = player.LastInputGlobalCommandFrame
 		gameStateUpdate.CurrentGlobalCommandFrame = s.world.CommandFrame()
 		player.Client.SendMessage(knetwork.MessageTypeGameStateUpdate, gameStateUpdate)

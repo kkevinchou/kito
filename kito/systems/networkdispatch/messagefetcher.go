@@ -5,8 +5,6 @@ import (
 	"github.com/kkevinchou/kito/lib/network"
 )
 
-type MessageFetcher func(world World) []*network.Message
-
 func connectedPlayersMessageFetcher(world World) []*network.Message {
 	playerManager := directory.GetDirectory().PlayerManager()
 	var allMessages []*network.Message

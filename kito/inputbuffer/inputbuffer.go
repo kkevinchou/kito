@@ -22,7 +22,7 @@ import (
 
 type BufferedInput struct {
 	TargetGlobalCommandFrame int
-	PlayerCommandFrame       int
+	LocalCommandFrame        int
 	PlayerID                 int
 	Input                    input.Input
 	ReceivedTimestamp        time.Time
@@ -31,20 +31,38 @@ type BufferedInput struct {
 type InputBuffer struct {
 	playerInputs     map[int][]BufferedInput
 	maxCommandFrames int
+	seenInputs       map[int]map[int]any
 }
 
 func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 	return &InputBuffer{
 		playerInputs:     map[int][]BufferedInput{},
 		maxCommandFrames: maxCommandFrames,
+		seenInputs:       map[int]map[int]any{},
 	}
 }
 
-func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
+func (i *InputBuffer) StartFrame(gcf int) {
+	// clear out the old seen inputs
+	if _, ok := i.seenInputs[gcf-1]; ok {
+		delete(i.seenInputs, gcf-1)
+	}
+	i.seenInputs[gcf] = map[int]any{}
+}
+
+func (i *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
+	// this handles the case where a client can spam the server with inputs (e.g. if they hold down the title bar and stack up a bunch of network requests).
+	// we avoid processing all the inputs so that we don't lag for the inputs of that user. This is because we only process one input for each command frame.
+	// the result is that we only process the first input and drop the rest.
+	if _, ok := i.seenInputs[globalCommandFrame][playerID]; ok {
+		return
+	}
+	i.seenInputs[globalCommandFrame][playerID] = true
+
 	var targetGlobalCommandFrame int
 	if len(i.playerInputs[playerID]) > 0 {
 		lastPlayerInput := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]
-		commandFrameDelta := playerCommandFrame - lastPlayerInput.PlayerCommandFrame
+		commandFrameDelta := localCommandFrame - lastPlayerInput.LocalCommandFrame
 
 		// assuming a properly behaving client they should only send one input message per
 		// command frame. in the event that they send more than one, we naively set it for
@@ -56,13 +74,19 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, playerCommandFrame int, 
 
 		targetGlobalCommandFrame = lastPlayerInput.TargetGlobalCommandFrame + commandFrameDelta
 	} else {
+		if _, ok := networkInput.Input.KeyboardInput[input.KeyboardKeySpace]; ok {
+		}
 		targetGlobalCommandFrame = globalCommandFrame + i.maxCommandFrames
 	}
+	if _, ok := networkInput.Input.KeyboardInput[input.KeyboardKeySpace]; ok {
+		fmt.Printf("targetcf %d\n", targetGlobalCommandFrame)
+	}
+	// fmt.Println("---------------------", targetGlobalCommandFrame)
 
 	i.playerInputs[playerID] = append(
 		i.playerInputs[playerID],
 		BufferedInput{
-			PlayerCommandFrame:       playerCommandFrame,
+			LocalCommandFrame:        localCommandFrame,
 			PlayerID:                 playerID,
 			Input:                    networkInput.Input,
 			ReceivedTimestamp:        receivedTime,

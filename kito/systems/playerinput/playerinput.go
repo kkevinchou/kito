@@ -40,8 +40,7 @@ func (s *PlayerInputSystem) Update(delta time.Duration) {
 	for _, player := range players {
 		bufferedInput := singleton.InputBuffer.PullInput(singleton.CommandFrame, player.ID)
 		if bufferedInput != nil {
-			// fmt.Println("TIME IN INPUT BUFFER", time.Since(bufferedInput.ReceivedTimestamp))
-			handlePlayerInput(player, bufferedInput.PlayerCommandFrame, bufferedInput.Input, s.world)
+			handlePlayerInput(player, bufferedInput.LocalCommandFrame, bufferedInput.Input, s.world)
 		}
 	}
 }
@@ -50,13 +49,13 @@ func handlePlayerInput(player *player.Player, commandFrame int, input input.Inpu
 	// This is to somewhat handle out of order messages coming to the server.
 	// we take the latest command frame. However the current implementation risks
 	// dropping inputs because we simply use only the latest
-	if commandFrame > player.LastInputCommandFrame {
-		player.LastInputCommandFrame = commandFrame
+	if commandFrame > player.LastInputLocalCommandFrame {
+		player.LastInputLocalCommandFrame = commandFrame
 		player.LastInputGlobalCommandFrame = world.CommandFrame()
 
 		singleton := world.GetSingleton()
 		singleton.PlayerInput[player.ID] = input
 	} else {
-		fmt.Printf("received input out of order, last saw %d but got %d\n", player.LastInputCommandFrame, commandFrame)
+		fmt.Printf("received input out of order, last saw %d but got %d\n", player.LastInputLocalCommandFrame, commandFrame)
 	}
 }

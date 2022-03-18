@@ -2,7 +2,6 @@ package kito
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"time"
 
@@ -55,29 +54,25 @@ func NewGame() *Game {
 func (g *Game) Start(pollInputFunc input.InputPoller) {
 	var accumulator float64
 	var renderAccumulator float64
-	var fpsAccumulator float64
 
-	msPerFrame := float64(1000) / settings.FPS
+	msPerFrame := float64(1000) / float64(settings.FPS)
 	previousTimeStamp := float64(time.Now().UnixNano()) / 1000000
 
 	frameCount := 0
 	renderFunction := getRenderFunction()
 	for !g.gameOver {
 		now := float64(time.Now().UnixNano()) / 1000000
-		delta := math.Min(now-previousTimeStamp, settings.MaxTimeStepMS)
-		if delta == settings.MaxTimeStepMS {
-			fmt.Println("hit settings.MaxTimeStepMS - simulation time has been lost")
-		}
+		delta := now - previousTimeStamp
 		previousTimeStamp = now
 
 		accumulator += delta
 		renderAccumulator += delta
 
-		for accumulator >= settings.MSPerCommandFrame {
+		for accumulator >= float64(settings.MSPerCommandFrame) {
 			// input is handled once per command frame
 			g.HandleInput(pollInputFunc())
 			g.runCommandFrame(time.Duration(settings.MSPerCommandFrame) * time.Millisecond)
-			accumulator -= settings.MSPerCommandFrame
+			accumulator -= float64(settings.MSPerCommandFrame)
 		}
 
 		if renderAccumulator >= msPerFrame {
@@ -87,13 +82,6 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 			for renderAccumulator >= msPerFrame {
 				renderAccumulator -= msPerFrame
 			}
-		}
-
-		fpsAccumulator += delta
-		if fpsAccumulator > 1000 {
-			// fmt.Println("FPS:", frameCount)
-			frameCount = 0
-			fpsAccumulator -= 1000
 		}
 	}
 }

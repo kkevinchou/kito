@@ -50,13 +50,8 @@ const (
 
 	// MSPerCommandFrame is the size of the simulation step for reading input,
 	// physics, etc.
-	MSPerCommandFrame float64 = 16
-	FPS               float64 = 60
-
-	// MaxTimeStepMS is the cap on how big a timestep on the game client can be.
-	// The game world will probably fall apart (since we're losing time), but it
-	// prevents sprials of death where the game falls further and further behind.
-	MaxTimeStepMS float64 = 250 // in milliseconds
+	MSPerCommandFrame int = 16
+	FPS               int = 60
 
 	// MaxInputBufferCommandFrames controls how many we buffer client inputs for. See the
 	// InputBuffer struct definition for a more detailed description.
@@ -76,9 +71,9 @@ const (
 
 	// This is potentially overkill to avoiding absolutely no mispredictions on the client.
 	// The drawback of an input buffer is we now add a delay before we process user inputs.
-	MaxInputBufferCommandFrames int = 100 / int(MSPerCommandFrame)
+	MaxInputBufferCommandFrames int = 0 / MSPerCommandFrame
 
-	MaxStateBufferCommandFrames int = 1000 / int(MSPerCommandFrame)
+	MaxStateBufferCommandFrames int = 0 / MSPerCommandFrame
 
 	// The number of command frames on the server before a server update is sent to clients
 	CommandFramesPerServerUpdate = 5

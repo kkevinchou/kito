@@ -35,6 +35,7 @@ type World interface {
 	GetEntityByID(id int) (entities.Entity, error)
 	GetPlayer() entities.Entity
 	MetricsRegistry() *metrics.MetricsRegistry
+	CommandFrame() int
 }
 
 type RenderSystem struct {
@@ -273,7 +274,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 func (s *RenderSystem) generalInfoText() string {
 	metricsRegistry := s.world.MetricsRegistry()
 	fps := int(metricsRegistry.GetOneSecondSum("fps"))
-	renderText := fmt.Sprintf("--- General\nfps: %d\n", fps)
+	renderText := fmt.Sprintf("--- General\nfps: %d\nCF: %d\n", fps, s.world.CommandFrame())
 
 	return renderText
 }

@@ -14,7 +14,10 @@ import (
 	"github.com/kkevinchou/kito/lib/network"
 )
 
-type MessageHandler func(world World, message *network.Message)
+func serverMessageHandlerInit(world World) {
+	singleton := world.GetSingleton()
+	singleton.InputBuffer.StartFrame(world.CommandFrame())
+}
 
 func serverMessageHandler(world World, message *network.Message) {
 	playerManager := directory.GetDirectory().PlayerManager()
@@ -33,7 +36,8 @@ func serverMessageHandler(world World, message *network.Message) {
 		if err != nil {
 			panic(err)
 		}
-		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, player.LastInputCommandFrame, message.SenderID, time.Now(), &inputMessage)
+
+		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, player.LastInputLocalCommandFrame, message.SenderID, time.Now(), &inputMessage)
 	} else if message.MessageType == knetwork.MessageTypePing {
 		var pingMessage knetwork.PingMessage
 		err := network.DeserializeBody(message, &pingMessage)

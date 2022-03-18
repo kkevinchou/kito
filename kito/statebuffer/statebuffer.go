@@ -29,9 +29,9 @@ func NewStateBuffer(maxStateBufferCommandFrames int) *StateBuffer {
 	}
 }
 
-func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMessage *knetwork.GameStateUpdateMessage) {
+func (s *StateBuffer) PushEntityUpdate(localCommandFrame int, gameStateUpdateMessage *knetwork.GameStateUpdateMessage) {
 	if len(s.incomingEntityUpdates) == 0 {
-		targetCommandFrame := playerCommandFrame + s.maxStateBufferCommandFrames
+		targetCommandFrame := localCommandFrame + s.maxStateBufferCommandFrames
 		s.incomingEntityUpdates = append(
 			s.incomingEntityUpdates,
 			IncomingEntityUpdate{
@@ -62,15 +62,6 @@ func (s *StateBuffer) PushEntityUpdate(playerCommandFrame int, gameStateUpdateMe
 
 	s.generateIntermediateStateUpdates(lastEntityUpdate, currentEntityUpdate)
 	s.incomingEntityUpdates = s.incomingEntityUpdates[1:]
-	// fmt.Println("----------------------")
-	// fmt.Println(playerCommandFrame)
-	// max := 0
-	// for k, _ := range s.timeline {
-	// 	if k > max {
-	// 		max = k
-	// 	}
-	// }
-	// fmt.Println(max)
 }
 
 // TODO: move interpolation logic in stateinterpolator system?
