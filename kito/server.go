@@ -21,13 +21,14 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/physics"
 	"github.com/kkevinchou/kito/kito/systems/playerinput"
 	"github.com/kkevinchou/kito/lib/assets"
+	"github.com/kkevinchou/kito/lib/input"
 )
 
 func NewServerGame(assetsDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeServer
 
-	g := NewGame()
+	g := NewGame(input.NullInputPoller)
 
 	serverSystemSetup(g, assetsDirectory)
 	initialEntities := serverEntitySetup(g)

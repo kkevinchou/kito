@@ -4,20 +4,81 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const (
+	mouseButtonCount     = 3
+	mouseButtonPrimary   = 0
+	mouseButtonSecondary = 1
+	mouseButtonTertiary  = 2
+)
+
 type SDLPlatform struct {
+	// imguiIO imgui.IO
+
+	window     *sdl.Window
+	shouldStop bool
+
+	time        uint64
+	buttonsDown [mouseButtonCount]bool
 }
 
 func NewSDLPlatform() *SDLPlatform {
 	return &SDLPlatform{}
 }
 
-// func (i *SDLInputPoller) PollInput2() Input {
-// 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-// 		platform.processEvent(event)
+// func (platform *SDLPlatform) NewFrame() {
+// 	// Setup display size (every frame to accommodate for window resizing)
+// 	displaySize := platform.DisplaySize()
+// 	platform.imguiIO.SetDisplaySize(imgui.Vec2{X: displaySize[0], Y: displaySize[1]})
+
+// 	// Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
+// 	frequency := sdl.GetPerformanceFrequency()
+// 	currentTime := sdl.GetPerformanceCounter()
+// 	if platform.time > 0 {
+// 		platform.imguiIO.SetDeltaTime(float32(currentTime-platform.time) / float32(frequency))
+// 	} else {
+// 		const fallbackDelta = 1.0 / 60.0
+// 		platform.imguiIO.SetDeltaTime(fallbackDelta)
+// 	}
+// 	platform.time = currentTime
+
+// 	// If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+// 	x, y, state := sdl.GetMouseState()
+// 	platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x), Y: float32(y)})
+// 	for i, button := range []uint32{sdl.BUTTON_LEFT, sdl.BUTTON_RIGHT, sdl.BUTTON_MIDDLE} {
+// 		platform.imguiIO.SetMouseButtonDown(i, platform.buttonsDown[i] || (state&sdl.Button(button)) != 0)
+// 		platform.buttonsDown[i] = false
 // 	}
 // }
 
-// func (i *SDLInputPoller) processEvent() {
+// // DisplaySize returns the dimension of the display.
+// func (platform *SDLPlatform) DisplaySize() [2]float32 {
+// 	w, h := platform.window.GetSize()
+// 	return [2]float32{float32(w), float32(h)}
+// }
+
+// // FramebufferSize returns the dimension of the framebuffer.
+// func (platform *SDLPlatform) FramebufferSize() [2]float32 {
+// 	w, h := platform.window.GLGetDrawableSize()
+// 	return [2]float32{float32(w), float32(h)}
+// }
+
+// func (platform *SDLPlatform) PollInput2() Input {
+// 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+// 		platform.processEvent(event)
+// 	}
+
+// 	keyboardInput := KeyboardInput{}
+// 	mouseInput := MouseInput{}
+// 	var commands []any
+// 	input := Input{
+// 		KeyboardInput: keyboardInput,
+// 		MouseInput:    mouseInput,
+// 		Commands:      commands,
+// 	}
+// 	return input
+// }
+
+// func (platform *SDLPlatform) processEvent(event sdl.Event) {
 // 	switch event.GetType() {
 // 	case sdl.QUIT:
 // 		platform.shouldStop = true
@@ -56,6 +117,53 @@ func NewSDLPlatform() *SDLPlatform {
 // 		keyEvent := event.(*sdl.KeyboardEvent)
 // 		platform.imguiIO.KeyRelease(int(keyEvent.Keysym.Scancode))
 // 		platform.updateKeyModifier()
+// 	}
+// }
+
+// func (platform *SDLPlatform) updateKeyModifier() {
+// 	modState := sdl.GetModState()
+// 	mapModifier := func(lMask sdl.Keymod, lKey int, rMask sdl.Keymod, rKey int) (lResult int, rResult int) {
+// 		if (modState & lMask) != 0 {
+// 			lResult = lKey
+// 		}
+// 		if (modState & rMask) != 0 {
+// 			rResult = rKey
+// 		}
+// 		return
+// 	}
+// 	platform.imguiIO.KeyShift(mapModifier(sdl.KMOD_LSHIFT, sdl.SCANCODE_LSHIFT, sdl.KMOD_RSHIFT, sdl.SCANCODE_RSHIFT))
+// 	platform.imguiIO.KeyCtrl(mapModifier(sdl.KMOD_LCTRL, sdl.SCANCODE_LCTRL, sdl.KMOD_RCTRL, sdl.SCANCODE_RCTRL))
+// 	platform.imguiIO.KeyAlt(mapModifier(sdl.KMOD_LALT, sdl.SCANCODE_LALT, sdl.KMOD_RALT, sdl.SCANCODE_RALT))
+// }
+
+// func (platform *SDLPlatform) setKeyMapping() {
+// 	keys := map[int]int{
+// 		imgui.KeyTab:        sdl.SCANCODE_TAB,
+// 		imgui.KeyLeftArrow:  sdl.SCANCODE_LEFT,
+// 		imgui.KeyRightArrow: sdl.SCANCODE_RIGHT,
+// 		imgui.KeyUpArrow:    sdl.SCANCODE_UP,
+// 		imgui.KeyDownArrow:  sdl.SCANCODE_DOWN,
+// 		imgui.KeyPageUp:     sdl.SCANCODE_PAGEUP,
+// 		imgui.KeyPageDown:   sdl.SCANCODE_PAGEDOWN,
+// 		imgui.KeyHome:       sdl.SCANCODE_HOME,
+// 		imgui.KeyEnd:        sdl.SCANCODE_END,
+// 		imgui.KeyInsert:     sdl.SCANCODE_INSERT,
+// 		imgui.KeyDelete:     sdl.SCANCODE_DELETE,
+// 		imgui.KeyBackspace:  sdl.SCANCODE_BACKSPACE,
+// 		imgui.KeySpace:      sdl.SCANCODE_BACKSPACE,
+// 		imgui.KeyEnter:      sdl.SCANCODE_RETURN,
+// 		imgui.KeyEscape:     sdl.SCANCODE_ESCAPE,
+// 		imgui.KeyA:          sdl.SCANCODE_A,
+// 		imgui.KeyC:          sdl.SCANCODE_C,
+// 		imgui.KeyV:          sdl.SCANCODE_V,
+// 		imgui.KeyX:          sdl.SCANCODE_X,
+// 		imgui.KeyY:          sdl.SCANCODE_Y,
+// 		imgui.KeyZ:          sdl.SCANCODE_Z,
+// 	}
+
+// 	// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
+// 	for imguiKey, nativeKey := range keys {
+// 		platform.imguiIO.KeyMap(imguiKey, nativeKey)
 // 	}
 // }
 

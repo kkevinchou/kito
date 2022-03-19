@@ -24,6 +24,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/spawner"
 	"github.com/kkevinchou/kito/kito/systems/stateinterpolator"
 	"github.com/kkevinchou/kito/lib/assets"
+	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/veandco/go-sdl2/sdl"
@@ -33,7 +34,9 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeClient
 
-	g := NewGame()
+	platform := input.NewSDLPlatform()
+
+	g := NewGame(platform.PollInput)
 	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
 
 	// Connect to server
