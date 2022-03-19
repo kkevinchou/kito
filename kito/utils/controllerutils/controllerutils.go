@@ -1,6 +1,7 @@
 package controllerutils
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
@@ -12,8 +13,9 @@ import (
 )
 
 const (
-	gravity   float64 = 250
-	jumpSpeed float64 = 150
+	gravity        float64 = 250
+	jumpSpeed      float64 = 150
+	equalThreshold float64 = 1e-5
 )
 
 var (
@@ -61,9 +63,12 @@ func ResolveControllerCollision(entity entities.Entity) {
 	colliderComponent := cc.ColliderComponent
 	transformComponent := cc.TransformComponent
 	tpcComponent := cc.ThirdPersonControllerComponent
-	contactManifolds := colliderComponent.ContactManifolds
-	if contactManifolds != nil {
+
+	if colliderComponent.CollisionInstances != nil {
+		contactManifolds := colliderComponent.CollisionInstances[0].ContactManifolds
+
 		separatingVector := combineSeparatingVectors(contactManifolds)
+		// separatingVector := minSeparatingVector(contactManifolds)
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		tpcComponent.Grounded = true
 		tpcComponent.Velocity[1] = 0
@@ -72,6 +77,23 @@ func ResolveControllerCollision(entity entities.Entity) {
 		// no collisions were detected (i.e. the ground)
 		tpcComponent.Grounded = false
 	}
+}
+
+func minSeparatingVector(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
+	minVector := contactManifolds[0].Contacts[0].SeparatingVector
+	minDistance := contactManifolds[0].Contacts[0].SeparatingDistance
+
+	// one manifold for each object that's being collided with
+	for _, contactManifold := range contactManifolds {
+		for _, contact := range contactManifold.Contacts {
+			if contact.SeparatingDistance < minDistance {
+				minVector = contact.SeparatingVector
+				minDistance = contact.SeparatingDistance
+			}
+		}
+	}
+
+	return minVector
 }
 
 func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
@@ -84,7 +106,8 @@ func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl
 		for _, contact := range contactManifold.Contacts {
 			seen := false
 			for _, v := range seenSeparatingVectors {
-				if contact.SeparatingVector.ApproxEqual(v) {
+				// if contact.SeparatingVector.ApproxEqual(v) {
+				if contact.SeparatingVector.ApproxEqualThreshold(v, equalThreshold) {
 					seen = true
 					break
 				}
@@ -93,6 +116,13 @@ func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl
 				separatingVector = separatingVector.Add(contact.SeparatingVector)
 				seenSeparatingVectors = append(seenSeparatingVectors, contact.SeparatingVector)
 			}
+		}
+	}
+
+	if len(seenSeparatingVectors) > 2 {
+		fmt.Println("seenSeparatingVectors len > 2")
+		for _, v := range seenSeparatingVectors {
+			fmt.Println(v)
 		}
 	}
 	return separatingVector

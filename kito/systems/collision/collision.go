@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
@@ -53,7 +54,7 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 
 		}
 
-		e.GetComponentContainer().ColliderComponent.ContactManifolds = nil
+		e.GetComponentContainer().ColliderComponent.CollisionInstances = nil
 		handledCollisions[e.GetID()] = map[int]bool{}
 	}
 
@@ -84,9 +85,19 @@ func (s *CollisionSystem) collide(e1 entities.Entity, handledCollisions map[int]
 			if e2cc.ColliderComponent.TriMeshCollider != nil {
 				contactManifolds := collision.CheckCollisionCapsuleTriMesh(*e1cc.ColliderComponent.TransformedCapsuleCollider, *e2cc.ColliderComponent.TransformedTriMeshCollider)
 				if contactManifolds != nil {
-					e1cc.ColliderComponent.ContactManifolds = contactManifolds
+					e1cc.ColliderComponent.CollisionInstances = append(
+						e1cc.ColliderComponent.CollisionInstances,
+						&components.CollisionInstance{
+							OtherEntityID:    e2.GetID(),
+							ContactManifolds: contactManifolds,
+						},
+					)
 				}
 			}
 		}
+
+		// TODO: decide how we want to handle avoiding double calculating collisions
+		// handledCollisions[e1.GetID()][e2.GetID()] = true
+		// handledCollisions[e2.GetID()][e1.GetID()] = true
 	}
 }
