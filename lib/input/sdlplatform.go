@@ -4,14 +4,62 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type SDLInputPoller struct {
+type SDLPlatform struct {
 }
 
-func NewSDLInputPoller() *SDLInputPoller {
-	return &SDLInputPoller{}
+func NewSDLPlatform() *SDLPlatform {
+	return &SDLPlatform{}
 }
 
-func (i *SDLInputPoller) PollInput() Input {
+// func (i *SDLInputPoller) PollInput2() Input {
+// 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+// 		platform.processEvent(event)
+// 	}
+// }
+
+// func (i *SDLInputPoller) processEvent() {
+// 	switch event.GetType() {
+// 	case sdl.QUIT:
+// 		platform.shouldStop = true
+// 	case sdl.MOUSEWHEEL:
+// 		wheelEvent := event.(*sdl.MouseWheelEvent)
+// 		var deltaX, deltaY float32
+// 		if wheelEvent.X > 0 {
+// 			deltaX++
+// 		} else if wheelEvent.X < 0 {
+// 			deltaX--
+// 		}
+// 		if wheelEvent.Y > 0 {
+// 			deltaY++
+// 		} else if wheelEvent.Y < 0 {
+// 			deltaY--
+// 		}
+// 		platform.imguiIO.AddMouseWheelDelta(deltaX, deltaY)
+// 	case sdl.MOUSEBUTTONDOWN:
+// 		buttonEvent := event.(*sdl.MouseButtonEvent)
+// 		switch buttonEvent.Button {
+// 		case sdl.BUTTON_LEFT:
+// 			platform.buttonsDown[mouseButtonPrimary] = true
+// 		case sdl.BUTTON_RIGHT:
+// 			platform.buttonsDown[mouseButtonSecondary] = true
+// 		case sdl.BUTTON_MIDDLE:
+// 			platform.buttonsDown[mouseButtonTertiary] = true
+// 		}
+// 	case sdl.TEXTINPUT:
+// 		inputEvent := event.(*sdl.TextInputEvent)
+// 		platform.imguiIO.AddInputCharacters(string(inputEvent.Text[:]))
+// 	case sdl.KEYDOWN:
+// 		keyEvent := event.(*sdl.KeyboardEvent)
+// 		platform.imguiIO.KeyPress(int(keyEvent.Keysym.Scancode))
+// 		platform.updateKeyModifier()
+// 	case sdl.KEYUP:
+// 		keyEvent := event.(*sdl.KeyboardEvent)
+// 		platform.imguiIO.KeyRelease(int(keyEvent.Keysym.Scancode))
+// 		platform.updateKeyModifier()
+// 	}
+// }
+
+func (platform *SDLPlatform) PollInput() Input {
 	sdl.PumpEvents()
 
 	// Mouse inputs

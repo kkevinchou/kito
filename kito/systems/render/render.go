@@ -52,6 +52,8 @@ type RenderSystem struct {
 	aspectRatio float64
 	fovY        float64
 
+	imguiRenderer *ImguiOpenGL4Renderer
+
 	entities []entities.Entity
 }
 
@@ -61,9 +63,6 @@ func init() {
 		panic(err)
 	}
 }
-
-// var imguiio imgui.IO
-// var w *sdl.Window
 
 func createFontsTexture() uint32 {
 	// Build texture atlas
@@ -100,21 +99,6 @@ func imguiInit(window *sdl.Window) imgui.IO {
 	return io
 }
 
-func newFrame() {
-	// f := float32(0)
-	// width, height := w.GetSize()
-	// imguiio.SetDisplaySize(imgui.Vec2{X: float32(width), Y: float32(height)})
-	// const fallbackDelta = 1.0 / 60.0
-	// imguiio.SetDeltaTime(fallbackDelta)
-	// imgui.NewFrame()
-
-	// imgui.Text("Hello, world!") // Display some text
-	// imgui.SliderFloat("float", &f, 0.0, 1.0)
-	// imgui.Render()
-	// // dd := imgui.RenderedDrawData()
-	// // fmt.Println(len(dd.CommandLists()))
-}
-
 func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
@@ -135,7 +119,11 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 		panic(fmt.Sprintf("failed to create shadow map %s", err))
 	}
 
-	imguiInit(window)
+	imguiIO := imguiInit(window)
+	imguiRenderer, err := NewImguiOpenGL4Renderer(imguiIO)
+	if err != nil {
+		panic(err)
+	}
 
 	renderSystem := RenderSystem{
 		BaseSystem: &base.BaseSystem{},
@@ -149,6 +137,8 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 		height:      height,
 		aspectRatio: aspectRatio,
 		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
+
+		imguiRenderer: imguiRenderer,
 	}
 
 	return &renderSystem
@@ -215,8 +205,7 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	s.renderToDepthMap(lightViewerContext, lightContext)
 	s.renderToDisplay(cameraViewerContext, lightContext)
-
-	// newFrame()
+	s.renderImgui()
 
 	s.window.GLSwap()
 }
@@ -236,6 +225,16 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	s.renderScene(viewerContext, lightContext)
+}
+
+func (s *RenderSystem) renderImgui() {
+	// imgui.NewFrame()
+	// imgui.Text("hello world")
+	// w, h := s.window.GetSize()
+	// fw, fh := s.window.GLGetDrawableSize()
+
+	// imgui.Render()
+	// s.imguiRenderer.Render([2]float32{float32(w), float32(h)}, [2]float32{float32(fw), float32(fh)}, imgui.RenderedDrawData())
 }
 
 // renderScene renders a scene from the perspective of a viewer

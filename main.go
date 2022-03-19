@@ -92,8 +92,8 @@ func main() {
 	fmt.Println("starting game on mode:", mode)
 	if mode == modeClient {
 		game := kito.NewClientGame("_assets", "shaders")
-		inputPoller := input.NewSDLInputPoller()
-		game.Start(inputPoller.PollInput)
+		platform := input.NewSDLPlatform()
+		game.Start(platform.PollInput)
 	} else if mode == modeServer {
 		game := kito.NewServerGame("_assets")
 		game.Start(input.NullInputPoller)
