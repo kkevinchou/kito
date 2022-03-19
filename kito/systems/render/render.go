@@ -39,6 +39,10 @@ type World interface {
 	CommandFrame() int
 }
 
+type Platform interface {
+	NewFrame()
+}
+
 type RenderSystem struct {
 	*base.BaseSystem
 	window    *sdl.Window
@@ -53,6 +57,7 @@ type RenderSystem struct {
 	fovY        float64
 
 	imguiRenderer *ImguiOpenGL4Renderer
+	platform      Platform
 
 	entities []entities.Entity
 }
@@ -64,42 +69,7 @@ func init() {
 	}
 }
 
-func createFontsTexture() uint32 {
-	// Build texture atlas
-	io := imgui.CurrentIO()
-	image := io.Fonts().TextureDataAlpha8()
-
-	// Upload texture to graphics system
-	var lastTexture int32
-	var fontTexture uint32
-	gl.GetIntegerv(gl.TEXTURE_BINDING_2D, &lastTexture)
-	gl.GenTextures(1, &fontTexture)
-	gl.BindTexture(gl.TEXTURE_2D, fontTexture)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.PixelStorei(gl.UNPACK_ROW_LENGTH, 0)
-	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RED, int32(image.Width), int32(image.Height),
-		0, gl.RED, gl.UNSIGNED_BYTE, image.Pixels)
-
-	// Store our identifier
-	io.Fonts().SetTextureID(imgui.TextureID(fontTexture))
-
-	// Restore state
-	gl.BindTexture(gl.TEXTURE_2D, uint32(lastTexture))
-
-	return fontTexture
-}
-
-func imguiInit(window *sdl.Window) imgui.IO {
-	fmt.Println("imgui init")
-	imgui.CreateContext(nil)
-	io := imgui.CurrentIO()
-	fontTexture := createFontsTexture()
-	_ = fontTexture
-	return io
-}
-
-func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
+func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO imgui.IO, width, height int) *RenderSystem {
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
@@ -119,7 +89,6 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 		panic(fmt.Sprintf("failed to create shadow map %s", err))
 	}
 
-	imguiIO := imguiInit(window)
 	imguiRenderer, err := NewImguiOpenGL4Renderer(imguiIO)
 	if err != nil {
 		panic(err)
@@ -138,6 +107,7 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 		aspectRatio: aspectRatio,
 		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
 
+		platform:      platform,
 		imguiRenderer: imguiRenderer,
 	}
 
@@ -205,6 +175,7 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	s.renderToDepthMap(lightViewerContext, lightContext)
 	s.renderToDisplay(cameraViewerContext, lightContext)
+	s.platform.NewFrame()
 	s.renderImgui()
 
 	s.window.GLSwap()
@@ -227,14 +198,17 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 	s.renderScene(viewerContext, lightContext)
 }
 
-func (s *RenderSystem) renderImgui() {
-	// imgui.NewFrame()
-	// imgui.Text("hello world")
-	// w, h := s.window.GetSize()
-	// fw, fh := s.window.GLGetDrawableSize()
+var f [3]float32
 
-	// imgui.Render()
-	// s.imguiRenderer.Render([2]float32{float32(w), float32(h)}, [2]float32{float32(fw), float32(fh)}, imgui.RenderedDrawData())
+func (s *RenderSystem) renderImgui() {
+	imgui.NewFrame()
+	imgui.Text("hello world")
+	imgui.ColorPicker3("picker", &f)
+	w, h := s.window.GetSize()
+	fw, fh := s.window.GLGetDrawableSize()
+
+	imgui.Render()
+	s.imguiRenderer.Render([2]float32{float32(w), float32(h)}, [2]float32{float32(fw), float32(fh)}, imgui.RenderedDrawData())
 }
 
 // renderScene renders a scene from the perspective of a viewer

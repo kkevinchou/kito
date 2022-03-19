@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
@@ -30,11 +31,21 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+type Platform interface {
+	NewFrame()
+}
+
 func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeClient
 
-	platform := input.NewSDLPlatform()
+	window, err := initializeOpenGL(settings.Width, settings.Height)
+	if err != nil {
+		panic(err)
+	}
+	imgui.CreateContext(nil)
+	imguiIO := imgui.CurrentIO()
+	platform := input.NewSDLPlatform(window, imguiIO)
 
 	g := NewGame(platform.PollInput)
 	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
@@ -51,7 +62,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 		panic(err)
 	}
 
-	clientSystemSetup(g, assetsDirectory, shaderDirectory)
+	clientSystemSetup(g, window, imguiIO, platform, assetsDirectory, shaderDirectory)
 	ackCreatePlayer(g, client)
 
 	initialEntities := clientEntitySetup(g)
@@ -66,16 +77,11 @@ func clientEntitySetup(g *Game) []entities.Entity {
 	return []entities.Entity{}
 }
 
-func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
+func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform Platform, assetsDirectory, shaderDirectory string) {
 	d := directory.GetDirectory()
 
-	window, err := initializeOpenGL(settings.Width, settings.Height)
-	if err != nil {
-		panic(err)
-	}
-
 	assetManager := assets.NewAssetManager(assetsDirectory, true)
-	renderSystem := render.NewRenderSystem(g, window, settings.Width, settings.Height)
+	renderSystem := render.NewRenderSystem(g, window, platform, imguiIO, settings.Width, settings.Height)
 
 	// Managers
 	shaderManager := shaders.NewShaderManager(shaderDirectory)
