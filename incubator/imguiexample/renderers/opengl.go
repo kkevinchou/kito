@@ -150,6 +150,7 @@ func (renderer *OpenGL4) Render(displaySize [2]float32, framebufferSize [2]float
 		drawType = gl.UNSIGNED_INT
 	}
 
+	fmt.Println("start draw -------------------------")
 	// Draw
 	for _, list := range drawData.CommandLists() {
 		var indexBufferOffset uintptr
@@ -168,6 +169,7 @@ func (renderer *OpenGL4) Render(displaySize [2]float32, framebufferSize [2]float
 			} else {
 				gl.BindTexture(gl.TEXTURE_2D, uint32(cmd.TextureID()))
 				clipRect := cmd.ClipRect()
+				fmt.Println("rect", clipRect)
 				gl.Scissor(int32(clipRect.X), int32(fbHeight)-int32(clipRect.W), int32(clipRect.Z-clipRect.X), int32(clipRect.W-clipRect.Y))
 				gl.DrawElements(gl.TRIANGLES, int32(cmd.ElementCount()), uint32(drawType), unsafe.Pointer(indexBufferOffset))
 			}

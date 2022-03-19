@@ -61,7 +61,8 @@ func Run(p Platform, r Renderer) {
 	clearColor := [3]float32{0.5, 0.0, 0.0}
 	f := float32(0)
 	// counter := 0
-	// showAnotherWindow := false
+	showAnotherWindow := false
+	var color [3]float32
 
 	for !p.ShouldStop() {
 		p.ProcessEvents()
@@ -80,7 +81,7 @@ func Run(p Platform, r Renderer) {
 
 			// imgui.Checkbox("Demo Window", &showDemoWindow) // Edit bools storing our window open/close state
 			// imgui.Checkbox("Go Demo Window", &showGoDemoWindow)
-			// imgui.Checkbox("Another Window", &showAnotherWindow)
+			imgui.Checkbox("Another Window", &showAnotherWindow)
 
 			// if imgui.Button("Button") { // Buttons return true when clicked (most widgets return true when edited/activated)
 			// 	counter++
@@ -92,16 +93,16 @@ func Run(p Platform, r Renderer) {
 			// 	millisPerSecond/imgui.CurrentIO().Framerate(), imgui.CurrentIO().Framerate()))
 		}
 
-		// // 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
-		// if showAnotherWindow {
-		// 	// Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		// 	imgui.BeginV("Another window", &showAnotherWindow, 0)
-		// 	imgui.Text("Hello from another window!")
-		// 	if imgui.Button("Close Me") {
-		// 		showAnotherWindow = false
-		// 	}
-		// 	imgui.End()
-		// }
+		// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name your windows.
+		if showAnotherWindow {
+			// Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+			imgui.BeginV("Another window", &showAnotherWindow, 0)
+			imgui.Text("Hello from another window!")
+			if imgui.Button("Close Me") {
+				showAnotherWindow = false
+			}
+			imgui.End()
+		}
 
 		// // 3. Show the ImGui demo window. Most of the sample code is in imgui.ShowDemoWindow().
 		// // Read its code to learn more about Dear ImGui!
@@ -117,6 +118,8 @@ func Run(p Platform, r Renderer) {
 		// if showGoDemoWindow {
 		// 	demo.Show(&showGoDemoWindow)
 		// }
+
+		imgui.ColorPicker3("picker", &color)
 
 		// Rendering
 		imgui.Render() // This call only creates the draw data list. Actual rendering to framebuffer is done below.
