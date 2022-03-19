@@ -43,14 +43,14 @@ type Game struct {
 	commandFrameHistory *commandframe.CommandFrameHistory
 }
 
-func NewGame(inputPollingFn input.InputPoller) *Game {
+func NewGame() *Game {
 	return &Game{
 		gameMode:        types.GameModePlaying,
 		singleton:       singleton.NewSingleton(),
 		entities:        map[int]entities.Entity{},
 		eventBroker:     eventbroker.NewEventBroker(),
 		metricsRegistry: metrics.New(),
-		inputPollingFn:  inputPollingFn,
+		inputPollingFn:  input.NullInputPoller,
 	}
 }
 
@@ -87,6 +87,10 @@ func (g *Game) Start() {
 			}
 		}
 	}
+}
+
+func (g *Game) SetInputPollingFn(fn input.InputPoller) {
+	g.inputPollingFn = fn
 }
 
 func (g *Game) runCommandFrame(delta time.Duration) {

@@ -41,6 +41,8 @@ type World interface {
 
 type Platform interface {
 	NewFrame()
+	DisplaySize() [2]float32
+	FramebufferSize() [2]float32
 }
 
 type RenderSystem struct {
@@ -204,11 +206,13 @@ func (s *RenderSystem) renderImgui() {
 	imgui.NewFrame()
 	imgui.Text("hello world")
 	imgui.ColorPicker3("picker", &f)
-	w, h := s.window.GetSize()
-	fw, fh := s.window.GLGetDrawableSize()
+	// w, h := s.window.GetSize()
+	// fw, fh := s.window.GLGetDrawableSize()
+	platform := s.platform
 
 	imgui.Render()
-	s.imguiRenderer.Render([2]float32{float32(w), float32(h)}, [2]float32{float32(fw), float32(fh)}, imgui.RenderedDrawData())
+	// s.imguiRenderer.Render([2]float32{float32(w), float32(h)}, [2]float32{float32(fw), float32(fh)}, imgui.RenderedDrawData())
+	s.imguiRenderer.Render(platform.DisplaySize(), platform.FramebufferSize(), imgui.RenderedDrawData())
 }
 
 // renderScene renders a scene from the perspective of a viewer

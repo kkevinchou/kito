@@ -245,3 +245,13 @@ func (platform *SDLPlatform) PollInput() Input {
 
 	return input
 }
+
+// ClipboardText returns the current clipboard text, if available.
+func (platform *SDLPlatform) ClipboardText() (string, error) {
+	return sdl.GetClipboardText()
+}
+
+// SetClipboardText sets the text as the current clipboard text.
+func (platform *SDLPlatform) SetClipboardText(text string) {
+	_ = sdl.SetClipboardText(text)
+}

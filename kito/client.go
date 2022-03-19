@@ -33,6 +33,8 @@ import (
 
 type Platform interface {
 	NewFrame()
+	DisplaySize() [2]float32
+	FramebufferSize() [2]float32
 }
 
 func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
@@ -47,7 +49,8 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	imguiIO := imgui.CurrentIO()
 	platform := input.NewSDLPlatform(window, imguiIO)
 
-	g := NewGame(platform.PollInput)
+	g := NewGame()
+	g.SetInputPollingFn(platform.PollInput)
 	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
 
 	// Connect to server
