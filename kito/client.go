@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/inkyblackness/imgui-go/v4"
+	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/knetwork"
@@ -49,7 +50,8 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	platform := input.NewSDLPlatform(window, imguiIO)
 
 	g := NewBaseGame()
-	g.InitAsClient(platform.PollInput)
+	g.inputPollingFn = platform.PollInput
+	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
 
 	// Connect to server
 	client, _, err := network.Connect(settings.Host, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)

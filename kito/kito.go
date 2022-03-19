@@ -89,11 +89,6 @@ func (g *Game) Start() {
 	}
 }
 
-func (g *Game) InitAsClient(fn input.InputPoller) {
-	g.inputPollingFn = fn
-	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
-}
-
 func (g *Game) runCommandFrame(delta time.Duration) {
 	g.singleton.CommandFrame++
 	for _, system := range g.systems {

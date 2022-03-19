@@ -32,6 +32,10 @@ const (
 	modeServer string = "SERVER"
 )
 
+type Game interface {
+	Start()
+}
+
 func main() {
 	configFile, err := os.Open("config.json")
 	if err != nil {
@@ -89,14 +93,14 @@ func main() {
 	}
 
 	fmt.Println("starting game on mode:", mode)
+	var game Game
 	if mode == modeClient {
-		game := kito.NewClientGame("_assets", "shaders")
-		game.Start()
+		game = kito.NewClientGame("_assets", "shaders")
 	} else if mode == modeServer {
-		game := kito.NewServerGame("_assets")
-		game.Start()
+		game = kito.NewServerGame("_assets")
 	}
 
+	game.Start()
 	sdl.Quit()
 }
 
