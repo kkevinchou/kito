@@ -6,9 +6,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/AllenDang/imgui-go"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
@@ -62,17 +62,17 @@ func init() {
 	}
 }
 
-var imguiio imgui.IO
-var w *sdl.Window
-var fontTexture uint32
+// var imguiio imgui.IO
+// var w *sdl.Window
 
-func createFontsTexture() {
+func createFontsTexture() uint32 {
 	// Build texture atlas
 	io := imgui.CurrentIO()
 	image := io.Fonts().TextureDataAlpha8()
 
 	// Upload texture to graphics system
 	var lastTexture int32
+	var fontTexture uint32
 	gl.GetIntegerv(gl.TEXTURE_BINDING_2D, &lastTexture)
 	gl.GenTextures(1, &fontTexture)
 	gl.BindTexture(gl.TEXTURE_2D, fontTexture)
@@ -87,28 +87,32 @@ func createFontsTexture() {
 
 	// Restore state
 	gl.BindTexture(gl.TEXTURE_2D, uint32(lastTexture))
+
+	return fontTexture
 }
 
-func imguiInit(window *sdl.Window) {
+func imguiInit(window *sdl.Window) imgui.IO {
+	fmt.Println("imgui init")
 	imgui.CreateContext(nil)
-	w = window
-	imguiio = imgui.CurrentIO()
-	createFontsTexture()
+	io := imgui.CurrentIO()
+	fontTexture := createFontsTexture()
+	_ = fontTexture
+	return io
 }
 
 func newFrame() {
-	f := float32(0)
-	width, height := w.GetSize()
-	imguiio.SetDisplaySize(imgui.Vec2{X: float32(width), Y: float32(height)})
-	const fallbackDelta = 1.0 / 60.0
-	imguiio.SetDeltaTime(fallbackDelta)
-	imgui.NewFrame()
+	// f := float32(0)
+	// width, height := w.GetSize()
+	// imguiio.SetDisplaySize(imgui.Vec2{X: float32(width), Y: float32(height)})
+	// const fallbackDelta = 1.0 / 60.0
+	// imguiio.SetDeltaTime(fallbackDelta)
+	// imgui.NewFrame()
 
-	imgui.Text("Hello, world!") // Display some text
-	imgui.SliderFloat("float", &f, 0.0, 1.0)
-	imgui.Render()
-	// dd := imgui.RenderedDrawData()
-	// fmt.Println(len(dd.CommandLists()))
+	// imgui.Text("Hello, world!") // Display some text
+	// imgui.SliderFloat("float", &f, 0.0, 1.0)
+	// imgui.Render()
+	// // dd := imgui.RenderedDrawData()
+	// // fmt.Println(len(dd.CommandLists()))
 }
 
 func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
@@ -212,7 +216,7 @@ func (s *RenderSystem) Render(delta time.Duration) {
 	s.renderToDepthMap(lightViewerContext, lightContext)
 	s.renderToDisplay(cameraViewerContext, lightContext)
 
-	newFrame()
+	// newFrame()
 
 	s.window.GLSwap()
 }
