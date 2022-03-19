@@ -43,7 +43,7 @@ type Game struct {
 	commandFrameHistory *commandframe.CommandFrameHistory
 }
 
-func NewGame() *Game {
+func NewBaseGame() *Game {
 	return &Game{
 		gameMode:        types.GameModePlaying,
 		singleton:       singleton.NewSingleton(),
@@ -89,8 +89,9 @@ func (g *Game) Start() {
 	}
 }
 
-func (g *Game) SetInputPollingFn(fn input.InputPoller) {
+func (g *Game) InitAsClient(fn input.InputPoller) {
 	g.inputPollingFn = fn
+	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
 }
 
 func (g *Game) runCommandFrame(delta time.Duration) {
