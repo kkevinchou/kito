@@ -101,6 +101,7 @@ func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl
 	// this should handle cases where separating vectors are a basis of another
 	// and avoid "overcounting" separating vectors
 	seenSeparatingVectors := []mgl64.Vec3{}
+	triIndices := []int{}
 	var separatingVector mgl64.Vec3
 	for _, contactManifold := range contactManifolds {
 		for _, contact := range contactManifold.Contacts {
@@ -113,6 +114,7 @@ func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl
 				}
 			}
 			if !seen {
+				triIndices = append(triIndices, contactManifold.TriIndex)
 				separatingVector = separatingVector.Add(contact.SeparatingVector)
 				seenSeparatingVectors = append(seenSeparatingVectors, contact.SeparatingVector)
 			}
@@ -120,7 +122,13 @@ func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl
 	}
 
 	if len(seenSeparatingVectors) > 2 {
+		fmt.Println("-------------------------")
 		fmt.Println("seenSeparatingVectors len > 2")
+		fmt.Println("triIndices")
+		for _, t := range triIndices {
+			fmt.Println(t)
+		}
+		fmt.Println("separating vecs")
 		for _, v := range seenSeparatingVectors {
 			fmt.Println(v)
 		}

@@ -14,15 +14,17 @@ type Contact struct {
 }
 
 type ContactManifold struct {
+	TriIndex int
 	Contacts []Contact
 }
 
 func CheckCollisionCapsuleTriMesh(capsule collider.Capsule, triangulatedMesh collider.TriMesh) []*ContactManifold {
 	var contactManifolds []*ContactManifold
-	for _, tri := range triangulatedMesh.Triangles {
+	for i, tri := range triangulatedMesh.Triangles {
 		contactManifold := CheckCollisionCapsuleTriangle(capsule, tri)
 		// TODO: handle multiple collided triangles
 		if contactManifold != nil {
+			contactManifold.TriIndex = i
 			contactManifolds = append(contactManifolds, contactManifold)
 		}
 	}
