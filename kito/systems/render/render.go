@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
@@ -38,6 +39,12 @@ type World interface {
 	CommandFrame() int
 }
 
+type Platform interface {
+	NewFrame()
+	DisplaySize() [2]float32
+	FramebufferSize() [2]float32
+}
+
 type RenderSystem struct {
 	*base.BaseSystem
 	window    *sdl.Window
@@ -51,6 +58,9 @@ type RenderSystem struct {
 	aspectRatio float64
 	fovY        float64
 
+	imguiRenderer *ImguiOpenGL4Renderer
+	platform      Platform
+
 	entities []entities.Entity
 }
 
@@ -61,7 +71,7 @@ func init() {
 	}
 }
 
-func NewRenderSystem(world World, window *sdl.Window, width, height int) *RenderSystem {
+func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO imgui.IO, width, height int) *RenderSystem {
 	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
@@ -81,6 +91,11 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 		panic(fmt.Sprintf("failed to create shadow map %s", err))
 	}
 
+	imguiRenderer, err := NewImguiOpenGL4Renderer(imguiIO)
+	if err != nil {
+		panic(err)
+	}
+
 	renderSystem := RenderSystem{
 		BaseSystem: &base.BaseSystem{},
 		window:     window,
@@ -93,6 +108,9 @@ func NewRenderSystem(world World, window *sdl.Window, width, height int) *Render
 		height:      height,
 		aspectRatio: aspectRatio,
 		fovY:        mgl64.RadToDeg(2 * math.Atan(math.Tan(mgl64.DegToRad(fovx)/2)/aspectRatio)),
+
+		platform:      platform,
+		imguiRenderer: imguiRenderer,
 	}
 
 	return &renderSystem
@@ -159,6 +177,8 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	s.renderToDepthMap(lightViewerContext, lightContext)
 	s.renderToDisplay(cameraViewerContext, lightContext)
+	s.platform.NewFrame()
+	s.renderImgui()
 
 	s.window.GLSwap()
 }
@@ -178,6 +198,22 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	s.renderScene(viewerContext, lightContext)
+}
+
+var f [3]float32
+var inputText string
+
+func (s *RenderSystem) renderImgui() {
+	imgui.NewFrame()
+
+	imgui.Begin("Console")
+	imgui.PushItemWidth(imgui.ContentRegionAvail().X)
+	imgui.InputText("", &inputText)
+	imgui.End()
+
+	imgui.Render()
+	platform := s.platform
+	s.imguiRenderer.Render(platform.DisplaySize(), platform.FramebufferSize(), imgui.RenderedDrawData())
 }
 
 // renderScene renders a scene from the perspective of a viewer

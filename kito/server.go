@@ -27,7 +27,7 @@ func NewServerGame(assetsDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeServer
 
-	g := NewGame()
+	g := NewBaseGame()
 
 	serverSystemSetup(g, assetsDirectory)
 	initialEntities := serverEntitySetup(g)

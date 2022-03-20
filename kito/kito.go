@@ -37,21 +37,24 @@ type Game struct {
 	eventBroker     eventbroker.EventBroker
 	metricsRegistry *metrics.MetricsRegistry
 
+	inputPollingFn input.InputPoller
+
 	// Client
 	commandFrameHistory *commandframe.CommandFrameHistory
 }
 
-func NewGame() *Game {
+func NewBaseGame() *Game {
 	return &Game{
 		gameMode:        types.GameModePlaying,
 		singleton:       singleton.NewSingleton(),
 		entities:        map[int]entities.Entity{},
 		eventBroker:     eventbroker.NewEventBroker(),
 		metricsRegistry: metrics.New(),
+		inputPollingFn:  input.NullInputPoller,
 	}
 }
 
-func (g *Game) Start(pollInputFunc input.InputPoller) {
+func (g *Game) Start() {
 	var accumulator float64
 	var renderAccumulator float64
 
@@ -70,7 +73,7 @@ func (g *Game) Start(pollInputFunc input.InputPoller) {
 
 		for accumulator >= float64(settings.MSPerCommandFrame) {
 			// input is handled once per command frame
-			g.HandleInput(pollInputFunc())
+			g.HandleInput(g.inputPollingFn())
 			g.runCommandFrame(time.Duration(settings.MSPerCommandFrame) * time.Millisecond)
 			accumulator -= float64(settings.MSPerCommandFrame)
 		}

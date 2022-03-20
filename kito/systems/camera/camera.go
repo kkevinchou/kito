@@ -70,7 +70,7 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	mouseInput := frameInput.MouseInput
 
 	var mouseSensitivity float64 = 0.005
-	if mouseInput.LeftButtonDown && !mouseInput.MouseMotionEvent.IsZero() {
+	if mouseInput.Buttons[0] && !mouseInput.MouseMotionEvent.IsZero() {
 		xRel += -mouseInput.MouseMotionEvent.XRel * mouseSensitivity
 		yRel += -mouseInput.MouseMotionEvent.YRel * mouseSensitivity
 	}

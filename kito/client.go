@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
@@ -24,16 +25,32 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/spawner"
 	"github.com/kkevinchou/kito/kito/systems/stateinterpolator"
 	"github.com/kkevinchou/kito/lib/assets"
+	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/network"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+type Platform interface {
+	NewFrame()
+	DisplaySize() [2]float32
+	FramebufferSize() [2]float32
+}
+
 func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeClient
 
-	g := NewGame()
+	window, err := initializeOpenGL(settings.Width, settings.Height)
+	if err != nil {
+		panic(err)
+	}
+	imgui.CreateContext(nil)
+	imguiIO := imgui.CurrentIO()
+	platform := input.NewSDLPlatform(window, imguiIO)
+
+	g := NewBaseGame()
+	g.inputPollingFn = platform.PollInput
 	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
 
 	// Connect to server
@@ -48,7 +65,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 		panic(err)
 	}
 
-	clientSystemSetup(g, assetsDirectory, shaderDirectory)
+	clientSystemSetup(g, window, imguiIO, platform, assetsDirectory, shaderDirectory)
 	ackCreatePlayer(g, client)
 
 	initialEntities := clientEntitySetup(g)
@@ -63,16 +80,11 @@ func clientEntitySetup(g *Game) []entities.Entity {
 	return []entities.Entity{}
 }
 
-func clientSystemSetup(g *Game, assetsDirectory, shaderDirectory string) {
+func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform Platform, assetsDirectory, shaderDirectory string) {
 	d := directory.GetDirectory()
 
-	window, err := initializeOpenGL(settings.Width, settings.Height)
-	if err != nil {
-		panic(err)
-	}
-
 	assetManager := assets.NewAssetManager(assetsDirectory, true)
-	renderSystem := render.NewRenderSystem(g, window, settings.Width, settings.Height)
+	renderSystem := render.NewRenderSystem(g, window, platform, imguiIO, settings.Width, settings.Height)
 
 	// Managers
 	shaderManager := shaders.NewShaderManager(shaderDirectory)

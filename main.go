@@ -15,7 +15,6 @@ import (
 	"github.com/kkevinchou/kito/kito"
 	"github.com/kkevinchou/kito/kito/config"
 	"github.com/kkevinchou/kito/kito/settings"
-	"github.com/kkevinchou/kito/lib/input"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -32,6 +31,10 @@ const (
 	modeClient string = "CLIENT"
 	modeServer string = "SERVER"
 )
+
+type Game interface {
+	Start()
+}
 
 func main() {
 	configFile, err := os.Open("config.json")
@@ -90,15 +93,14 @@ func main() {
 	}
 
 	fmt.Println("starting game on mode:", mode)
+	var game Game
 	if mode == modeClient {
-		game := kito.NewClientGame("_assets", "shaders")
-		inputPoller := input.NewSDLInputPoller()
-		game.Start(inputPoller.PollInput)
+		game = kito.NewClientGame("_assets", "shaders")
 	} else if mode == modeServer {
-		game := kito.NewServerGame("_assets")
-		game.Start(input.NullInputPoller)
+		game = kito.NewServerGame("_assets")
 	}
 
+	game.Start()
 	sdl.Quit()
 }
 
