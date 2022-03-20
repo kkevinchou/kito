@@ -202,18 +202,14 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 
 var f [3]float32
 var inputText string
-var active bool
 
 func (s *RenderSystem) renderImgui() {
 	imgui.NewFrame()
 
-	imgui.Begin("some window")
-	imgui.Text("console")
+	imgui.Begin("Console")
+	imgui.PushItemWidth(imgui.ContentRegionAvail().X)
 	imgui.InputText("", &inputText)
-	active = imgui.IsWindowFocused()
 	imgui.End()
-
-	imgui.Checkbox("active", &active)
 
 	imgui.Render()
 	platform := s.platform
