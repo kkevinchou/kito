@@ -57,7 +57,7 @@ func (h *CommandFrameHistory) GetCommandFrame(frameNumber int) *CommandFrame {
 		return nil
 	}
 	if frameNumber-startFrameNumber < 0 {
-		fmt.Printf("unexpectedly doing command frame lookup < 0, frame: %d, startFrame %d", frameNumber, startFrameNumber)
+		fmt.Printf("unexpectedly doing command frame lookup < 0, frame: %d, startFrame %d\n", frameNumber, startFrameNumber)
 		return nil
 	}
 	return &h.CommandFrames[frameNumber-startFrameNumber]

@@ -15,7 +15,6 @@ import (
 
 type MessageFetcher func(world World) []*network.Message
 type MessageHandler func(world World, message *network.Message)
-type MessageHandlerInit func(world World)
 
 type World interface {
 	RegisterEntities([]entities.Entity)
@@ -31,10 +30,9 @@ type World interface {
 
 type NetworkDispatchSystem struct {
 	*base.BaseSystem
-	world              World
-	messageFetcher     MessageFetcher
-	messageHandler     MessageHandler
-	messageHandlerInit MessageHandlerInit
+	world          World
+	messageFetcher MessageFetcher
+	messageHandler MessageHandler
 }
 
 func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
@@ -46,11 +44,9 @@ func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
 	if utils.IsClient() {
 		networkDispatchSystem.messageFetcher = clientMessageFetcher
 		networkDispatchSystem.messageHandler = clientMessageHandler
-		networkDispatchSystem.messageHandlerInit = func(world World) { return }
 	} else if utils.IsServer() {
 		networkDispatchSystem.messageFetcher = connectedPlayersMessageFetcher
 		networkDispatchSystem.messageHandler = serverMessageHandler
-		networkDispatchSystem.messageHandlerInit = serverMessageHandlerInit
 	}
 
 	return networkDispatchSystem
@@ -60,7 +56,6 @@ func (s *NetworkDispatchSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *NetworkDispatchSystem) Update(delta time.Duration) {
-	s.messageHandlerInit(s.world)
 	for _, message := range s.messageFetcher(s.world) {
 		s.messageHandler(s.world, message)
 	}

@@ -14,11 +14,6 @@ import (
 	"github.com/kkevinchou/kito/lib/network"
 )
 
-func serverMessageHandlerInit(world World) {
-	singleton := world.GetSingleton()
-	singleton.InputBuffer.StartFrame(world.CommandFrame())
-}
-
 func serverMessageHandler(world World, message *network.Message) {
 	playerManager := directory.GetDirectory().PlayerManager()
 	player := playerManager.GetPlayer(message.SenderID)

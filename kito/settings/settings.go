@@ -65,7 +65,7 @@ const (
 
 	// This is potentially overkill to avoiding absolutely no mispredictions on the client.
 	// The drawback of an input buffer is we now add a delay before we process user inputs.
-	MaxInputBufferCommandFrames int = 0 / MSPerCommandFrame
+	MaxInputBufferCommandFrames int = 100 / MSPerCommandFrame
 
 	MaxStateBufferCommandFrames int = 0 / MSPerCommandFrame
 
