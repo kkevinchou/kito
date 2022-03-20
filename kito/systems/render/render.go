@@ -207,13 +207,17 @@ func (s *RenderSystem) renderImgui() {
 	imgui.NewFrame()
 
 	imgui.Begin("Console")
-	imgui.PushItemWidth(imgui.ContentRegionAvail().X)
-	imgui.InputText("", &inputText)
+	// imgui.CollapsingHeaderV("header", imgui.TreeNodeFlagsDefaultOpen|imgui.TreeNodeFlagsFramed)
+	if imgui.CollapsingHeaderV("header", imgui.TreeNodeFlagsCollapsingHeader) {
+		// imgui.PushItemWidth(imgui.ContentRegionAvail().X)
+		imgui.InputText("", &inputText)
+		imgui.PlotLines("plot", []float32{0, 1, 5, 16, 2, 18, 10})
+	}
+	// imgui.TreePop()
 	imgui.End()
 
 	imgui.Render()
-	platform := s.platform
-	s.imguiRenderer.Render(platform.DisplaySize(), platform.FramebufferSize(), imgui.RenderedDrawData())
+	s.imguiRenderer.Render(s.platform.DisplaySize(), s.platform.FramebufferSize(), imgui.RenderedDrawData())
 }
 
 // renderScene renders a scene from the perspective of a viewer
