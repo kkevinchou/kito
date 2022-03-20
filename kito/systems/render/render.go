@@ -15,7 +15,6 @@ import (
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/metrics"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
@@ -206,14 +205,11 @@ var inputText string
 func (s *RenderSystem) renderImgui() {
 	imgui.NewFrame()
 
-	imgui.Begin("Console")
-	// imgui.CollapsingHeaderV("header", imgui.TreeNodeFlagsDefaultOpen|imgui.TreeNodeFlagsFramed)
-	if imgui.CollapsingHeaderV("header", imgui.TreeNodeFlagsCollapsingHeader) {
-		// imgui.PushItemWidth(imgui.ContentRegionAvail().X)
-		imgui.InputText("", &inputText)
-		imgui.PlotLines("plot", []float32{0, 1, 5, 16, 2, 18, 10})
-	}
-	// imgui.TreePop()
+	imgui.SetNextWindowBgAlpha(0.5)
+	imgui.BeginV("Console", nil, imgui.WindowFlagsNoFocusOnAppearing)
+	s.generalInfoComponent()
+	s.networkInfoUIComponent()
+	s.entityInfoUIComponent()
 	imgui.End()
 
 	imgui.Render()
@@ -302,49 +298,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		}
 	}
 
-	var renderText string
-	renderText += s.generalInfoText()
-	renderText += s.networkInfoText()
-
-	player := s.world.GetPlayer()
-	renderText += s.entityInfoText(player)
-	drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), renderText, 0.8, 0)
-}
-
-func (s *RenderSystem) generalInfoText() string {
-	metricsRegistry := s.world.MetricsRegistry()
-	fps := int(metricsRegistry.GetOneSecondSum("fps"))
-	renderText := fmt.Sprintf("--- General\nfps: %d\nCF: %d\n", fps, s.world.CommandFrame())
-
-	return renderText
-}
-
-func (s *RenderSystem) networkInfoText() string {
-	metricsRegistry := s.world.MetricsRegistry()
-	predictionMiss := int(metricsRegistry.GetOneSecondSum("predictionMiss"))
-	predictionHit := int(metricsRegistry.GetOneSecondSum("predictionHit"))
-	ping := int(metricsRegistry.GetOneSecondAverage("ping"))
-	updateMessageSize := int(metricsRegistry.GetOneSecondSum("update_message_size")) / 1000
-	updateCount := int(metricsRegistry.GetOneSecondSum("update_message_count"))
-	newInput := int(metricsRegistry.GetOneSecondSum("newinput"))
-
-	renderText := fmt.Sprintf("--- Networking\nPing: %d\nPrediction Miss: %d\nPrediction Hit: %d\n", ping, predictionMiss, predictionHit)
-	renderText += fmt.Sprintf("Update Count: %d\nUpdate Size: %d kb/s\nNew Input: %d\n", updateCount, updateMessageSize, newInput)
-	return renderText
-}
-
-func (s *RenderSystem) entityInfoText(entity entities.Entity) string {
-	componentContainer := entity.GetComponentContainer()
-	entityPosition := componentContainer.TransformComponent.Position
-	orientation := componentContainer.TransformComponent.Orientation
-	velocity := componentContainer.ThirdPersonControllerComponent.Velocity
-
-	renderText := fmt.Sprintf("--- Entity %d\n", entity.GetID())
-	renderText += fmt.Sprintf("position %s\n", utils.PPrintVec(entityPosition))
-	renderText += fmt.Sprintf("velocity %s\n", utils.PPrintVec(velocity))
-	renderText += fmt.Sprintf("orientation %v\n", utils.PPrintQuatAsVec(orientation))
-
-	return renderText
+	// var renderText string
+	// drawText(shaderManager.GetShaderProgram("quadtex"), assetManager.GetFont("robotomono-regular"), renderText, 0.8, 0)
 }
 
 func (s *RenderSystem) Update(delta time.Duration) {
