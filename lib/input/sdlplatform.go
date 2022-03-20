@@ -24,10 +24,12 @@ type SDLPlatform struct {
 }
 
 func NewSDLPlatform(window *sdl.Window, imguiIO imgui.IO) *SDLPlatform {
-	return &SDLPlatform{
+	platform := &SDLPlatform{
 		window:  window,
 		imguiIO: imguiIO,
 	}
+	platform.setKeyMapping()
+	return platform
 }
 
 func (platform *SDLPlatform) PollInput() Input {
@@ -37,7 +39,6 @@ func (platform *SDLPlatform) PollInput() Input {
 		Commands:      []any{},
 	}
 
-	// Mouse inputs
 	x, y, mouseState := sdl.GetMouseState()
 	platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x), Y: float32(y)})
 	for i, button := range []uint32{sdl.BUTTON_LEFT, sdl.BUTTON_RIGHT, sdl.BUTTON_MIDDLE} {
@@ -57,7 +58,6 @@ func (platform *SDLPlatform) PollInput() Input {
 		}
 		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
 
-		// don't overwrite keys we've fetched from sdl.PollEvent()
 		if _, ok := platform.currentFrameInput.KeyboardInput[key]; !ok {
 			platform.currentFrameInput.KeyboardInput[key] = KeyState{
 				Key:   key,
@@ -66,7 +66,6 @@ func (platform *SDLPlatform) PollInput() Input {
 		}
 	}
 
-	// if imgui.IsWindowHoveredV(imgui.HoveredFlagsAnyWindow) {
 	if imgui.IsWindowFocusedV(imgui.FocusedFlagsAnyWindow) {
 		return Input{
 			MouseInput:    MouseInput{},
@@ -180,7 +179,7 @@ func (platform *SDLPlatform) setKeyMapping() {
 		imgui.KeyInsert:     sdl.SCANCODE_INSERT,
 		imgui.KeyDelete:     sdl.SCANCODE_DELETE,
 		imgui.KeyBackspace:  sdl.SCANCODE_BACKSPACE,
-		imgui.KeySpace:      sdl.SCANCODE_BACKSPACE,
+		imgui.KeySpace:      sdl.SCANCODE_SPACE,
 		imgui.KeyEnter:      sdl.SCANCODE_RETURN,
 		imgui.KeyEscape:     sdl.SCANCODE_ESCAPE,
 		imgui.KeyA:          sdl.SCANCODE_A,
