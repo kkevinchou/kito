@@ -182,12 +182,6 @@ func (platform *SDLPlatform) setKeyMapping() {
 		imgui.KeySpace:      sdl.SCANCODE_SPACE,
 		imgui.KeyEnter:      sdl.SCANCODE_RETURN,
 		imgui.KeyEscape:     sdl.SCANCODE_ESCAPE,
-		imgui.KeyA:          sdl.SCANCODE_A,
-		imgui.KeyC:          sdl.SCANCODE_C,
-		imgui.KeyV:          sdl.SCANCODE_V,
-		imgui.KeyX:          sdl.SCANCODE_X,
-		imgui.KeyY:          sdl.SCANCODE_Y,
-		imgui.KeyZ:          sdl.SCANCODE_Z,
 	}
 
 	// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
