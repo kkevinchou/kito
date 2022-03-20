@@ -51,6 +51,7 @@ func (platform *SDLPlatform) PollInput() Input {
 		platform.processEvent(event)
 	}
 
+	// key state is more reliable than key down events since they dont' fire for every polling cycle every frame
 	keyState := sdl.GetKeyboardState()
 	for k, v := range keyState {
 		if v <= 0 {
