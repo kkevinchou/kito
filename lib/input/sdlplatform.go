@@ -31,96 +31,6 @@ func NewSDLPlatform(window *sdl.Window, imguiIO imgui.IO) *SDLPlatform {
 }
 
 func (platform *SDLPlatform) PollInput() Input {
-	sdl.PumpEvents()
-
-	// Mouse inputs
-	mouseInput := MouseInput{}
-
-	// _, _, mouseState := sdl.GetMouseState()
-	// if mouseState&sdl.BUTTON_LEFT > 0 {
-	// 	mouseInput.LeftButtonDown = true
-	// }
-	// if mouseState&sdl.BUTTON_MIDDLE > 0 {
-	// 	mouseInput.MiddleButtonDown = true
-	// }
-	// if mouseState&sdl.BUTTON_RIGHT > 0 {
-	// 	mouseInput.RightButtonDown = true
-	// }
-
-	// Event inputs
-	var commands []any
-	var event sdl.Event
-
-	// Keyboard inputs
-	// TODO: only check for keys we care about - keyState contains 512 keys
-	keyboardInput := KeyboardInput{}
-
-	// The same event type can be fired multiple times in the same PollEvent loop
-	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		switch e := event.(type) {
-		case *sdl.QuitEvent:
-			commands = append(commands, QuitCommand{})
-		case *sdl.MouseButtonEvent:
-			// ?
-		case *sdl.MouseMotionEvent:
-			mouseInput.MouseMotionEvent.XRel += float64(e.XRel)
-			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
-		case *sdl.MouseWheelEvent:
-			mouseInput.MouseWheelDelta += int(e.Y)
-		case *sdl.KeyboardEvent:
-			if e.Type == sdl.KEYUP {
-				key := KeyboardKey(sdl.GetScancodeName(e.Keysym.Scancode))
-				keyboardInput[key] = KeyState{
-					Key:   key,
-					Event: KeyboardEventUp,
-				}
-			}
-		}
-	}
-
-	keyState := sdl.GetKeyboardState()
-	for k, v := range keyState {
-		if v <= 0 {
-			continue
-		}
-		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
-
-		// don't overwrite keys we've fetched from sdl.PollEvent()
-		if _, ok := keyboardInput[key]; !ok {
-			keyboardInput[key] = KeyState{
-				Key:   key,
-				Event: KeyboardEventDown,
-			}
-		}
-	}
-
-	// TODO: make input return a null input on no new input for safety
-	input := Input{
-		KeyboardInput: keyboardInput,
-		MouseInput:    mouseInput,
-		Commands:      commands,
-	}
-
-	return input
-}
-
-func (platform *SDLPlatform) PollInput2() Input {
-	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		platform.processEvent(event)
-	}
-
-	keyboardInput := KeyboardInput{}
-	mouseInput := MouseInput{}
-	var commands []any
-	input := Input{
-		KeyboardInput: keyboardInput,
-		MouseInput:    mouseInput,
-		Commands:      commands,
-	}
-	return input
-}
-
-func (platform *SDLPlatform) PollInput3() Input {
 	platform.currentFrameInput = Input{
 		MouseInput:    MouseInput{},
 		KeyboardInput: KeyboardInput{},
@@ -137,7 +47,7 @@ func (platform *SDLPlatform) PollInput3() Input {
 	}
 
 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		platform.processEvent3(event)
+		platform.processEvent(event)
 	}
 
 	keyState := sdl.GetKeyboardState()
@@ -168,7 +78,7 @@ func (platform *SDLPlatform) PollInput3() Input {
 	return platform.currentFrameInput
 }
 
-func (platform *SDLPlatform) processEvent3(event sdl.Event) {
+func (platform *SDLPlatform) processEvent(event sdl.Event) {
 	switch event.GetType() {
 	case sdl.QUIT:
 		platform.currentFrameInput.Commands = append(platform.currentFrameInput.Commands, QuitCommand{})
@@ -208,37 +118,6 @@ func (platform *SDLPlatform) processEvent3(event sdl.Event) {
 			Key:   key,
 			Event: KeyboardEventUp,
 		}
-	}
-}
-func (platform *SDLPlatform) processEvent(event sdl.Event) {
-	switch event.GetType() {
-	case sdl.QUIT:
-		platform.shouldStop = true
-	case sdl.MOUSEWHEEL:
-		wheelEvent := event.(*sdl.MouseWheelEvent)
-		var deltaX, deltaY float32
-		if wheelEvent.X > 0 {
-			deltaX++
-		} else if wheelEvent.X < 0 {
-			deltaX--
-		}
-		if wheelEvent.Y > 0 {
-			deltaY++
-		} else if wheelEvent.Y < 0 {
-			deltaY--
-		}
-		platform.imguiIO.AddMouseWheelDelta(deltaX, deltaY)
-	case sdl.TEXTINPUT:
-		inputEvent := event.(*sdl.TextInputEvent)
-		platform.imguiIO.AddInputCharacters(string(inputEvent.Text[:]))
-	case sdl.KEYDOWN:
-		keyEvent := event.(*sdl.KeyboardEvent)
-		platform.imguiIO.KeyPress(int(keyEvent.Keysym.Scancode))
-		platform.updateKeyModifier()
-	case sdl.KEYUP:
-		keyEvent := event.(*sdl.KeyboardEvent)
-		platform.imguiIO.KeyRelease(int(keyEvent.Keysym.Scancode))
-		platform.updateKeyModifier()
 	}
 }
 
