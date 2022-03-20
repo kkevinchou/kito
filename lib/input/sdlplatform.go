@@ -20,6 +20,8 @@ type SDLPlatform struct {
 
 	time        uint64
 	buttonsDown [mouseButtonCount]bool
+
+	currentFrameInput Input
 }
 
 func NewSDLPlatform(window *sdl.Window, imguiIO imgui.IO) *SDLPlatform {
@@ -29,41 +31,78 @@ func NewSDLPlatform(window *sdl.Window, imguiIO imgui.IO) *SDLPlatform {
 	}
 }
 
-func (platform *SDLPlatform) NewFrame() {
-	// Setup display size (every frame to accommodate for window resizing)
-	displaySize := platform.DisplaySize()
-	platform.imguiIO.SetDisplaySize(imgui.Vec2{X: displaySize[0], Y: displaySize[1]})
+func (platform *SDLPlatform) PollInput() Input {
+	sdl.PumpEvents()
 
-	// Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
-	frequency := sdl.GetPerformanceFrequency()
-	currentTime := sdl.GetPerformanceCounter()
-	if platform.time > 0 {
-		platform.imguiIO.SetDeltaTime(float32(currentTime-platform.time) / float32(frequency))
-	} else {
-		const fallbackDelta = 1.0 / 60.0
-		platform.imguiIO.SetDeltaTime(fallbackDelta)
+	// Mouse inputs
+	mouseInput := MouseInput{}
+
+	_, _, mouseState := sdl.GetMouseState()
+	if mouseState&sdl.BUTTON_LEFT > 0 {
+		mouseInput.LeftButtonDown = true
 	}
-	platform.time = currentTime
-
-	// If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-	x, y, state := sdl.GetMouseState()
-	platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x), Y: float32(y)})
-	for i, button := range []uint32{sdl.BUTTON_LEFT, sdl.BUTTON_RIGHT, sdl.BUTTON_MIDDLE} {
-		platform.imguiIO.SetMouseButtonDown(i, platform.buttonsDown[i] || (state&sdl.Button(button)) != 0)
-		platform.buttonsDown[i] = false
+	if mouseState&sdl.BUTTON_MIDDLE > 0 {
+		mouseInput.MiddleButtonDown = true
 	}
-}
+	if mouseState&sdl.BUTTON_RIGHT > 0 {
+		mouseInput.RightButtonDown = true
+	}
 
-// DisplaySize returns the dimension of the display.
-func (platform *SDLPlatform) DisplaySize() [2]float32 {
-	w, h := platform.window.GetSize()
-	return [2]float32{float32(w), float32(h)}
-}
+	// Event inputs
+	var commands []any
+	var event sdl.Event
 
-// FramebufferSize returns the dimension of the framebuffer.
-func (platform *SDLPlatform) FramebufferSize() [2]float32 {
-	w, h := platform.window.GLGetDrawableSize()
-	return [2]float32{float32(w), float32(h)}
+	// Keyboard inputs
+	// TODO: only check for keys we care about - keyState contains 512 keys
+	keyboardInput := KeyboardInput{}
+
+	// The same event type can be fired multiple times in the same PollEvent loop
+	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		switch e := event.(type) {
+		case *sdl.QuitEvent:
+			commands = append(commands, QuitCommand{})
+		case *sdl.MouseButtonEvent:
+			// ?
+		case *sdl.MouseMotionEvent:
+			mouseInput.MouseMotionEvent.XRel += float64(e.XRel)
+			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
+		case *sdl.MouseWheelEvent:
+			mouseInput.MouseWheelDelta += int(e.Y)
+		case *sdl.KeyboardEvent:
+			if e.Type == sdl.KEYUP {
+				key := KeyboardKey(sdl.GetScancodeName(e.Keysym.Scancode))
+				keyboardInput[key] = KeyState{
+					Key:   key,
+					Event: KeyboardEventUp,
+				}
+			}
+		}
+	}
+
+	keyState := sdl.GetKeyboardState()
+	for k, v := range keyState {
+		if v <= 0 {
+			continue
+		}
+		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
+
+		// don't overwrite keys we've fetched from sdl.PollEvent()
+		if _, ok := keyboardInput[key]; !ok {
+			keyboardInput[key] = KeyState{
+				Key:   key,
+				Event: KeyboardEventDown,
+			}
+		}
+	}
+
+	// TODO: make input return a null input on no new input for safety
+	input := Input{
+		KeyboardInput: keyboardInput,
+		MouseInput:    mouseInput,
+		Commands:      commands,
+	}
+
+	return input
 }
 
 func (platform *SDLPlatform) PollInput2() Input {
@@ -124,6 +163,43 @@ func (platform *SDLPlatform) processEvent(event sdl.Event) {
 	}
 }
 
+func (platform *SDLPlatform) NewFrame() {
+	// Setup display size (every frame to accommodate for window resizing)
+	displaySize := platform.DisplaySize()
+	platform.imguiIO.SetDisplaySize(imgui.Vec2{X: displaySize[0], Y: displaySize[1]})
+
+	// Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
+	frequency := sdl.GetPerformanceFrequency()
+	currentTime := sdl.GetPerformanceCounter()
+	if platform.time > 0 {
+		platform.imguiIO.SetDeltaTime(float32(currentTime-platform.time) / float32(frequency))
+	} else {
+		const fallbackDelta = 1.0 / 60.0
+		platform.imguiIO.SetDeltaTime(fallbackDelta)
+	}
+	platform.time = currentTime
+
+	// If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+	x, y, state := sdl.GetMouseState()
+	platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x), Y: float32(y)})
+	for i, button := range []uint32{sdl.BUTTON_LEFT, sdl.BUTTON_RIGHT, sdl.BUTTON_MIDDLE} {
+		platform.imguiIO.SetMouseButtonDown(i, platform.buttonsDown[i] || (state&sdl.Button(button)) != 0)
+		platform.buttonsDown[i] = false
+	}
+}
+
+// DisplaySize returns the dimension of the display.
+func (platform *SDLPlatform) DisplaySize() [2]float32 {
+	w, h := platform.window.GetSize()
+	return [2]float32{float32(w), float32(h)}
+}
+
+// FramebufferSize returns the dimension of the framebuffer.
+func (platform *SDLPlatform) FramebufferSize() [2]float32 {
+	w, h := platform.window.GLGetDrawableSize()
+	return [2]float32{float32(w), float32(h)}
+}
+
 func (platform *SDLPlatform) updateKeyModifier() {
 	modState := sdl.GetModState()
 	mapModifier := func(lMask sdl.Keymod, lKey int, rMask sdl.Keymod, rKey int) (lResult int, rResult int) {
@@ -169,81 +245,6 @@ func (platform *SDLPlatform) setKeyMapping() {
 	for imguiKey, nativeKey := range keys {
 		platform.imguiIO.KeyMap(imguiKey, nativeKey)
 	}
-}
-
-func (platform *SDLPlatform) PollInput() Input {
-	sdl.PumpEvents()
-
-	// Mouse inputs
-	mouseInput := MouseInput{}
-
-	_, _, mouseState := sdl.GetMouseState()
-	if mouseState&sdl.BUTTON_LEFT > 0 {
-		mouseInput.LeftButtonDown = true
-	}
-	if mouseState&sdl.BUTTON_MIDDLE > 0 {
-		mouseInput.MiddleButtonDown = true
-	}
-	if mouseState&sdl.BUTTON_RIGHT > 0 {
-		mouseInput.RightButtonDown = true
-	}
-
-	// Event inputs
-	var commands []any
-	var event sdl.Event
-
-	// Keyboard inputs
-	// TODO: only check for keys we care about - keyState contains 512 keys
-	keyboardInput := KeyboardInput{}
-
-	// The same event type can be fired multiple times in the same PollEvent loop
-	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		switch e := event.(type) {
-		case *sdl.QuitEvent:
-			commands = append(commands, QuitCommand{})
-		case *sdl.MouseButtonEvent:
-			// ?
-		case *sdl.MouseMotionEvent:
-			mouseInput.MouseMotionEvent.XRel += float64(e.XRel)
-			mouseInput.MouseMotionEvent.YRel += float64(e.YRel)
-		case *sdl.MouseWheelEvent:
-			mouseInput.MouseWheelDelta += int(e.Y)
-		case *sdl.KeyboardEvent:
-			if e.Type == sdl.KEYUP {
-				key := KeyboardKey(sdl.GetScancodeName(e.Keysym.Scancode))
-				keyboardInput[key] = KeyState{
-					Key:   key,
-					Event: KeyboardEventUp,
-				}
-			}
-			// mouseInput.MouseWheelDelta += int(e.Y)
-		}
-	}
-
-	keyState := sdl.GetKeyboardState()
-	for k, v := range keyState {
-		if v <= 0 {
-			continue
-		}
-		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
-
-		// don't overwrite keys we've fetched from sdl.PollEvent()
-		if _, ok := keyboardInput[key]; !ok {
-			keyboardInput[key] = KeyState{
-				Key:   key,
-				Event: KeyboardEventDown,
-			}
-		}
-	}
-
-	// TODO: make input return a null input on no new input for safety
-	input := Input{
-		KeyboardInput: keyboardInput,
-		MouseInput:    mouseInput,
-		Commands:      commands,
-	}
-
-	return input
 }
 
 // ClipboardText returns the current clipboard text, if available.

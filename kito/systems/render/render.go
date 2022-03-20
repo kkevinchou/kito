@@ -201,17 +201,22 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 }
 
 var f [3]float32
+var inputText string
+var active bool
 
 func (s *RenderSystem) renderImgui() {
 	imgui.NewFrame()
-	imgui.Text("hello world")
-	imgui.ColorPicker3("picker", &f)
-	// w, h := s.window.GetSize()
-	// fw, fh := s.window.GLGetDrawableSize()
-	platform := s.platform
+
+	imgui.Begin("some window")
+	imgui.Text("console")
+	imgui.InputText("", &inputText)
+	active = imgui.IsWindowFocused()
+	imgui.End()
+
+	imgui.Checkbox("active", &active)
 
 	imgui.Render()
-	// s.imguiRenderer.Render([2]float32{float32(w), float32(h)}, [2]float32{float32(fw), float32(fh)}, imgui.RenderedDrawData())
+	platform := s.platform
 	s.imguiRenderer.Render(platform.DisplaySize(), platform.FramebufferSize(), imgui.RenderedDrawData())
 }
 
