@@ -16,9 +16,7 @@ func (m MouseMotionEvent) IsZero() bool {
 type MouseInput struct {
 	MouseWheelDelta  int
 	MouseMotionEvent MouseMotionEvent
-	LeftButtonDown   bool
-	MiddleButtonDown bool
-	RightButtonDown  bool
+	Buttons          [3]bool
 }
 
 type KeyboardKey string

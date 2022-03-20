@@ -50,7 +50,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	platform := input.NewSDLPlatform(window, imguiIO)
 
 	g := NewBaseGame()
-	g.inputPollingFn = platform.PollInput2
+	g.inputPollingFn = platform.PollInput3
 	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
 
 	// Connect to server

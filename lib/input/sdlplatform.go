@@ -18,8 +18,7 @@ type SDLPlatform struct {
 	window     *sdl.Window
 	shouldStop bool
 
-	time        uint64
-	buttonsDown [mouseButtonCount]bool
+	time uint64
 
 	currentFrameInput Input
 }
@@ -37,16 +36,16 @@ func (platform *SDLPlatform) PollInput() Input {
 	// Mouse inputs
 	mouseInput := MouseInput{}
 
-	_, _, mouseState := sdl.GetMouseState()
-	if mouseState&sdl.BUTTON_LEFT > 0 {
-		mouseInput.LeftButtonDown = true
-	}
-	if mouseState&sdl.BUTTON_MIDDLE > 0 {
-		mouseInput.MiddleButtonDown = true
-	}
-	if mouseState&sdl.BUTTON_RIGHT > 0 {
-		mouseInput.RightButtonDown = true
-	}
+	// _, _, mouseState := sdl.GetMouseState()
+	// if mouseState&sdl.BUTTON_LEFT > 0 {
+	// 	mouseInput.LeftButtonDown = true
+	// }
+	// if mouseState&sdl.BUTTON_MIDDLE > 0 {
+	// 	mouseInput.MiddleButtonDown = true
+	// }
+	// if mouseState&sdl.BUTTON_RIGHT > 0 {
+	// 	mouseInput.RightButtonDown = true
+	// }
 
 	// Event inputs
 	var commands []any
@@ -121,6 +120,96 @@ func (platform *SDLPlatform) PollInput2() Input {
 	return input
 }
 
+func (platform *SDLPlatform) PollInput3() Input {
+	platform.currentFrameInput = Input{
+		MouseInput:    MouseInput{},
+		KeyboardInput: KeyboardInput{},
+		Commands:      []any{},
+	}
+
+	// Mouse inputs
+	x, y, mouseState := sdl.GetMouseState()
+	platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x), Y: float32(y)})
+	for i, button := range []uint32{sdl.BUTTON_LEFT, sdl.BUTTON_RIGHT, sdl.BUTTON_MIDDLE} {
+		enabled := mouseState&sdl.Button(button) != 0
+		platform.imguiIO.SetMouseButtonDown(i, enabled)
+		platform.currentFrameInput.MouseInput.Buttons[i] = enabled
+	}
+
+	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		platform.processEvent3(event)
+	}
+
+	keyState := sdl.GetKeyboardState()
+	for k, v := range keyState {
+		if v <= 0 {
+			continue
+		}
+		key := KeyboardKey(sdl.GetScancodeName(sdl.Scancode(k)))
+
+		// don't overwrite keys we've fetched from sdl.PollEvent()
+		if _, ok := platform.currentFrameInput.KeyboardInput[key]; !ok {
+			platform.currentFrameInput.KeyboardInput[key] = KeyState{
+				Key:   key,
+				Event: KeyboardEventDown,
+			}
+		}
+	}
+
+	// if imgui.IsWindowHoveredV(imgui.HoveredFlagsAnyWindow) {
+	if imgui.IsWindowFocusedV(imgui.FocusedFlagsAnyWindow) {
+		return Input{
+			MouseInput:    MouseInput{},
+			KeyboardInput: KeyboardInput{},
+			Commands:      platform.currentFrameInput.Commands,
+		}
+	}
+
+	return platform.currentFrameInput
+}
+
+func (platform *SDLPlatform) processEvent3(event sdl.Event) {
+	switch event.GetType() {
+	case sdl.QUIT:
+		platform.currentFrameInput.Commands = append(platform.currentFrameInput.Commands, QuitCommand{})
+	case sdl.MOUSEWHEEL:
+		wheelEvent := event.(*sdl.MouseWheelEvent)
+		var deltaX, deltaY float32
+		if wheelEvent.X > 0 {
+			deltaX++
+		} else if wheelEvent.X < 0 {
+			deltaX--
+		}
+		if wheelEvent.Y > 0 {
+			deltaY++
+		} else if wheelEvent.Y < 0 {
+			deltaY--
+		}
+		platform.imguiIO.AddMouseWheelDelta(deltaX, deltaY)
+		platform.currentFrameInput.MouseInput.MouseWheelDelta = int(deltaY)
+	case sdl.MOUSEMOTION:
+		motionEvent := event.(*sdl.MouseMotionEvent)
+		platform.currentFrameInput.MouseInput.MouseMotionEvent.XRel += float64(motionEvent.XRel)
+		platform.currentFrameInput.MouseInput.MouseMotionEvent.YRel += float64(motionEvent.YRel)
+	case sdl.TEXTINPUT:
+		inputEvent := event.(*sdl.TextInputEvent)
+		platform.imguiIO.AddInputCharacters(string(inputEvent.Text[:]))
+	case sdl.KEYDOWN:
+		keyEvent := event.(*sdl.KeyboardEvent)
+		platform.imguiIO.KeyPress(int(keyEvent.Keysym.Scancode))
+		platform.updateKeyModifier()
+	case sdl.KEYUP:
+		keyEvent := event.(*sdl.KeyboardEvent)
+		platform.imguiIO.KeyRelease(int(keyEvent.Keysym.Scancode))
+		platform.updateKeyModifier()
+
+		key := KeyboardKey(sdl.GetScancodeName(keyEvent.Keysym.Scancode))
+		platform.currentFrameInput.KeyboardInput[key] = KeyState{
+			Key:   key,
+			Event: KeyboardEventUp,
+		}
+	}
+}
 func (platform *SDLPlatform) processEvent(event sdl.Event) {
 	switch event.GetType() {
 	case sdl.QUIT:
@@ -139,16 +228,6 @@ func (platform *SDLPlatform) processEvent(event sdl.Event) {
 			deltaY--
 		}
 		platform.imguiIO.AddMouseWheelDelta(deltaX, deltaY)
-	case sdl.MOUSEBUTTONDOWN:
-		buttonEvent := event.(*sdl.MouseButtonEvent)
-		switch buttonEvent.Button {
-		case sdl.BUTTON_LEFT:
-			platform.buttonsDown[mouseButtonPrimary] = true
-		case sdl.BUTTON_RIGHT:
-			platform.buttonsDown[mouseButtonSecondary] = true
-		case sdl.BUTTON_MIDDLE:
-			platform.buttonsDown[mouseButtonTertiary] = true
-		}
 	case sdl.TEXTINPUT:
 		inputEvent := event.(*sdl.TextInputEvent)
 		platform.imguiIO.AddInputCharacters(string(inputEvent.Text[:]))
@@ -178,14 +257,6 @@ func (platform *SDLPlatform) NewFrame() {
 		platform.imguiIO.SetDeltaTime(fallbackDelta)
 	}
 	platform.time = currentTime
-
-	// If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-	x, y, state := sdl.GetMouseState()
-	platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x), Y: float32(y)})
-	for i, button := range []uint32{sdl.BUTTON_LEFT, sdl.BUTTON_RIGHT, sdl.BUTTON_MIDDLE} {
-		platform.imguiIO.SetMouseButtonDown(i, platform.buttonsDown[i] || (state&sdl.Button(button)) != 0)
-		platform.buttonsDown[i] = false
-	}
 }
 
 // DisplaySize returns the dimension of the display.
