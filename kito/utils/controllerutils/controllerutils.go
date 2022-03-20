@@ -70,7 +70,7 @@ func ResolveControllerCollision(entity entities.Entity) {
 		tpcComponent.BaseVelocity[1] = 0
 	} else {
 		// no collisions were detected (i.e. the ground)
-		// physicsComponent.Grounded = false
+		tpcComponent.Grounded = false
 	}
 }
 
