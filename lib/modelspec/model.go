@@ -38,6 +38,18 @@ type MeshSpecification struct {
 	JointWeights [][]float32
 }
 
+func (m *ModelSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
+	for _, mesh := range m.Meshes {
+		mesh.ConvertTexCoordsFromGLTFToOpenGL()
+	}
+}
+
+func (m *MeshSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
+	for i, v := range m.TextureSourceData {
+		m.TextureSourceData[i] = mgl32.Vec2{v.X(), 1 - v.Y()}
+	}
+}
+
 // ModelSpecification is the output of any parsed model files (e.g. from Blender, Maya, etc)
 // and acts a the blueprint for the model that contains all the associated vertex and
 // animation data. This struct should be agnostic to the 3D modelling tool that produced the data.

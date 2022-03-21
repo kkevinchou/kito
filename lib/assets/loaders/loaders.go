@@ -54,6 +54,7 @@ func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecificati
 
 		if metaData.Extension == ".gltf" {
 			modelSpec, err = gltf.ParseGLTF(metaData.Path)
+			modelSpec.ConvertTexCoordsFromGLTFToOpenGL()
 			if err != nil {
 				fmt.Println("failed to parse gltf for", metaData.Path, ", error:", err)
 				continue
