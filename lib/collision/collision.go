@@ -7,8 +7,8 @@ import (
 )
 
 type Contact struct {
-	Point mgl64.Vec3
-	// Normal             mgl64.Vec3
+	Point              mgl64.Vec3
+	Normal             mgl64.Vec3
 	SeparatingVector   mgl64.Vec3
 	SeparatingDistance float64
 }
@@ -45,6 +45,7 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 			Contacts: []Contact{
 				{
 					Point:              closestPointOnTriangle,
+					Normal:             triangle.Normal,
 					SeparatingVector:   closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance),
 					SeparatingDistance: separatingDistance,
 				},
