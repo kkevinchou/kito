@@ -15,6 +15,16 @@ type EffectSpec struct { // todo(kevin): rename to MaterialSpec
 	TransparencyColor      *mgl32.Vec3
 }
 
+type PBRMetallicRoughness struct {
+	BaseColorFactor mgl32.Vec4
+	MetalicFactor   float32
+	RoughnessFactor float32
+}
+
+type PBRMaterial struct {
+	PBRMetallicRoughness *PBRMetallicRoughness
+}
+
 type MeshSpecification struct {
 	// Geometry
 	// VertexAttributeIndices defines indices that are lookups for individual vertex properties
@@ -36,6 +46,9 @@ type MeshSpecification struct {
 	// sorted by vertex order
 	JointIDs     [][]int
 	JointWeights [][]float32
+
+	// PBR
+	PBRMaterial *PBRMaterial
 }
 
 func (m *ModelSpecification) ConvertTexCoordsFromGLTFToOpenGL() {

@@ -119,6 +119,12 @@ func (s *ShaderProgram) SetUniformVec3(uniform string, value mgl32.Vec3) {
 	gl.Uniform3fv(uniformLocation, 1, &floats[0])
 }
 
+func (s *ShaderProgram) SetUniformVec4(uniform string, value mgl32.Vec4) {
+	floats := []float32{value.X(), value.Y(), value.Z(), value.W()}
+	uniformLocation := gl.GetUniformLocation(s.ID, gl.Str(fmt.Sprintf("%s\x00", uniform)))
+	gl.Uniform4fv(uniformLocation, 1, &floats[0])
+}
+
 func (s *ShaderProgram) SetUniformInt(uniform string, value int32) {
 	uniformLocation := gl.GetUniformLocation(s.ID, gl.Str(fmt.Sprintf("%s\x00", uniform)))
 	gl.Uniform1i(uniformLocation, value)

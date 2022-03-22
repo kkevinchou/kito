@@ -22,6 +22,7 @@ type ParsedMesh struct {
 	VertexAttributeIndices []int
 	JointIDs               [][]int
 	JointWeights           [][]float32
+	MaterialIndex          *int
 }
 
 type ParsedJoints struct {
@@ -78,6 +79,20 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 			meshSpec.JointWeights = parsedMesh.JointWeights
 		}
 
+		// TODO: not sure when a mesh would have multiple primitives
+		// do i need to support multiple materials that come from multiple
+		// primitives?
+		if meshSpec.PBRMaterial == nil && parsedMesh.MaterialIndex != nil {
+			material := document.Materials[*parsedMesh.MaterialIndex]
+			pbr := *material.PBRMetallicRoughness
+			meshSpec.PBRMaterial = &modelspec.PBRMaterial{
+				PBRMetallicRoughness: &modelspec.PBRMetallicRoughness{
+					BaseColorFactor: mgl32.Vec4{pbr.BaseColorFactor[0], pbr.BaseColorFactor[1], pbr.BaseColorFactor[2], pbr.BaseColorFactor[3]},
+					MetalicFactor:   *pbr.MetallicFactor,
+					RoughnessFactor: *pbr.RoughnessFactor,
+				},
+			}
+		}
 		modelSpec.Meshes = append(modelSpec.Meshes, meshSpec)
 	}
 
@@ -310,6 +325,11 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*ParsedMesh, error) {
 		meshIndices, err := modeler.ReadIndices(document, document.Accessors[int(acrIndex)], nil)
 		if err != nil {
 			return nil, err
+		}
+
+		if primitive.Material != nil {
+			materialIndex := int(*primitive.Material)
+			parsedMesh.MaterialIndex = &materialIndex
 		}
 
 		for _, index := range meshIndices {

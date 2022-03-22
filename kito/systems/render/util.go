@@ -33,6 +33,13 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 		shader.SetUniformInt("materialHasDiffuseColor", 0)
 	}
 
+	if meshComponent.PBRMaterial != nil {
+		shader.SetUniformInt("hasPBRMaterial", 1)
+		shader.SetUniformVec4("pbrBaseColorFactor", meshComponent.PBRMaterial.PBRMetallicRoughness.BaseColorFactor)
+	} else {
+		shader.SetUniformInt("hasPBRMaterial", 0)
+	}
+
 	if animationComponent != nil {
 		animationTransforms := animationComponent.AnimationTransforms
 		for i := 0; i < len(animationTransforms); i++ {
