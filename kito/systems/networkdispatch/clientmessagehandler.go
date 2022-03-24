@@ -103,7 +103,7 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			cc := player.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
-			cc.ThirdPersonControllerComponent.BaseVelocity = entitySnapshot.Velocity
+			cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
 			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 
 			// TODO: re-enable this when we decide how to implemetn character controller resolution

@@ -33,8 +33,10 @@ type AckCreatePlayerMessage struct {
 }
 
 type EntitySnapshot struct {
-	ID          int
-	Type        int
+	ID   int
+	Type int
+
+	// Physics
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
 	Velocity    mgl64.Vec3

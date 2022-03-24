@@ -5,8 +5,10 @@ import (
 
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/kito/utils/controllerutils"
 )
 
@@ -42,7 +44,14 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 	playerManager := d.PlayerManager()
 	singleton := s.world.GetSingleton()
 
-	for _, player := range playerManager.GetPlayers() {
+	var players []*player.Player
+	if utils.IsClient() {
+		players = []*player.Player{playerManager.GetPlayer(s.world.GetSingleton().PlayerID)}
+	} else {
+		players = playerManager.GetPlayers()
+	}
+
+	for _, player := range players {
 		entity, err := s.world.GetEntityByID(player.ID)
 		if err != nil {
 			continue

@@ -54,6 +54,9 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 			cc := foundEntity.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
+			if cc.ThirdPersonControllerComponent != nil {
+				cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
+			}
 		}
 	}
 }

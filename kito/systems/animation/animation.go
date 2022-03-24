@@ -45,11 +45,7 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 			targetAnimation = "Walk"
 		}
 
-		if animationComponent.CurrentAnimation != targetAnimation {
-			animationComponent.CurrentAnimation = targetAnimation
-			animationComponent.ElapsedTime = 0
-			animationComponent.Animation = animationComponent.Animations[targetAnimation]
-		}
+		animationComponent.PlayAnimation(targetAnimation)
 
 		animationComponent.ElapsedTime += delta
 		for animationComponent.ElapsedTime.Milliseconds() > animationComponent.Animation.Length().Milliseconds() {

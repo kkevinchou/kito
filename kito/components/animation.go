@@ -26,3 +26,14 @@ func (c *AnimationComponent) GetAnimationComponent() *AnimationComponent {
 func (c *AnimationComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.AnimationComponent = c
 }
+
+func (c *AnimationComponent) PlayAnimation(animationName string) {
+	if c.CurrentAnimation != animationName {
+		if animation, ok := c.Animations[animationName]; ok {
+			c.Animation = animation
+			c.CurrentAnimation = animationName
+			c.ElapsedTime = 0
+		}
+	}
+
+}

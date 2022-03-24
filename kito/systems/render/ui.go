@@ -37,6 +37,7 @@ func (s *RenderSystem) entityInfoUIComponent() {
 
 	if imgui.CollapsingHeaderV("Entity Info", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
+		uiTableRow("ID", player.GetID())
 		uiTableRow("Position", utils.PPrintVec(entityPosition))
 		uiTableRow("Velocity", utils.PPrintVec(velocity))
 		uiTableRow("Orientation", utils.PPrintQuatAsVec(orientation))
