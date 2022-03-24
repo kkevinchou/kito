@@ -38,10 +38,10 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	// handle controller movement
 	movementDir := calculateMovementDir(camera, controlVector)
 	tpcComponent.MovementSpeed = computeMoveSpeed(tpcComponent.MovementSpeed)
-	movementVelocity := movementDir.Mul(tpcComponent.MovementSpeed)
+	tpcComponent.ControllerVelocity = movementDir.Mul(tpcComponent.MovementSpeed)
 
 	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
-	tpcComponent.Velocity = tpcComponent.BaseVelocity.Add(movementVelocity)
+	tpcComponent.Velocity = tpcComponent.BaseVelocity.Add(tpcComponent.ControllerVelocity)
 	transformComponent.Position = transformComponent.Position.Add(tpcComponent.Velocity.Mul(delta.Seconds()))
 
 	// safeguard falling off the map
@@ -50,7 +50,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	}
 
 	if movementDir.LenSqr() > 0 {
-		transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, movementVelocity.Normalize(), mgl64.Vec3{0, 1, 0})
+		transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, tpcComponent.ControllerVelocity.Normalize(), mgl64.Vec3{0, 1, 0})
 	} else {
 		tpcComponent.MovementSpeed = 0
 	}
