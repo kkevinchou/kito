@@ -3,6 +3,8 @@ package charactercontroller
 import (
 	"time"
 
+	"github.com/kkevinchou/kito/kito/directory"
+	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/kito/utils/controllerutils"
@@ -39,13 +41,21 @@ func (s *CharacterControllerResolverSystem) RegisterEntity(entity entities.Entit
 }
 
 func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
-	// collision resolution is synchronized from the server to the client
+	d := directory.GetDirectory()
+	playerManager := d.PlayerManager()
+
+	var players []*player.Player
 	if utils.IsClient() {
-		player := s.world.GetPlayer()
-		controllerutils.ResolveControllerCollision(player)
+		players = []*player.Player{playerManager.GetPlayer(s.world.GetSingleton().PlayerID)}
 	} else {
-		for _, entity := range s.entities {
-			controllerutils.ResolveControllerCollision(entity)
+		players = playerManager.GetPlayers()
+	}
+
+	for _, player := range players {
+		entity, err := s.world.GetEntityByID(player.ID)
+		if err != nil {
+			continue
 		}
+		controllerutils.ResolveControllerCollision(entity)
 	}
 }
