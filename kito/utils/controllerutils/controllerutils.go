@@ -1,6 +1,7 @@
 package controllerutils
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
@@ -12,8 +13,9 @@ import (
 )
 
 const (
-	gravity   float64 = 250
-	jumpSpeed float64 = 150
+	gravity        float64 = 250
+	jumpSpeed      float64 = 150
+	equalThreshold float64 = 1e-5
 )
 
 var (
@@ -61,9 +63,12 @@ func ResolveControllerCollision(entity entities.Entity) {
 	colliderComponent := cc.ColliderComponent
 	transformComponent := cc.TransformComponent
 	tpcComponent := cc.ThirdPersonControllerComponent
-	contactManifolds := colliderComponent.ContactManifolds
-	if contactManifolds != nil {
+
+	if colliderComponent.CollisionInstances != nil {
+		contactManifolds := colliderComponent.CollisionInstances[0].ContactManifolds
+
 		separatingVector := combineSeparatingVectors(contactManifolds)
+		// separatingVector := minSeparatingVector(contactManifolds)
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		tpcComponent.Grounded = true
 		tpcComponent.Velocity[1] = 0
@@ -74,28 +79,53 @@ func ResolveControllerCollision(entity entities.Entity) {
 	}
 }
 
-func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
-	// only add separating vectors which we haven't seen before. ideally
-	// this should handle cases where separating vectors are a basis of another
-	// and avoid "overcounting" separating vectors
-	seenSeparatingVectors := []mgl64.Vec3{}
-	var separatingVector mgl64.Vec3
+func minSeparatingVector(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
+	minVector := contactManifolds[0].Contacts[0].SeparatingVector
+	minDistance := contactManifolds[0].Contacts[0].SeparatingDistance
+
+	// one manifold for each object that's being collided with
 	for _, contactManifold := range contactManifolds {
 		for _, contact := range contactManifold.Contacts {
-			seen := false
-			for _, v := range seenSeparatingVectors {
-				if contact.SeparatingVector.ApproxEqual(v) {
-					seen = true
-					break
-				}
-			}
-			if !seen {
-				separatingVector = separatingVector.Add(contact.SeparatingVector)
-				seenSeparatingVectors = append(seenSeparatingVectors, contact.SeparatingVector)
+			if contact.SeparatingDistance < minDistance {
+				minVector = contact.SeparatingVector
+				minDistance = contact.SeparatingDistance
 			}
 		}
 	}
-	return separatingVector
+
+	return minVector
+}
+
+func hashVec(v mgl64.Vec3) string {
+	return fmt.Sprintf("%.4f %.4f %.4f", v[0], v[1], v[2])
+}
+
+// combineSeparatingVectors: for triangles that have the same normal, only use the largest separating vector
+// TODO: there might be some edge cases I'm not considering but visually it looks good enough
+// there is still some jittering that happens when we have multiple triangles of varying
+// normals. We probably need to be able to "merge" those somehow rather than naively summing
+// them together like we are doing right now
+func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
+	seenNormals := map[string]mgl64.Vec3{}
+	for _, contactManifold := range contactManifolds {
+		for _, contact := range contactManifold.Contacts {
+			normalHash := hashVec(contact.Normal)
+			if v, ok := seenNormals[normalHash]; ok {
+				if contact.SeparatingVector.LenSqr() > v.LenSqr() {
+					seenNormals[normalHash] = contact.SeparatingVector
+				}
+				continue
+			}
+
+			seenNormals[normalHash] = contact.SeparatingVector
+		}
+	}
+
+	var finalSeparatingVector mgl64.Vec3
+	for _, v := range seenNormals {
+		finalSeparatingVector = finalSeparatingVector.Add(v)
+	}
+	return finalSeparatingVector
 }
 
 func computeMoveSpeed(movementSpeed float64) float64 {

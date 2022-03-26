@@ -7,22 +7,24 @@ import (
 )
 
 type Contact struct {
-	Point mgl64.Vec3
-	// Normal             mgl64.Vec3
+	Point              mgl64.Vec3
+	Normal             mgl64.Vec3
 	SeparatingVector   mgl64.Vec3
 	SeparatingDistance float64
 }
 
 type ContactManifold struct {
+	TriIndex int
 	Contacts []Contact
 }
 
 func CheckCollisionCapsuleTriMesh(capsule collider.Capsule, triangulatedMesh collider.TriMesh) []*ContactManifold {
 	var contactManifolds []*ContactManifold
-	for _, tri := range triangulatedMesh.Triangles {
+	for i, tri := range triangulatedMesh.Triangles {
 		contactManifold := CheckCollisionCapsuleTriangle(capsule, tri)
 		// TODO: handle multiple collided triangles
 		if contactManifold != nil {
+			contactManifold.TriIndex = i
 			contactManifolds = append(contactManifolds, contactManifold)
 		}
 	}
@@ -43,6 +45,7 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 			Contacts: []Contact{
 				{
 					Point:              closestPointOnTriangle,
+					Normal:             triangle.Normal,
 					SeparatingVector:   closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance),
 					SeparatingDistance: separatingDistance,
 				},

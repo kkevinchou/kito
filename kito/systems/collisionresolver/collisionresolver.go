@@ -59,8 +59,10 @@ func (s *CollisionResolverSystem) resolve(entity entities.Entity) {
 	colliderComponent := cc.ColliderComponent
 	transformComponent := cc.TransformComponent
 	physicsComponent := cc.PhysicsComponent
-	contactManifolds := colliderComponent.ContactManifolds
-	if contactManifolds != nil {
+
+	if colliderComponent.CollisionInstances != nil {
+		contactManifolds := colliderComponent.CollisionInstances[0].ContactManifolds
+
 		// naively add all separating vectors together
 		var separatingVector mgl64.Vec3
 		for _, contactManifold := range contactManifolds {
