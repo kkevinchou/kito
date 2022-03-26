@@ -96,49 +96,36 @@ func minSeparatingVector(contactManifolds []*collision.ContactManifold) mgl64.Ve
 	return minVector
 }
 
+func hashVec(v mgl64.Vec3) string {
+	return fmt.Sprintf("%.4f %.4f %.4f", v[0], v[1], v[2])
+}
+
+// combineSeparatingVectors: for triangles that have the same normal, only use the largest separating vector
+// TODO: there might be some edge cases I'm not considering but visually it looks good enough
+// there is still some jittering that happens when we have multiple triangles of varying
+// normals. We probably need to be able to "merge" those somehow rather than naively summing
+// them together like we are doing right now
 func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
-	// only add separating vectors which we haven't seen before. ideally
-	// this should handle cases where separating vectors are a basis of another
-	// and avoid "overcounting" separating vectors
-	seenSeparatingVectors := []mgl64.Vec3{}
-	seenNormals := []mgl64.Vec3{}
-	triIndices := []int{}
-	var separatingVector mgl64.Vec3
-	seen := false
+	seenNormals := map[string]mgl64.Vec3{}
 	for _, contactManifold := range contactManifolds {
 		for _, contact := range contactManifold.Contacts {
-			for _, v := range seenSeparatingVectors {
-				// if contact.SeparatingVector.ApproxEqual(v) {
-				if contact.SeparatingVector.ApproxEqualThreshold(v, equalThreshold) {
-					seen = true
-					break
+			normalHash := hashVec(contact.Normal)
+			if v, ok := seenNormals[normalHash]; ok {
+				if contact.SeparatingVector.LenSqr() > v.LenSqr() {
+					seenNormals[normalHash] = contact.SeparatingVector
 				}
+				continue
 			}
-			if !seen {
-				triIndices = append(triIndices, contactManifold.TriIndex)
-				separatingVector = separatingVector.Add(contact.SeparatingVector)
-				seenSeparatingVectors = append(seenSeparatingVectors, contact.SeparatingVector)
-				seenNormals = append(seenNormals, contact.Normal)
-			}
+
+			seenNormals[normalHash] = contact.SeparatingVector
 		}
 	}
 
-	if len(seenSeparatingVectors) > 2 {
-		fmt.Printf("------------------------- %d separating vectors\n", len(seenSeparatingVectors))
-		fmt.Println("triIndices")
-		for _, t := range triIndices {
-			fmt.Println(t)
-		}
-		fmt.Println("separating vecs")
-		for _, v := range seenSeparatingVectors {
-			fmt.Println(v)
-		}
-		fmt.Println("normals")
-		for _, v := range seenNormals {
-			fmt.Println(v)
-		}
+	var finalSeparatingVector mgl64.Vec3
+	for _, v := range seenNormals {
+		finalSeparatingVector = finalSeparatingVector.Add(v)
 	}
-	return separatingVector
+	return finalSeparatingVector
 }
 
 func computeMoveSpeed(movementSpeed float64) float64 {
