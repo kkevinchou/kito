@@ -12,7 +12,7 @@ import (
 )
 
 func NewProjectile(position mgl64.Vec3) *EntityImpl {
-	modelName := "projectile"
+	modelName := "human"
 	textureName := "color_grid"
 
 	transformComponent := &components.TransformComponent{

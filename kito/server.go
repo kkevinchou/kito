@@ -37,15 +37,11 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
-	// projectile := entities.NewProjectile(mgl64.Vec3{0, 20, 0})
-	// projectile.GetComponentContainer().PhysicsComponent.Velocity = mgl64.Vec3{1, 0, -1}
-
 	return []entities.Entity{
 		entities.NewScene(mgl64.Vec3{}),
 		// entities.NewSlime(mgl64.Vec3{-100, 0, -50}),
 		// entities.NewStaticRigidBody(mgl64.Vec3{-5, 10, 0}),
 		// entities.NewDynamicRigidBody(mgl64.Vec3{-5, 10, 0}),
-		// projectile,
 		// entities.NewSlime(mgl64.Vec3{-50, 0, -50}),
 	}
 }
