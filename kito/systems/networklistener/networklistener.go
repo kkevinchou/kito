@@ -24,7 +24,7 @@ type NetworkListenerSystem struct {
 }
 
 func NewNetworkListenerSystem(world World, host, port, connectionType string) *NetworkListenerSystem {
-	nserver := network.NewServer(host, port, connectionType, settings.ServerIDStart)
+	nserver := network.NewServer(host, port, connectionType, settings.ClientIDStart)
 	nserver.Start()
 
 	return &NetworkListenerSystem{

@@ -1,6 +1,8 @@
 package input
 
 import (
+	"fmt"
+
 	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -105,6 +107,7 @@ func (platform *SDLPlatform) processEvent(event sdl.Event) {
 		inputEvent := event.(*sdl.TextInputEvent)
 		platform.imguiIO.AddInputCharacters(string(inputEvent.Text[:]))
 	case sdl.KEYDOWN:
+		fmt.Println("keydown")
 		keyEvent := event.(*sdl.KeyboardEvent)
 		platform.imguiIO.KeyPress(int(keyEvent.Keysym.Scancode))
 		platform.updateKeyModifier()

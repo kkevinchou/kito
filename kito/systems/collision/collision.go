@@ -15,7 +15,7 @@ import (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
-	GetPlayer() entities.Entity
+	GetPlayerEntity() entities.Entity
 }
 
 type CollisionSystem struct {
@@ -59,7 +59,7 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 	}
 
 	if utils.IsClient() {
-		player := s.world.GetPlayer()
+		player := s.world.GetPlayerEntity()
 		s.collide(player, handledCollisions)
 	} else {
 		for _, e1 := range s.entities {

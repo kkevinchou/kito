@@ -3,9 +3,9 @@ package networkinput
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/knetwork"
+	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/lib/metrics"
@@ -15,6 +15,7 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	MetricsRegistry() *metrics.MetricsRegistry
 	CommandFrame() int
+	GetPlayer() *player.Player
 }
 
 type NetworkInputSystem struct {
@@ -40,9 +41,8 @@ func (s *NetworkInputSystem) RegisterEntity(entity entities.Entity) {
 
 func (s *NetworkInputSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
-	playerManager := directory.GetDirectory().PlayerManager()
 
-	player := playerManager.GetPlayer(singleton.PlayerID)
+	player := s.world.GetPlayer()
 	playerInput := singleton.PlayerInput[player.ID]
 
 	inputMessage := &knetwork.InputMessage{

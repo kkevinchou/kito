@@ -19,7 +19,7 @@ const (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
-	GetPlayer() entities.Entity
+	GetPlayerEntity() entities.Entity
 }
 
 type CollisionResolverSystem struct {

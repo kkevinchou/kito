@@ -35,7 +35,7 @@ const (
 	GameModeServer    GameMode = "SERVER"
 
 	ServerID      int = 69
-	ServerIDStart int = 70000
+	ClientIDStart int = 70000
 	EntityIDStart int = 80000
 
 	PProfEnabled    bool = false

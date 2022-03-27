@@ -63,8 +63,8 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 		cf = cfHistory.GetCommandFrame(lookupCommandFrame - 1)
 	}
 
-	player := world.GetPlayer()
-	entitySnapshot := gameStateUpdate.Entities[world.GetSingleton().PlayerID]
+	playerEntity := world.GetPlayerEntity()
+	entitySnapshot := gameStateUpdate.Entities[playerEntity.GetID()]
 
 	if cf != nil {
 		historyEntity := cf.PostCFState
@@ -100,14 +100,14 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			// a whole RTT in the past. So, we want to replay our historical inputs to catch up to the player's
 			// present.
 
-			cc := player.GetComponentContainer()
+			cc := playerEntity.GetComponentContainer()
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
 			cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
 			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 
 			// TODO: re-enable this when we decide how to implemetn character controller resolution
-			replayInputs(player, world.GetCamera(), lookupCommandFrame, cfHistory)
+			replayInputs(playerEntity, world.GetCamera(), lookupCommandFrame, cfHistory)
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
 			// fmt.Println(

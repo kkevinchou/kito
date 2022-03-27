@@ -5,8 +5,10 @@ import (
 	"runtime/debug"
 
 	"github.com/kkevinchou/kito/kito/commandframe"
+	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/metrics"
@@ -26,12 +28,30 @@ func (g *Game) GetEntityByID(id int) (entities.Entity, error) {
 	return nil, fmt.Errorf("%sfailed to find entity with ID %d", string(stack), id)
 }
 
-func (g *Game) GetPlayer() entities.Entity {
+func (g *Game) GetPlayer() *player.Player {
 	if utils.IsServer() {
 		panic("invalid call to GetPlayer() as server")
 	}
 
-	if entity, ok := g.entities[g.singleton.PlayerID]; ok {
+	d := directory.GetDirectory().PlayerManager()
+	player := d.GetPlayer(g.singleton.PlayerID)
+
+	return player
+}
+
+func (g *Game) GetPlayerByID(id int) *player.Player {
+	d := directory.GetDirectory().PlayerManager()
+	player := d.GetPlayer(id)
+	return player
+}
+
+func (g *Game) GetPlayerEntity() entities.Entity {
+	if utils.IsServer() {
+		panic("invalid call to GetPlayer() as server")
+	}
+	player := g.GetPlayer()
+
+	if entity, ok := g.entities[player.EntityID]; ok {
 		return entity
 	}
 	return nil

@@ -1,6 +1,7 @@
 package charactercontroller
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/directory"
@@ -15,7 +16,8 @@ import (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(id int) (entities.Entity, error)
-	GetPlayer() entities.Entity
+	GetPlayerEntity() entities.Entity
+	GetPlayer() *player.Player
 }
 
 type CharacterControllerSystem struct {
@@ -46,20 +48,22 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 
 	var players []*player.Player
 	if utils.IsClient() {
-		players = []*player.Player{playerManager.GetPlayer(s.world.GetSingleton().PlayerID)}
+		players = []*player.Player{s.world.GetPlayer()}
 	} else {
 		players = playerManager.GetPlayers()
 	}
 
 	for _, player := range players {
-		entity, err := s.world.GetEntityByID(player.ID)
+		entity, err := s.world.GetEntityByID(player.EntityID)
 		if err != nil {
+			fmt.Printf("error in character controller getting entity %s", err)
 			continue
 		}
 
 		cameraID := entity.GetComponentContainer().ThirdPersonControllerComponent.CameraID
 		camera, err := s.world.GetEntityByID(cameraID)
 		if err != nil {
+			fmt.Printf("error in character controller getting camera %s", err)
 			continue
 		}
 

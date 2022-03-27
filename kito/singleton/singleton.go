@@ -10,9 +10,10 @@ import (
 // I hate this. Find a better place to put your data, yo
 type Singleton struct {
 	// client fields
-	PlayerID    int
-	CameraID    int
-	StateBuffer *statebuffer.StateBuffer
+	PlayerID       int
+	PlayerEntityID int
+	CameraID       int
+	StateBuffer    *statebuffer.StateBuffer
 
 	// server fields
 	InputBuffer *inputbuffer.InputBuffer

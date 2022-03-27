@@ -29,15 +29,15 @@ func (s *RenderSystem) networkInfoUIComponent() {
 }
 
 func (s *RenderSystem) entityInfoUIComponent() {
-	player := s.world.GetPlayer()
-	componentContainer := player.GetComponentContainer()
+	entity := s.world.GetPlayerEntity()
+	componentContainer := entity.GetComponentContainer()
 	entityPosition := componentContainer.TransformComponent.Position
 	orientation := componentContainer.TransformComponent.Orientation
 	velocity := componentContainer.ThirdPersonControllerComponent.Velocity
 
 	if imgui.CollapsingHeaderV("Entity Info", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
-		uiTableRow("ID", player.GetID())
+		uiTableRow("ID", entity.GetID())
 		uiTableRow("Position", utils.PPrintVec(entityPosition))
 		uiTableRow("Velocity", utils.PPrintVec(velocity))
 		uiTableRow("Orientation", utils.PPrintQuatAsVec(orientation))

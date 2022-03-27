@@ -39,7 +39,7 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 
 	for _, player := range playerManager.GetPlayers() {
 		playerInput := singleton.PlayerInput[player.ID]
-		entity, err := s.world.GetEntityByID(player.ID)
+		entity, err := s.world.GetEntityByID(player.EntityID)
 		if err != nil {
 			fmt.Printf("ability system couldn't find player %d\n", player.ID)
 			continue

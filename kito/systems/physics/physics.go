@@ -13,7 +13,7 @@ import (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetPlayer() entities.Entity
+	GetPlayerEntity() entities.Entity
 }
 
 type PhysicsSystem struct {

@@ -13,7 +13,7 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	GetEntityByID(id int) (entities.Entity, error)
-	GetPlayer() entities.Entity
+	GetPlayerEntity() entities.Entity
 }
 
 type HistorySystem struct {
@@ -36,6 +36,6 @@ func (s *HistorySystem) Update(delta time.Duration) {
 	playerInput := singleton.PlayerInput[singleton.PlayerID]
 
 	cfHistory := s.world.GetCommandFrameHistory()
-	player := s.world.GetPlayer()
+	player := s.world.GetPlayerEntity()
 	cfHistory.AddCommandFrame(singleton.CommandFrame, playerInput, player)
 }
