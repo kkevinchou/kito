@@ -5,6 +5,7 @@ import (
 
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 )
@@ -13,7 +14,8 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	GetEntityByID(id int) (entities.Entity, error)
-	GetPlayer() entities.Entity
+	GetPlayerEntity() entities.Entity
+	GetPlayer() *player.Player
 }
 
 type HistorySystem struct {
@@ -33,9 +35,10 @@ func (s *HistorySystem) RegisterEntity(entity entities.Entity) {
 
 func (s *HistorySystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
-	playerInput := singleton.PlayerInput[singleton.PlayerID]
-
-	cfHistory := s.world.GetCommandFrameHistory()
 	player := s.world.GetPlayer()
-	cfHistory.AddCommandFrame(singleton.CommandFrame, playerInput, player)
+	playerEntity := s.world.GetPlayerEntity()
+
+	playerInput := singleton.PlayerInput[player.ID]
+	cfHistory := s.world.GetCommandFrameHistory()
+	cfHistory.AddCommandFrame(singleton.CommandFrame, playerInput, playerEntity)
 }

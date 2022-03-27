@@ -46,13 +46,13 @@ func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
 
 	var players []*player.Player
 	if utils.IsClient() {
-		players = []*player.Player{playerManager.GetPlayer(s.world.GetSingleton().PlayerID)}
+		players = []*player.Player{s.world.GetPlayer()}
 	} else {
 		players = playerManager.GetPlayers()
 	}
 
 	for _, player := range players {
-		entity, err := s.world.GetEntityByID(player.ID)
+		entity, err := s.world.GetEntityByID(player.EntityID)
 		if err != nil {
 			continue
 		}

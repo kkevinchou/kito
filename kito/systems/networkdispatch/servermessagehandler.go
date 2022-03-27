@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/knetwork"
@@ -15,8 +14,7 @@ import (
 )
 
 func serverMessageHandler(world World, message *network.Message) {
-	playerManager := directory.GetDirectory().PlayerManager()
-	player := playerManager.GetPlayer(message.SenderID)
+	player := world.GetPlayerByID(message.SenderID)
 	singleton := world.GetSingleton()
 	if player == nil {
 		fmt.Println(fmt.Errorf("failed to find player with id %d", message.SenderID))
@@ -54,11 +52,11 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 	playerID := message.SenderID
 
 	bob := entities.NewBob()
-	bob.ID = playerID
+	player.EntityID = bob.ID
 
 	cc := bob.ComponentContainer
 
-	camera := entities.NewThirdPersonCamera(mgl64.Vec3{}, mgl64.Vec2{0, 0}, bob.GetID())
+	camera := entities.NewThirdPersonCamera(mgl64.Vec3{}, mgl64.Vec2{0, 0}, player.ID, player.EntityID)
 	cameraComponentContainer := camera.GetComponentContainer()
 	fmt.Println("Server camera initialized at position", cameraComponentContainer.TransformComponent.Position)
 
@@ -68,7 +66,8 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 	fmt.Println("Created and registered a new bob with id", bob.ID)
 
 	ack := &knetwork.AckCreatePlayerMessage{
-		ID:          playerID,
+		PlayerID:    playerID,
+		EntityID:    bob.ID,
 		CameraID:    camera.ID,
 		Position:    cc.TransformComponent.Position,
 		Orientation: cc.TransformComponent.Orientation,

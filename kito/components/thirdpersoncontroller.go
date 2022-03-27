@@ -3,8 +3,9 @@ package components
 import "github.com/go-gl/mathgl/mgl64"
 
 type ThirdPersonControllerComponent struct {
+	CameraID int
+
 	Controlled bool
-	CameraID   int
 	Grounded   bool
 
 	Velocity           mgl64.Vec3

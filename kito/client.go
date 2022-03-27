@@ -214,19 +214,23 @@ func ackCreatePlayer(g *Game, client *network.Client) {
 	}
 
 	singleton := g.GetSingleton()
-	singleton.PlayerID = messageBody.ID
+	singleton.PlayerID = messageBody.PlayerID
 	singleton.CameraID = messageBody.CameraID
 
-	directory := directory.GetDirectory()
-	directory.PlayerManager().RegisterPlayer(messageBody.ID, client)
-
 	bob := entities.NewBob()
-	bob.ID = messageBody.ID
+	bob.ID = messageBody.EntityID
 
-	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, bob.GetID())
+	playerManager := directory.GetDirectory().PlayerManager()
+	playerManager.RegisterPlayer(messageBody.PlayerID, client)
+	player := playerManager.GetPlayer(messageBody.PlayerID)
+	player.EntityID = bob.ID
+
+	camera := entities.NewThirdPersonCamera(settings.CameraStartPosition, settings.CameraStartView, player.ID, player.EntityID)
 	camera.ID = messageBody.CameraID
+	fmt.Println("set camera id", camera.ID)
 
-	bob.GetComponentContainer().ThirdPersonControllerComponent.CameraID = camera.GetID()
+	tpcComponent := bob.GetComponentContainer().ThirdPersonControllerComponent
+	tpcComponent.CameraID = camera.GetID()
 
 	g.RegisterEntities([]entities.Entity{
 		bob,

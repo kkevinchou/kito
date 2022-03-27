@@ -30,7 +30,7 @@ type IShaderManager interface {
 }
 
 type IPlayerManager interface {
-	RegisterPlayer(id int, client types.NetworkClient)
+	RegisterPlayer(playerID int, client types.NetworkClient)
 	GetPlayer(id int) *player.Player
 	GetPlayers() []*player.Player
 }

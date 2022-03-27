@@ -10,8 +10,9 @@ type World interface {
 
 // TODO: make this an entity with components
 type Player struct {
-	ID     int
-	Client types.NetworkClient
+	ID       int
+	EntityID int
+	Client   types.NetworkClient
 
 	LastInputLocalCommandFrame  int // the player's last command frame
 	LastInputGlobalCommandFrame int // the gcf when this input was received
@@ -31,9 +32,9 @@ func NewPlayerManager(world World) *PlayerManager {
 	}
 }
 
-func (p *PlayerManager) RegisterPlayer(id int, client types.NetworkClient) {
-	player := &Player{ID: id, Client: client}
-	p.playerMap[id] = player
+func (p *PlayerManager) RegisterPlayer(playerID int, client types.NetworkClient) {
+	player := &Player{ID: playerID, Client: client}
+	p.playerMap[playerID] = player
 	p.players = append(p.players, player)
 }
 

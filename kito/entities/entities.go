@@ -1,12 +1,17 @@
 package entities
 
 import (
+	"sync"
+
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/types"
 )
 
-var idCounter int = settings.EntityIDStart
+var (
+	nextEntityID      int = settings.EntityIDStart
+	nextEntityIDMutex sync.Mutex
+)
 
 type Entity interface {
 	GetID() int
@@ -23,13 +28,13 @@ type EntityImpl struct {
 }
 
 func NewEntity(name string, entityType types.EntityType, componentContainer *components.ComponentContainer) *EntityImpl {
+	entityID := GetAndIncNextEntityID()
 	e := EntityImpl{
-		ID:                 idCounter,
+		ID:                 entityID,
 		entityType:         entityType,
 		Name:               name,
 		ComponentContainer: componentContainer,
 	}
-	idCounter++
 	return &e
 }
 
@@ -47,4 +52,13 @@ func (e *EntityImpl) GetID() int {
 
 func (e *EntityImpl) Type() types.EntityType {
 	return e.entityType
+}
+
+func GetAndIncNextEntityID() int {
+	nextEntityIDMutex.Lock()
+	defer nextEntityIDMutex.Unlock()
+	nextID := nextEntityID
+	nextEntityID += 1
+
+	return nextID
 }

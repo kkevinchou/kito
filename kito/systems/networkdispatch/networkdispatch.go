@@ -6,6 +6,7 @@ import (
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
@@ -24,8 +25,10 @@ type World interface {
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
 	CommandFrame() int
 	GetCamera() entities.Entity
-	GetPlayer() entities.Entity
+	GetPlayerEntity() entities.Entity
 	MetricsRegistry() *metrics.MetricsRegistry
+	GetPlayer() *player.Player
+	GetPlayerByID(id int) *player.Player
 }
 
 type NetworkDispatchSystem struct {

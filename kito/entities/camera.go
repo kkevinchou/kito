@@ -12,7 +12,7 @@ const (
 	defaultFollowY        float64 = 15
 )
 
-func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTargetEntityID int) *EntityImpl {
+func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, playerID int, followTargetEntityID int) *EntityImpl {
 	followComponent := &components.FollowComponent{
 		FollowTargetEntityID: followTargetEntityID,
 		FollowDistance:       defaultFollowDistance,
@@ -33,6 +33,7 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, followTarg
 			&components.CameraComponent{},
 			transformComponent,
 			followComponent,
+			&components.ControlComponent{PlayerID: playerID},
 		),
 	)
 

@@ -26,7 +26,8 @@ type CreatePlayerMessage struct {
 }
 
 type AckCreatePlayerMessage struct {
-	ID          int
+	PlayerID    int
+	EntityID    int
 	CameraID    int
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
