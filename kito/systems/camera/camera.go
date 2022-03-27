@@ -41,7 +41,7 @@ func NewCameraSystem(world World) *CameraSystem {
 func (s *CameraSystem) RegisterEntity(entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 
-	if componentContainer.CameraComponent != nil {
+	if componentContainer.CameraComponent != nil && componentContainer.ControlComponent != nil {
 		s.entities = append(s.entities, entity)
 	}
 }
@@ -50,7 +50,7 @@ func (s *CameraSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 
 	for _, camera := range s.entities {
-		playerID := camera.GetComponentContainer().FollowComponent.FollowTargetEntityID
+		playerID := camera.GetComponentContainer().ControlComponent.PlayerID
 		handleCameraControls(delta, camera, s.world, singleton.PlayerInput[playerID])
 	}
 }

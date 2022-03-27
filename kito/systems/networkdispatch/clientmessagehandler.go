@@ -13,7 +13,6 @@ import (
 )
 
 func clientMessageHandler(world World, message *network.Message) {
-	singleton := world.GetSingleton()
 	metricsRegistry := world.MetricsRegistry()
 	if message.MessageType == knetwork.MessageTypeGameStateUpdate {
 		var gameStateUpdate knetwork.GameStateUpdateMessage
@@ -25,6 +24,7 @@ func clientMessageHandler(world World, message *network.Message) {
 		metricsRegistry.Inc("update_message_size", float64(len(message.Body)))
 		metricsRegistry.Inc("update_message_count", 1)
 
+		singleton := world.GetSingleton()
 		validateClientPrediction(&gameStateUpdate, world)
 		singleton.StateBuffer.PushEntityUpdate(world.CommandFrame(), &gameStateUpdate)
 	} else if message.MessageType == knetwork.MessageTypeAckCreatePlayer {

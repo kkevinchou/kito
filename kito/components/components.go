@@ -12,6 +12,7 @@ type ComponentContainer struct {
 	NetworkComponent               *NetworkComponent
 	MeshComponent                  *MeshComponent
 	ColliderComponent              *ColliderComponent
+	ControlComponent               *ControlComponent
 }
 
 type Component interface {

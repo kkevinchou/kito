@@ -15,6 +15,7 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	GetEntityByID(int) (entities.Entity, error)
 	RegisterEntities([]entities.Entity)
+	GetPlayerEntity() entities.Entity
 }
 
 type StateInterpolatorSystem struct {
@@ -42,8 +43,9 @@ func (s *StateInterpolatorSystem) Update(delta time.Duration) {
 func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World) {
 	singleton := world.GetSingleton()
 
+	playerEntity := world.GetPlayerEntity()
 	for _, entitySnapshot := range bufferedState.InterpolatedEntities {
-		if entitySnapshot.ID == world.GetSingleton().PlayerID || entitySnapshot.ID == singleton.CameraID {
+		if entitySnapshot.ID == playerEntity.GetID() || entitySnapshot.ID == singleton.CameraID {
 			continue
 		}
 

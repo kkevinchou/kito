@@ -56,7 +56,7 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 
 	cc := bob.ComponentContainer
 
-	camera := entities.NewThirdPersonCamera(mgl64.Vec3{}, mgl64.Vec2{0, 0}, bob.GetID())
+	camera := entities.NewThirdPersonCamera(mgl64.Vec3{}, mgl64.Vec2{0, 0}, player.ID, player.EntityID)
 	cameraComponentContainer := camera.GetComponentContainer()
 	fmt.Println("Server camera initialized at position", cameraComponentContainer.TransformComponent.Position)
 

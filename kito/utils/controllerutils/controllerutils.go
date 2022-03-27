@@ -139,12 +139,12 @@ func computeMoveSpeed(movementSpeed float64) float64 {
 
 // movementDir does not include Y values
 func calculateMovementDir(camera entities.Entity, controlVector mgl64.Vec3) mgl64.Vec3 {
-	cameraComponentContainer := camera.GetComponentContainer()
-	forwardVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
+	cc := camera.GetComponentContainer()
+	forwardVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
 	forwardVector[1] = 0
 	forwardVector = forwardVector.Normalize().Mul(controlVector.Z())
 
-	rightVector := cameraComponentContainer.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0})
+	rightVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0})
 	rightVector[1] = 0
 	rightVector = rightVector.Normalize().Mul(controlVector.X())
 
