@@ -50,9 +50,11 @@ void main() {
     // vs_out.Normal = mat3(modelRotationMatrix) * vec3(totalNormal);
     // vs_out.Normal = vec3(0, 1, 1);
     // vs_out.Normal = aNormal;
-    vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+    // vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+    vs_out.FragPosLightSpace = lightSpaceMatrix * (model * totalPos);
     vs_out.View = view;
 	vs_out.TexCoord = aTexCoord;
 
     gl_Position = (projection * (view * (model * totalPos)));
+    // gl_Position = (projection * (view * vec4(vs_out.FragPos, 1.0)));
 }
