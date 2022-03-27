@@ -89,10 +89,4 @@ void main()
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color; 
 
     FragColor = vec4(lighting, 1);
-    // if (shadow >= 0.5) {
-    //     FragColor = vec4(0, 1, 0, 1);
-    // }else if (shadow > 0) {
-    //     FragColor = vec4(0, 0, 1, 1);
-    // }
-    // FragColor = vec4(fs_in.Normal,1);
 }

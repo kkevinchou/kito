@@ -45,8 +45,7 @@ void main() {
 	}
     vs_out.Normal = vec3(transpose(inverse(modelRotationMatrix)) * totalNormal);
 
-    vec4 totalPosWithoutW = vec4(totalPos.xyz, 1.0);
-    vs_out.FragPos = vec3(model * totalPosWithoutW);
+    vs_out.FragPos = vec3(model * totalPos);
     vs_out.FragPosLightSpace = lightSpaceMatrix * (model * totalPos);
 
     vs_out.View = view;
