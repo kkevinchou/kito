@@ -52,7 +52,6 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 	playerID := message.SenderID
 
 	bob := entities.NewBob()
-	bob.ID = entities.GetAndIncNextEntityID()
 	player.EntityID = bob.ID
 
 	cc := bob.ComponentContainer
