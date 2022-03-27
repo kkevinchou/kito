@@ -17,13 +17,14 @@ out VS_OUT {
 } vs_out;
 
 uniform mat4 model;
+uniform mat4 modelRotationMatrix;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 jointTransforms[MAX_JOINTS];
 uniform mat4 lightSpaceMatrix;
 
 void main() {
-    vec4 totalLocalPos = vec4(0.0);
+    vec4 totalPos = vec4(0.0);
 	vec4 totalNormal = vec4(0.0);
 
 	for(int i = 0; i < 1; i++){
@@ -31,18 +32,21 @@ void main() {
 
 		mat4 jointTransform = jointTransforms[jointIndex];
 		vec4 posePosition = jointTransform * vec4(aPos, 1.0);
-		totalLocalPos += posePosition * jointWeights[i];
+		totalPos += posePosition * jointWeights[i];
 
 		vec4 worldNormal = jointTransform * vec4(aNormal, 0.0);
 		totalNormal += worldNormal * jointWeights[i];
 	}
 
-    vs_out.FragPos = vec3(model * totalLocalPos);
+    vs_out.FragPos = vec3(model * totalPos);
     // TODO: the normal matrix is expensive to calculate and should be passed in as a uniform
-    vs_out.Normal = transpose(inverse(mat3(model))) * vec3(totalNormal);
+    // vs_out.Normal = transpose(inverse(mat3(model))) * vec3(totalNormal);
+    // vs_out.Normal = vec3(modelRotationMatrix * totalNormal);
+    // vs_out.Normal = transpose(mat3(modelRotationMatrix)) * vec3(totalNormal);
+    vs_out.Normal = mat3(modelRotationMatrix) * vec3(totalNormal);
     vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
     vs_out.View = view;
 	vs_out.TexCoord = aTexCoord;
 
-    gl_Position = (projection * (view * (model * totalLocalPos)));
+    gl_Position = (projection * (view * (model * totalPos)));
 }

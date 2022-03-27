@@ -26,8 +26,8 @@ const (
 	far  float64 = 2000
 
 	// shadow map parameters
-	shadowMapDimension   int     = 10000
-	shadowDistanceFactor float64 = .6 // proportion of view fustrum to include in shadow cuboid
+	shadowMapDimension   int     = 15000
+	shadowDistanceFactor float64 = .4 // proportion of view fustrum to include in shadow cuboid
 	shadowmapZOffset             = 400
 )
 
@@ -100,7 +100,7 @@ func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO
 		BaseSystem: &base.BaseSystem{},
 		window:     window,
 		world:      world,
-		skybox:     NewSkyBox(2000),
+		skybox:     NewSkyBox(3000),
 		floor:      NewQuad(quadZeroY),
 		shadowMap:  shadowMap,
 
@@ -226,7 +226,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
-	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
+	drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.4)
 
 	if !shadowPass {
@@ -258,6 +258,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		meshModelMatrix := createModelMatrix(
 			meshComponent.Scale,
 			orientation.Mat4().Mul4(meshComponent.Orientation),
+			// mgl64.Ident4(),
 			translation,
 		)
 
@@ -274,6 +275,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			componentContainer.MeshComponent,
 			componentContainer.AnimationComponent,
 			meshModelMatrix,
+			orientation.Mat4().Mul4(meshComponent.Orientation),
 		)
 
 		if settings.DebugRenderCollisionVolume {

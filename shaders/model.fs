@@ -43,9 +43,8 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 
     // bias term needs to be tweaked depending on geometry
     float bias = max(0.0001 * (1.0 - dot(normal, lightDir)), 0.0001);
+    // bias = 0;
     
-    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
-
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -1; x <= 1; ++x)
@@ -90,4 +89,10 @@ void main()
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color; 
 
     FragColor = vec4(lighting, 1);
+    // if (shadow >= 0.5) {
+    //     FragColor = vec4(0, 1, 0, 1);
+    // }else if (shadow > 0) {
+    //     FragColor = vec4(0, 0, 1, 1);
+    // }
+    // FragColor = vec4(fs_in.Normal,1);
 }

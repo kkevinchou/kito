@@ -54,7 +54,7 @@ func NewBob() *EntityImpl {
 		ModelVAO:         vao,
 		ModelVertexCount: vertexCount,
 		Texture:          texture,
-		// Scale:            mgl64.Scale3D(0.1, 0.1, 0.1),
+		// Scale:            mgl64.Scale3D(1, 1, 1),
 		Scale: mgl64.Scale3D(10, 10, 10),
 		// Orientation: mgl64.Ident4(),
 		Orientation: yr,
