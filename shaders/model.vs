@@ -37,13 +37,19 @@ void main() {
 		vec4 worldNormal = jointTransform * vec4(aNormal, 0.0);
 		totalNormal += worldNormal * jointWeights[i];
 	}
+    vec4 totalPosWithoutW = vec4(totalPos.xyz, 1.0);
+    vs_out.FragPos = vec3(model * totalPosWithoutW);
+    // vs_out.FragPos = vec3(model * totalPos);
 
-    vs_out.FragPos = vec3(model * totalPos);
     // TODO: the normal matrix is expensive to calculate and should be passed in as a uniform
-    // vs_out.Normal = transpose(inverse(mat3(model))) * vec3(totalNormal);
+    vs_out.Normal = vec3(transpose(inverse(modelRotationMatrix)) * totalNormal);
+    // vs_out.Normal = transpose(inverse(vec3(modelRotationMatrix))) * vec3(totalNormal);
     // vs_out.Normal = vec3(modelRotationMatrix * totalNormal);
+    // vs_out.Normal = vec3(modelRotationMatrix * vec4(totalNormal, 1.0));
     // vs_out.Normal = transpose(mat3(modelRotationMatrix)) * vec3(totalNormal);
-    vs_out.Normal = mat3(modelRotationMatrix) * vec3(totalNormal);
+    // vs_out.Normal = mat3(modelRotationMatrix) * vec3(totalNormal);
+    // vs_out.Normal = vec3(0, 1, 1);
+    // vs_out.Normal = aNormal;
     vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
     vs_out.View = view;
 	vs_out.TexCoord = aTexCoord;

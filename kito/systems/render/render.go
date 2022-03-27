@@ -174,7 +174,9 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	lightContext := LightContext{
 		DirectionalLightDir: lightOrientation.Rotate(mgl64.Vec3{0, 0, -1}),
-		LightSpaceMatrix:    lightProjectionMatrix.Mul4(lightViewMatrix),
+		// this should be the inverse of the transforms applied to the viewer context
+		// if the viewer moves along -y, the universe moves along +y
+		LightSpaceMatrix: lightProjectionMatrix.Mul4(lightViewMatrix),
 	}
 
 	s.renderToDepthMap(lightViewerContext, lightContext)

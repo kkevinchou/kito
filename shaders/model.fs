@@ -25,9 +25,9 @@ uniform vec4 pbrBaseColorFactor;
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
-    if (length(vec3(fs_in.View * vec4(fs_in.FragPos, 1))) > shadowDistance) {
-        return 0;
-    }
+    // if (length(vec3(fs_in.View * vec4(fs_in.FragPos, 1))) > shadowDistance) {
+    //     return 0;
+    // }
 
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
