@@ -23,11 +23,12 @@ import (
 const (
 	fovx float64 = 90
 	near float64 = 1
-	far  float64 = 900
+	far  float64 = 2000
 
 	// shadow map parameters
-	shadowMapDimension   int     = 8000
-	shadowDistanceFactor float64 = .8 // proportion of view fustrum to include in shadow cuboid
+	shadowMapDimension   int     = 30000
+	shadowDistanceFactor float64 = .6 // proportion of view fustrum to include in shadow cuboid
+	shadowmapZOffset             = 400
 )
 
 type World interface {
@@ -99,7 +100,7 @@ func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO
 		BaseSystem: &base.BaseSystem{},
 		window:     window,
 		world:      world,
-		skybox:     NewSkyBox(1000),
+		skybox:     NewSkyBox(2000),
 		floor:      NewQuad(quadZeroY),
 		shadowMap:  shadowMap,
 
@@ -157,8 +158,10 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	// configure light viewer context
 	modelSpaceFrustumPoints := CalculateFrustumPoints(transformComponent.Position, transformComponent.Orientation, near, far, s.fovY, s.aspectRatio, shadowDistanceFactor)
-	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(-150), mgl64.Vec3{1, 0, 0})
-	lightPosition, lightProjectionMatrix := ComputeDirectionalLightProps(lightOrientation.Mat4(), modelSpaceFrustumPoints)
+	// NOTE: for some reason, using a negative angle makes shadow calculation wonky.
+	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(45), mgl64.Vec3{0, 1, 0})
+	lightOrientation = lightOrientation.Mul(mgl64.QuatRotate(mgl64.DegToRad(310), mgl64.Vec3{1, 0, 0}))
+	lightPosition, lightProjectionMatrix := ComputeDirectionalLightProps(lightOrientation.Mat4(), modelSpaceFrustumPoints, shadowmapZOffset)
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
 
 	lightViewerContext := ViewerContext{
@@ -186,7 +189,7 @@ func (s *RenderSystem) renderToDepthMap(viewerContext ViewerContext, lightContex
 	defer resetGLRenderSettings()
 	s.shadowMap.Prepare()
 
-	s.renderScene(viewerContext, lightContext)
+	s.renderScene(viewerContext, lightContext, true)
 }
 
 func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext LightContext) {
@@ -196,7 +199,7 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	s.renderScene(viewerContext, lightContext)
+	s.renderScene(viewerContext, lightContext, false)
 }
 
 var f [3]float32
@@ -217,26 +220,28 @@ func (s *RenderSystem) renderImgui() {
 }
 
 // renderScene renders a scene from the perspective of a viewer
-func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext LightContext) {
+func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext LightContext, shadowPass bool) {
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
 	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
-	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
+	drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.4)
 
-	drawSkyBox(
-		viewerContext,
-		s.skybox,
-		shaderManager.GetShaderProgram("skybox"),
-		assetManager.GetTexture("front"),
-		assetManager.GetTexture("top"),
-		assetManager.GetTexture("left"),
-		assetManager.GetTexture("right"),
-		assetManager.GetTexture("bottom"),
-		assetManager.GetTexture("back"),
-	)
+	if !shadowPass {
+		drawSkyBox(
+			viewerContext,
+			s.skybox,
+			shaderManager.GetShaderProgram("skybox"),
+			assetManager.GetTexture("front"),
+			assetManager.GetTexture("top"),
+			assetManager.GetTexture("left"),
+			assetManager.GetTexture("right"),
+			assetManager.GetTexture("bottom"),
+			assetManager.GetTexture("back"),
+		)
+	}
 
 	for _, entity := range s.entities {
 		componentContainer := entity.GetComponentContainer()
