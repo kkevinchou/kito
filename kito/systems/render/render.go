@@ -23,7 +23,7 @@ import (
 const (
 	fovx float64 = 90
 	near float64 = 1
-	far  float64 = 2000
+	far  float64 = 3000
 
 	// shadow map parameters
 	shadowMapDimension   int     = 15000
@@ -100,7 +100,7 @@ func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO
 		BaseSystem: &base.BaseSystem{},
 		window:     window,
 		world:      world,
-		skybox:     NewSkyBox(3000),
+		skybox:     NewSkyBox(float32(far)),
 		floor:      NewQuad(quadZeroY),
 		shadowMap:  shadowMap,
 
