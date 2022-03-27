@@ -26,7 +26,7 @@ const (
 	far  float64 = 2000
 
 	// shadow map parameters
-	shadowMapDimension   int     = 30000
+	shadowMapDimension   int     = 10000
 	shadowDistanceFactor float64 = .6 // proportion of view fustrum to include in shadow cuboid
 	shadowmapZOffset             = 400
 )
@@ -226,7 +226,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
-	drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
+	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.4)
 
 	if !shadowPass {
