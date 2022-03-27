@@ -93,7 +93,7 @@ func CalculateFrustumPoints(position mgl64.Vec3, orientation mgl64.Quat, near, f
 }
 
 // returns the orthographic projection matrix for the directional light as well as the "position" of the light
-func ComputeDirectionalLightProps(lightOrientationMatrix mgl64.Mat4, frustumPoints []mgl64.Vec3) (mgl64.Vec3, mgl64.Mat4) {
+func ComputeDirectionalLightProps(lightOrientationMatrix mgl64.Mat4, frustumPoints []mgl64.Vec3, shadowMapZOffset float64) (mgl64.Vec3, mgl64.Mat4) {
 	var lightSpacePoints []mgl64.Vec3
 	invLightOrientationMatrix := lightOrientationMatrix.Inv()
 
@@ -131,6 +131,7 @@ func ComputeDirectionalLightProps(lightOrientationMatrix mgl64.Mat4, frustumPoin
 			maxZ = point.Z()
 		}
 	}
+	maxZ += shadowmapZOffset
 
 	halfX := (maxX - minX) / 2
 	halfY := (maxY - minY) / 2
