@@ -27,6 +27,12 @@ void main() {
     vec4 totalPos = vec4(0.0);
 	vec4 totalNormal = vec4(0.0);
 
+    // note: the total position post transformation does not necessarily have W == 1
+    // i.e.
+    // a = totalPos
+    // b = vec4(totalPos.xyz, 1)
+    // a does not equal b here.
+
 	for(int i = 0; i < 1; i++){
 		int jointIndex = jointIndices[i];
 
@@ -37,25 +43,14 @@ void main() {
 		vec4 worldNormal = jointTransform * vec4(aNormal, 0.0);
 		totalNormal += worldNormal * jointWeights[i];
 	}
+    vs_out.Normal = vec3(transpose(inverse(modelRotationMatrix)) * totalNormal);
+
     vec4 totalPosWithoutW = vec4(totalPos.xyz, 1.0);
     vs_out.FragPos = vec3(model * totalPosWithoutW);
-    // vs_out.FragPos = vec3(model * totalPos);
-
-    // TODO: the normal matrix is expensive to calculate and should be passed in as a uniform
-    vs_out.Normal = vec3(transpose(inverse(modelRotationMatrix)) * totalNormal);
-    // vs_out.Normal = transpose(inverse(vec3(modelRotationMatrix))) * vec3(totalNormal);
-    // vs_out.Normal = vec3(modelRotationMatrix * totalNormal);
-    // vs_out.Normal = vec3(modelRotationMatrix * vec4(totalNormal, 1.0));
-    // vs_out.Normal = transpose(mat3(modelRotationMatrix)) * vec3(totalNormal);
-    // vs_out.Normal = mat3(modelRotationMatrix) * vec3(totalNormal);
-    // vs_out.Normal = vec3(0, 1, 1);
-    // vs_out.Normal = aNormal;
-    // vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
     vs_out.FragPosLightSpace = lightSpaceMatrix * (model * totalPos);
+
     vs_out.View = view;
 	vs_out.TexCoord = aTexCoord;
 
     gl_Position = (projection * (view * (model * totalPos)));
-    gl_Position = vec4(gl_Position.xyz / gl_Position.w, 1.0);
-    // gl_Position = (projection * (view * vec4(vs_out.FragPos, 1.0)));
 }

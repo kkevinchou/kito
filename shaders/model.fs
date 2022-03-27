@@ -25,9 +25,9 @@ uniform vec4 pbrBaseColorFactor;
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
-    // if (length(vec3(fs_in.View * vec4(fs_in.FragPos, 1))) > shadowDistance) {
-    //     return 0;
-    // }
+    if (length(vec3(fs_in.View * vec4(fs_in.FragPos, 1))) > shadowDistance) {
+        return 0;
+    }
 
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -42,7 +42,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     // float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
     // bias term needs to be tweaked depending on geometry
-    float bias = max(0.0001 * (1.0 - dot(normal, lightDir)), 0.0001);
+    float bias = max(0.0000000001 * (1.0 - dot(normal, lightDir)), 0.000000001);
     // bias = 0;
     
     float shadow = 0.0;
