@@ -174,7 +174,9 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	lightContext := LightContext{
 		DirectionalLightDir: lightOrientation.Rotate(mgl64.Vec3{0, 0, -1}),
-		LightSpaceMatrix:    lightProjectionMatrix.Mul4(lightViewMatrix),
+		// this should be the inverse of the transforms applied to the viewer context
+		// if the viewer moves along -y, the universe moves along +y
+		LightSpaceMatrix: lightProjectionMatrix.Mul4(lightViewMatrix),
 	}
 
 	s.renderToDepthMap(lightViewerContext, lightContext)
@@ -226,7 +228,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
-	drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
+	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.4)
 
 	if !shadowPass {
