@@ -56,5 +56,6 @@ void main() {
 	vs_out.TexCoord = aTexCoord;
 
     gl_Position = (projection * (view * (model * totalPos)));
+    gl_Position = vec4(gl_Position.xyz / gl_Position.w, 1.0);
     // gl_Position = (projection * (view * vec4(vs_out.FragPos, 1.0)));
 }
