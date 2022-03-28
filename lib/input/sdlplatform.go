@@ -21,6 +21,7 @@ type SDLPlatform struct {
 	time uint64
 
 	currentFrameInput Input
+	lastMousePosition [2]int32
 }
 
 func NewSDLPlatform(window *sdl.Window, imguiIO imgui.IO) *SDLPlatform {
@@ -101,6 +102,21 @@ func (platform *SDLPlatform) processEvent(event sdl.Event) {
 		motionEvent := event.(*sdl.MouseMotionEvent)
 		platform.currentFrameInput.MouseInput.MouseMotionEvent.XRel += float64(motionEvent.XRel)
 		platform.currentFrameInput.MouseInput.MouseMotionEvent.YRel += float64(motionEvent.YRel)
+	case sdl.MOUSEBUTTONDOWN:
+		buttonEvent := event.(*sdl.MouseButtonEvent)
+		switch buttonEvent.Button {
+		case sdl.BUTTON_RIGHT:
+			platform.lastMousePosition[0] = buttonEvent.X
+			platform.lastMousePosition[1] = buttonEvent.Y
+			sdl.SetRelativeMouseMode(true)
+		}
+	case sdl.MOUSEBUTTONUP:
+		buttonEvent := event.(*sdl.MouseButtonEvent)
+		switch buttonEvent.Button {
+		case sdl.BUTTON_RIGHT:
+			sdl.SetRelativeMouseMode(false)
+			sdl.GetMouseFocus().WarpMouseInWindow(platform.lastMousePosition[0], platform.lastMousePosition[1])
+		}
 	case sdl.TEXTINPUT:
 		inputEvent := event.(*sdl.TextInputEvent)
 		platform.imguiIO.AddInputCharacters(string(inputEvent.Text[:]))

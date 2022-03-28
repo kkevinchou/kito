@@ -141,9 +141,8 @@ func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
 	sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 4)
 	sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 1)
 	sdl.GLSetAttribute(sdl.GL_CONTEXT_FLAGS, sdl.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG)
+	sdl.SetRelativeMouseMode(false)
 
-	// sdl.ShowCursor(sdl.DISABLE)
-	// sdl.SetRelativeMouseMode(true)
 	// window, err := sdl.CreateWindow("KITO DEMO", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), sdl.WINDOW_OPENGL|sdl.WINDOW_FULLSCREEN)
 	window, err := sdl.CreateWindow("KITO DEMO", 400, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), sdl.WINDOW_OPENGL)
 	if err != nil {

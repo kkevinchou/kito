@@ -57,7 +57,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	assetManager := assets.NewAssetManager(assetsDirectory, false)
 	d.RegisterAssetManager(assetManager)
 
-	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, "0.0.0.0", fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
+	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, "localhost", fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	abilitySystem := ability.NewAbilitySystem(g)

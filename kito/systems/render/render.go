@@ -72,7 +72,6 @@ func init() {
 }
 
 func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO imgui.IO, width, height int) *RenderSystem {
-	sdl.SetRelativeMouseMode(false)
 	sdl.GLSetSwapInterval(1)
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
