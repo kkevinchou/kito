@@ -26,7 +26,11 @@ build: clean
 	cp -r shaders $(BUILD_FOLDER)/
 	cp -r _assets $(BUILD_FOLDER)/
 	cp -r $(BUILD_LIBS_FOLDER)/* $(BUILD_FOLDER)/
-	go build -o $(BUILD_FOLDER)/kito.exe
+	cp config.json $(BUILD_FOLDER)/
+	# CGO_ENABLED=1 CGO_LDFLAGS="-static -static-libgcc -static-libstdc++" go build -o $(BUILD_FOLDER)/kito.exe
+	CGO_ENABLED=1 CGO_LDFLAGS="-static -static-libgcc -static-libstdc++" CC=x86_64-w64-mingw32-gcc GOOS=windows GOARCH=amd64 go build -tags static -ldflags "-s -w" -o $(BUILD_FOLDER)/kito.exe
+	# go build -o $(BUILD_FOLDER)/kito.exe
+	tar -zcvf kito.tar.gz buildoutput
 
 .PHONY: clean
 clean:
