@@ -3,3 +3,7 @@
 *.vscode
 *.gitignore
 *.exe
+Makefile
+kitorelease
+imgui.ini
+kito.tar.gz
