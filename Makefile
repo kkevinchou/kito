@@ -1,4 +1,5 @@
 RELEASE_FOLDER = "kitorelease"
+TAR_FILE = "kito.tar.gz"
 
 # On Mac you'll need to run XServer from host machine
 .PHONY: client
@@ -26,8 +27,9 @@ release: clean
 	cp -r _assets $(RELEASE_FOLDER)/
 	cp config.json $(RELEASE_FOLDER)/
 	CGO_ENABLED=1 CGO_LDFLAGS="-static -static-libgcc -static-libstdc++" CC=x86_64-w64-mingw32-gcc GOOS=windows GOARCH=amd64 go build -tags static -ldflags "-s -w" -o $(RELEASE_FOLDER)/kito.exe
-	tar -zcf kito.tar.gz $(RELEASE_FOLDER)
+	tar -zcf $(TAR_FILE) $(RELEASE_FOLDER)
 
 .PHONY: clean
 clean:
 	rm -rf $(RELEASE_FOLDER)
+	rm -f $(TAR_FILE)
