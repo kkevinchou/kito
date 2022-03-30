@@ -69,9 +69,6 @@ func ResolveControllerCollision(entity entities.Entity) {
 
 		separatingVector := combineSeparatingVectors(contactManifolds)
 		// separatingVector := minSeparatingVector(contactManifolds)
-		// if transformComponent.Position.Add(separatingVector).Y() < 0 {
-		// 	fmt.Println("wat")
-		// }
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		tpcComponent.Grounded = true
 		tpcComponent.Velocity[1] = 0
