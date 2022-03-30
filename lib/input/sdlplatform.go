@@ -68,13 +68,13 @@ func (platform *SDLPlatform) PollInput() Input {
 		}
 	}
 
-	if imgui.IsWindowFocusedV(imgui.FocusedFlagsAnyWindow) {
-		return Input{
-			MouseInput:    MouseInput{},
-			KeyboardInput: KeyboardInput{},
-			Commands:      platform.currentFrameInput.Commands,
-		}
-	}
+	// if imgui.IsWindowFocusedV(imgui.FocusedFlagsAnyWindow) {
+	// 	return Input{
+	// 		MouseInput:    MouseInput{},
+	// 		KeyboardInput: KeyboardInput{},
+	// 		Commands:      platform.currentFrameInput.Commands,
+	// 	}
+	// }
 
 	return platform.currentFrameInput
 }
