@@ -9,7 +9,7 @@ import (
 	"github.com/kkevinchou/kito/kito/types"
 )
 
-func Spawn(entityID int, position mgl64.Vec3, orientation mgl64.Quat, entityType types.EntityType) *entities.EntityImpl {
+func Spawn(entityID int, entityType types.EntityType, position mgl64.Vec3, orientation mgl64.Quat) *entities.EntityImpl {
 	var newEntity *entities.EntityImpl
 	if types.EntityType(entityType) == types.EntityTypeBob {
 		newEntity = entities.NewBob()

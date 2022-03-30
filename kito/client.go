@@ -236,7 +236,7 @@ func ackCreatePlayer(g *Game, client *network.Client) {
 	initialEntities := []entities.Entity{bob, camera}
 	for _, snapshot := range messageBody.Entities {
 		fmt.Println("new entity", snapshot.ID, snapshot.Type)
-		entity := entityutils.Spawn(snapshot.ID, snapshot.Position, snapshot.Orientation, types.EntityType(snapshot.Type))
+		entity := entityutils.Spawn(snapshot.ID, types.EntityType(snapshot.Type), snapshot.Position, snapshot.Orientation)
 		initialEntities = append(initialEntities, entity)
 	}
 
