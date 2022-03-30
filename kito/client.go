@@ -24,6 +24,8 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/render"
 	"github.com/kkevinchou/kito/kito/systems/spawner"
 	"github.com/kkevinchou/kito/kito/systems/stateinterpolator"
+	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/kito/utils/entityutils"
 	"github.com/kkevinchou/kito/lib/assets"
 	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/network"
@@ -231,8 +233,12 @@ func ackCreatePlayer(g *Game, client *network.Client) {
 	tpcComponent := bob.GetComponentContainer().ThirdPersonControllerComponent
 	tpcComponent.CameraID = camera.GetID()
 
-	g.RegisterEntities([]entities.Entity{
-		bob,
-		camera,
-	})
+	initialEntities := []entities.Entity{bob, camera}
+	for _, snapshot := range messageBody.Entities {
+		fmt.Println("new entity", snapshot.ID, snapshot.Type)
+		entity := entityutils.Spawn(snapshot.ID, snapshot.Position, snapshot.Orientation, types.EntityType(snapshot.Type))
+		initialEntities = append(initialEntities, entity)
+	}
+
+	g.RegisterEntities(initialEntities)
 }

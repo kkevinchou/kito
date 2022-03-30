@@ -13,6 +13,7 @@ import (
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/kito/utils/entityutils"
 )
 
 type World interface {
@@ -74,7 +75,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 		if entity.Type() == types.EntityTypeCamera {
 			continue
 		}
-		gameStateUpdate.Entities[entity.GetID()] = constructEntitySnapshot(entity)
+		gameStateUpdate.Entities[entity.GetID()] = entityutils.ConstructEntitySnapshot(entity)
 	}
 
 	defer s.clearEvents()
@@ -102,27 +103,4 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 
 func (s *NetworkUpdateSystem) clearEvents() {
 	s.events = []events.Event{}
-}
-
-func constructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
-	cc := entity.GetComponentContainer()
-	transformComponent := cc.TransformComponent
-	physicsComponent := cc.PhysicsComponent
-	tpcComponent := cc.ThirdPersonControllerComponent
-
-	snapshot := knetwork.EntitySnapshot{
-		ID:          entity.GetID(),
-		Type:        int(entity.Type()),
-		Position:    transformComponent.Position,
-		Orientation: transformComponent.Orientation,
-	}
-
-	if physicsComponent != nil {
-		snapshot.Velocity = physicsComponent.Velocity
-		snapshot.Impulses = physicsComponent.Impulses
-	} else if tpcComponent != nil {
-		snapshot.Velocity = tpcComponent.Velocity
-	}
-
-	return snapshot
 }

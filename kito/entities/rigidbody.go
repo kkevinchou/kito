@@ -20,25 +20,24 @@ var (
 	defaultScale       = mgl64.Scale3D(25, 25, 25)
 )
 
-func NewScene(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "scene_building", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid")
+func NewScene() *EntityImpl {
+	return NewRigidBody("scene_building", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid")
 }
 
-func NewSlime(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime, "default")
+func NewSlime() *EntityImpl {
+	return NewRigidBody("slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime, "default")
 }
 
-func NewStaticRigidBody(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "cubetest2", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default")
+func NewStaticRigidBody() *EntityImpl {
+	return NewRigidBody("cubetest2", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default")
 }
 
-func NewDynamicRigidBody(position mgl64.Vec3) *EntityImpl {
-	return NewRigidBody(position, "guard", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "color_grid")
+func NewDynamicRigidBody() *EntityImpl {
+	return NewRigidBody("guard", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "color_grid")
 }
 
-func NewRigidBody(position mgl64.Vec3, modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string) *EntityImpl {
+func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string) *EntityImpl {
 	transformComponent := &components.TransformComponent{
-		Position:    position,
 		Orientation: mgl64.QuatIdent(),
 	}
 

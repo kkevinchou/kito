@@ -31,6 +31,8 @@ type AckCreatePlayerMessage struct {
 	CameraID    int
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
+
+	Entities map[int]EntitySnapshot
 }
 
 type EntitySnapshot struct {

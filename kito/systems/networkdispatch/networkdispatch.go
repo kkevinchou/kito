@@ -29,6 +29,7 @@ type World interface {
 	MetricsRegistry() *metrics.MetricsRegistry
 	GetPlayer() *player.Player
 	GetPlayerByID(id int) *player.Player
+	GetEntities() []entities.Entity
 }
 
 type NetworkDispatchSystem struct {
