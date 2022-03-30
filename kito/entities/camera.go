@@ -29,7 +29,6 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, playerID i
 		"camera",
 		types.EntityTypeCamera,
 		components.NewComponentContainer(
-			&components.NetworkComponent{},
 			&components.CameraComponent{},
 			transformComponent,
 			followComponent,

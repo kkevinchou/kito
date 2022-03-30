@@ -2,6 +2,7 @@ package player
 
 import (
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/lib/network"
 )
 
 type World interface {
@@ -16,6 +17,22 @@ type Player struct {
 
 	LastInputLocalCommandFrame  int // the player's last command frame
 	LastInputGlobalCommandFrame int // the gcf when this input was received
+
+	lastNetworkPullCommandFrame    int
+	lastNetworkPullNetworkMessages []*network.Message
+	world                          World
+}
+
+// NetworkMessages pulls network messages for the player. This function caches network
+// messages for the same command frame
+func (p *Player) NetworkMessages() []*network.Message {
+	commandFrame := p.world.CommandFrame()
+	if p.lastNetworkPullCommandFrame != commandFrame {
+		p.lastNetworkPullNetworkMessages = p.Client.PullIncomingMessages()
+		p.lastNetworkPullCommandFrame = commandFrame
+	}
+
+	return p.lastNetworkPullNetworkMessages
 }
 
 type PlayerManager struct {
@@ -33,7 +50,7 @@ func NewPlayerManager(world World) *PlayerManager {
 }
 
 func (p *PlayerManager) RegisterPlayer(playerID int, client types.NetworkClient) {
-	player := &Player{ID: playerID, Client: client}
+	player := &Player{ID: playerID, Client: client, world: p.world}
 	p.playerMap[playerID] = player
 	p.players = append(p.players, player)
 }

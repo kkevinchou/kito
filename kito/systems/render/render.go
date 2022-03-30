@@ -180,7 +180,6 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	s.renderToDepthMap(lightViewerContext, lightContext)
 	s.renderToDisplay(cameraViewerContext, lightContext)
-	s.platform.NewFrame()
 	s.renderImgui()
 
 	s.window.GLSwap()
@@ -207,6 +206,7 @@ var f [3]float32
 var inputText string
 
 func (s *RenderSystem) renderImgui() {
+	s.platform.NewFrame()
 	imgui.NewFrame()
 
 	imgui.SetNextWindowBgAlpha(0.5)
@@ -214,6 +214,7 @@ func (s *RenderSystem) renderImgui() {
 	s.generalInfoComponent()
 	s.networkInfoUIComponent()
 	s.entityInfoUIComponent()
+	s.lightingUIComponent(s.shadowMap.DepthTexture())
 	imgui.End()
 
 	imgui.Render()

@@ -5,9 +5,11 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/statebuffer"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/lib/metrics"
 )
 
 type World interface {
@@ -16,6 +18,8 @@ type World interface {
 	GetEntityByID(int) (entities.Entity, error)
 	RegisterEntities([]entities.Entity)
 	GetPlayerEntity() entities.Entity
+	GetPlayer() *player.Player
+	MetricsRegistry() *metrics.MetricsRegistry
 }
 
 type StateInterpolatorSystem struct {
@@ -41,11 +45,9 @@ func (s *StateInterpolatorSystem) Update(delta time.Duration) {
 }
 
 func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World) {
-	singleton := world.GetSingleton()
-
 	playerEntity := world.GetPlayerEntity()
 	for _, entitySnapshot := range bufferedState.InterpolatedEntities {
-		if entitySnapshot.ID == playerEntity.GetID() || entitySnapshot.ID == singleton.CameraID {
+		if entitySnapshot.ID == playerEntity.GetID() {
 			continue
 		}
 

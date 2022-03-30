@@ -19,5 +19,5 @@ func connectedPlayersMessageFetcher(world World) []*network.Message {
 
 func clientMessageFetcher(world World) []*network.Message {
 	player := world.GetPlayer()
-	return player.Client.PullIncomingMessages()
+	return player.NetworkMessages()
 }

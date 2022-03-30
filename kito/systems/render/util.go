@@ -324,4 +324,5 @@ func resetGLRenderSettings() {
 	gl.UseProgram(0)
 	gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
 	gl.CullFace(gl.BACK)
+	gl.Enable(gl.BLEND)
 }
