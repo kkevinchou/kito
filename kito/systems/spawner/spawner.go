@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/statebuffer"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/kito/utils/entityutils"
 )
 
 type World interface {
@@ -44,38 +45,14 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 	playerEntity := world.GetPlayerEntity()
 
 	var newEntities []entities.Entity
-	for _, entitySnapshot := range bufferedState.InterpolatedEntities {
-		if entitySnapshot.ID == playerEntity.GetID() {
+	for _, snapshot := range bufferedState.InterpolatedEntities {
+		if snapshot.ID == playerEntity.GetID() {
 			continue
 		}
 
-		_, err := world.GetEntityByID(entitySnapshot.ID)
+		_, err := world.GetEntityByID(snapshot.ID)
 		if err != nil {
-			var newEntity *entities.EntityImpl
-			if types.EntityType(entitySnapshot.Type) == types.EntityTypeBob {
-				newEntity = entities.NewBob()
-				newEntity.ID = entitySnapshot.ID
-			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeScene {
-				newEntity = entities.NewScene(entitySnapshot.Position)
-				newEntity.ID = entitySnapshot.ID
-			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeStaticSlime {
-				newEntity = entities.NewSlime(entitySnapshot.Position)
-				newEntity.ID = entitySnapshot.ID
-			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeDynamicRigidBody {
-				newEntity = entities.NewDynamicRigidBody(entitySnapshot.Position)
-				newEntity.ID = entitySnapshot.ID
-			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeStaticRigidBody {
-				newEntity = entities.NewStaticRigidBody(entitySnapshot.Position)
-				newEntity.ID = entitySnapshot.ID
-			} else if types.EntityType(entitySnapshot.Type) == types.EntityTypeProjectile {
-				newEntity = entities.NewProjectile(entitySnapshot.Position)
-				newEntity.ID = entitySnapshot.ID
-			} else {
-				continue
-			}
-			cc := newEntity.GetComponentContainer()
-			cc.TransformComponent.Position = entitySnapshot.Position
-			cc.TransformComponent.Orientation = entitySnapshot.Orientation
+			newEntity := entityutils.Spawn(snapshot.ID, types.EntityType(snapshot.Type), snapshot.Position, snapshot.Orientation)
 			newEntities = append(newEntities, newEntity)
 		}
 	}

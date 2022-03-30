@@ -28,6 +28,15 @@ func (g *Game) GetEntityByID(id int) (entities.Entity, error) {
 	return nil, fmt.Errorf("%sfailed to find entity with ID %d", string(stack), id)
 }
 
+func (g *Game) GetEntities() []entities.Entity {
+	var result []entities.Entity
+
+	for _, entity := range g.entities {
+		result = append(result, entity)
+	}
+	return result
+}
+
 func (g *Game) GetPlayer() *player.Player {
 	if utils.IsServer() {
 		panic("invalid call to GetPlayer() as server")

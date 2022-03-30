@@ -10,6 +10,7 @@ import (
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/kito/utils/entityutils"
 	"github.com/kkevinchou/kito/lib/network"
 )
 
@@ -65,12 +66,28 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 	world.RegisterEntities([]entities.Entity{bob, camera})
 	fmt.Println("Created and registered a new bob with id", bob.ID)
 
+	// TODO: replace with an entityManager call
+	snapshots := map[int]knetwork.EntitySnapshot{}
+	for _, entity := range world.GetEntities() {
+		cc := entity.GetComponentContainer()
+		if cc.NetworkComponent == nil {
+			continue
+		}
+
+		if entity.GetID() == bob.ID {
+			continue
+		}
+
+		snapshots[entity.GetID()] = entityutils.ConstructEntitySnapshot(entity)
+	}
+
 	ack := &knetwork.AckCreatePlayerMessage{
 		PlayerID:    playerID,
 		EntityID:    bob.ID,
 		CameraID:    camera.ID,
 		Position:    cc.TransformComponent.Position,
 		Orientation: cc.TransformComponent.Orientation,
+		Entities:    snapshots,
 	}
 
 	player.Client.SendMessage(network.MessageTypeAckCreatePlayer, ack)
