@@ -13,10 +13,9 @@ type AnimationPlayer struct {
 	// stateful data that is manipulated by the Animation System
 	elapsedTime         time.Duration
 	animationTransforms map[int]mgl32.Mat4
-	currentAnimation    string
+	currentAnimation    *model.Animation
 
 	// these fields are from the loaded animation and should not be modified
-	// Animation  *model.Animation
 	animations map[string]*model.Animation
 }
 
@@ -31,27 +30,24 @@ func (player *AnimationPlayer) AnimationTransforms() map[int]mgl32.Mat4 {
 }
 
 func (player *AnimationPlayer) PlayAnimation(animationName string) {
-	if player.currentAnimation == animationName {
+	if player.currentAnimation != nil && player.currentAnimation.Name() == animationName {
 		return
 	}
 
-	if _, ok := player.animations[animationName]; ok {
-		// player.Animation = animation
-		player.currentAnimation = animationName
+	if currentAnimation, ok := player.animations[animationName]; ok {
+		player.currentAnimation = currentAnimation
 		player.elapsedTime = 0
 	}
 }
 
 func (player *AnimationPlayer) Update(delta time.Duration) {
-	currAnim := player.animations[player.currentAnimation]
-
 	player.elapsedTime += delta
-	for player.elapsedTime.Milliseconds() > currAnim.Length().Milliseconds() {
-		player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-currAnim.Length().Milliseconds()) * time.Millisecond
+	for player.elapsedTime.Milliseconds() > player.currentAnimation.Length().Milliseconds() {
+		player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length().Milliseconds()) * time.Millisecond
 	}
 
-	pose := calculateCurrentAnimationPose(player.elapsedTime, currAnim.KeyFrames())
-	animationTransforms := computeJointTransforms(currAnim.RootJoint(), pose)
+	pose := calculateCurrentAnimationPose(player.elapsedTime, player.currentAnimation.KeyFrames())
+	animationTransforms := computeJointTransforms(player.currentAnimation.RootJoint(), pose)
 	player.animationTransforms = animationTransforms
 }
 

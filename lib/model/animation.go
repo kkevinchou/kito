@@ -18,6 +18,7 @@ type JointTransform struct {
 }
 
 type Animation struct {
+	name          string
 	rootJoint     *modelspec.JointSpec
 	animationSpec *modelspec.AnimationSpec
 
@@ -25,6 +26,10 @@ type Animation struct {
 	vertexAttributesStride int
 	jointIDs               [][]int
 	jointWeights           [][]float32
+}
+
+func (a *Animation) Name() string {
+	return a.name
 }
 
 func (a *Animation) RootJoint() *modelspec.JointSpec {
@@ -50,6 +55,7 @@ func NewAnimations(spec *modelspec.ModelSpecification) map[string]*Animation {
 	animations := map[string]*Animation{}
 	for name, animation := range spec.Animations {
 		animations[name] = &Animation{
+			name:          name,
 			animationSpec: animation,
 			rootJoint:     spec.RootJoint,
 
