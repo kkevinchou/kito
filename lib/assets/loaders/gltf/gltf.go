@@ -15,21 +15,9 @@ type jointMeta struct {
 	inverseBindMatrix mgl32.Mat4
 }
 
-type ParsedMesh struct {
-	PositionSource         []mgl32.Vec3
-	NormalSource           []mgl32.Vec3
-	TextureSource          []mgl32.Vec2
-	VertexAttributeIndices []int
-	JointIDs               [][]int
-	JointWeights           [][]float32
-	MaterialIndex          *int
-}
-
 type ParsedJoints struct {
 	RootJoint       *modelspec.JointSpec
-	Joints          map[int]*modelspec.JointSpec
 	NodeIDToJointID map[int]int
-	JointOrder      []int
 }
 
 func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
@@ -284,7 +272,6 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 
 	parsedJoints := &ParsedJoints{
 		RootJoint:       root,
-		Joints:          joints,
 		NodeIDToJointID: nodeIDToJointID,
 	}
 	return parsedJoints, nil
