@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/modelspec"
@@ -52,6 +54,10 @@ func constructMeshVertexAttributes(
 		textureSourceData := mesh.TextureSourceData
 		vertexAttributeIndices := mesh.VertexAttributeIndices
 		vertexAttributesStride := mesh.VertexAttributesStride
+
+		if mesh.VertexAttributesStride <= 0 {
+			panic(fmt.Sprintf("unexpected stride value %d", mesh.VertexAttributesStride))
+		}
 
 		// triIndicies format: position, normal, texture, color
 		for i := 0; i < len(vertexAttributeIndices); i += vertexAttributesStride {
