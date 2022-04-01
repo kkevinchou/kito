@@ -14,10 +14,10 @@ import (
 // how we handled poses where a joint does not have any poses
 // C:\Users\kkevi\goprojects\kito\lib\assets\loaders\gltf\gltf_test.go
 func TestBasic(t *testing.T) {
-	_, err := gltf.ParseGLTF("../../../../_assets/gltf/human.gltf")
+	_, err := gltf.ParseGLTF("../../../../_assets/gltf/Elf.gltf")
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Fail()
+	// t.Fail()
 }
