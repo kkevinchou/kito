@@ -10,7 +10,6 @@ import (
 )
 
 type AnimationPlayer struct {
-	// stateful data that is manipulated by the Animation System
 	elapsedTime         time.Duration
 	animationTransforms map[int]mgl32.Mat4
 	currentAnimation    *model.Animation
