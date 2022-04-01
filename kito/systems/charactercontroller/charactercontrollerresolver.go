@@ -57,5 +57,15 @@ func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
 			continue
 		}
 		controllerutils.ResolveControllerCollision(entity)
+
+		// cc := entity.GetComponentContainer()
+		// capsule := cc.ColliderComponent.CapsuleCollider.Transform(cc.TransformComponent.Position)
+		// cc.ColliderComponent.TransformedCapsuleCollider = &capsule
+
+		// cc.ColliderComponent.CollisionInstances
+
+		// if collision.CheckCollisionCapsuleTriangle(capsule, ) {
+
+		// }
 	}
 }

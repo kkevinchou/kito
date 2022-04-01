@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 	"github.com/kkevinchou/kito/lib/textures"
@@ -89,8 +90,10 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 
 	if m.Animation != nil {
 		fmt.Println("rigid body with animation", modelName)
+		animationPlayer := animation.NewAnimationPlayer(m.Animations)
+		animationPlayer.PlayAnimation("Idle")
 		animationComponent := &components.AnimationComponent{
-			Animation: m.Animation,
+			Player: animationPlayer,
 		}
 		componentList = append(componentList, animationComponent)
 	}
