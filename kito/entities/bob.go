@@ -6,6 +6,7 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 	"github.com/kkevinchou/kito/lib/textures"
@@ -38,10 +39,10 @@ func NewBob() *EntityImpl {
 		texture = assetManager.GetTexture(textureName)
 	}
 
+	animationPlayer := animation.NewAnimationPlayer(m.Animations)
+	animationPlayer.PlayAnimation("Idle")
 	animationComponent := &components.AnimationComponent{
-		CurrentAnimation: "Idle",
-		Animation:        m.Animations["Idle"],
-		Animations:       m.Animations,
+		Player: animationPlayer,
 	}
 	_ = animationComponent
 
