@@ -1,6 +1,7 @@
 package gltf_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltf"
@@ -14,10 +15,12 @@ import (
 // how we handled poses where a joint does not have any poses
 // C:\Users\kkevi\goprojects\kito\lib\assets\loaders\gltf\gltf_test.go
 func TestBasic(t *testing.T) {
-	_, err := gltf.ParseGLTF("../../../../_assets/gltf/Elf.gltf")
+	m, err := gltf.ParseGLTF("../../../../_assets/gltf/Elf.gltf")
 	if err != nil {
 		t.Error(err)
 	}
 
-	// t.Fail()
+	fmt.Println(m.Meshes[0].MeshChunks[0].Vertices)
+
+	t.Fail()
 }

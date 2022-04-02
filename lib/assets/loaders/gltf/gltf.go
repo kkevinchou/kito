@@ -282,6 +282,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 	meshSpec := &modelspec.MeshSpecification{}
 
 	for _, primitive := range mesh.Primitives {
+		meshChunkSpec := &modelspec.MeshChunkSpecification{}
 		acrIndex := *primitive.Indices
 		meshIndices, err := modeler.ReadIndices(document, document.Accessors[int(acrIndex)], nil)
 		if err != nil {
@@ -293,16 +294,14 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 		// primitives?
 		if primitive.Material != nil {
 			materialIndex := int(*primitive.Material)
-			if meshSpec.PBRMaterial == nil {
-				material := document.Materials[materialIndex]
-				pbr := *material.PBRMetallicRoughness
-				meshSpec.PBRMaterial = &modelspec.PBRMaterial{
-					PBRMetallicRoughness: &modelspec.PBRMetallicRoughness{
-						BaseColorFactor: mgl32.Vec4{pbr.BaseColorFactor[0], pbr.BaseColorFactor[1], pbr.BaseColorFactor[2], pbr.BaseColorFactor[3]},
-						MetalicFactor:   *pbr.MetallicFactor,
-						RoughnessFactor: *pbr.RoughnessFactor,
-					},
-				}
+			material := document.Materials[materialIndex]
+			pbr := *material.PBRMetallicRoughness
+			meshChunkSpec.PBRMaterial = &modelspec.PBRMaterial{
+				PBRMetallicRoughness: &modelspec.PBRMetallicRoughness{
+					BaseColorFactor: mgl32.Vec4{pbr.BaseColorFactor[0], pbr.BaseColorFactor[1], pbr.BaseColorFactor[2], pbr.BaseColorFactor[3]},
+					MetalicFactor:   *pbr.MetallicFactor,
+					RoughnessFactor: *pbr.RoughnessFactor,
+				},
 			}
 		}
 
@@ -313,47 +312,67 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 		meshSpec.VertexAttributesStride = 3
 
 		for attribute, index := range primitive.Attributes {
+			acr := document.Accessors[int(index)]
+			if meshChunkSpec.Vertices == nil {
+				meshChunkSpec.Vertices = make([]modelspec.Vertex, int(acr.Count))
+			}
+
 			if attribute == gltf.POSITION {
-				acr := document.Accessors[int(index)]
 				positions, err := modeler.ReadPosition(document, acr, nil)
 				if err != nil {
 					return nil, err
 				}
+
+				if len(positions) != len(meshChunkSpec.Vertices) {
+					fmt.Println("dafuq")
+				}
+
+				for i, position := range positions {
+					meshChunkSpec.Vertices[i].Position = position
+				}
+
 				meshSpec.PositionSourceData = loosenFloat32Array3ToVec(positions)
 			} else if attribute == gltf.NORMAL {
-				acr := document.Accessors[int(index)]
 				normals, err := modeler.ReadPosition(document, acr, nil)
 				if err != nil {
 					return nil, err
 				}
+				for i, normal := range normals {
+					meshChunkSpec.Vertices[i].Normal = normal
+				}
 				meshSpec.NormalSourceData = loosenFloat32Array3ToVec(normals)
 			} else if attribute == gltf.TEXCOORD_0 {
-				acr := document.Accessors[int(index)]
 				textureCoords, err := modeler.ReadTextureCoord(document, acr, nil)
 				if err != nil {
 					return nil, err
 				}
+				for i, textureCoord := range textureCoords {
+					meshChunkSpec.Vertices[i].Texture = textureCoord
+				}
 				meshSpec.TextureSourceData = loosenFloat32Array2ToVec(textureCoords)
 			} else if attribute == gltf.JOINTS_0 {
-				acr := document.Accessors[int(index)]
-				joints, err := modeler.ReadJoints(document, acr, nil)
+				jointsSlice, err := modeler.ReadJoints(document, acr, nil)
 				if err != nil {
 					return nil, err
 				}
-				jointIDs := loosenUint16Array(joints)
-				meshSpec.JointIDs = jointIDs
+				meshSpec.JointIDs = loosenUint16Array(jointsSlice)
+				for i, jointIDs := range meshSpec.JointIDs {
+					meshChunkSpec.Vertices[i].JointIDs = jointIDs
+				}
 			} else if attribute == gltf.WEIGHTS_0 {
-				acr := document.Accessors[int(index)]
 				weights, err := modeler.ReadWeights(document, acr, nil)
 				if err != nil {
 					return nil, err
 				}
-				jointWeights := loosenFloat32Array4(weights)
-				meshSpec.JointWeights = jointWeights
+				meshSpec.JointWeights = loosenFloat32Array4(weights)
+				for i, jointWeights := range meshSpec.JointWeights {
+					meshChunkSpec.Vertices[i].JointWeights = jointWeights
+				}
 			} else {
 				fmt.Printf("[%s] unhandled attribute %s\n", mesh.Name, attribute)
 			}
 		}
+		meshSpec.MeshChunks = append(meshSpec.MeshChunks, meshChunkSpec)
 	}
 	return meshSpec, nil
 }

@@ -8,6 +8,9 @@ import (
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
+type MeshChunk struct {
+}
+
 type Mesh struct {
 	vertexCount        int
 	vertices           []mgl64.Vec3
@@ -15,6 +18,8 @@ type Mesh struct {
 	totalAttributeSize int
 	material           *modelspec.EffectSpec
 	pbrMaterial        *modelspec.PBRMaterial
+
+	meshChunks []*MeshChunk
 }
 
 func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
@@ -26,7 +31,7 @@ func NewMesh(spec *modelspec.ModelSpecification) *Mesh {
 		vertexAttributes:   vertexAttributes,
 		totalAttributeSize: totalAttributeSize,
 		material:           spec.EffectSpecData,
-		pbrMaterial:        spec.Meshes[0].PBRMaterial,
+		pbrMaterial:        spec.Meshes[0].MeshChunks[0].PBRMaterial,
 	}
 }
 

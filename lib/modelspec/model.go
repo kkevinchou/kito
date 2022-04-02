@@ -25,7 +25,23 @@ type PBRMaterial struct {
 	PBRMetallicRoughness *PBRMetallicRoughness
 }
 
+type Vertex struct {
+	Position mgl32.Vec3
+	Normal   mgl32.Vec3
+	Texture  mgl32.Vec2
+
+	JointIDs     []int
+	JointWeights []float32
+}
+
+type MeshChunkSpecification struct {
+	Vertices []Vertex
+	// PBR
+	PBRMaterial *PBRMaterial
+}
 type MeshSpecification struct {
+	MeshChunks []*MeshChunkSpecification
+
 	// Geometry
 	// VertexAttributeIndices defines indices that are lookups for individual vertex properties
 	// VertexAttributesStride defines how many contiguous indices within VertexAttributeIndices define a vertex
@@ -46,9 +62,6 @@ type MeshSpecification struct {
 	// sorted by vertex order
 	JointIDs     [][]int
 	JointWeights [][]float32
-
-	// PBR
-	PBRMaterial *PBRMaterial
 }
 
 func (m *ModelSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
