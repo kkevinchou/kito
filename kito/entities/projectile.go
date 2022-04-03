@@ -6,7 +6,6 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 	"github.com/kkevinchou/kito/lib/textures"
 )
@@ -27,14 +26,12 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	assetManager := directory.GetDirectory().AssetManager()
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 
-	var vao uint32
 	var texture *textures.Texture
 
 	m := model.NewModel(modelSpec)
-	vertexCount := m.VertexCount()
+	m.Prepare()
 
 	if utils.IsClient() {
-		vao = m.Bind()
 		texture = assetManager.GetTexture(textureName)
 	}
 
@@ -43,17 +40,16 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	// }
 
 	meshComponent := &components.MeshComponent{
-		ModelVAO:         vao,
-		ModelVertexCount: vertexCount,
-		Texture:          texture,
-		Scale:            mgl64.Ident4(),
-		Orientation:      mgl64.Ident4(),
+		Texture:     texture,
+		Scale:       mgl64.Ident4(),
+		Orientation: mgl64.Ident4(),
+		Model:       m,
 	}
 
-	capsule := collider.NewCapsuleFromMeshVertices(m.Mesh.Vertices())
-	colliderComponent := &components.ColliderComponent{
-		CapsuleCollider: &capsule,
-	}
+	// capsule := collider.NewCapsuleFromMeshVertices(m.Mesh.Vertices())
+	// colliderComponent := &components.ColliderComponent{
+	// 	CapsuleCollider: &capsule,
+	// }
 
 	physicsComponent := &components.PhysicsComponent{
 		IgnoreGravity: true,
@@ -66,7 +62,7 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 		// animationComponent,
 		physicsComponent,
 		meshComponent,
-		colliderComponent,
+		// colliderComponent,
 		renderComponent,
 	}
 

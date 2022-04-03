@@ -2,19 +2,21 @@ package components
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/lib/modelspec"
+	"github.com/kkevinchou/kito/lib/model"
 	"github.com/kkevinchou/kito/lib/textures"
 )
 
 type MeshComponent struct {
 	// should probably store this data in a separate component
-	ModelVAO         uint32
-	ModelVertexCount int
-	Texture          *textures.Texture
-	Scale            mgl64.Mat4
-	Orientation      mgl64.Mat4
-	Material         *modelspec.EffectSpec
-	PBRMaterial      *modelspec.PBRMaterial
+	// ModelVAO         uint32
+	// ModelVertexCount int
+	Scale       mgl64.Mat4
+	Orientation mgl64.Mat4
+	// Material    *modelspec.EffectSpec
+	// PBRMaterial *modelspec.PBRMaterial
+
+	Texture *textures.Texture
+	Model   *model.Model
 }
 
 func (c *MeshComponent) GetMeshComponent() *MeshComponent {

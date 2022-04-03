@@ -35,7 +35,8 @@ type Vertex struct {
 }
 
 type MeshChunkSpecification struct {
-	Vertices []Vertex
+	VertexIndices []int
+	Vertices      []Vertex
 	// PBR
 	PBRMaterial *PBRMaterial
 }
@@ -52,7 +53,6 @@ type MeshSpecification struct {
 	//		]
 	// VertexAttributesStride would have a value of 3 here
 	// Three contiguous vertices define a triangle, after which the next triangle is defined
-	VertexAttributeIndices []int
 	VertexAttributesStride int
 
 	PositionSourceData []mgl32.Vec3

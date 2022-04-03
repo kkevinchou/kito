@@ -15,6 +15,7 @@ import (
 func NewBob() *EntityImpl {
 	modelName := "human"
 	textureName := "color_grid"
+	assetManager := directory.GetDirectory().AssetManager()
 
 	transformComponent := &components.TransformComponent{
 		Position:    mgl64.Vec3{0, 0, 70},
@@ -25,19 +26,13 @@ func NewBob() *EntityImpl {
 		IsVisible: true,
 	}
 
-	assetManager := directory.GetDirectory().AssetManager()
-	modelSpec := assetManager.GetAnimatedModel(modelName)
-
-	var vao uint32
 	var texture *textures.Texture
-
-	m := model.NewModel(modelSpec)
-	vertexCount := m.VertexCount()
-
 	if utils.IsClient() {
-		vao = m.Bind()
 		texture = assetManager.GetTexture(textureName)
 	}
+
+	modelSpec := assetManager.GetAnimatedModel(modelName)
+	m := model.NewModel(modelSpec)
 
 	animationPlayer := animation.NewAnimationPlayer(m.Animations)
 	animationPlayer.PlayAnimation("Idle")
@@ -48,15 +43,13 @@ func NewBob() *EntityImpl {
 
 	yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
 	meshComponent := &components.MeshComponent{
-		ModelVAO:         vao,
-		ModelVertexCount: vertexCount,
-		Texture:          texture,
+		Texture: texture,
 		// Scale:            mgl64.Scale3D(1, 1, 1),
 		Scale: mgl64.Scale3D(10, 10, 10),
 		// Orientation: mgl64.Ident4(),
 		Orientation: yr,
-		Material:    m.Mesh.Material(),
-		PBRMaterial: m.Mesh.PBRMaterial(),
+
+		Model: m,
 	}
 
 	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
@@ -71,7 +64,7 @@ func NewBob() *EntityImpl {
 	entityComponents := []components.Component{
 		&components.NetworkComponent{},
 		transformComponent,
-		animationComponent,
+		// animationComponent,
 		thirdPersonControllerComponent,
 		meshComponent,
 		colliderComponent,

@@ -306,8 +306,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 		}
 
 		for _, index := range meshIndices {
-			// TODO: this seems like an odd implementation detail that we force all the loaders to know about and implement.
-			meshSpec.VertexAttributeIndices = append(meshSpec.VertexAttributeIndices, []int{int(index), int(index), int(index)}...)
+			meshChunkSpec.VertexIndices = append(meshChunkSpec.VertexIndices, int(index))
 		}
 		meshSpec.VertexAttributesStride = 3
 

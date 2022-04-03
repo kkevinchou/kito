@@ -77,6 +77,7 @@ func ResolveControllerCollision(entity entities.Entity) {
 		// no collisions were detected (i.e. the ground)
 		tpcComponent.Grounded = false
 	}
+	transformComponent.Position[1] = 0
 }
 
 func minSeparatingVector(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
