@@ -288,6 +288,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 		if err != nil {
 			return nil, err
 		}
+		meshChunkSpec.VertexIndices = meshIndices
 
 		// TODO: not sure when a mesh would have multiple primitives
 		// do i need to support multiple materials that come from multiple
@@ -305,14 +306,10 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 			}
 		}
 
-		for _, index := range meshIndices {
-			meshChunkSpec.VertexIndices = append(meshChunkSpec.VertexIndices, int(index))
-		}
-
 		for attribute, index := range primitive.Attributes {
 			acr := document.Accessors[int(index)]
-			if meshChunkSpec.Vertices == nil {
-				meshChunkSpec.Vertices = make([]modelspec.Vertex, int(acr.Count))
+			if meshChunkSpec.UniqueVertices == nil {
+				meshChunkSpec.UniqueVertices = make([]modelspec.Vertex, int(acr.Count))
 			}
 
 			if attribute == gltf.POSITION {
@@ -321,12 +318,12 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 					return nil, err
 				}
 
-				if len(positions) != len(meshChunkSpec.Vertices) {
+				if len(positions) != len(meshChunkSpec.UniqueVertices) {
 					fmt.Println("dafuq")
 				}
 
 				for i, position := range positions {
-					meshChunkSpec.Vertices[i].Position = position
+					meshChunkSpec.UniqueVertices[i].Position = position
 				}
 
 				// meshSpec.PositionSourceData = loosenFloat32Array3ToVec(positions)
@@ -336,7 +333,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 					return nil, err
 				}
 				for i, normal := range normals {
-					meshChunkSpec.Vertices[i].Normal = normal
+					meshChunkSpec.UniqueVertices[i].Normal = normal
 				}
 				// meshSpec.NormalSourceData = loosenFloat32Array3ToVec(normals)
 			} else if attribute == gltf.TEXCOORD_0 {
@@ -345,7 +342,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 					return nil, err
 				}
 				for i, textureCoord := range textureCoords {
-					meshChunkSpec.Vertices[i].Texture = textureCoord
+					meshChunkSpec.UniqueVertices[i].Texture = textureCoord
 				}
 				// meshSpec.TextureSourceData = loosenFloat32Array2ToVec(textureCoords)
 			} else if attribute == gltf.JOINTS_0 {
@@ -355,7 +352,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 				}
 				readJointIDs := loosenUint16Array(jointsSlice)
 				for i, jointIDs := range readJointIDs {
-					meshChunkSpec.Vertices[i].JointIDs = jointIDs
+					meshChunkSpec.UniqueVertices[i].JointIDs = jointIDs
 				}
 			} else if attribute == gltf.WEIGHTS_0 {
 				weights, err := modeler.ReadWeights(document, acr, nil)
@@ -364,7 +361,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 				}
 				readJointWeights := loosenFloat32Array4(weights)
 				for i, jointWeights := range readJointWeights {
-					meshChunkSpec.Vertices[i].JointWeights = jointWeights
+					meshChunkSpec.UniqueVertices[i].JointWeights = jointWeights
 				}
 			} else {
 				fmt.Printf("[%s] unhandled attribute %s\n", mesh.Name, attribute)

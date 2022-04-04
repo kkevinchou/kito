@@ -70,8 +70,7 @@ func (m *MeshChunk) Prepare() {
 	// fmt.Println(m.spec.VertexIndices)
 	// fmt.Println(len(m.spec.Vertices))
 
-	for _, vertexIndex := range m.spec.VertexIndices {
-		vertex := m.spec.Vertices[vertexIndex]
+	for _, vertex := range m.spec.UniqueVertices {
 		position := vertex.Position
 		normal := vertex.Normal
 		texture := vertex.Texture
@@ -91,7 +90,7 @@ func (m *MeshChunk) Prepare() {
 		jointWeightsAttribute = append(jointWeightsAttribute, weights...)
 	}
 
-	totalAttributeSize := len(vertexAttributes) / len(m.spec.Vertices)
+	totalAttributeSize := len(vertexAttributes) / len(m.spec.UniqueVertices)
 
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
@@ -125,14 +124,14 @@ func (m *MeshChunk) Prepare() {
 	gl.VertexAttribPointer(4, int32(settings.AnimationMaxJointWeights), gl.FLOAT, false, int32(settings.AnimationMaxJointWeights)*4, nil)
 	gl.EnableVertexAttribArray(4)
 
-	// TODO: see if this works, but this should probably be instead
-	// using m.spec.VertexIndices that can be reused and repointed to already seen
-	// vertices to save on memory. Right now we can potentially readd duplicated
-	// vertex attributes to `vertexAttributes`.
-	indices := []uint32{}
-	for i := 0; i < len(vertexAttributes)/8; i++ {
-		indices = append(indices, uint32(i))
-	}
+	// // TODO: see if this works, but this should probably be instead
+	// // using m.spec.VertexIndices that can be reused and repointed to already seen
+	// // vertices to save on memory. Right now we can potentially readd duplicated
+	// // vertex attributes to `vertexAttributes`.
+	// indices := []uint32{}
+	// for i := 0; i < len(vertexAttributes)/8; i++ {
+	// 	indices = append(indices, uint32(i))
+	// }
 
 	var ebo uint32
 	gl.GenBuffers(1, &ebo)

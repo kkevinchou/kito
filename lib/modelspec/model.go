@@ -35,8 +35,10 @@ type Vertex struct {
 }
 
 type MeshChunkSpecification struct {
-	VertexIndices []int
-	Vertices      []Vertex
+	VertexIndices []uint32
+	// the unique vertices in the mesh chunk. VertexIndices details
+	// how the unique vertices are arranged to construct the mesh
+	UniqueVertices []Vertex
 	// PBR
 	PBRMaterial *PBRMaterial
 }

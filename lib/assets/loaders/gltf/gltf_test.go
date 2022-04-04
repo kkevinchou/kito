@@ -25,7 +25,7 @@ func TestBasic(t *testing.T) {
 	// fmt.Println(m.Meshes[0].MeshChunks)
 	chunk := m.Meshes[0].MeshChunks[0]
 	fmt.Println(len(chunk.VertexIndices))
-	fmt.Println(len(chunk.Vertices))
+	fmt.Println(len(chunk.UniqueVertices))
 	// fmt.Println(chunk.VertexIndices)
 	// fmt.Println(len(chunk.VertexIndices))
 	// fmt.Println(chunk.Vertices)
