@@ -367,6 +367,11 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 				fmt.Printf("[%s] unhandled attribute %s\n", mesh.Name, attribute)
 			}
 		}
+
+		for _, index := range meshChunkSpec.VertexIndices {
+			meshChunkSpec.Vertices = append(meshChunkSpec.Vertices, meshChunkSpec.UniqueVertices[index])
+		}
+
 		meshSpec.MeshChunks = append(meshSpec.MeshChunks, meshChunkSpec)
 	}
 	return meshSpec, nil

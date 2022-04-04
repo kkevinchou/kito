@@ -19,8 +19,12 @@ func (m *MeshChunk) VAO() uint32 {
 	return m.vao
 }
 
+func (m *MeshChunk) Vertices() []modelspec.Vertex {
+	return m.spec.Vertices
+}
+
 func (m *MeshChunk) VertexCount() int {
-	return len(m.spec.VertexIndices)
+	return len(m.spec.Vertices)
 }
 
 func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {

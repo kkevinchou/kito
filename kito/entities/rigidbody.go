@@ -6,6 +6,7 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 	"github.com/kkevinchou/kito/lib/textures"
 )
@@ -58,10 +59,10 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 		Model:       m,
 	}
 
-	// triMesh := collider.NewTriMesh(m.Mesh.Vertices())
-	// colliderComponent := &components.ColliderComponent{
-	// 	TriMeshCollider: &triMesh,
-	// }
+	triMesh := collider.NewTriMesh(m)
+	colliderComponent := &components.ColliderComponent{
+		TriMeshCollider: &triMesh,
+	}
 
 	renderComponent := &components.RenderComponent{
 		IsVisible: true,
@@ -76,7 +77,7 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 		renderComponent,
 		&components.NetworkComponent{},
 		meshComponent,
-		// colliderComponent,
+		colliderComponent,
 		physicsComponent,
 	}
 

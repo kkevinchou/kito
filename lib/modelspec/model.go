@@ -39,6 +39,8 @@ type MeshChunkSpecification struct {
 	// the unique vertices in the mesh chunk. VertexIndices details
 	// how the unique vertices are arranged to construct the mesh
 	UniqueVertices []Vertex
+	// The actual in order vertices. Can contain duplicates
+	Vertices []Vertex
 	// PBR
 	PBRMaterial *PBRMaterial
 }

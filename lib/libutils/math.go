@@ -13,6 +13,14 @@ func Cross2D(v1, v2 mgl64.Vec3) float64 {
 	return (v1.X() * v2.Z()) - (v1.Z() * v2.X())
 }
 
+func Vec3F32ToF64(v mgl32.Vec3) mgl64.Vec3 {
+	var result mgl64.Vec3
+	for i := 0; i < len(v); i++ {
+		result[i] = float64(v[i])
+	}
+	return result
+}
+
 func Vec3F64ToF32(v mgl64.Vec3) mgl32.Vec3 {
 	var result mgl32.Vec3
 	for i := 0; i < len(v); i++ {
