@@ -20,7 +20,17 @@ type ParsedJoints struct {
 	NodeIDToJointID map[int]int
 }
 
-func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
+type TextureCoordStyle int
+
+const (
+	TextureCoordStyleOpenGL = 1
+)
+
+type ParseConfig struct {
+	TextureCoordStyle TextureCoordStyle
+}
+
+func ParseGLTF(documentPath string, config *ParseConfig) (*modelspec.ModelSpecification, error) {
 	document, err := gltf.Open(documentPath)
 	if err != nil {
 		return nil, err
@@ -46,7 +56,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 	modelSpec := &modelspec.ModelSpecification{}
 
 	for _, mesh := range document.Meshes {
-		meshSpec, err := parseMesh(document, mesh)
+		meshSpec, err := parseMesh(document, mesh, config)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -275,7 +285,7 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 	return parsedJoints, nil
 }
 
-func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecification, error) {
+func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*modelspec.MeshSpecification, error) {
 	// parsedMesh := &ParsedMesh{}
 	meshSpec := &modelspec.MeshSpecification{}
 
@@ -344,6 +354,9 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 					return nil, err
 				}
 				for i, textureCoord := range textureCoords {
+					if config.TextureCoordStyle == TextureCoordStyleOpenGL {
+						textureCoord[1] = 1 - textureCoord[1]
+					}
 					meshChunkSpec.UniqueVertices[i].Texture = textureCoord
 				}
 				// meshSpec.TextureSourceData = loosenFloat32Array2ToVec(textureCoords)
