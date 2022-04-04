@@ -5,12 +5,8 @@ import (
 )
 
 type Model struct {
-	// Mesh *Mesh
-	// Animation  *Animation
 	Animations map[string]*Animation
-
-	vao    uint32
-	meshes []*Mesh
+	meshes     []*Mesh
 }
 
 // NewModel takes a ModelSpecification and performs the necessary OpenGL operations
@@ -29,7 +25,6 @@ func NewModel(spec *modelspec.ModelSpecification) *Model {
 	}
 
 	return &Model{
-		// Mesh:       mesh,
 		meshes:     meshes,
 		Animations: animations,
 	}

@@ -7,12 +7,17 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
+	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/font"
 	utils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
+)
+
+const (
+	defaultTexture = "color_grid"
 )
 
 func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, meshComponent *components.MeshComponent, animationComponent *components.AnimationComponent, modelMatrix mgl64.Mat4, modelRotationMatrix mgl64.Mat4) {
@@ -49,24 +54,22 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 			if pbr := meshChunk.PBRMaterial(); pbr != nil {
 				shader.SetUniformInt("hasPBRMaterial", 1)
 				shader.SetUniformVec4("pbrBaseColorFactor", pbr.PBRMetallicRoughness.BaseColorFactor)
+				if pbr.PBRMetallicRoughness.BaseColorTexture != nil {
+					shader.SetUniformInt("hasPBRBaseColorTexture", 1)
+				}
 			} else {
 				shader.SetUniformInt("hasPBRMaterial", 0)
 			}
 
+			assetManager := directory.GetDirectory().AssetManager()
+			texture := assetManager.GetTexture(defaultTexture)
 			gl.ActiveTexture(gl.TEXTURE0)
-			gl.BindTexture(gl.TEXTURE_2D, meshComponent.Texture.ID)
+			gl.BindTexture(gl.TEXTURE_2D, texture.ID)
 
 			gl.BindVertexArray(meshChunk.VAO())
 			gl.DrawElements(gl.TRIANGLES, int32(meshChunk.VertexCount()), gl.UNSIGNED_INT, nil)
 		}
 	}
-
-	// what's unique to each mesh chunk?
-	// vao
-	// texture
-	// num vertices
-	// material uniforms
-	// animations are not specific to an one mesh chunk
 }
 
 func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, triMeshCollider *collider.TriMesh) {

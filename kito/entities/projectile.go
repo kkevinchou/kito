@@ -5,14 +5,11 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/model"
-	"github.com/kkevinchou/kito/lib/textures"
 )
 
 func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	modelName := "human"
-	textureName := "color_grid"
 
 	transformComponent := &components.TransformComponent{
 		Position:    position,
@@ -26,21 +23,14 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	assetManager := directory.GetDirectory().AssetManager()
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 
-	var texture *textures.Texture
-
 	m := model.NewModel(modelSpec)
 	m.Prepare()
-
-	if utils.IsClient() {
-		texture = assetManager.GetTexture(textureName)
-	}
 
 	// animationComponent := &components.AnimationComponent{
 	// 	Animation: m.Animation,
 	// }
 
 	meshComponent := &components.MeshComponent{
-		Texture:     texture,
 		Scale:       mgl64.Ident4(),
 		Orientation: mgl64.Ident4(),
 		Model:       m,

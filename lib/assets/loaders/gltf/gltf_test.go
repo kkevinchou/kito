@@ -1,7 +1,6 @@
 package gltf_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltf"
@@ -15,7 +14,7 @@ import (
 // how we handled poses where a joint does not have any poses
 // C:\Users\kkevi\goprojects\kito\lib\assets\loaders\gltf\gltf_test.go
 func TestBasic(t *testing.T) {
-	m, err := gltf.ParseGLTF("../../../../_assets/gltf/cube_anim.gltf")
+	m, err := gltf.ParseGLTF("../../../../_assets/gltf/scene_building.gltf")
 	if err != nil {
 		t.Error(err)
 	}
@@ -23,9 +22,9 @@ func TestBasic(t *testing.T) {
 
 	// fmt.Println(m.Meshes)
 	// fmt.Println(m.Meshes[0].MeshChunks)
-	chunk := m.Meshes[0].MeshChunks[0]
-	fmt.Println(len(chunk.VertexIndices))
-	fmt.Println(len(chunk.UniqueVertices))
+	// chunk := m.Meshes[0].MeshChunks[0]
+	// fmt.Println(len(chunk.VertexIndices))
+	// fmt.Println(len(chunk.UniqueVertices))
 	// fmt.Println(chunk.VertexIndices)
 	// fmt.Println(len(chunk.VertexIndices))
 	// fmt.Println(chunk.Vertices)

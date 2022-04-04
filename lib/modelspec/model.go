@@ -16,9 +16,10 @@ type EffectSpec struct { // todo(kevin): rename to MaterialSpec
 }
 
 type PBRMetallicRoughness struct {
-	BaseColorFactor mgl32.Vec4
-	MetalicFactor   float32
-	RoughnessFactor float32
+	BaseColorTexture *uint32
+	BaseColorFactor  mgl32.Vec4
+	MetalicFactor    float32
+	RoughnessFactor  float32
 }
 
 type PBRMaterial struct {
@@ -39,8 +40,7 @@ type MeshChunkSpecification struct {
 	// the unique vertices in the mesh chunk. VertexIndices details
 	// how the unique vertices are arranged to construct the mesh
 	UniqueVertices []Vertex
-	// The actual in order vertices. Can contain duplicates
-	Vertices []Vertex
+	Vertices       []Vertex
 	// PBR
 	PBRMaterial *PBRMaterial
 }

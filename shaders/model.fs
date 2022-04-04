@@ -15,12 +15,9 @@ uniform sampler2D shadowMap;
 uniform float shadowDistance;
 uniform vec3 directionalLightDir;
 
-// materials
-uniform int materialHasDiffuseColor;
-uniform vec3 materialDiffuseColor;
-
 // pbr materials
 uniform int hasPBRMaterial;
+uniform int hasPBRBaseColorTexture;
 uniform vec4 pbrBaseColorFactor;
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
@@ -76,10 +73,11 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     vec3 color;
-    if (materialHasDiffuseColor == 1) {
-        color = materialDiffuseColor;
-    } else if (hasPBRMaterial == 1) {
+    if (hasPBRMaterial == 1) {
         color = pbrBaseColorFactor.xyz;
+        if (hasPBRBaseColorTexture == 1) {
+            color = texture(modelTexture, fs_in.TexCoord).xyz;
+        }
     } else {
         color = texture(modelTexture, fs_in.TexCoord).xyz;
     }

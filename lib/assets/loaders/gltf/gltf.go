@@ -304,6 +304,10 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh) (*modelspec.MeshSpecifi
 					RoughnessFactor: *pbr.RoughnessFactor,
 				},
 			}
+			if pbr.BaseColorTexture != nil {
+				var tex uint32
+				meshChunkSpec.PBRMaterial.PBRMetallicRoughness.BaseColorTexture = &tex
+			}
 		}
 
 		for attribute, index := range primitive.Attributes {

@@ -9,12 +9,10 @@ import (
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
-	"github.com/kkevinchou/kito/lib/textures"
 )
 
 func NewBob() *EntityImpl {
 	modelName := "human"
-	textureName := "color_grid"
 	assetManager := directory.GetDirectory().AssetManager()
 
 	transformComponent := &components.TransformComponent{
@@ -24,11 +22,6 @@ func NewBob() *EntityImpl {
 
 	renderComponent := &components.RenderComponent{
 		IsVisible: true,
-	}
-
-	var texture *textures.Texture
-	if utils.IsClient() {
-		texture = assetManager.GetTexture(textureName)
 	}
 
 	modelSpec := assetManager.GetAnimatedModel(modelName)
@@ -46,7 +39,6 @@ func NewBob() *EntityImpl {
 
 	yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
 	meshComponent := &components.MeshComponent{
-		Texture: texture,
 		// Scale:            mgl64.Scale3D(1, 1, 1),
 		Scale: mgl64.Scale3D(10, 10, 10),
 		// Orientation: mgl64.Ident4(),

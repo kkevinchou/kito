@@ -3,7 +3,6 @@ package components
 import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/model"
-	"github.com/kkevinchou/kito/lib/textures"
 )
 
 type MeshComponent struct {
@@ -15,8 +14,8 @@ type MeshComponent struct {
 	// Material    *modelspec.EffectSpec
 	// PBRMaterial *modelspec.PBRMaterial
 
-	Texture *textures.Texture
-	Model   *model.Model
+	// Texture *textures.Texture
+	Model *model.Model
 }
 
 func (c *MeshComponent) GetMeshComponent() *MeshComponent {

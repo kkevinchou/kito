@@ -31,6 +31,10 @@ func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {
 	return m.spec.PBRMaterial
 }
 
+// func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {
+// 	return m.spec.
+// }
+
 func NewMesh(spec *modelspec.MeshSpecification) *Mesh {
 	var meshChunks []*MeshChunk
 	for _, mc := range spec.MeshChunks {
