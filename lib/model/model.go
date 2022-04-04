@@ -34,6 +34,15 @@ func (m *Model) Meshes() []*Mesh {
 	return m.meshes
 }
 
+func (m *Model) Vertices() []modelspec.Vertex {
+	var vertices []modelspec.Vertex
+	for _, mesh := range m.meshes {
+		meshVerts := mesh.Vertices()
+		vertices = append(vertices, meshVerts...)
+	}
+	return vertices
+}
+
 func (m *Model) Prepare() {
 	for _, mesh := range m.meshes {
 		mesh.Prepare()
