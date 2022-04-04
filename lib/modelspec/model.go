@@ -2,65 +2,40 @@ package modelspec
 
 import "github.com/go-gl/mathgl/mgl32"
 
-type EffectSpec struct { // todo(kevin): rename to MaterialSpec
-	ID                     string
-	ShaderElement          string
-	EmissionColor          *mgl32.Vec3
-	DiffuseColor           *mgl32.Vec3
-	IndexOfRefractionFloat float32
-	ReflectivityFloat      float32
-	ReflectivityColor      *mgl32.Vec3
-	ShininessFloat         float32
-	TransparencyFloat      float32
-	TransparencyColor      *mgl32.Vec3
-}
-
 type PBRMetallicRoughness struct {
-	BaseColorFactor mgl32.Vec4
-	MetalicFactor   float32
-	RoughnessFactor float32
+	BaseColorTexture *uint32
+	BaseColorFactor  mgl32.Vec4
+	MetalicFactor    float32
+	RoughnessFactor  float32
 }
 
 type PBRMaterial struct {
 	PBRMetallicRoughness *PBRMetallicRoughness
 }
 
-type MeshSpecification struct {
-	// Geometry
-	// VertexAttributeIndices defines indices that are lookups for individual vertex properties
-	// VertexAttributesStride defines how many contiguous indices within VertexAttributeIndices define a vertex
-	//		Example arrangement:
-	//		[
-	//			triangle1PositionIndex, triangle1NormalIndex, triangle1TextureCoordIndex,
-	//			triangle2PositionIndex, triangle2NormalIndex, triangle2TextureCoordIndex,
-	//		]
-	// VertexAttributesStride would have a value of 3 here
-	// Three contiguous vertices define a triangle, after which the next triangle is defined
-	VertexAttributeIndices []int
-	VertexAttributesStride int
+type Vertex struct {
+	Position mgl32.Vec3
+	Normal   mgl32.Vec3
+	Texture  mgl32.Vec2
 
-	PositionSourceData []mgl32.Vec3
-	NormalSourceData   []mgl32.Vec3
-	TextureSourceData  []mgl32.Vec2
+	JointIDs     []int
+	JointWeights []float32
+}
 
-	// sorted by vertex order
-	JointIDs     [][]int
-	JointWeights [][]float32
+type MeshChunkSpecification struct {
+	VertexIndices []uint32
+	// the unique vertices in the mesh chunk. VertexIndices details
+	// how the unique vertices are arranged to construct the mesh
+	UniqueVertices []Vertex
+
+	// the ordered vertices where each triplet forms a triangle for the mesh
+	Vertices []Vertex
 
 	// PBR
 	PBRMaterial *PBRMaterial
 }
-
-func (m *ModelSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
-	for _, mesh := range m.Meshes {
-		mesh.ConvertTexCoordsFromGLTFToOpenGL()
-	}
-}
-
-func (m *MeshSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
-	for i, v := range m.TextureSourceData {
-		m.TextureSourceData[i] = mgl32.Vec2{v.X(), 1 - v.Y()}
-	}
+type MeshSpecification struct {
+	MeshChunks []*MeshChunkSpecification
 }
 
 // ModelSpecification is the output of any parsed model files (e.g. from Blender, Maya, etc)
@@ -68,9 +43,6 @@ func (m *MeshSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
 // animation data. This struct should be agnostic to the 3D modelling tool that produced the data.
 type ModelSpecification struct {
 	Meshes []*MeshSpecification
-
-	// Effects
-	EffectSpecData *EffectSpec
 
 	// Joint Hierarchy
 	RootJoint *JointSpec

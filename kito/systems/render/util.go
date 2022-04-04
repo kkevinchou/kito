@@ -7,12 +7,17 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
+	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/font"
 	utils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
+)
+
+const (
+	defaultTexture = "color_grid"
 )
 
 func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, meshComponent *components.MeshComponent, animationComponent *components.AnimationComponent, modelMatrix mgl64.Mat4, modelRotationMatrix mgl64.Mat4) {
@@ -27,20 +32,6 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 	shader.SetUniformMat4("lightSpaceMatrix", utils.Mat4F64ToF32(lightContext.LightSpaceMatrix))
 	shader.SetUniformInt("shadowMap", 31)
 
-	if meshComponent.Material != nil && meshComponent.Material.DiffuseColor != nil {
-		shader.SetUniformInt("materialHasDiffuseColor", 1)
-		shader.SetUniformVec3("materialDiffuseColor", *meshComponent.Material.DiffuseColor)
-	} else {
-		shader.SetUniformInt("materialHasDiffuseColor", 0)
-	}
-
-	if meshComponent.PBRMaterial != nil {
-		shader.SetUniformInt("hasPBRMaterial", 1)
-		shader.SetUniformVec4("pbrBaseColorFactor", meshComponent.PBRMaterial.PBRMetallicRoughness.BaseColorFactor)
-	} else {
-		shader.SetUniformInt("hasPBRMaterial", 0)
-	}
-
 	if animationComponent != nil {
 		animationTransforms := animationComponent.Player.AnimationTransforms()
 		for i := 0; i < len(animationTransforms); i++ {
@@ -48,13 +39,30 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 		}
 	}
 
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, meshComponent.Texture.ID)
 	gl.ActiveTexture(gl.TEXTURE31)
 	gl.BindTexture(gl.TEXTURE_2D, shadowMap.DepthTexture())
-	gl.BindVertexArray(meshComponent.ModelVAO)
 
-	gl.DrawElements(gl.TRIANGLES, int32(meshComponent.ModelVertexCount), gl.UNSIGNED_INT, nil)
+	for _, mesh := range meshComponent.Model.Meshes() {
+		for _, meshChunk := range mesh.MeshChunks() {
+			if pbr := meshChunk.PBRMaterial(); pbr != nil {
+				shader.SetUniformInt("hasPBRMaterial", 1)
+				shader.SetUniformVec4("pbrBaseColorFactor", pbr.PBRMetallicRoughness.BaseColorFactor)
+				if pbr.PBRMetallicRoughness.BaseColorTexture != nil {
+					shader.SetUniformInt("hasPBRBaseColorTexture", 1)
+				}
+			} else {
+				shader.SetUniformInt("hasPBRMaterial", 0)
+			}
+
+			assetManager := directory.GetDirectory().AssetManager()
+			texture := assetManager.GetTexture(defaultTexture)
+			gl.ActiveTexture(gl.TEXTURE0)
+			gl.BindTexture(gl.TEXTURE_2D, texture.ID)
+
+			gl.BindVertexArray(meshChunk.VAO())
+			gl.DrawElements(gl.TRIANGLES, int32(meshChunk.VertexCount()), gl.UNSIGNED_INT, nil)
+		}
+	}
 }
 
 func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, triMeshCollider *collider.TriMesh) {

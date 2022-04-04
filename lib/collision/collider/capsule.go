@@ -4,6 +4,8 @@ import (
 	"math"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/libutils"
+	"github.com/kkevinchou/kito/lib/model"
 )
 
 type Capsule struct {
@@ -26,8 +28,16 @@ func (c Capsule) Transform(position mgl64.Vec3) Capsule {
 	return NewCapsule(newTop, newBottom, c.Radius)
 }
 
+func NewCapsuleFromModel(model *model.Model) Capsule {
+	var vertices []mgl64.Vec3
+	for _, vertex := range model.Vertices() {
+		vertices = append(vertices, libutils.Vec3F32ToF64(vertex.Position))
+	}
+	return NewCapsuleFromVertices(vertices)
+}
+
 // CreateCapsuleFromMesh creates a capsule centered at the model space origin
-func NewCapsuleFromMeshVertices(vertices []mgl64.Vec3) Capsule {
+func NewCapsuleFromVertices(vertices []mgl64.Vec3) Capsule {
 	var minX, minY, minZ, maxX, maxY, maxZ float64
 
 	minX = vertices[0].X()

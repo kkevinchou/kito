@@ -1,17 +1,13 @@
 package entities
 
 import (
-	"fmt"
-
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
-	"github.com/kkevinchou/kito/lib/textures"
 )
 
 var (
@@ -22,22 +18,22 @@ var (
 )
 
 func NewScene() *EntityImpl {
-	return NewRigidBody("scene_building", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene, "color_grid")
+	return NewRigidBody("scene_building", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene)
 }
 
 func NewSlime() *EntityImpl {
-	return NewRigidBody("slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime, "default")
+	return NewRigidBody("slime_kevin", defaultScale, defaultOrientation, types.EntityTypeStaticSlime)
 }
 
 func NewStaticRigidBody() *EntityImpl {
-	return NewRigidBody("cubetest2", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody, "default")
+	return NewRigidBody("cubetest2", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeStaticRigidBody)
 }
 
 func NewDynamicRigidBody() *EntityImpl {
-	return NewRigidBody("guard", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody, "color_grid")
+	return NewRigidBody("guard", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeDynamicRigidBody)
 }
 
-func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType, textureName string) *EntityImpl {
+func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, entityType types.EntityType) *EntityImpl {
 	transformComponent := &components.TransformComponent{
 		Orientation: mgl64.QuatIdent(),
 	}
@@ -45,28 +41,19 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 	assetManager := directory.GetDirectory().AssetManager()
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 
-	var vao uint32
-	var texture *textures.Texture
-
 	m := model.NewModel(modelSpec)
-	vertexCount := m.VertexCount()
 
 	if utils.IsClient() {
-		vao = m.Bind()
-		texture = assetManager.GetTexture(textureName)
+		m.Prepare()
 	}
 
 	meshComponent := &components.MeshComponent{
-		ModelVAO:         vao,
-		ModelVertexCount: vertexCount,
-		Texture:          texture,
-		Scale:            Scale,
-		Orientation:      Orientation,
-		Material:         m.Mesh.Material(),
+		Scale:       Scale,
+		Orientation: Orientation,
+		Model:       m,
 	}
 
-	// triMesh := collider.NewBoxTriMesh(40, 50, 20)
-	triMesh := collider.NewTriMesh(m.Mesh.Vertices())
+	triMesh := collider.NewTriMesh(m)
 	colliderComponent := &components.ColliderComponent{
 		TriMeshCollider: &triMesh,
 	}
@@ -86,16 +73,6 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 		meshComponent,
 		colliderComponent,
 		physicsComponent,
-	}
-
-	if m.Animation != nil {
-		fmt.Println("rigid body with animation", modelName)
-		animationPlayer := animation.NewAnimationPlayer(m.Animations)
-		animationPlayer.PlayAnimation("Idle")
-		animationComponent := &components.AnimationComponent{
-			Player: animationPlayer,
-		}
-		componentList = append(componentList, animationComponent)
 	}
 
 	entity := NewEntity(
