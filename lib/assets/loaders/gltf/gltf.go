@@ -340,7 +340,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*
 
 				// meshSpec.PositionSourceData = loosenFloat32Array3ToVec(positions)
 			} else if attribute == gltf.NORMAL {
-				normals, err := modeler.ReadPosition(document, acr, nil)
+				normals, err := modeler.ReadNormal(document, acr, nil)
 				if err != nil {
 					return nil, err
 				}

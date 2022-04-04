@@ -81,7 +81,7 @@ func (m *MeshChunk) Prepare() {
 
 		vertexAttributes = append(vertexAttributes,
 			position.X(), position.Y(), position.Z(),
-			normal.X(), normal.Y(), normal.X(),
+			normal.X(), normal.Y(), normal.Z(),
 			texture.X(), texture.Y(),
 		)
 
