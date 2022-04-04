@@ -286,7 +286,6 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 }
 
 func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*modelspec.MeshSpecification, error) {
-	// parsedMesh := &ParsedMesh{}
 	meshSpec := &modelspec.MeshSpecification{}
 
 	for _, primitive := range mesh.Primitives {
@@ -298,9 +297,6 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*
 		}
 		meshChunkSpec.VertexIndices = meshIndices
 
-		// TODO: not sure when a mesh would have multiple primitives
-		// do i need to support multiple materials that come from multiple
-		// primitives?
 		if primitive.Material != nil {
 			materialIndex := int(*primitive.Material)
 			material := document.Materials[materialIndex]
@@ -313,6 +309,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*
 				},
 			}
 			if pbr.BaseColorTexture != nil {
+				// TODO: actually look up the texture
 				var tex uint32
 				meshChunkSpec.PBRMaterial.PBRMetallicRoughness.BaseColorTexture = &tex
 			}
@@ -337,8 +334,6 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*
 				for i, position := range positions {
 					meshChunkSpec.UniqueVertices[i].Position = position
 				}
-
-				// meshSpec.PositionSourceData = loosenFloat32Array3ToVec(positions)
 			} else if attribute == gltf.NORMAL {
 				normals, err := modeler.ReadNormal(document, acr, nil)
 				if err != nil {
@@ -347,7 +342,6 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*
 				for i, normal := range normals {
 					meshChunkSpec.UniqueVertices[i].Normal = normal
 				}
-				// meshSpec.NormalSourceData = loosenFloat32Array3ToVec(normals)
 			} else if attribute == gltf.TEXCOORD_0 {
 				textureCoords, err := modeler.ReadTextureCoord(document, acr, nil)
 				if err != nil {
@@ -359,7 +353,6 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*
 					}
 					meshChunkSpec.UniqueVertices[i].Texture = textureCoord
 				}
-				// meshSpec.TextureSourceData = loosenFloat32Array2ToVec(textureCoords)
 			} else if attribute == gltf.JOINTS_0 {
 				jointsSlice, err := modeler.ReadJoints(document, acr, nil)
 				if err != nil {

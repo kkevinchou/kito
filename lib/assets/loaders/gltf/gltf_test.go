@@ -20,20 +20,5 @@ func TestBasic(t *testing.T) {
 	}
 	_ = m
 
-	// fmt.Println(m.Meshes)
-	// fmt.Println(m.Meshes[0].MeshChunks)
-	// chunk := m.Meshes[0].MeshChunks[0]
-	// fmt.Println(len(chunk.VertexIndices))
-	// fmt.Println(len(chunk.UniqueVertices))
-	// fmt.Println(chunk.VertexIndices)
-	// fmt.Println(len(chunk.VertexIndices))
-	// fmt.Println(chunk.Vertices)
-	// for _, v := range chunk.Vertices {
-	// 	fmt.Println(v)
-	// }
-	// fmt.Println(len(chunk.Vertices))
-
-	// fmt.Println(m.Meshes[0].MeshChunks[0].Vertices)
-
 	t.Fail()
 }

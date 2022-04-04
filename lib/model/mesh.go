@@ -63,6 +63,7 @@ func (m *Mesh) Vertices() []modelspec.Vertex {
 }
 
 func (m *MeshChunk) Prepare() {
+	// initialize the VAO
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
@@ -72,6 +73,7 @@ func (m *MeshChunk) Prepare() {
 	var jointIDsAttribute []int32
 	var jointWeightsAttribute []float32
 
+	// set up the source data for the VBOs
 	for _, vertex := range m.spec.UniqueVertices {
 		position := vertex.Position
 		normal := vertex.Normal
@@ -94,6 +96,7 @@ func (m *MeshChunk) Prepare() {
 
 	totalAttributeSize := len(vertexAttributes) / len(m.spec.UniqueVertices)
 
+	// lay out the position, normal, texture coords in a VBO
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
@@ -108,6 +111,7 @@ func (m *MeshChunk) Prepare() {
 	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, int32(totalAttributeSize)*4, gl.PtrOffset(6*4))
 	gl.EnableVertexAttribArray(2)
 
+	// lay out the joint IDs in a VBO
 	var vboJointIDs uint32
 	gl.GenBuffers(1, &vboJointIDs)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointIDs)
@@ -115,6 +119,7 @@ func (m *MeshChunk) Prepare() {
 	gl.VertexAttribIPointer(3, int32(settings.AnimationMaxJointWeights), gl.INT, int32(settings.AnimationMaxJointWeights)*4, nil)
 	gl.EnableVertexAttribArray(3)
 
+	// lay out the joint weights in a VBO
 	var vboJointWeights uint32
 	gl.GenBuffers(1, &vboJointWeights)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vboJointWeights)
@@ -122,6 +127,8 @@ func (m *MeshChunk) Prepare() {
 	gl.VertexAttribPointer(4, int32(settings.AnimationMaxJointWeights), gl.FLOAT, false, int32(settings.AnimationMaxJointWeights)*4, nil)
 	gl.EnableVertexAttribArray(4)
 
+	// set up the EBO, each triplet of indices point to three vertices
+	// that form a triangle.
 	var ebo uint32
 	gl.GenBuffers(1, &ebo)
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
