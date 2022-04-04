@@ -6,16 +6,9 @@ import (
 )
 
 type MeshComponent struct {
-	// should probably store this data in a separate component
-	// ModelVAO         uint32
-	// ModelVertexCount int
 	Scale       mgl64.Mat4
 	Orientation mgl64.Mat4
-	// Material    *modelspec.EffectSpec
-	// PBRMaterial *modelspec.PBRMaterial
-
-	// Texture *textures.Texture
-	Model *model.Model
+	Model       *model.Model
 }
 
 func (c *MeshComponent) GetMeshComponent() *MeshComponent {

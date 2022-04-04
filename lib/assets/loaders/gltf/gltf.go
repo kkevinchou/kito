@@ -43,9 +43,7 @@ func ParseGLTF(documentPath string) (*modelspec.ModelSpecification, error) {
 		}
 	}
 
-	modelSpec := &modelspec.ModelSpecification{
-		// EffectSpecData:     effectSpec,
-	}
+	modelSpec := &modelspec.ModelSpecification{}
 
 	for _, mesh := range document.Meshes {
 		meshSpec, err := parseMesh(document, mesh)

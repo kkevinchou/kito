@@ -42,13 +42,6 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 	gl.ActiveTexture(gl.TEXTURE31)
 	gl.BindTexture(gl.TEXTURE_2D, shadowMap.DepthTexture())
 
-	// if meshComponent.Material != nil && meshComponent.Material.DiffuseColor != nil {
-	// 	shader.SetUniformInt("materialHasDiffuseColor", 1)
-	// 	shader.SetUniformVec3("materialDiffuseColor", *meshComponent.Material.DiffuseColor)
-	// } else {
-	// 	shader.SetUniformInt("materialHasDiffuseColor", 0)
-	// }
-
 	for _, mesh := range meshComponent.Model.Meshes() {
 		for _, meshChunk := range mesh.MeshChunks() {
 			if pbr := meshChunk.PBRMaterial(); pbr != nil {

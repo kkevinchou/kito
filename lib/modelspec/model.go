@@ -2,19 +2,6 @@ package modelspec
 
 import "github.com/go-gl/mathgl/mgl32"
 
-type EffectSpec struct { // todo(kevin): rename to MaterialSpec
-	ID                     string
-	ShaderElement          string
-	EmissionColor          *mgl32.Vec3
-	DiffuseColor           *mgl32.Vec3
-	IndexOfRefractionFloat float32
-	ReflectivityFloat      float32
-	ReflectivityColor      *mgl32.Vec3
-	ShininessFloat         float32
-	TransparencyFloat      float32
-	TransparencyColor      *mgl32.Vec3
-}
-
 type PBRMetallicRoughness struct {
 	BaseColorTexture *uint32
 	BaseColorFactor  mgl32.Vec4
@@ -86,9 +73,6 @@ func (m *MeshSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
 // animation data. This struct should be agnostic to the 3D modelling tool that produced the data.
 type ModelSpecification struct {
 	Meshes []*MeshSpecification
-
-	// Effects
-	EffectSpecData *EffectSpec
 
 	// Joint Hierarchy
 	RootJoint *JointSpec
