@@ -30,7 +30,7 @@ func NewBob() *EntityImpl {
 		m.Prepare()
 	}
 
-	animationPlayer := animation.NewAnimationPlayer(m.Animations)
+	animationPlayer := animation.NewAnimationPlayer(m)
 	animationPlayer.PlayAnimation("Idle")
 	animationComponent := &components.AnimationComponent{
 		Player: animationPlayer,
