@@ -33,6 +33,9 @@ func NewBob() *EntityImpl {
 
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 	m := model.NewModel(modelSpec)
+	if utils.IsClient() {
+		m.Prepare()
+	}
 
 	animationPlayer := animation.NewAnimationPlayer(m.Animations)
 	animationPlayer.PlayAnimation("Idle")
