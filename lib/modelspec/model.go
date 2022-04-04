@@ -43,25 +43,25 @@ type MeshChunkSpecification struct {
 type MeshSpecification struct {
 	MeshChunks []*MeshChunkSpecification
 
-	// Geometry
-	// VertexAttributeIndices defines indices that are lookups for individual vertex properties
-	// VertexAttributesStride defines how many contiguous indices within VertexAttributeIndices define a vertex
-	//		Example arrangement:
-	//		[
-	//			triangle1PositionIndex, triangle1NormalIndex, triangle1TextureCoordIndex,
-	//			triangle2PositionIndex, triangle2NormalIndex, triangle2TextureCoordIndex,
-	//		]
-	// VertexAttributesStride would have a value of 3 here
-	// Three contiguous vertices define a triangle, after which the next triangle is defined
-	VertexAttributesStride int
+	// // Geometry
+	// // VertexAttributeIndices defines indices that are lookups for individual vertex properties
+	// // VertexAttributesStride defines how many contiguous indices within VertexAttributeIndices define a vertex
+	// //		Example arrangement:
+	// //		[
+	// //			triangle1PositionIndex, triangle1NormalIndex, triangle1TextureCoordIndex,
+	// //			triangle2PositionIndex, triangle2NormalIndex, triangle2TextureCoordIndex,
+	// //		]
+	// // VertexAttributesStride would have a value of 3 here
+	// // Three contiguous vertices define a triangle, after which the next triangle is defined
+	// VertexAttributesStride int
 
-	PositionSourceData []mgl32.Vec3
-	NormalSourceData   []mgl32.Vec3
-	TextureSourceData  []mgl32.Vec2
+	// PositionSourceData []mgl32.Vec3
+	// NormalSourceData   []mgl32.Vec3
+	// TextureSourceData  []mgl32.Vec2
 
-	// sorted by vertex order
-	JointIDs     [][]int
-	JointWeights [][]float32
+	// // sorted by vertex order
+	// JointIDs     [][]int
+	// JointWeights [][]float32
 }
 
 func (m *ModelSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
@@ -71,9 +71,10 @@ func (m *ModelSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
 }
 
 func (m *MeshSpecification) ConvertTexCoordsFromGLTFToOpenGL() {
-	for i, v := range m.TextureSourceData {
-		m.TextureSourceData[i] = mgl32.Vec2{v.X(), 1 - v.Y()}
-	}
+	// TODO: fix this
+	// for i, v := range m.TextureSourceData {
+	// 	m.TextureSourceData[i] = mgl32.Vec2{v.X(), 1 - v.Y()}
+	// }
 }
 
 // ModelSpecification is the output of any parsed model files (e.g. from Blender, Maya, etc)
