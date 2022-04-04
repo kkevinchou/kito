@@ -31,37 +31,6 @@ func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {
 	return m.spec.PBRMaterial
 }
 
-func NewMesh(spec *modelspec.MeshSpecification) *Mesh {
-	var meshChunks []*MeshChunk
-	for _, mc := range spec.MeshChunks {
-		meshChunks = append(meshChunks, &MeshChunk{
-			spec: mc,
-		})
-	}
-	return &Mesh{
-		meshChunks: meshChunks,
-	}
-}
-
-func (m *Mesh) MeshChunks() []*MeshChunk {
-	return m.meshChunks
-}
-
-func (m *Mesh) Prepare() {
-	for _, chunk := range m.meshChunks {
-		chunk.Prepare()
-	}
-}
-
-func (m *Mesh) Vertices() []modelspec.Vertex {
-	var vertices []modelspec.Vertex
-	for _, meshChunk := range m.meshChunks {
-		chunkVerts := meshChunk.Vertices()
-		vertices = append(vertices, chunkVerts...)
-	}
-	return vertices
-}
-
 func (m *MeshChunk) Prepare() {
 	// initialize the VAO
 	var vao uint32
@@ -133,4 +102,35 @@ func (m *MeshChunk) Prepare() {
 	gl.GenBuffers(1, &ebo)
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(m.spec.VertexIndices)*4, gl.Ptr(m.spec.VertexIndices), gl.STATIC_DRAW)
+}
+
+func NewMesh(spec *modelspec.MeshSpecification) *Mesh {
+	var meshChunks []*MeshChunk
+	for _, mc := range spec.MeshChunks {
+		meshChunks = append(meshChunks, &MeshChunk{
+			spec: mc,
+		})
+	}
+	return &Mesh{
+		meshChunks: meshChunks,
+	}
+}
+
+func (m *Mesh) MeshChunks() []*MeshChunk {
+	return m.meshChunks
+}
+
+func (m *Mesh) Prepare() {
+	for _, chunk := range m.meshChunks {
+		chunk.Prepare()
+	}
+}
+
+func (m *Mesh) Vertices() []modelspec.Vertex {
+	var vertices []modelspec.Vertex
+	for _, meshChunk := range m.meshChunks {
+		chunkVerts := meshChunk.Vertices()
+		vertices = append(vertices, chunkVerts...)
+	}
+	return vertices
 }
