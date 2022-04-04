@@ -67,7 +67,7 @@ func NewBob() *EntityImpl {
 	entityComponents := []components.Component{
 		&components.NetworkComponent{},
 		transformComponent,
-		// animationComponent,
+		animationComponent,
 		thirdPersonControllerComponent,
 		meshComponent,
 		colliderComponent,
