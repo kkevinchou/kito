@@ -1,33 +1,39 @@
 package model
 
 import (
+	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
 type Model struct {
-	Animations map[string]*Animation
-	meshes     []*Mesh
+	meshes    []*Mesh
+	modelSpec *modelspec.ModelSpecification
 }
 
-// NewModel takes a ModelSpecification and performs the necessary OpenGL operations
-// to pack the vertex and joint data into vertex buffers. It also holds animation
-// key frame data for the animation system
 func NewModel(spec *modelspec.ModelSpecification) *Model {
-	// mesh := NewMesh(spec.Meshes[0])
-	var animations map[string]*Animation
-	if spec.Animations != nil {
-		animations = NewAnimations(spec)
-	}
-
 	var meshes []*Mesh
 	for _, ms := range spec.Meshes {
 		meshes = append(meshes, NewMesh(ms))
 	}
 
-	return &Model{
-		meshes:     meshes,
-		Animations: animations,
+	m := &Model{
+		modelSpec: spec,
+		meshes:    meshes,
 	}
+
+	if utils.IsClient() {
+		m.prepare()
+	}
+
+	return m
+}
+
+func (m *Model) RootJoint() *modelspec.JointSpec {
+	return m.modelSpec.RootJoint
+}
+
+func (m *Model) Animations() map[string]*modelspec.AnimationSpec {
+	return m.modelSpec.Animations
 }
 
 func (m *Model) Meshes() []*Mesh {
@@ -43,8 +49,16 @@ func (m *Model) Vertices() []modelspec.Vertex {
 	return vertices
 }
 
-func (m *Model) Prepare() {
+func (m *Model) prepare() {
 	for _, mesh := range m.meshes {
-		mesh.Prepare()
+		mesh.prepare()
 	}
+}
+
+func (m *Model) MeshChunks() []*MeshChunk {
+	var meshChunks []*MeshChunk
+	for _, mesh := range m.Meshes() {
+		meshChunks = append(meshChunks, mesh.MeshChunks()...)
+	}
+	return meshChunks
 }

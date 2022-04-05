@@ -5,7 +5,6 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 )
@@ -42,10 +41,6 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 
 	m := model.NewModel(modelSpec)
-
-	if utils.IsClient() {
-		m.Prepare()
-	}
 
 	meshComponent := &components.MeshComponent{
 		Scale:       Scale,

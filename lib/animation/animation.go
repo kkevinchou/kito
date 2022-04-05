@@ -12,15 +12,18 @@ import (
 type AnimationPlayer struct {
 	elapsedTime         time.Duration
 	animationTransforms map[int]mgl32.Mat4
-	currentAnimation    *model.Animation
+	currentAnimation    *modelspec.AnimationSpec
 
 	// these fields are from the loaded animation and should not be modified
-	animations map[string]*model.Animation
+	animations map[string]*modelspec.AnimationSpec
+	rootJoint  *modelspec.JointSpec
 }
 
-func NewAnimationPlayer(animations map[string]*model.Animation) *AnimationPlayer {
+// func NewAnimationPlayer(animations map[string]*modelspec.AnimationSpec, rootJoint *modelspec.JointSpec) *AnimationPlayer {
+func NewAnimationPlayer(m *model.Model) *AnimationPlayer {
 	return &AnimationPlayer{
-		animations: animations,
+		animations: m.Animations(),
+		rootJoint:  m.RootJoint(),
 	}
 }
 
@@ -29,7 +32,7 @@ func (player *AnimationPlayer) AnimationTransforms() map[int]mgl32.Mat4 {
 }
 
 func (player *AnimationPlayer) PlayAnimation(animationName string) {
-	if player.currentAnimation != nil && player.currentAnimation.Name() == animationName {
+	if player.currentAnimation != nil && player.currentAnimation.Name == animationName {
 		return
 	}
 
@@ -41,12 +44,12 @@ func (player *AnimationPlayer) PlayAnimation(animationName string) {
 
 func (player *AnimationPlayer) Update(delta time.Duration) {
 	player.elapsedTime += delta
-	for player.elapsedTime.Milliseconds() > player.currentAnimation.Length().Milliseconds() {
-		player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length().Milliseconds()) * time.Millisecond
+	for player.elapsedTime.Milliseconds() > player.currentAnimation.Length.Milliseconds() {
+		player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length.Milliseconds()) * time.Millisecond
 	}
 
-	pose := calculateCurrentAnimationPose(player.elapsedTime, player.currentAnimation.KeyFrames())
-	animationTransforms := computeJointTransforms(player.currentAnimation.RootJoint(), pose)
+	pose := calculateCurrentAnimationPose(player.elapsedTime, player.currentAnimation.KeyFrames)
+	animationTransforms := computeJointTransforms(player.rootJoint, pose)
 	player.animationTransforms = animationTransforms
 }
 

@@ -42,26 +42,24 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 	gl.ActiveTexture(gl.TEXTURE31)
 	gl.BindTexture(gl.TEXTURE_2D, shadowMap.DepthTexture())
 
-	for _, mesh := range meshComponent.Model.Meshes() {
-		for _, meshChunk := range mesh.MeshChunks() {
-			if pbr := meshChunk.PBRMaterial(); pbr != nil {
-				shader.SetUniformInt("hasPBRMaterial", 1)
-				shader.SetUniformVec4("pbrBaseColorFactor", pbr.PBRMetallicRoughness.BaseColorFactor)
-				if pbr.PBRMetallicRoughness.BaseColorTexture != nil {
-					shader.SetUniformInt("hasPBRBaseColorTexture", 1)
-				}
-			} else {
-				shader.SetUniformInt("hasPBRMaterial", 0)
+	for _, meshChunk := range meshComponent.Model.MeshChunks() {
+		if pbr := meshChunk.PBRMaterial(); pbr != nil {
+			shader.SetUniformInt("hasPBRMaterial", 1)
+			shader.SetUniformVec4("pbrBaseColorFactor", pbr.PBRMetallicRoughness.BaseColorFactor)
+			if pbr.PBRMetallicRoughness.BaseColorTexture != nil {
+				shader.SetUniformInt("hasPBRBaseColorTexture", 1)
 			}
-
-			assetManager := directory.GetDirectory().AssetManager()
-			texture := assetManager.GetTexture(defaultTexture)
-			gl.ActiveTexture(gl.TEXTURE0)
-			gl.BindTexture(gl.TEXTURE_2D, texture.ID)
-
-			gl.BindVertexArray(meshChunk.VAO())
-			gl.DrawElements(gl.TRIANGLES, int32(meshChunk.VertexCount()), gl.UNSIGNED_INT, nil)
+		} else {
+			shader.SetUniformInt("hasPBRMaterial", 0)
 		}
+
+		assetManager := directory.GetDirectory().AssetManager()
+		texture := assetManager.GetTexture(defaultTexture)
+		gl.ActiveTexture(gl.TEXTURE0)
+		gl.BindTexture(gl.TEXTURE_2D, texture.ID)
+
+		gl.BindVertexArray(meshChunk.VAO())
+		gl.DrawElements(gl.TRIANGLES, int32(meshChunk.VertexCount()), gl.UNSIGNED_INT, nil)
 	}
 }
 

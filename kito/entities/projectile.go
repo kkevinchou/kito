@@ -25,7 +25,6 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 
 	m := model.NewModel(modelSpec)
-	m.Prepare()
 
 	meshComponent := &components.MeshComponent{
 		Scale:       mgl64.Ident4(),

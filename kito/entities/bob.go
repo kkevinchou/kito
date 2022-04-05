@@ -5,7 +5,6 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/animation"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
@@ -26,11 +25,8 @@ func NewBob() *EntityImpl {
 
 	modelSpec := assetManager.GetAnimatedModel(modelName)
 	m := model.NewModel(modelSpec)
-	if utils.IsClient() {
-		m.Prepare()
-	}
 
-	animationPlayer := animation.NewAnimationPlayer(m.Animations)
+	animationPlayer := animation.NewAnimationPlayer(m)
 	animationPlayer.PlayAnimation("Idle")
 	animationComponent := &components.AnimationComponent{
 		Player: animationPlayer,
