@@ -31,7 +31,7 @@ func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {
 	return m.spec.PBRMaterial
 }
 
-func (m *MeshChunk) Prepare() {
+func (m *MeshChunk) prepare() {
 	// initialize the VAO
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
@@ -120,9 +120,9 @@ func (m *Mesh) MeshChunks() []*MeshChunk {
 	return m.meshChunks
 }
 
-func (m *Mesh) Prepare() {
+func (m *Mesh) prepare() {
 	for _, chunk := range m.meshChunks {
-		chunk.Prepare()
+		chunk.prepare()
 	}
 }
 
