@@ -49,6 +49,10 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 			if pbr.PBRMetallicRoughness.BaseColorTexture != nil {
 				shader.SetUniformInt("hasPBRBaseColorTexture", 1)
 			}
+			shader.SetUniformVec3("albedo", pbr.PBRMetallicRoughness.BaseColorFactor.Vec3())
+			shader.SetUniformFloat("metallic", pbr.PBRMetallicRoughness.MetalicFactor)
+			shader.SetUniformFloat("roughness", pbr.PBRMetallicRoughness.RoughnessFactor)
+			shader.SetUniformFloat("ao", 1.0)
 		} else {
 			shader.SetUniformInt("hasPBRMaterial", 0)
 		}
