@@ -44,7 +44,6 @@ func NewBob() *EntityImpl {
 	}
 
 	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
-	// capsule := collider.NewCapsuleFromModel(m)
 	colliderComponent := &components.ColliderComponent{
 		CapsuleCollider: &capsule,
 	}
