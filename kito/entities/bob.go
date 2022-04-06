@@ -11,7 +11,7 @@ import (
 )
 
 func NewBob() *EntityImpl {
-	modelName := "Elf"
+	modelName := "human"
 	assetManager := directory.GetDirectory().AssetManager()
 
 	transformComponent := &components.TransformComponent{
