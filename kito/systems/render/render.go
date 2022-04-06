@@ -266,7 +266,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 
 		shader := "model_static"
 		if componentContainer.AnimationComponent != nil {
-			shader = "model"
+			shader = "modelpbr"
+			// shader = "model"
 		}
 
 		drawModel(

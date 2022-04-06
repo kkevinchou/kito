@@ -1,8 +1,5 @@
 #version 330 core
 out vec4 FragColor;
-in vec2 TexCoords;
-in vec3 WorldPos;
-in vec3 Normal;
 
 // material parameters
 uniform vec3  albedo;
@@ -13,11 +10,61 @@ uniform float ao;
 // lights
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
+uniform vec3 directionalLightDir;
 
-uniform vec3 camPos;
+uniform vec3 viewPos;
+
+// shadows
+uniform sampler2D shadowMap;
+uniform float shadowDistance;
 
 const float PI = 3.14159265359;
-  
+
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec4 FragPosLightSpace;
+    mat4 View;
+    vec2 TexCoord;
+} fs_in;
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
+{
+    if (length(vec3(fs_in.View * vec4(fs_in.FragPos, 1))) > shadowDistance) {
+        return 0;
+    }
+
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    // float closestDepth = texture(shadowMap, projCoords.xy).r; // QUESTION: why is it .r? is it because it's a grayscale texture?
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    // float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+
+    // bias term needs to be tweaked depending on geometry
+    float bias = max(0.0000000001 * (1.0 - dot(normal, lightDir)), 0.000000001);
+    // bias = 0;
+    
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+
+    return shadow;
+}
+
 float DistributionGGX(vec3 N, vec3 H, float roughness) {
     float a      = roughness*roughness;
     float a2     = a*a;
@@ -40,6 +87,7 @@ float GeometrySchlickGGX(float NdotV, float roughness) {
 	
     return num / denom;
 }
+
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
@@ -53,44 +101,52 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }  
 
-void main()
-{		
-    vec3 N = normalize(Normal);
-    vec3 V = normalize(camPos - WorldPos);
-
+vec3 calculateLightOut(vec3 normal, vec3 fragToCam, vec3 fragToLight, float lightDistance, vec3 lightColor) {
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
+
+    // calculate per-light radiance
+    vec3 H = normalize(fragToCam + fragToLight);
+    float attenuation = 1.0 / (lightDistance * lightDistance);
+    vec3 radiance     = lightColor * attenuation;        
+    
+    // cook-torrance brdf
+    float NDF = DistributionGGX(normal, H, roughness);        
+    float G   = GeometrySmith(normal, fragToCam, fragToLight, roughness);      
+    vec3 F    = fresnelSchlick(max(dot(H, fragToCam), 0.0), F0);       
+    
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;	  
+    
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(normal, fragToCam), 0.0) * max(dot(normal, fragToLight), 0.0) + 0.0001;
+    vec3 specular     = numerator / denominator;  
+        
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(normal, fragToLight), 0.0);                
+    return (kD * albedo / PI + specular) * radiance * NdotL; 
+}
+
+void main()
+{		
+    vec3 normal = normalize(fs_in.Normal);
 	           
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 4; ++i) 
-    {
-        // calculate per-light radiance
-        vec3 L = normalize(lightPositions[i] - WorldPos);
-        vec3 H = normalize(V + L);
-        float distance    = length(lightPositions[i] - WorldPos);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance     = lightColors[i] * attenuation;        
+    // for(int i = 0; i < 4; ++i) {
+        // vec3 fragToLight = normalize(lightPositions[i] - fs_in.FragPos);
+        vec3 fragToCam = normalize(viewPos - fs_in.FragPos);
+        // float distance = length(lightPositions[i] - fs_in.FragPos);
         
-        // cook-torrance brdf
-        float NDF = DistributionGGX(N, H, roughness);        
-        float G   = GeometrySmith(N, V, L, roughness);      
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
-        
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic;	  
-        
-        vec3 numerator    = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-        vec3 specular     = numerator / denominator;  
-            
-        // add to outgoing radiance Lo
-        float NdotL = max(dot(N, L), 0.0);                
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
-    }   
+        float distance = 1;
+        vec3 fragToLight = -directionalLightDir;
+        vec3 lightColor = vec3(1, 1, 1);
+        float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, directionalLightDir);
+        Lo += (1 - shadow) * calculateLightOut(normal, fragToCam, fragToLight, distance, lightColor);
+    // }   
   
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.3) * albedo * ao;
     vec3 color = ambient + Lo;
 	
     color = color / (color + vec3(1.0));

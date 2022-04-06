@@ -178,6 +178,9 @@ func compileShaders() {
 	if err := shaderManager.CompileShaderProgram("model", "model", "model"); err != nil {
 		panic(err)
 	}
+	if err := shaderManager.CompileShaderProgram("modelpbr", "model", "pbr"); err != nil {
+		panic(err)
+	}
 	if err := shaderManager.CompileShaderProgram("model_static", "model_static", "model"); err != nil {
 		panic(err)
 	}
