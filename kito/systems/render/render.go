@@ -36,6 +36,7 @@ type World interface {
 	GetEntityByID(id int) (entities.Entity, error)
 	GetPlayerEntity() entities.Entity
 	MetricsRegistry() *metrics.MetricsRegistry
+	QueryEntity(componentFlags int) []entities.Entity
 	CommandFrame() int
 }
 
@@ -202,9 +203,6 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 	s.renderScene(viewerContext, lightContext, false)
 }
 
-var f [3]float32
-var inputText string
-
 func (s *RenderSystem) renderImgui() {
 	s.platform.NewFrame()
 	imgui.NewFrame()
@@ -245,7 +243,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		)
 	}
 
-	for _, entity := range s.entities {
+	for _, entity := range s.world.QueryEntity(components.ComponentFlagRender) {
 		componentContainer := entity.GetComponentContainer()
 		entityPosition := componentContainer.TransformComponent.Position
 		orientation := componentContainer.TransformComponent.Orientation

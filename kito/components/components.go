@@ -43,6 +43,7 @@ func NewComponentContainer(components ...Component) *ComponentContainer {
 	container := &ComponentContainer{}
 	for _, component := range components {
 		component.AddToComponentContainer(container)
+		container.bitflags |= component.ComponentFlag()
 	}
 	return container
 }

@@ -83,6 +83,8 @@ func (g *Game) RegisterEntities(entityList []entities.Entity) {
 			system.RegisterEntity(entity)
 		}
 	}
+
+	g.AddEntities(entityList)
 }
 
 func (g *Game) CommandFrame() int {
@@ -99,4 +101,17 @@ func (g *Game) GetCommandFrameHistory() *commandframe.CommandFrameHistory {
 
 func (g *Game) MetricsRegistry() *metrics.MetricsRegistry {
 	return g.metricsRegistry
+}
+
+func (g *Game) AddEntity(e entities.Entity) {
+	g.entityManager.AddEntity(e)
+}
+
+func (g *Game) AddEntities(es []entities.Entity) {
+	for _, e := range es {
+		g.AddEntity(e)
+	}
+}
+func (g *Game) QueryEntity(componentFlags int) []entities.Entity {
+	return g.entityManager.Query(componentFlags)
 }
