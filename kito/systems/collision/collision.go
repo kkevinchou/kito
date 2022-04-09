@@ -14,14 +14,13 @@ import (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(id int) (entities.Entity, error)
 	GetPlayerEntity() entities.Entity
+	QueryEntity(componentFlags int) []entities.Entity
 }
 
 type CollisionSystem struct {
 	*base.BaseSystem
-	world    World
-	entities []entities.Entity
+	world World
 }
 
 func NewCollisionSystem(world World) *CollisionSystem {
@@ -31,17 +30,11 @@ func NewCollisionSystem(world World) *CollisionSystem {
 	}
 }
 
-func (s *CollisionSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.ColliderComponent != nil && componentContainer.TransformComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-}
-
 func (s *CollisionSystem) Update(delta time.Duration) {
 	handledCollisions := map[int]map[int]bool{}
-	for _, e := range s.entities {
+
+	// initialize collision state
+	for _, e := range s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
 		cc := e.GetComponentContainer()
 
 		if cc.ColliderComponent.CapsuleCollider != nil {
@@ -62,7 +55,7 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 		player := s.world.GetPlayerEntity()
 		s.collide(player, handledCollisions)
 	} else {
-		for _, e1 := range s.entities {
+		for _, e1 := range s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
 			s.collide(e1, handledCollisions)
 		}
 	}
@@ -70,7 +63,7 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 
 func (s *CollisionSystem) collide(e1 entities.Entity, handledCollisions map[int]map[int]bool) {
 	e1cc := e1.GetComponentContainer()
-	for _, e2 := range s.entities {
+	for _, e2 := range s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
 		e2cc := e2.GetComponentContainer()
 
 		// don't check an entity against itself or if we've already computed collisions

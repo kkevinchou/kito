@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/singleton"
 
 	"github.com/kkevinchou/kito/kito/entities"
@@ -21,13 +22,13 @@ const (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(id int) (entities.Entity, error)
+	GetEntityByID(id int) entities.Entity
+	QueryEntity(componentFlags int) []entities.Entity
 }
 
 type CameraSystem struct {
 	*base.BaseSystem
-	world    World
-	entities []entities.Entity
+	world World
 }
 
 func NewCameraSystem(world World) *CameraSystem {
@@ -38,18 +39,10 @@ func NewCameraSystem(world World) *CameraSystem {
 	return &s
 }
 
-func (s *CameraSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.CameraComponent != nil && componentContainer.ControlComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-}
-
 func (s *CameraSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 
-	for _, camera := range s.entities {
+	for _, camera := range s.world.QueryEntity(components.ComponentFlagCamera | components.ComponentFlagControl) {
 		playerID := camera.GetComponentContainer().ControlComponent.PlayerID
 		handleCameraControls(delta, camera, s.world, singleton.PlayerInput[playerID])
 	}
@@ -131,8 +124,8 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 		followComponent.FollowDistance = 5
 	}
 
-	target, err := world.GetEntityByID(followComponent.FollowTargetEntityID)
-	if err != nil {
+	target := world.GetEntityByID(followComponent.FollowTargetEntityID)
+	if target == nil {
 		fmt.Println("failed to find target entity with ID", followComponent.FollowTargetEntityID)
 		return
 	}

@@ -7,3 +7,7 @@ type NetworkComponent struct {
 func (c *NetworkComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.NetworkComponent = c
 }
+
+func (c *NetworkComponent) ComponentFlag() int {
+	return ComponentFlagNetwork
+}

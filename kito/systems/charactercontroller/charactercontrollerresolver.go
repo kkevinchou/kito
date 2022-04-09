@@ -8,8 +8,6 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/kito/utils/controllerutils"
-
-	"github.com/kkevinchou/kito/kito/entities"
 )
 
 const (
@@ -19,25 +17,14 @@ const (
 
 type CharacterControllerResolverSystem struct {
 	*base.BaseSystem
-	world    World
-	entities []entities.Entity
+	world World
 }
 
 func NewCharacterControllerResolverSystem(world World) *CharacterControllerResolverSystem {
 	return &CharacterControllerResolverSystem{
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
-		entities:   []entities.Entity{},
 	}
-}
-
-func (s *CharacterControllerResolverSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.ThirdPersonControllerComponent != nil && componentContainer.TransformComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-
 }
 
 func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
@@ -52,8 +39,8 @@ func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
 	}
 
 	for _, player := range players {
-		entity, err := s.world.GetEntityByID(player.EntityID)
-		if err != nil {
+		entity := s.world.GetEntityByID(player.EntityID)
+		if entity == nil {
 			continue
 		}
 		controllerutils.ResolveControllerCollision(entity)

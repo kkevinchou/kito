@@ -15,7 +15,7 @@ import (
 type World interface {
 	CommandFrame() int
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(int) (entities.Entity, error)
+	GetEntityByID(int) entities.Entity
 	RegisterEntities([]entities.Entity)
 }
 
@@ -30,17 +30,14 @@ func NewAbilitySystem(world World) *AbilitySystem {
 	}
 }
 
-func (s *AbilitySystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *AbilitySystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	playerManager := directory.GetDirectory().PlayerManager()
 
 	for _, player := range playerManager.GetPlayers() {
 		playerInput := singleton.PlayerInput[player.ID]
-		entity, err := s.world.GetEntityByID(player.EntityID)
-		if err != nil {
+		entity := s.world.GetEntityByID(player.EntityID)
+		if entity == nil {
 			fmt.Printf("ability system couldn't find player %d\n", player.ID)
 			continue
 		}

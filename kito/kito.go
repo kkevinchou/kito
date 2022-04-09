@@ -7,7 +7,7 @@ import (
 
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
-	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/entitymanager"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/input"
@@ -19,7 +19,6 @@ import (
 
 type System interface {
 	Update(delta time.Duration)
-	RegisterEntity(entity entities.Entity)
 }
 
 type RenderFunction func(delta time.Duration)
@@ -30,9 +29,9 @@ type Game struct {
 	gameOver bool
 	gameMode types.GameMode
 
-	singleton *singleton.Singleton
-	systems   []System
-	entities  map[int]entities.Entity
+	singleton     *singleton.Singleton
+	entityManager *entitymanager.EntityManager
+	systems       []System
 
 	eventBroker     eventbroker.EventBroker
 	metricsRegistry *metrics.MetricsRegistry
@@ -47,7 +46,7 @@ func NewBaseGame() *Game {
 	return &Game{
 		gameMode:        types.GameModePlaying,
 		singleton:       singleton.NewSingleton(),
-		entities:        map[int]entities.Entity{},
+		entityManager:   entitymanager.NewEntityManager(),
 		eventBroker:     eventbroker.NewEventBroker(),
 		metricsRegistry: metrics.New(),
 		inputPollingFn:  input.NullInputPoller,

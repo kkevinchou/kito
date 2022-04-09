@@ -18,3 +18,7 @@ func (c *MeshComponent) GetMeshComponent() *MeshComponent {
 func (c *MeshComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.MeshComponent = c
 }
+
+func (c *MeshComponent) ComponentFlag() int {
+	return ComponentFlagMesh
+}

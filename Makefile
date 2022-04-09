@@ -19,6 +19,10 @@ pprof:
 test:
 	go test ./...
 
+.PHONY: build
+build:
+	go build -o out
+
 .PHONY: release 
 release: clean
 	mkdir $(RELEASE_FOLDER)

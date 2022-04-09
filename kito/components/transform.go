@@ -12,3 +12,7 @@ type TransformComponent struct {
 func (c *TransformComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.TransformComponent = c
 }
+
+func (c *TransformComponent) ComponentFlag() int {
+	return ComponentFlagTransform
+}

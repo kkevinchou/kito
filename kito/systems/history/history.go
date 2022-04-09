@@ -13,7 +13,6 @@ import (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
-	GetEntityByID(id int) (entities.Entity, error)
 	GetPlayerEntity() entities.Entity
 	GetPlayer() *player.Player
 }
@@ -28,9 +27,6 @@ func NewHistorySystem(world World) *HistorySystem {
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
 	}
-}
-
-func (s *HistorySystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *HistorySystem) Update(delta time.Duration) {

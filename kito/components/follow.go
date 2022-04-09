@@ -13,3 +13,7 @@ type FollowComponent struct {
 func (c *FollowComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.FollowComponent = c
 }
+
+func (c *FollowComponent) ComponentFlag() int {
+	return ComponentFlagFollow
+}

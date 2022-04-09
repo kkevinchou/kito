@@ -33,9 +33,10 @@ const (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(id int) (entities.Entity, error)
+	GetEntityByID(id int) entities.Entity
 	GetPlayerEntity() entities.Entity
 	MetricsRegistry() *metrics.MetricsRegistry
+	QueryEntity(componentFlags int) []entities.Entity
 	CommandFrame() int
 }
 
@@ -115,22 +116,14 @@ func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO
 	return &renderSystem
 }
 
-func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.RenderComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-}
-
 func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 	singleton := s.world.GetSingleton()
 	if singleton.CameraID == 0 {
 		return nil
 	}
-	camera, err := s.world.GetEntityByID(singleton.CameraID)
-	if err != nil {
-		fmt.Println(err)
+	camera := s.world.GetEntityByID(singleton.CameraID)
+	if camera == nil {
+		fmt.Printf("render syste could not find camera with entity id %d\n", singleton.CameraID)
 		return nil
 	}
 	componentContainer := camera.GetComponentContainer()
@@ -202,9 +195,6 @@ func (s *RenderSystem) renderToDisplay(viewerContext ViewerContext, lightContext
 	s.renderScene(viewerContext, lightContext, false)
 }
 
-var f [3]float32
-var inputText string
-
 func (s *RenderSystem) renderImgui() {
 	s.platform.NewFrame()
 	imgui.NewFrame()
@@ -245,7 +235,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		)
 	}
 
-	for _, entity := range s.entities {
+	for _, entity := range s.world.QueryEntity(components.ComponentFlagRender) {
 		componentContainer := entity.GetComponentContainer()
 		entityPosition := componentContainer.TransformComponent.Position
 		orientation := componentContainer.TransformComponent.Orientation

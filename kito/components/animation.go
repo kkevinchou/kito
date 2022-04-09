@@ -13,3 +13,7 @@ func (c *AnimationComponent) GetAnimationComponent() *AnimationComponent {
 func (c *AnimationComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.AnimationComponent = c
 }
+
+func (c *AnimationComponent) ComponentFlag() int {
+	return ComponentFlagAnimation
+}

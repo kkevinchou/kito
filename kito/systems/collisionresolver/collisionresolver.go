@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
@@ -18,14 +19,13 @@ const (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(id int) (entities.Entity, error)
 	GetPlayerEntity() entities.Entity
+	QueryEntity(componentFlags int) []entities.Entity
 }
 
 type CollisionResolverSystem struct {
 	*base.BaseSystem
-	world    World
-	entities []entities.Entity
+	world World
 }
 
 func NewCollisionResolverSystem(world World) *CollisionResolverSystem {
@@ -35,21 +35,13 @@ func NewCollisionResolverSystem(world World) *CollisionResolverSystem {
 	}
 }
 
-func (s *CollisionResolverSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.ColliderComponent != nil && componentContainer.TransformComponent != nil && componentContainer.PhysicsComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-}
-
 func (s *CollisionResolverSystem) Update(delta time.Duration) {
 	// collision resolution is synchronized from the server to the client
 	if utils.IsClient() {
 		return
 	}
 
-	for _, entity := range s.entities {
+	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform | components.ComponentFlagPhysics) {
 		s.resolve(entity)
 	}
 }

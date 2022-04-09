@@ -31,14 +31,6 @@ func NewNetworkInputSystem(world World) *NetworkInputSystem {
 	}
 }
 
-func (s *NetworkInputSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.PhysicsComponent != nil && componentContainer.TransformComponent != nil && componentContainer.ThirdPersonControllerComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-}
-
 func (s *NetworkInputSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 

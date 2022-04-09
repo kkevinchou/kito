@@ -15,7 +15,7 @@ import (
 type World interface {
 	CommandFrame() int
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(int) (entities.Entity, error)
+	GetEntityByID(int) entities.Entity
 	RegisterEntities([]entities.Entity)
 	GetPlayerEntity() entities.Entity
 	GetPlayer() *player.Player
@@ -33,9 +33,6 @@ func NewStateInterpolatorSystem(world World) *StateInterpolatorSystem {
 	}
 }
 
-func (s *StateInterpolatorSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *StateInterpolatorSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	state := singleton.StateBuffer.PullEntityInterpolations(s.world.CommandFrame())
@@ -51,8 +48,8 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 			continue
 		}
 
-		foundEntity, err := world.GetEntityByID(entitySnapshot.ID)
-		if err != nil {
+		foundEntity := world.GetEntityByID(entitySnapshot.ID)
+		if foundEntity == nil {
 			fmt.Printf("[%d] failed to find entity with id %d type %d to interpolate\n", world.CommandFrame(), entitySnapshot.ID, entitySnapshot.Type)
 		} else {
 			cc := foundEntity.GetComponentContainer()

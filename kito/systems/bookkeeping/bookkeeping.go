@@ -3,7 +3,6 @@ package bookkeeping
 import (
 	"time"
 
-	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/lib/input"
@@ -24,9 +23,6 @@ func NewBookKeepingSystem(world World) *BookKeepingSystem {
 	return &BookKeepingSystem{
 		world: world,
 	}
-}
-
-func (s *BookKeepingSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *BookKeepingSystem) Update(delta time.Duration) {

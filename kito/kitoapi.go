@@ -1,9 +1,6 @@
 package kito
 
 import (
-	"fmt"
-	"runtime/debug"
-
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
@@ -18,23 +15,8 @@ func (g *Game) GetSingleton() *singleton.Singleton {
 	return g.singleton
 }
 
-func (g *Game) GetEntityByID(id int) (entities.Entity, error) {
-	if entity, ok := g.entities[id]; ok {
-		return entity, nil
-	}
-
-	stack := debug.Stack()
-
-	return nil, fmt.Errorf("%sfailed to find entity with ID %d", string(stack), id)
-}
-
-func (g *Game) GetEntities() []entities.Entity {
-	var result []entities.Entity
-
-	for _, entity := range g.entities {
-		result = append(result, entity)
-	}
-	return result
+func (g *Game) GetEntityByID(id int) entities.Entity {
+	return g.entityManager.GetEntityByID(id)
 }
 
 func (g *Game) GetPlayer() *player.Player {
@@ -59,29 +41,17 @@ func (g *Game) GetPlayerEntity() entities.Entity {
 		panic("invalid call to GetPlayer() as server")
 	}
 	player := g.GetPlayer()
+	return g.GetEntityByID(player.EntityID)
 
-	if entity, ok := g.entities[player.EntityID]; ok {
-		return entity
-	}
-	return nil
 }
 
 func (g *Game) GetCamera() entities.Entity {
-	if entity, ok := g.entities[g.singleton.CameraID]; ok {
-		return entity
-	}
-	return nil
+	return g.GetEntityByID(g.singleton.CameraID)
 }
 
 func (g *Game) RegisterEntities(entityList []entities.Entity) {
 	for _, entity := range entityList {
-		g.entities[entity.GetID()] = entity
-	}
-
-	for _, entity := range entityList {
-		for _, system := range g.systems {
-			system.RegisterEntity(entity)
-		}
+		g.RegisterEntity(entity)
 	}
 }
 
@@ -99,4 +69,12 @@ func (g *Game) GetCommandFrameHistory() *commandframe.CommandFrameHistory {
 
 func (g *Game) MetricsRegistry() *metrics.MetricsRegistry {
 	return g.metricsRegistry
+}
+
+func (g *Game) RegisterEntity(e entities.Entity) {
+	g.entityManager.RegisterEntity(e)
+}
+
+func (g *Game) QueryEntity(componentFlags int) []entities.Entity {
+	return g.entityManager.Query(componentFlags)
 }

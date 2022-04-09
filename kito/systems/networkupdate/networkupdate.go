@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
@@ -21,12 +22,12 @@ type World interface {
 	GetEventBroker() eventbroker.EventBroker
 	GetSingleton() *singleton.Singleton
 	CommandFrame() int
+	QueryEntity(componentFlags int) []entities.Entity
 }
 
 type NetworkUpdateSystem struct {
 	*base.BaseSystem
 	world         World
-	entities      []entities.Entity
 	elapsedFrames int
 	events        []events.Event
 }
@@ -51,14 +52,6 @@ func (s *NetworkUpdateSystem) Observe(event events.Event) {
 	}
 }
 
-func (s *NetworkUpdateSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.TransformComponent != nil && componentContainer.NetworkComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-}
-
 func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	s.elapsedFrames++
 	if s.elapsedFrames < settings.CommandFramesPerServerUpdate {
@@ -71,7 +64,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 		Entities: map[int]knetwork.EntitySnapshot{},
 	}
 
-	for _, entity := range s.entities {
+	for _, entity := range s.world.QueryEntity(components.ComponentFlagTransform | components.ComponentFlagNetwork) {
 		if entity.Type() == types.EntityTypeCamera {
 			continue
 		}

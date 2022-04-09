@@ -17,3 +17,7 @@ type ThirdPersonControllerComponent struct {
 func (c *ThirdPersonControllerComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.ThirdPersonControllerComponent = c
 }
+
+func (c *ThirdPersonControllerComponent) ComponentFlag() int {
+	return ComponentFlagThirdPersonController
+}

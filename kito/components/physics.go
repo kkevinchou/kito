@@ -22,3 +22,7 @@ func (c *PhysicsComponent) ApplyImpulse(name string, impulse types.Impulse) {
 func (c *PhysicsComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.PhysicsComponent = c
 }
+
+func (c *PhysicsComponent) ComponentFlag() int {
+	return ComponentFlagPhysics
+}
