@@ -3,6 +3,7 @@ package physics
 import (
 	"time"
 
+	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
@@ -14,28 +15,22 @@ import (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetPlayerEntity() entities.Entity
+	QueryEntity(componentFlags int) []entities.Entity
 }
 
 type PhysicsSystem struct {
 	*base.BaseSystem
-	world    World
-	entities []entities.Entity
+	world World
 }
 
 func NewPhysicsSystem(world World) *PhysicsSystem {
 	return &PhysicsSystem{
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
-		entities:   []entities.Entity{},
 	}
 }
 
 func (s *PhysicsSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.PhysicsComponent != nil && componentContainer.TransformComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
 }
 
 func (s *PhysicsSystem) Update(delta time.Duration) {
@@ -44,7 +39,7 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 		return
 	}
 
-	for _, entity := range s.entities {
+	for _, entity := range s.world.QueryEntity(components.ComponentFlagPhysics | components.ComponentFlagTransform) {
 		physutils.PhysicsStep(delta, entity)
 	}
 }

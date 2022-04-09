@@ -22,8 +22,7 @@ type World interface {
 
 type CharacterControllerSystem struct {
 	*base.BaseSystem
-	world    World
-	entities []entities.Entity
+	world World
 }
 
 func NewCharacterControllerSystem(world World) *CharacterControllerSystem {
@@ -34,11 +33,6 @@ func NewCharacterControllerSystem(world World) *CharacterControllerSystem {
 }
 
 func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.PhysicsComponent != nil && componentContainer.TransformComponent != nil && componentContainer.ThirdPersonControllerComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
 }
 
 func (s *CharacterControllerSystem) Update(delta time.Duration) {

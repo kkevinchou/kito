@@ -19,25 +19,17 @@ const (
 
 type CharacterControllerResolverSystem struct {
 	*base.BaseSystem
-	world    World
-	entities []entities.Entity
+	world World
 }
 
 func NewCharacterControllerResolverSystem(world World) *CharacterControllerResolverSystem {
 	return &CharacterControllerResolverSystem{
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
-		entities:   []entities.Entity{},
 	}
 }
 
 func (s *CharacterControllerResolverSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.ThirdPersonControllerComponent != nil && componentContainer.TransformComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-
 }
 
 func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
