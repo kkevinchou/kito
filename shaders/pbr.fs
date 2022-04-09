@@ -141,7 +141,7 @@ void main()
         
         float distance = 1;
         vec3 fragToLight = -directionalLightDir;
-        vec3 lightColor = vec3(1, 1, 1);
+        vec3 lightColor = vec3(20, 20, 20);
         float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, directionalLightDir);
         Lo += (1 - shadow) * calculateLightOut(normal, fragToCam, fragToLight, distance, lightColor);
     // }   
