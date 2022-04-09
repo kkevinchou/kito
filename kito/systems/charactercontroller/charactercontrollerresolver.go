@@ -39,8 +39,8 @@ func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
 	}
 
 	for _, player := range players {
-		entity, err := s.world.GetEntityByID(player.EntityID)
-		if err != nil {
+		entity := s.world.GetEntityByID(player.EntityID)
+		if entity == nil {
 			continue
 		}
 		controllerutils.ResolveControllerCollision(entity)

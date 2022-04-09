@@ -14,7 +14,7 @@ import (
 type World interface {
 	CommandFrame() int
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(int) (entities.Entity, error)
+	GetEntityByID(int) entities.Entity
 	RegisterEntities([]entities.Entity)
 	GetPlayerEntity() entities.Entity
 }
@@ -47,8 +47,8 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 			continue
 		}
 
-		_, err := world.GetEntityByID(snapshot.ID)
-		if err != nil {
+		entity := world.GetEntityByID(snapshot.ID)
+		if entity == nil {
 			newEntity := entityutils.Spawn(snapshot.ID, types.EntityType(snapshot.Type), snapshot.Position, snapshot.Orientation)
 			newEntities = append(newEntities, newEntity)
 		}

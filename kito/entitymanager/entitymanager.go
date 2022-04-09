@@ -16,7 +16,7 @@ func NewEntityManager() *EntityManager {
 
 }
 
-func (em *EntityManager) AddEntity(e entities.Entity) {
+func (em *EntityManager) RegisterEntity(e entities.Entity) {
 	em.entities[e.GetID()] = e
 	em.entityIDs = append(em.entityIDs, e.GetID())
 }

@@ -7,7 +7,6 @@ import (
 
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/directory"
-	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/entitymanager"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
@@ -33,7 +32,6 @@ type Game struct {
 	singleton     *singleton.Singleton
 	entityManager *entitymanager.EntityManager
 	systems       []System
-	entities      map[int]entities.Entity
 
 	eventBroker     eventbroker.EventBroker
 	metricsRegistry *metrics.MetricsRegistry
@@ -49,7 +47,6 @@ func NewBaseGame() *Game {
 		gameMode:        types.GameModePlaying,
 		singleton:       singleton.NewSingleton(),
 		entityManager:   entitymanager.NewEntityManager(),
-		entities:        map[int]entities.Entity{},
 		eventBroker:     eventbroker.NewEventBroker(),
 		metricsRegistry: metrics.New(),
 		inputPollingFn:  input.NullInputPoller,

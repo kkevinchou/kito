@@ -33,7 +33,7 @@ const (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(id int) (entities.Entity, error)
+	GetEntityByID(id int) entities.Entity
 	GetPlayerEntity() entities.Entity
 	MetricsRegistry() *metrics.MetricsRegistry
 	QueryEntity(componentFlags int) []entities.Entity
@@ -121,9 +121,9 @@ func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 	if singleton.CameraID == 0 {
 		return nil
 	}
-	camera, err := s.world.GetEntityByID(singleton.CameraID)
-	if err != nil {
-		fmt.Println(err)
+	camera := s.world.GetEntityByID(singleton.CameraID)
+	if camera == nil {
+		fmt.Printf("render syste could not find camera with entity id %d\n", singleton.CameraID)
 		return nil
 	}
 	componentContainer := camera.GetComponentContainer()

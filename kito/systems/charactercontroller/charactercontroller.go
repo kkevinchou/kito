@@ -15,7 +15,7 @@ import (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(id int) (entities.Entity, error)
+	GetEntityByID(id int) entities.Entity
 	GetPlayerEntity() entities.Entity
 	GetPlayer() *player.Player
 }
@@ -45,16 +45,16 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 	}
 
 	for _, player := range players {
-		entity, err := s.world.GetEntityByID(player.EntityID)
-		if err != nil {
-			fmt.Printf("error in character controller getting entity %s", err)
+		entity := s.world.GetEntityByID(player.EntityID)
+		if entity == nil {
+			fmt.Printf("character controller could not find player entity with id %d\n", player.EntityID)
 			continue
 		}
 
 		cameraID := entity.GetComponentContainer().ThirdPersonControllerComponent.CameraID
-		camera, err := s.world.GetEntityByID(cameraID)
-		if err != nil {
-			fmt.Printf("error in character controller getting camera %s", err)
+		camera := s.world.GetEntityByID(cameraID)
+		if camera == nil {
+			fmt.Printf("character controller could not find camera with entity id %d\n", cameraID)
 			continue
 		}
 

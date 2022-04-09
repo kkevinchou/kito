@@ -22,7 +22,7 @@ const (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(id int) (entities.Entity, error)
+	GetEntityByID(id int) entities.Entity
 	QueryEntity(componentFlags int) []entities.Entity
 }
 
@@ -124,8 +124,8 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 		followComponent.FollowDistance = 5
 	}
 
-	target, err := world.GetEntityByID(followComponent.FollowTargetEntityID)
-	if err != nil {
+	target := world.GetEntityByID(followComponent.FollowTargetEntityID)
+	if target == nil {
 		fmt.Println("failed to find target entity with ID", followComponent.FollowTargetEntityID)
 		return
 	}

@@ -3,7 +3,6 @@ package components
 type EntityTypeBitFlag int
 
 const (
-	ComponentFlagAI                    = 1 << 0
 	ComponentFlagAnimation             = 1 << 1
 	ComponentFlagCamera                = 1 << 2
 	ComponentFlagCollider              = 1 << 3
@@ -15,6 +14,7 @@ const (
 	ComponentFlagRender                = 1 << 9
 	ComponentFlagThirdPersonController = 1 << 10
 	ComponentFlagTransform             = 1 << 11
+	ComponentFlagAI                    = 1 << 12
 )
 
 type Component interface {

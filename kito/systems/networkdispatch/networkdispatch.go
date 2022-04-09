@@ -19,7 +19,6 @@ type MessageHandler func(world World, message *network.Message)
 
 type World interface {
 	RegisterEntities([]entities.Entity)
-	GetEntityByID(id int) (entities.Entity, error)
 	GetSingleton() *singleton.Singleton
 	GetEventBroker() eventbroker.EventBroker
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
@@ -29,7 +28,7 @@ type World interface {
 	MetricsRegistry() *metrics.MetricsRegistry
 	GetPlayer() *player.Player
 	GetPlayerByID(id int) *player.Player
-	GetEntities() []entities.Entity
+	QueryEntity(componentFlags int) []entities.Entity
 }
 
 type NetworkDispatchSystem struct {

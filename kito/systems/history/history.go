@@ -13,7 +13,6 @@ import (
 type World interface {
 	GetSingleton() *singleton.Singleton
 	GetCommandFrameHistory() *commandframe.CommandFrameHistory
-	GetEntityByID(id int) (entities.Entity, error)
 	GetPlayerEntity() entities.Entity
 	GetPlayer() *player.Player
 }

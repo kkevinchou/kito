@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/kito/directory"
-	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
@@ -15,7 +14,6 @@ import (
 type World interface {
 	CommandFrame() int
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(int) (entities.Entity, error)
 }
 
 type PlayerInputSystem struct {

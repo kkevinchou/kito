@@ -14,7 +14,6 @@ import (
 
 type World interface {
 	GetSingleton() *singleton.Singleton
-	GetEntityByID(id int) (entities.Entity, error)
 	GetPlayerEntity() entities.Entity
 	QueryEntity(componentFlags int) []entities.Entity
 }
