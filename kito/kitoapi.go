@@ -78,12 +78,6 @@ func (g *Game) RegisterEntities(entityList []entities.Entity) {
 		g.entities[entity.GetID()] = entity
 	}
 
-	for _, entity := range entityList {
-		for _, system := range g.systems {
-			system.RegisterEntity(entity)
-		}
-	}
-
 	g.AddEntities(entityList)
 }
 

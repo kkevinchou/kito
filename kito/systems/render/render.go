@@ -116,14 +116,6 @@ func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO
 	return &renderSystem
 }
 
-func (s *RenderSystem) RegisterEntity(entity entities.Entity) {
-	componentContainer := entity.GetComponentContainer()
-
-	if componentContainer.RenderComponent != nil {
-		s.entities = append(s.entities, entity)
-	}
-}
-
 func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 	singleton := s.world.GetSingleton()
 	if singleton.CameraID == 0 {

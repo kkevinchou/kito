@@ -29,9 +29,6 @@ func NewPlayerInputSystem(world World) *PlayerInputSystem {
 	}
 }
 
-func (s *PlayerInputSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *PlayerInputSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	playerManager := directory.GetDirectory().PlayerManager()

@@ -32,9 +32,6 @@ func NewPingSystem(world World) *PingSystem {
 	}
 }
 
-func (s *PingSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *PingSystem) Update(delta time.Duration) {
 	player := s.world.GetPlayer()
 

@@ -56,9 +56,6 @@ func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
 	return networkDispatchSystem
 }
 
-func (s *NetworkDispatchSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 	for _, message := range s.messageFetcher(s.world) {
 		s.messageHandler(s.world, message)

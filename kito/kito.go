@@ -20,7 +20,6 @@ import (
 
 type System interface {
 	Update(delta time.Duration)
-	RegisterEntity(entity entities.Entity)
 }
 
 type RenderFunction func(delta time.Duration)

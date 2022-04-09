@@ -52,9 +52,6 @@ func (s *NetworkUpdateSystem) Observe(event events.Event) {
 	}
 }
 
-func (s *NetworkUpdateSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	s.elapsedFrames++
 	if s.elapsedFrames < settings.CommandFramesPerServerUpdate {

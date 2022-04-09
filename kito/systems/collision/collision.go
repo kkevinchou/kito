@@ -31,9 +31,6 @@ func NewCollisionSystem(world World) *CollisionSystem {
 	}
 }
 
-func (s *CollisionSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *CollisionSystem) Update(delta time.Duration) {
 	handledCollisions := map[int]map[int]bool{}
 

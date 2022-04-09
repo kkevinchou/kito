@@ -30,9 +30,6 @@ func NewHistorySystem(world World) *HistorySystem {
 	}
 }
 
-func (s *HistorySystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *HistorySystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	player := s.world.GetPlayer()

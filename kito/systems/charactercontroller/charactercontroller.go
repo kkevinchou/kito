@@ -32,9 +32,6 @@ func NewCharacterControllerSystem(world World) *CharacterControllerSystem {
 	}
 }
 
-func (s *CharacterControllerSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *CharacterControllerSystem) Update(delta time.Duration) {
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()

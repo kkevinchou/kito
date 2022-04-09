@@ -8,8 +8,6 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/kito/utils/controllerutils"
-
-	"github.com/kkevinchou/kito/kito/entities"
 )
 
 const (
@@ -27,9 +25,6 @@ func NewCharacterControllerResolverSystem(world World) *CharacterControllerResol
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
 	}
-}
-
-func (s *CharacterControllerResolverSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {

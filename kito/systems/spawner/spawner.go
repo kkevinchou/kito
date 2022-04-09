@@ -30,9 +30,6 @@ func NewSpawnerSystem(world World) *SpawnerSystem {
 	}
 }
 
-func (s *SpawnerSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *SpawnerSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	state := singleton.StateBuffer.PeekEntityInterpolations(s.world.CommandFrame())

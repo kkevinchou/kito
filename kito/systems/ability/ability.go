@@ -30,9 +30,6 @@ func NewAbilitySystem(world World) *AbilitySystem {
 	}
 }
 
-func (s *AbilitySystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *AbilitySystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	playerManager := directory.GetDirectory().PlayerManager()

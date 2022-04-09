@@ -25,9 +25,6 @@ func NewAnimationSystem(world World) *AnimationSystem {
 	}
 }
 
-func (s *AnimationSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *AnimationSystem) Update(delta time.Duration) {
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagAnimation) {
 		componentContainer := entity.GetComponentContainer()

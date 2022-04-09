@@ -36,9 +36,6 @@ func NewCollisionResolverSystem(world World) *CollisionResolverSystem {
 	}
 }
 
-func (s *CollisionResolverSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *CollisionResolverSystem) Update(delta time.Duration) {
 	// collision resolution is synchronized from the server to the client
 	if utils.IsClient() {

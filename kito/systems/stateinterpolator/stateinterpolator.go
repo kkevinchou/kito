@@ -33,9 +33,6 @@ func NewStateInterpolatorSystem(world World) *StateInterpolatorSystem {
 	}
 }
 
-func (s *StateInterpolatorSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *StateInterpolatorSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
 	state := singleton.StateBuffer.PullEntityInterpolations(s.world.CommandFrame())

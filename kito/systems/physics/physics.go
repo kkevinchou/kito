@@ -30,9 +30,6 @@ func NewPhysicsSystem(world World) *PhysicsSystem {
 	}
 }
 
-func (s *PhysicsSystem) RegisterEntity(entity entities.Entity) {
-}
-
 func (s *PhysicsSystem) Update(delta time.Duration) {
 	// physics simulation is done on the server and the results are synchronized to the client
 	if utils.IsClient() {

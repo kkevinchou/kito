@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/kito/directory"
-	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
@@ -32,9 +31,6 @@ func NewNetworkListenerSystem(world World, host, port, connectionType string) *N
 		world:      world,
 		nserver:    nserver,
 	}
-}
-
-func (s *NetworkListenerSystem) RegisterEntity(entity entities.Entity) {
 }
 
 func (s *NetworkListenerSystem) Update(delta time.Duration) {
