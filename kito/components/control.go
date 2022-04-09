@@ -8,3 +8,7 @@ type ControlComponent struct {
 func (c *ControlComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.ControlComponent = c
 }
+
+func (c *ControlComponent) ComponentFlag() int {
+	return ComponentFlagControl
+}

@@ -23,3 +23,7 @@ type ColliderComponent struct {
 func (c *ColliderComponent) AddToComponentContainer(container *ComponentContainer) {
 	container.ColliderComponent = c
 }
+
+func (c *ColliderComponent) ComponentFlag() int {
+	return ComponentFlagCollider
+}
