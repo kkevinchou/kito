@@ -1,23 +1,24 @@
 # kito
-kito is a 3D game engine written in go using SDL2 and OpenGL (mostly OpenGL). I've been using this as a test bed for developing popular game engine components.
+kito is a 3D game engine written with Go/SDL2/OpenGl. Current development has been focused on experimenting with game architectures and rendering
 
-## Current Work
+## Current Features
 Here are a couple of things I've built for kito:
-1. An Entity, Component, System architecture
-2. An animation system that supports collada models
-3. A rendering system using OpenGL
-4. Support for shaders
-5. A shadow mapping implementation
-
-## Future Work
-1. Multiplayer support with entity interpolation, client side prediction, server reconciliation
-2. Further improvements to shadowmapping for improved shadow fidelity
+1. Entity, Component, System architecture
+1. Rendering GLTF assets (geometry, skinning, animations)
+1. Physically Based Rendering (PBR) support
+1. Shadow mapping
+1. Multiplayer support with client-side prediction, rollback correction, state interpolation
 
 # Development Setup
 
 Install SDL2 following the instructions at https://github.com/veandco/go-sdl2
 
-# Running kito
-> go run main.go
+# Running the demo project 
+```
+# running the server:
+make server
+# running the client:
+make
+```
 
 ![Test Image](readme_ss.png)
