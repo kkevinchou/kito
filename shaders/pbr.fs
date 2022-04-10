@@ -47,7 +47,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     // float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
     // bias term needs to be tweaked depending on geometry
-    float bias = max(0.001 * (1.0 - dot(normal, lightDir)), 0.0001);
+    float bias = max(0.00025 * (1.0 - dot(normal, lightDir)), 0.0005);
     // bias = 0;
     
     float shadow = 0.0;
@@ -142,7 +142,7 @@ void main()
         float distance = 1;
         vec3 fragToLight = -directionalLightDir;
         vec3 lightColor = vec3(20, 20, 20);
-        float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, directionalLightDir);
+        float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, fragToLight);
         Lo += (1 - shadow) * calculateLightOut(normal, fragToCam, fragToLight, distance, lightColor);
     // }   
   
