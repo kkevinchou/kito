@@ -23,10 +23,10 @@ import (
 const (
 	fovx float64 = 90
 	near float64 = 1
-	far  float64 = 3000
+	far  float64 = 2000
 
 	// shadow map parameters
-	shadowMapDimension   int     = 15000
+	shadowMapDimension   int     = 25000
 	shadowDistanceFactor float64 = .4 // proportion of view fustrum to include in shadow cuboid
 	shadowmapZOffset             = 400
 )
@@ -84,6 +84,7 @@ func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO
 	gl.Enable(gl.MULTISAMPLE)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Enable(gl.BLEND)
+	gl.Disable(gl.FRAMEBUFFER_SRGB)
 
 	aspectRatio := float64(width) / float64(height)
 	shadowMap, err := NewShadowMap(shadowMapDimension, shadowMapDimension, far*shadowDistanceFactor)

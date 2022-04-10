@@ -1,7 +1,6 @@
 package render
 
 import (
-	"fmt"
 	"unsafe"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -29,11 +28,6 @@ type ImguiOpenGL4Renderer struct {
 // NewImguiOpenGL4Renderer attempts to initialize a renderer.
 // An OpenGL context has to be established before calling this function.
 func NewImguiOpenGL4Renderer(io imgui.IO) (*ImguiOpenGL4Renderer, error) {
-	err := gl.Init()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize OpenGL: %w", err)
-	}
-
 	renderer := &ImguiOpenGL4Renderer{
 		imguiIO:     io,
 		glslVersion: "#version 150",

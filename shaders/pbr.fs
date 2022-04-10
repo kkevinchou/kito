@@ -47,7 +47,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     // float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
     // bias term needs to be tweaked depending on geometry
-    float bias = max(0.0000000001 * (1.0 - dot(normal, lightDir)), 0.000000001);
+    float bias = max(0.1 * (1.0 - dot(normal, lightDir)), 0.01);
     // bias = 0;
     
     float shadow = 0.0;
@@ -150,7 +150,10 @@ void main()
     vec3 color = ambient + Lo;
 	
     color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0/2.2));  
+
+    // gamma correction is not needed since we set GL_FRAMEBUFFER_SRGB is set to false explicitly
+    // (it is also default false based on anecdotal testing)
+    // color = pow(color, vec3(1.0/2.2));  
    
     FragColor = vec4(color, 1.0);
 }
