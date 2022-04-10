@@ -50,12 +50,8 @@ func (s *CameraSystem) Update(delta time.Duration) {
 
 func handleCameraControls(delta time.Duration, entity entities.Entity, world World, frameInput input.Input) {
 	cc := entity.GetComponentContainer()
-	followComponent := cc.FollowComponent
+	cameraComponent := cc.CameraComponent
 	transformComponent := cc.TransformComponent
-
-	if followComponent == nil {
-		return
-	}
 
 	var xRel, yRel float64
 
@@ -101,36 +97,36 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	}
 
 	mouseWheelSensitivity := farMouseWheelSensitivity
-	if followComponent.FollowDistance < 50 {
+	if cameraComponent.FollowDistance < 50 {
 		mouseWheelSensitivity = nearMouseWheelSensitivity
 	}
 
 	if mouseInput.MouseWheelDelta != 0 {
 		currentMouseZoomDirection := libutils.NormalizeF64(float64(mouseInput.MouseWheelDelta))
-		followComponent.ZoomSpeed = currentMouseZoomDirection * -mouseWheelSensitivity
+		cameraComponent.ZoomSpeed = currentMouseZoomDirection * -mouseWheelSensitivity
 	}
 
 	// decay zoom velocity
-	followComponent.ZoomSpeed *= 0.90
-	if math.Abs(followComponent.ZoomSpeed) < 0.01 {
-		followComponent.ZoomSpeed = 0
+	cameraComponent.ZoomSpeed *= 0.90
+	if math.Abs(cameraComponent.ZoomSpeed) < 0.01 {
+		cameraComponent.ZoomSpeed = 0
 	}
 
-	followComponent.FollowDistance += followComponent.ZoomSpeed
+	cameraComponent.FollowDistance += cameraComponent.ZoomSpeed
 
-	if followComponent.FollowDistance >= followComponent.MaxFollowDistance {
-		followComponent.FollowDistance = followComponent.MaxFollowDistance
-	} else if followComponent.FollowDistance < 5 {
-		followComponent.FollowDistance = 5
+	if cameraComponent.FollowDistance >= cameraComponent.MaxFollowDistance {
+		cameraComponent.FollowDistance = cameraComponent.MaxFollowDistance
+	} else if cameraComponent.FollowDistance < 5 {
+		cameraComponent.FollowDistance = 5
 	}
 
-	target := world.GetEntityByID(followComponent.FollowTargetEntityID)
+	target := world.GetEntityByID(cameraComponent.FollowTargetEntityID)
 	if target == nil {
-		fmt.Println("failed to find target entity with ID", followComponent.FollowTargetEntityID)
+		fmt.Println("failed to find target entity with ID", cameraComponent.FollowTargetEntityID)
 		return
 	}
 	targetComponentContainer := target.GetComponentContainer()
-	targetPosition := targetComponentContainer.TransformComponent.Position.Add(mgl64.Vec3{0, followComponent.YOffset, 0})
-	transformComponent.Position = newOrientation.Rotate(mgl64.Vec3{0, 0, followComponent.FollowDistance}).Add(targetPosition)
+	targetPosition := targetComponentContainer.TransformComponent.Position.Add(mgl64.Vec3{0, cameraComponent.YOffset, 0})
+	transformComponent.Position = newOrientation.Rotate(mgl64.Vec3{0, 0, cameraComponent.FollowDistance}).Add(targetPosition)
 	transformComponent.Orientation = newOrientation
 }

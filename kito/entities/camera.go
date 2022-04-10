@@ -13,7 +13,7 @@ const (
 )
 
 func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, playerID int, followTargetEntityID int) *EntityImpl {
-	followComponent := &components.FollowComponent{
+	cameraComponent := &components.CameraComponent{
 		FollowTargetEntityID: followTargetEntityID,
 		FollowDistance:       defaultFollowDistance,
 		MaxFollowDistance:    maxFollowDistance,
@@ -22,16 +22,15 @@ func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, playerID i
 
 	transformComponent := &components.TransformComponent{
 		Orientation: mgl64.QuatIdent(),
-		Position:    mgl64.Vec3{0, followComponent.YOffset, followComponent.FollowDistance},
+		Position:    mgl64.Vec3{0, cameraComponent.YOffset, cameraComponent.FollowDistance},
 	}
 
 	entity := NewEntity(
 		"camera",
 		types.EntityTypeCamera,
 		components.NewComponentContainer(
-			&components.CameraComponent{},
 			transformComponent,
-			followComponent,
+			cameraComponent,
 			&components.ControlComponent{PlayerID: playerID},
 		),
 	)

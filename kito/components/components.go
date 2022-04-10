@@ -31,7 +31,6 @@ type ComponentContainer struct {
 	PhysicsComponent               *PhysicsComponent
 	TopDownViewComponent           *TopDownViewComponent
 	ThirdPersonControllerComponent *ThirdPersonControllerComponent
-	FollowComponent                *FollowComponent
 	CameraComponent                *CameraComponent
 	NetworkComponent               *NetworkComponent
 	MeshComponent                  *MeshComponent
