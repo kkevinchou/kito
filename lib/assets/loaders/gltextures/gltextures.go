@@ -42,7 +42,7 @@ func NewTexture(file string) uint32 {
 	gl.TexImage2D(
 		gl.TEXTURE_2D,
 		0,
-		gl.RGBA,
+		gl.SRGB_ALPHA,
 		int32(rgba.Rect.Size().X),
 		int32(rgba.Rect.Size().Y),
 		0,

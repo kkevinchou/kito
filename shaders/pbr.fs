@@ -147,7 +147,7 @@ void main()
         
         float distance = 1;
         vec3 fragToLight = -directionalLightDir;
-        vec3 lightColor = vec3(10, 10, 10);
+        vec3 lightColor = vec3(5);
         float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, fragToLight);
 
         vec3 in_albedo = albedo; 
@@ -162,9 +162,17 @@ void main()
 	
     color = color / (color + vec3(1.0));
 
-    // gamma correction is not needed since we set GL_FRAMEBUFFER_SRGB is set to false explicitly
-    // (it is also default false based on anecdotal testing)
-    // color = pow(color, vec3(1.0/2.2));  
+    // unclear if we actually need to do gamma correction. seems like GLTF expects us to internally
+    // store textures in SRGB format which we then need to gamma correct herea.
+    // PARAMETERS:
+    //     gl.Enable(gl.FRAMEBUFFER_SRGB)
+    //         OpenGL setting for how the fragment shader outputs colors
+    //     lightColor
+    //         The color of the light. i've tested with (1, 1, 1) to (20, 20, 20)
+    //     gamma correction in the fragment shader
+    //         I've experimented with enabling/disabling. it seems like if i gamma correct
+    //         I want to disable the OpenGL setting, and if I don't, I want to enable it instead.
+    color = pow(color, vec3(1.0/2.2));
    
     FragColor = vec4(color, 1.0);
 }
