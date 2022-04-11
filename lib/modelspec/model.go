@@ -3,10 +3,10 @@ package modelspec
 import "github.com/go-gl/mathgl/mgl32"
 
 type PBRMetallicRoughness struct {
-	BaseColorTexture *uint32
-	BaseColorFactor  mgl32.Vec4
-	MetalicFactor    float32
-	RoughnessFactor  float32
+	BaseColorTextureIndex *int
+	BaseColorFactor       mgl32.Vec4
+	MetalicFactor         float32
+	RoughnessFactor       float32
 }
 
 type PBRMaterial struct {
@@ -49,4 +49,6 @@ type ModelSpecification struct {
 
 	// Animations
 	Animations map[string]*AnimationSpec
+
+	Textures []string
 }

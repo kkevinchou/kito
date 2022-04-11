@@ -17,7 +17,7 @@ import (
 type IAssetManager interface {
 	GetTexture(name string) *textures.Texture
 	GetFont(name string) font.Font
-	GetAnimatedModel(name string) *modelspec.ModelSpecification
+	GetModel(name string) *modelspec.ModelSpecification
 }
 
 type IRenderSystem interface {

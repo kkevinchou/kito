@@ -38,7 +38,7 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 	}
 
 	assetManager := directory.GetDirectory().AssetManager()
-	modelSpec := assetManager.GetAnimatedModel(modelName)
+	modelSpec := assetManager.GetModel(modelName)
 
 	m := model.NewModel(modelSpec)
 

@@ -34,7 +34,7 @@ func LoadTextures(directory string) map[string]*textures.Texture {
 	return textureMap
 }
 
-func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecification {
+func LoadModels(directory string) map[string]*modelspec.ModelSpecification {
 	var subDirectories []string = []string{"gltf"}
 
 	extensions := map[string]any{
@@ -63,6 +63,7 @@ func LoadAnimatedModels(directory string) map[string]*modelspec.ModelSpecificati
 		}
 
 		animationMap[metaData.Name] = modelSpec
+
 	}
 
 	return animationMap

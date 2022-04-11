@@ -13,10 +13,16 @@ uniform vec3 lightColors[4];
 uniform vec3 directionalLightDir;
 
 uniform vec3 viewPos;
+uniform sampler2D modelTexture;
 
 // shadows
 uniform sampler2D shadowMap;
 uniform float shadowDistance;
+
+// pbr materials
+uniform int hasPBRMaterial;
+uniform int hasPBRBaseColorTexture;
+uniform vec4 pbrBaseColorFactor;
 
 const float PI = 3.14159265359;
 
@@ -101,9 +107,9 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }  
 
-vec3 calculateLightOut(vec3 normal, vec3 fragToCam, vec3 fragToLight, float lightDistance, vec3 lightColor) {
+vec3 calculateLightOut(vec3 normal, vec3 fragToCam, vec3 fragToLight, float lightDistance, vec3 lightColor, vec3 in_albedo) {
     vec3 F0 = vec3(0.04); 
-    F0 = mix(F0, albedo, metallic);
+    F0 = mix(F0, in_albedo, metallic);
 
     // calculate per-light radiance
     vec3 H = normalize(fragToCam + fragToLight);
@@ -125,7 +131,7 @@ vec3 calculateLightOut(vec3 normal, vec3 fragToCam, vec3 fragToLight, float ligh
         
     // add to outgoing radiance Lo
     float NdotL = max(dot(normal, fragToLight), 0.0);                
-    return (kD * albedo / PI + specular) * radiance * NdotL; 
+    return (kD * in_albedo / PI + specular) * radiance * NdotL; 
 }
 
 void main()
@@ -141,12 +147,17 @@ void main()
         
         float distance = 1;
         vec3 fragToLight = -directionalLightDir;
-        vec3 lightColor = vec3(20, 20, 20);
+        vec3 lightColor = vec3(10, 10, 10);
         float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, fragToLight);
-        Lo += (1 - shadow) * calculateLightOut(normal, fragToCam, fragToLight, distance, lightColor);
+
+        vec3 in_albedo = albedo; 
+        if (hasPBRBaseColorTexture == 1) {
+            in_albedo = texture(modelTexture, fs_in.TexCoord).xyz;
+        }
+        Lo += (1 - shadow) * calculateLightOut(normal, fragToCam, fragToLight, distance, lightColor, in_albedo);
     // }   
   
-    vec3 ambient = vec3(0.3) * albedo * ao;
+    vec3 ambient = vec3(0.2) * in_albedo * ao;
     vec3 color = ambient + Lo;
 	
     color = color / (color + vec3(1.0));

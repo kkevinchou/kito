@@ -23,7 +23,7 @@ func NewBob() *EntityImpl {
 		IsVisible: true,
 	}
 
-	modelSpec := assetManager.GetAnimatedModel(modelName)
+	modelSpec := assetManager.GetModel(modelName)
 	m := model.NewModel(modelSpec)
 
 	animationPlayer := animation.NewAnimationPlayer(m)
@@ -37,6 +37,7 @@ func NewBob() *EntityImpl {
 	meshComponent := &components.MeshComponent{
 		// Scale:            mgl64.Scale3D(1, 1, 1),
 		Scale: mgl64.Scale3D(10, 10, 10),
+		// Scale: mgl64.Scale3D(1, 1, 1),
 		// Orientation: mgl64.Ident4(),
 		Orientation: yr,
 

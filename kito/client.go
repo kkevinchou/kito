@@ -181,7 +181,7 @@ func compileShaders() {
 	if err := shaderManager.CompileShaderProgram("modelpbr", "model", "pbr"); err != nil {
 		panic(err)
 	}
-	if err := shaderManager.CompileShaderProgram("model_static", "model_static", "model"); err != nil {
+	if err := shaderManager.CompileShaderProgram("model_static", "model_static", "pbr"); err != nil {
 		panic(err)
 	}
 	if err := shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue"); err != nil {

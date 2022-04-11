@@ -65,10 +65,17 @@ func ParseGLTF(documentPath string, config *ParseConfig) (*modelspec.ModelSpecif
 		modelSpec.Meshes = append(modelSpec.Meshes, meshSpec)
 	}
 
+	for _, texture := range document.Textures {
+		img := document.Images[int(*texture.Source)]
+		if img.MimeType != "image/png" {
+			panic(fmt.Sprintf("image %s has mimetype %s which is not supported for textures", img.Name, img.MimeType))
+		}
+		modelSpec.Textures = append(modelSpec.Textures, img.Name)
+	}
+
 	if parsedJoints != nil {
 		modelSpec.RootJoint = parsedJoints.RootJoint
 	}
-
 	modelSpec.Animations = parsedAnimations
 
 	return modelSpec, nil
@@ -309,9 +316,8 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*
 				},
 			}
 			if pbr.BaseColorTexture != nil {
-				// TODO: actually look up the texture
-				var tex uint32
-				meshChunkSpec.PBRMaterial.PBRMetallicRoughness.BaseColorTexture = &tex
+				var intIndex int = int(pbr.BaseColorTexture.Index)
+				meshChunkSpec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex = &intIndex
 			}
 		}
 

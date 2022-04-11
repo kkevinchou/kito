@@ -2,13 +2,15 @@ package model
 
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
 type MeshChunk struct {
-	vao  uint32
-	spec *modelspec.MeshChunkSpecification
+	vao       uint32
+	textureID *uint32
+	spec      *modelspec.MeshChunkSpecification
 }
 
 type Mesh struct {
@@ -17,6 +19,10 @@ type Mesh struct {
 
 func (m *MeshChunk) VAO() uint32 {
 	return m.vao
+}
+
+func (m *MeshChunk) TextureID() *uint32 {
+	return m.textureID
 }
 
 func (m *MeshChunk) Vertices() []modelspec.Vertex {
@@ -31,7 +37,13 @@ func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {
 	return m.spec.PBRMaterial
 }
 
-func (m *MeshChunk) prepare() {
+func (m *MeshChunk) prepare(textures []string) {
+	// lookup the textures
+	if m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex != nil {
+		assetManager := directory.GetDirectory().AssetManager()
+		m.textureID = &assetManager.GetTexture(textures[*m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex]).ID
+	}
+
 	// initialize the VAO
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
@@ -120,9 +132,9 @@ func (m *Mesh) MeshChunks() []*MeshChunk {
 	return m.meshChunks
 }
 
-func (m *Mesh) prepare() {
+func (m *Mesh) prepare(textures []string) {
 	for _, chunk := range m.meshChunks {
-		chunk.prepare()
+		chunk.prepare(textures)
 	}
 }
 
