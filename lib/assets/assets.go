@@ -25,7 +25,7 @@ func NewAssetManager(directory string, loadVisualAssets bool) *AssetManager {
 
 	assetManager := AssetManager{
 		textures:       loadedTextures,
-		animatedModels: loaders.LoadAnimatedModels(directory),
+		animatedModels: loaders.LoadModels(directory),
 		fonts:          loadedFonts,
 	}
 
@@ -39,7 +39,7 @@ func (a *AssetManager) GetTexture(name string) *textures.Texture {
 	return a.textures[name]
 }
 
-func (a *AssetManager) GetAnimatedModel(name string) *modelspec.ModelSpecification {
+func (a *AssetManager) GetModel(name string) *modelspec.ModelSpecification {
 	if _, ok := a.animatedModels[name]; !ok {
 		panic(fmt.Sprintf("could not find animated model %s", name))
 	}

@@ -1,8 +1,6 @@
 package components
 
 import (
-	"time"
-
 	"github.com/kkevinchou/kito/lib/behavior"
 )
 
@@ -16,6 +14,10 @@ func NewAIComponent(behaviorTree behavior.BehaviorTree) *AIComponent {
 	}
 }
 
-func (c *AIComponent) Update(delta time.Duration) {
-	c.behaviorTree.Tick(delta)
+func (c *AIComponent) AddToComponentContainer(container *ComponentContainer) {
+	container.AIComponent = c
+}
+
+func (c *AIComponent) ComponentFlag() int {
+	return ComponentFlagAI
 }

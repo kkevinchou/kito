@@ -25,6 +25,7 @@ type Component interface {
 type ComponentContainer struct {
 	bitflags int
 
+	AIComponent                    *AIComponent
 	AnimationComponent             *AnimationComponent
 	RenderComponent                *RenderComponent
 	TransformComponent             *TransformComponent

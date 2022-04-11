@@ -51,7 +51,7 @@ func (m *Model) Vertices() []modelspec.Vertex {
 
 func (m *Model) prepare() {
 	for _, mesh := range m.meshes {
-		mesh.prepare()
+		mesh.prepare(m.modelSpec.Textures)
 	}
 }
 

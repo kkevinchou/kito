@@ -22,7 +22,7 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	}
 
 	assetManager := directory.GetDirectory().AssetManager()
-	modelSpec := assetManager.GetAnimatedModel(modelName)
+	modelSpec := assetManager.GetModel(modelName)
 
 	m := model.NewModel(modelSpec)
 
