@@ -141,8 +141,7 @@ func replayInputs(
 
 	// replay inputs and add the new results to the command frame history
 	for i, cf := range cfs {
-		controllerutils.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*
-			time.Millisecond, entity, camera, cf.FrameInput)
+		controllerutils.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity, camera, cf.FrameInput)
 		controllerutils.ResolveControllerCollision(entity)
 		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
 	}

@@ -47,7 +47,7 @@ const (
 	MSPerCommandFrame int = 16
 	FPS               int = 60
 
-	// MaxInputBufferCommandFrames controls how many we buffer client inputs for. See the
+	// MaxInputBufferCommandFrames controls how many command frames we buffer client inputs for. See the
 	// InputBuffer struct definition for a more detailed description.
 
 	// This buffer size should ideally be able to fully contain and fully sim a singular
@@ -65,9 +65,9 @@ const (
 
 	// This is potentially overkill to avoiding absolutely no mispredictions on the client.
 	// The drawback of an input buffer is we now add a delay before we process user inputs.
-	MaxInputBufferCommandFrames int = 100 / MSPerCommandFrame
+	MaxInputBufferCommandFrames int = 0 / MSPerCommandFrame
 
-	MaxStateBufferCommandFrames int = 0 / MSPerCommandFrame
+	MaxStateBufferCommandFrames int = 100 / MSPerCommandFrame
 
 	// The number of command frames on the server before a server update is sent to clients
 	CommandFramesPerServerUpdate = 5

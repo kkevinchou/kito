@@ -30,17 +30,18 @@ func NewStateBuffer(maxStateBufferCommandFrames int) *StateBuffer {
 }
 
 func (s *StateBuffer) PushEntityUpdate(localCommandFrame int, gameStateUpdateMessage *knetwork.GameStateUpdateMessage) {
+	targetCF := localCommandFrame + s.maxStateBufferCommandFrames + 1
+
 	if len(s.incomingEntityUpdates) == 0 {
-		targetCommandFrame := localCommandFrame + s.maxStateBufferCommandFrames
 		s.incomingEntityUpdates = append(
 			s.incomingEntityUpdates,
 			IncomingEntityUpdate{
 				gameStateUpdateMessage: gameStateUpdateMessage,
-				targetCommandFrame:     targetCommandFrame,
+				targetCommandFrame:     targetCF,
 			},
 		)
 
-		s.timeline[targetCommandFrame] = BufferedState{
+		s.timeline[targetCF] = BufferedState{
 			InterpolatedEntities: gameStateUpdateMessage.Entities,
 		}
 
@@ -48,11 +49,9 @@ func (s *StateBuffer) PushEntityUpdate(localCommandFrame int, gameStateUpdateMes
 	}
 
 	lastEntityUpdate := s.incomingEntityUpdates[len(s.incomingEntityUpdates)-1]
-	gcfDelta := gameStateUpdateMessage.CurrentGlobalCommandFrame - lastEntityUpdate.gameStateUpdateMessage.CurrentGlobalCommandFrame
-
 	currentEntityUpdate := IncomingEntityUpdate{
 		gameStateUpdateMessage: gameStateUpdateMessage,
-		targetCommandFrame:     lastEntityUpdate.targetCommandFrame + gcfDelta,
+		targetCommandFrame:     targetCF,
 	}
 
 	s.incomingEntityUpdates = append(
@@ -66,12 +65,10 @@ func (s *StateBuffer) PushEntityUpdate(localCommandFrame int, gameStateUpdateMes
 
 // TODO: move interpolation logic in stateinterpolator system?
 func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdate, end IncomingEntityUpdate) {
-	startGCF := start.gameStateUpdateMessage.CurrentGlobalCommandFrame
-	endGCF := end.gameStateUpdateMessage.CurrentGlobalCommandFrame
-	gcfDelta := endGCF - startGCF
-	cfStep := float64(1) / float64(gcfDelta)
+	delta := end.targetCommandFrame - start.targetCommandFrame
+	cfStep := float64(1) / float64(delta)
 
-	for i := 1; i <= gcfDelta; i++ {
+	for i := 1; i <= delta; i++ {
 		interpolatedEntities := map[int]knetwork.EntitySnapshot{}
 
 		for id, startSnapshot := range start.gameStateUpdateMessage.Entities {

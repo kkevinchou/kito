@@ -5,6 +5,7 @@ import (
 
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
@@ -56,7 +57,24 @@ func NewNetworkDispatchSystem(world World) *NetworkDispatchSystem {
 }
 
 func (s *NetworkDispatchSystem) Update(delta time.Duration) {
-	for _, message := range s.messageFetcher(s.world) {
+	var latestGameStateUpdate *network.Message
+	messages := s.messageFetcher(s.world)
+	for _, message := range messages {
+		if message.MessageType == knetwork.MessageTypeGameStateUpdate {
+			latestGameStateUpdate = message
+		}
+	}
+
+	var filteredMessages []*network.Message
+	for _, message := range messages {
+		// only take the latest gamestate update message
+		if message.MessageType == knetwork.MessageTypeGameStateUpdate && message != latestGameStateUpdate {
+			continue
+		}
+		filteredMessages = append(filteredMessages, message)
+	}
+
+	for _, message := range filteredMessages {
 		s.messageHandler(s.world, message)
 	}
 }

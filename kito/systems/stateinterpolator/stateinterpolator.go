@@ -48,6 +48,10 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 			continue
 		}
 
+		// if entitySnapshot.ID > 80001 && entitySnapshot.Velocity.Y() > 0 {
+		// 	fmt.Printf("%v cf %d\n", time.Now(), world.CommandFrame())
+		// }
+
 		foundEntity := world.GetEntityByID(entitySnapshot.ID)
 		if foundEntity == nil {
 			fmt.Printf("[%d] failed to find entity with id %d type %d to interpolate\n", world.CommandFrame(), entitySnapshot.ID, entitySnapshot.Type)

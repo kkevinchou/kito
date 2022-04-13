@@ -53,7 +53,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     // float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
     // bias term needs to be tweaked depending on geometry
-    float bias = max(0.00025 * (1.0 - dot(normal, lightDir)), 0.0005);
+    float bias = max(0.00025 * (1.0 - dot(normal, lightDir)), 0.00005);
     // bias = 0;
     
     float shadow = 0.0;
