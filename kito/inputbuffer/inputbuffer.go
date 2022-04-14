@@ -62,6 +62,7 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, l
 
 	// target exceeds the buffer size. drop the input to avoid spiral of death
 	if targetGlobalCommandFrame > (globalCommandFrame + i.maxCommandFrames) {
+		fmt.Printf("target gcf exceeded buffer size %d > %d\n", targetGlobalCommandFrame, (globalCommandFrame + i.maxCommandFrames))
 		return
 	}
 
