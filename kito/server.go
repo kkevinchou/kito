@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/systems/ability"
+	"github.com/kkevinchou/kito/kito/systems/ai"
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
 	"github.com/kkevinchou/kito/kito/systems/camera"
@@ -38,6 +39,7 @@ func NewServerGame(assetsDirectory string) *Game {
 func serverEntitySetup(g *Game) []entities.Entity {
 	return []entities.Entity{
 		entities.NewScene(),
+		entities.NewEnemy(),
 		// entities.NewSlime(mgl64.Vec3{-100, 0, -50}),
 		// entities.NewStaticRigidBody(mgl64.Vec3{-5, 10, 0}),
 		// entities.NewDynamicRigidBody(mgl64.Vec3{-5, 10, 0}),
@@ -69,11 +71,13 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	collisionSystem := collision.NewCollisionSystem(g)
 	controllerResolverSystem := charactercontroller.NewCharacterControllerResolverSystem(g)
 	collisionResolverSystem := collisionresolver.NewCollisionResolverSystem(g)
+	aiSystem := ai.NewAnimationSystem(g)
 
 	g.systems = append(g.systems, []System{
 		networkListenerSystem,
 		networkDispatchSystem,
 		playerInputSystem,
+		aiSystem,
 		characterControllerSystem,
 		abilitySystem,
 		physicsSystem,

@@ -15,7 +15,7 @@ func NewEnemy() *EntityImpl {
 	assetManager := directory.GetDirectory().AssetManager()
 
 	transformComponent := &components.TransformComponent{
-		Position:    mgl64.Vec3{0, 0, 70},
+		Position:    mgl64.Vec3{150, 0, 70},
 		Orientation: mgl64.QuatIdent(),
 	}
 
@@ -35,12 +35,9 @@ func NewEnemy() *EntityImpl {
 
 	yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
 	meshComponent := &components.MeshComponent{
-		// Scale:            mgl64.Scale3D(1, 1, 1),
-		Scale: mgl64.Scale3D(5, 5, 5),
-		// Orientation: mgl64.Ident4(),
+		Scale:       mgl64.Scale3D(1, 1, 1),
 		Orientation: yr,
-
-		Model: m,
+		Model:       m,
 	}
 
 	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
@@ -51,7 +48,7 @@ func NewEnemy() *EntityImpl {
 	entityComponents := []components.Component{
 		&components.NetworkComponent{},
 		transformComponent,
-		animationComponent,
+		// animationComponent,
 		meshComponent,
 		colliderComponent,
 		renderComponent,
@@ -60,7 +57,7 @@ func NewEnemy() *EntityImpl {
 
 	entity := NewEntity(
 		"enemy",
-		types.EntityTypeBob,
+		types.EntityTypeEnemy,
 		components.NewComponentContainer(entityComponents...),
 	)
 

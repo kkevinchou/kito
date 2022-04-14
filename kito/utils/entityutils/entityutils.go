@@ -11,27 +11,27 @@ import (
 
 func Spawn(entityID int, entityType types.EntityType, position mgl64.Vec3, orientation mgl64.Quat) *entities.EntityImpl {
 	var newEntity *entities.EntityImpl
+
 	if types.EntityType(entityType) == types.EntityTypeBob {
 		newEntity = entities.NewBob()
-		newEntity.ID = entityID
 	} else if types.EntityType(entityType) == types.EntityTypeScene {
 		newEntity = entities.NewScene()
-		newEntity.ID = entityID
 	} else if types.EntityType(entityType) == types.EntityTypeStaticSlime {
 		newEntity = entities.NewSlime()
-		newEntity.ID = entityID
 	} else if types.EntityType(entityType) == types.EntityTypeDynamicRigidBody {
 		newEntity = entities.NewDynamicRigidBody()
-		newEntity.ID = entityID
 	} else if types.EntityType(entityType) == types.EntityTypeStaticRigidBody {
 		newEntity = entities.NewStaticRigidBody()
-		newEntity.ID = entityID
 	} else if types.EntityType(entityType) == types.EntityTypeProjectile {
 		newEntity = entities.NewProjectile(position)
-		newEntity.ID = entityID
+	} else if types.EntityType(entityType) == types.EntityTypeEnemy {
+		newEntity = entities.NewEnemy()
 	} else {
 		fmt.Printf("unrecognized entity with type %v to spawn\n", entityType)
+		return nil
 	}
+
+	newEntity.ID = entityID
 	cc := newEntity.GetComponentContainer()
 	cc.TransformComponent.Position = position
 	cc.TransformComponent.Orientation = orientation
