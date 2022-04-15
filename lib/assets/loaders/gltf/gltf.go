@@ -281,6 +281,7 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 			if len(joint.Children) > 0 {
 				// sometimes people put joints as control objects that aren't actual parents
 				root = joint
+				break
 			}
 		}
 	}

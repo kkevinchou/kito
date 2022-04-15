@@ -175,10 +175,13 @@ func compileShaders() {
 	if err := shaderManager.CompileShaderProgram("skybox", "skybox", "skybox"); err != nil {
 		panic(err)
 	}
-	if err := shaderManager.CompileShaderProgram("model", "model", "model"); err != nil {
+	// if err := shaderManager.CompileShaderProgram("model", "model", "model"); err != nil {
+	// 	panic(err)
+	// }
+	if err := shaderManager.CompileShaderProgram("modelpbr", "model", "pbr"); err != nil {
 		panic(err)
 	}
-	if err := shaderManager.CompileShaderProgram("modelpbr", "model", "pbr"); err != nil {
+	if err := shaderManager.CompileShaderProgram("model_debug", "model_debug", "pbr_debug"); err != nil {
 		panic(err)
 	}
 	if err := shaderManager.CompileShaderProgram("model_static", "model_static", "pbr"); err != nil {
@@ -187,9 +190,9 @@ func compileShaders() {
 	if err := shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue"); err != nil {
 		panic(err)
 	}
-	if err := shaderManager.CompileShaderProgram("material", "model", "material"); err != nil {
-		panic(err)
-	}
+	// if err := shaderManager.CompileShaderProgram("material", "model", "material"); err != nil {
+	// 	panic(err)
+	// }
 	if err := shaderManager.CompileShaderProgram("quadtex", "quadtex", "quadtex"); err != nil {
 		panic(err)
 	}

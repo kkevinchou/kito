@@ -259,6 +259,9 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		if componentContainer.AnimationComponent != nil {
 			shader = "modelpbr"
 		}
+		// if entity.Type() == types.EntityTypeBob {
+		// 	shader = "model_debug"
+		// }
 
 		drawModel(
 			viewerContext,

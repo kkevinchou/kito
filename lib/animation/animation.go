@@ -43,6 +43,10 @@ func (player *AnimationPlayer) PlayAnimation(animationName string) {
 }
 
 func (player *AnimationPlayer) Update(delta time.Duration) {
+	if player.currentAnimation == nil {
+		return
+	}
+
 	player.elapsedTime += delta
 	for player.elapsedTime.Milliseconds() > player.currentAnimation.Length.Milliseconds() {
 		player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length.Milliseconds()) * time.Millisecond

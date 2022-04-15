@@ -21,7 +21,7 @@ test:
 
 .PHONY: build
 build:
-	go build -o out
+	go build -o kito.exe 
 
 .PHONY: release 
 release: clean

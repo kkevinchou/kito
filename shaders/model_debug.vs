@@ -14,6 +14,9 @@ out VS_OUT {
     vec4 FragPosLightSpace;
     mat4 View;
     vec2 TexCoord;
+    vec4 DebugTotalPos;
+    mat4 DebugModel; 
+    mat4 DebugJointTransform; 
 } vs_out;
 
 uniform mat4 model;
@@ -33,7 +36,7 @@ void main() {
     // b = vec4(totalPos.xyz, 1)
     // a does not equal b here.
 
-	for(int i = 0; i < 1; i++){
+	for(int i = 0; i < MAX_WEIGHTS; i++){
 		int jointIndex = jointIndices[i];
 
 		mat4 jointTransform = jointTransforms[jointIndex];
@@ -45,6 +48,9 @@ void main() {
 	}
     vs_out.Normal = vec3(transpose(inverse(modelRotationMatrix)) * totalNormal);
 
+    vs_out.DebugTotalPos = totalPos;
+    vs_out.DebugModel = model;
+    vs_out.DebugJointTransform = jointTransforms[58];
     vs_out.FragPos = vec3(model * totalPos);
     vs_out.FragPosLightSpace = lightSpaceMatrix * (model * totalPos);
 
