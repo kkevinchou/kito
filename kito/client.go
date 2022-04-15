@@ -113,6 +113,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	d.RegisterPlayerManager(playerManager)
 
 	g.systems = append(g.systems, []System{
+		cameraSystem,
 		networkInputSystem,
 		networkDispatchSystem,
 		characterControllerSystem,
@@ -123,7 +124,6 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 		controllerResolverSystem,
 		collisionResolverSystem,
 		animationSystem,
-		cameraSystem,
 		historySystem,
 		pingSystem,
 		renderSystem,

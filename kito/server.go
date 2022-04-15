@@ -11,7 +11,6 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/ai"
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
-	"github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
 	"github.com/kkevinchou/kito/kito/systems/collision"
 	"github.com/kkevinchou/kito/kito/systems/collisionresolver"
@@ -64,7 +63,6 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	abilitySystem := ability.NewAbilitySystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
-	cameraSystem := camera.NewCameraSystem(g)
 	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
 	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
 	playerInputSystem := playerinput.NewPlayerInputSystem(g)
@@ -85,7 +83,6 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		controllerResolverSystem,
 		collisionResolverSystem,
 		animationSystem,
-		cameraSystem,
 		networkUpdateSystem,
 		bookKeepingSystem,
 	}...)
