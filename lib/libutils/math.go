@@ -7,17 +7,13 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
-const (
-	approxEqualThreshold = 10
-)
-
 func Vec3ApproxEqualZero(v mgl64.Vec3) bool {
-	return Vec3ApproxEqual(v, mgl64.Vec3{})
+	return Vec3ApproxEqualThreshold(v, mgl64.Vec3{}, 1)
 }
 
-func Vec3ApproxEqual(v1 mgl64.Vec3, v2 mgl64.Vec3) bool {
+func Vec3ApproxEqualThreshold(v1 mgl64.Vec3, v2 mgl64.Vec3, threshold float64) bool {
 	return v1.ApproxFuncEqual(v2, func(a, b float64) bool {
-		return math.Abs(a-b) < approxEqualThreshold
+		return math.Abs(a-b) < threshold
 	})
 }
 

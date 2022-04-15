@@ -46,11 +46,12 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 		if !libutils.Vec3ApproxEqualZero(tpcComponent.ZipVelocity) {
 			tpcComponent.ZipVelocity = tpcComponent.ZipVelocity.Normalize().Mul(zipSpeed)
 		} else {
+
 			cameraView := frameInput.CameraOrientation.Rotate(mgl64.Vec3{0, 1, -5})
 			tpcComponent.ZipVelocity = cameraView.Normalize().Mul(zipSpeed)
 		}
 	} else {
-		tpcComponent.ZipVelocity = tpcComponent.ZipVelocity.Mul(.9)
+		tpcComponent.ZipVelocity = tpcComponent.ZipVelocity.Mul(.99)
 		if libutils.Vec3ApproxEqualZero(tpcComponent.ZipVelocity) {
 			tpcComponent.ZipVelocity = mgl64.Vec3{}
 		}
@@ -63,7 +64,8 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 
 	// apply all the various velocity adjustments
 	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
-	tpcComponent.Velocity = tpcComponent.BaseVelocity.Add(tpcComponent.ControllerVelocity)
+	tpcComponent.Velocity = tpcComponent.BaseVelocity
+	tpcComponent.Velocity = tpcComponent.Velocity.Add(tpcComponent.ControllerVelocity)
 	tpcComponent.Velocity = tpcComponent.Velocity.Add(tpcComponent.ZipVelocity)
 
 	transformComponent.Position = transformComponent.Position.Add(tpcComponent.Velocity.Mul(delta.Seconds()))

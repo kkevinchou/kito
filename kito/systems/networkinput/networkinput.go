@@ -16,6 +16,7 @@ type World interface {
 	MetricsRegistry() *metrics.MetricsRegistry
 	CommandFrame() int
 	GetPlayer() *player.Player
+	GetCamera() entities.Entity
 }
 
 type NetworkInputSystem struct {
@@ -36,6 +37,9 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 
 	player := s.world.GetPlayer()
 	playerInput := singleton.PlayerInput[player.ID]
+
+	// camera := s.world.GetCamera()
+	// playerInput.CameraOrientation = camera.GetComponentContainer().TransformComponent.Orientation
 
 	inputMessage := &knetwork.InputMessage{
 		CommandFrame: singleton.CommandFrame,
