@@ -1,9 +1,25 @@
 package libutils
 
 import (
+	"math"
+
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 )
+
+const (
+	approxEqualThreshold = 10
+)
+
+func Vec3ApproxEqualZero(v mgl64.Vec3) bool {
+	return Vec3ApproxEqual(v, mgl64.Vec3{})
+}
+
+func Vec3ApproxEqual(v1 mgl64.Vec3, v2 mgl64.Vec3) bool {
+	return v1.ApproxFuncEqual(v2, func(a, b float64) bool {
+		return math.Abs(a-b) < approxEqualThreshold
+	})
+}
 
 func Vec3IsZero(v mgl64.Vec3) bool {
 	return v[0] == 0 && v[1] == 0 && v[2] == 0

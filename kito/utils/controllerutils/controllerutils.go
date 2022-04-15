@@ -15,6 +15,7 @@ import (
 const (
 	gravity        float64 = 250
 	jumpSpeed      float64 = 150
+	zipSpeed       float64 = 400
 	equalThreshold float64 = 1e-5
 )
 
@@ -22,6 +23,9 @@ var (
 	accelerationDueToGravity = mgl64.Vec3{0, -gravity, 0}
 )
 
+// BaseVelocity - does not involve controller velocities (e.g. WASD)
+// Velocity - actual observable velocity by external systems that includes movement velocities (e.g. WASD)
+//          - computed each frame
 func UpdateCharacterController(delta time.Duration, entity entities.Entity, camera entities.Entity, frameInput input.Input) {
 	componentContainer := entity.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
@@ -37,13 +41,32 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 		tpcComponent.Grounded = false
 	}
 
+	// handle zip movement
+	if _, ok := keyboardInput[input.KeyboardKeyE]; ok {
+		// forward, right := calculateCameraForwardRightVec(camera)
+		if !libutils.Vec3ApproxEqualZero(tpcComponent.ZipVelocity) {
+			tpcComponent.ZipVelocity = tpcComponent.ZipVelocity.Normalize().Mul(zipSpeed)
+		} else {
+			cameraView := camera.GetComponentContainer().TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
+			tpcComponent.ZipVelocity = cameraView.Normalize().Mul(zipSpeed)
+		}
+	} else {
+		tpcComponent.ZipVelocity = tpcComponent.ZipVelocity.Mul(.9)
+		if libutils.Vec3ApproxEqualZero(tpcComponent.ZipVelocity) {
+			tpcComponent.ZipVelocity = mgl64.Vec3{}
+		}
+	}
+
 	// handle controller movement
 	movementDir := calculateMovementDir(camera, controlVector)
 	tpcComponent.MovementSpeed = computeMoveSpeed(tpcComponent.MovementSpeed)
 	tpcComponent.ControllerVelocity = movementDir.Mul(tpcComponent.MovementSpeed)
 
+	// apply all the various velocity adjustments
 	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
 	tpcComponent.Velocity = tpcComponent.BaseVelocity.Add(tpcComponent.ControllerVelocity)
+	tpcComponent.Velocity = tpcComponent.Velocity.Add(tpcComponent.ZipVelocity)
+
 	transformComponent.Position = transformComponent.Position.Add(tpcComponent.Velocity.Mul(delta.Seconds()))
 
 	// safeguard falling off the map
@@ -73,6 +96,7 @@ func ResolveControllerCollision(entity entities.Entity) {
 		tpcComponent.Grounded = true
 		tpcComponent.Velocity[1] = 0
 		tpcComponent.BaseVelocity[1] = 0
+		tpcComponent.ZipVelocity = mgl64.Vec3{}
 	} else {
 		// no collisions were detected (i.e. the ground)
 		tpcComponent.Grounded = false
@@ -141,12 +165,12 @@ func computeMoveSpeed(movementSpeed float64) float64 {
 func calculateMovementDir(camera entities.Entity, controlVector mgl64.Vec3) mgl64.Vec3 {
 	cc := camera.GetComponentContainer()
 	forwardVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
-	forwardVector[1] = 0
 	forwardVector = forwardVector.Normalize().Mul(controlVector.Z())
+	forwardVector[1] = 0
 
 	rightVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0})
-	rightVector[1] = 0
 	rightVector = rightVector.Normalize().Mul(controlVector.X())
+	rightVector[1] = 0
 
 	movementDir := forwardVector.Add(rightVector)
 	if movementDir.LenSqr() > 0 {
@@ -154,4 +178,12 @@ func calculateMovementDir(camera entities.Entity, controlVector mgl64.Vec3) mgl6
 	}
 
 	return movementDir
+}
+
+func calculateCameraForwardRightVec(camera entities.Entity) (mgl64.Vec3, mgl64.Vec3) {
+	cc := camera.GetComponentContainer()
+	forwardVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1}).Normalize()
+	rightVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0}).Normalize()
+
+	return forwardVector, rightVector
 }
