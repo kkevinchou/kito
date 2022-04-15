@@ -1,6 +1,7 @@
 package input
 
 import (
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -35,9 +36,10 @@ func NewSDLPlatform(window *sdl.Window, imguiIO imgui.IO) *SDLPlatform {
 
 func (platform *SDLPlatform) PollInput() Input {
 	platform.currentFrameInput = Input{
-		MouseInput:    MouseInput{},
-		KeyboardInput: KeyboardInput{},
-		Commands:      []any{},
+		MouseInput:        MouseInput{},
+		KeyboardInput:     KeyboardInput{},
+		CameraOrientation: mgl64.QuatIdent(),
+		Commands:          []any{},
 	}
 
 	x, y, mouseState := sdl.GetMouseState()

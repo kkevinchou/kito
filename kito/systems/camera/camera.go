@@ -44,11 +44,14 @@ func (s *CameraSystem) Update(delta time.Duration) {
 
 	for _, camera := range s.world.QueryEntity(components.ComponentFlagCamera | components.ComponentFlagControl) {
 		playerID := camera.GetComponentContainer().ControlComponent.PlayerID
-		handleCameraControls(delta, camera, s.world, singleton.PlayerInput[playerID])
+		newOrientation := handleCameraControls(delta, camera, s.world, singleton.PlayerInput[playerID])
+		currentInput := singleton.PlayerInput[playerID]
+		currentInput.CameraOrientation = newOrientation
+		singleton.PlayerInput[playerID] = currentInput
 	}
 }
 
-func handleCameraControls(delta time.Duration, entity entities.Entity, world World, frameInput input.Input) {
+func handleCameraControls(delta time.Duration, entity entities.Entity, world World, frameInput input.Input) mgl64.Quat {
 	cc := entity.GetComponentContainer()
 	cameraComponent := cc.CameraComponent
 	transformComponent := cc.TransformComponent
@@ -123,10 +126,11 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	target := world.GetEntityByID(cameraComponent.FollowTargetEntityID)
 	if target == nil {
 		fmt.Println("failed to find target entity with ID", cameraComponent.FollowTargetEntityID)
-		return
+		return mgl64.QuatIdent()
 	}
 	targetComponentContainer := target.GetComponentContainer()
 	targetPosition := targetComponentContainer.TransformComponent.Position.Add(mgl64.Vec3{0, cameraComponent.YOffset, 0})
 	transformComponent.Position = newOrientation.Rotate(mgl64.Vec3{0, 0, cameraComponent.FollowDistance}).Add(targetPosition)
 	transformComponent.Orientation = newOrientation
+	return newOrientation
 }

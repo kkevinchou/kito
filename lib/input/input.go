@@ -1,5 +1,7 @@
 package input
 
+import "github.com/go-gl/mathgl/mgl64"
+
 type InputPoller func() Input
 
 type MouseWheelDirection int
@@ -78,9 +80,10 @@ type QuitCommand struct {
 // written to by any systems, only read. Input is stored in a client side
 // command frame history which will copy the KeyboardInput by reference
 type Input struct {
-	KeyboardInput KeyboardInput
-	MouseInput    MouseInput
-	Commands      []any
+	KeyboardInput     KeyboardInput
+	MouseInput        MouseInput
+	CameraOrientation mgl64.Quat
+	Commands          []any
 }
 
 // func (i Input) Copy() Input {

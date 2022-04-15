@@ -43,11 +43,10 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 
 	// handle zip movement
 	if _, ok := keyboardInput[input.KeyboardKeyE]; ok {
-		// forward, right := calculateCameraForwardRightVec(camera)
 		if !libutils.Vec3ApproxEqualZero(tpcComponent.ZipVelocity) {
 			tpcComponent.ZipVelocity = tpcComponent.ZipVelocity.Normalize().Mul(zipSpeed)
 		} else {
-			cameraView := camera.GetComponentContainer().TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 1, -5})
+			cameraView := frameInput.CameraOrientation.Rotate(mgl64.Vec3{0, 1, -5})
 			tpcComponent.ZipVelocity = cameraView.Normalize().Mul(zipSpeed)
 		}
 	} else {
@@ -58,7 +57,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	}
 
 	// handle controller movement
-	movementDir := calculateMovementDir(camera, controlVector)
+	movementDir := calculateMovementDir(frameInput.CameraOrientation, controlVector)
 	tpcComponent.MovementSpeed = computeMoveSpeed(tpcComponent.MovementSpeed)
 	tpcComponent.ControllerVelocity = movementDir.Mul(tpcComponent.MovementSpeed)
 
@@ -162,13 +161,12 @@ func computeMoveSpeed(movementSpeed float64) float64 {
 }
 
 // movementDir does not include Y values
-func calculateMovementDir(camera entities.Entity, controlVector mgl64.Vec3) mgl64.Vec3 {
-	cc := camera.GetComponentContainer()
-	forwardVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
+func calculateMovementDir(cameraOrientation mgl64.Quat, controlVector mgl64.Vec3) mgl64.Vec3 {
+	forwardVector := cameraOrientation.Rotate(mgl64.Vec3{0, 0, -1})
 	forwardVector = forwardVector.Normalize().Mul(controlVector.Z())
 	forwardVector[1] = 0
 
-	rightVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0})
+	rightVector := cameraOrientation.Rotate(mgl64.Vec3{1, 0, 0})
 	rightVector = rightVector.Normalize().Mul(controlVector.X())
 	rightVector[1] = 0
 
