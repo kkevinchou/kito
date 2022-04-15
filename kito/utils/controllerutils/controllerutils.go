@@ -47,7 +47,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 		if !libutils.Vec3ApproxEqualZero(tpcComponent.ZipVelocity) {
 			tpcComponent.ZipVelocity = tpcComponent.ZipVelocity.Normalize().Mul(zipSpeed)
 		} else {
-			cameraView := camera.GetComponentContainer().TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
+			cameraView := camera.GetComponentContainer().TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 1, -5})
 			tpcComponent.ZipVelocity = cameraView.Normalize().Mul(zipSpeed)
 		}
 	} else {
@@ -74,7 +74,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 		transformComponent.Position[1] = 25
 	}
 
-	if movementDir.LenSqr() > 0 {
+	if !libutils.Vec3ApproxEqualZero(tpcComponent.ControllerVelocity) {
 		transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, tpcComponent.ControllerVelocity.Normalize(), mgl64.Vec3{0, 1, 0})
 	} else {
 		tpcComponent.MovementSpeed = 0
