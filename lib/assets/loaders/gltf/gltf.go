@@ -100,7 +100,7 @@ func rootParentTransforms(document *gltf.Document, parsedJoints *ParsedJoints) m
 
 	transform := mgl32.Ident4()
 	node := parsedJoints.JointIDToNodeID[parsedJoints.RootJoint.ID]
-	for parent := parents[node]; parent != nil; {
+	for parent, ok := parents[node]; ; {
 		var mat mgl32.Mat4 = libutils.MatF32FromColumnMajorFloats(document.Nodes[*parent].Matrix)
 		transform = mat.Mul4(transform)
 		node = *parent
