@@ -50,5 +50,7 @@ type ModelSpecification struct {
 	// Animations
 	Animations map[string]*AnimationSpec
 
+	RootTransforms mgl32.Mat4
+
 	Textures []string
 }

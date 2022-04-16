@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/modelspec"
 	"github.com/qmuntal/gltf"
 	"github.com/qmuntal/gltf/modeler"
@@ -18,6 +19,7 @@ type jointMeta struct {
 type ParsedJoints struct {
 	RootJoint       *modelspec.JointSpec
 	NodeIDToJointID map[int]int
+	JointIDToNodeID map[int]int
 }
 
 type TextureCoordStyle int
@@ -56,7 +58,8 @@ func ParseGLTF(documentPath string, config *ParseConfig) (*modelspec.ModelSpecif
 	modelSpec := &modelspec.ModelSpecification{}
 
 	for _, mesh := range document.Meshes {
-		meshSpec, err := parseMesh(document, mesh, config)
+		mat := mgl32.QuatRotate(mgl32.DegToRad(180), mgl32.Vec3{0, 0, -1}).Mat4()
+		meshSpec, err := parseMesh(document, mesh, mat, config)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -78,7 +81,33 @@ func ParseGLTF(documentPath string, config *ParseConfig) (*modelspec.ModelSpecif
 	}
 	modelSpec.Animations = parsedAnimations
 
+	rootTransforms := rootParentTransforms(document, parsedJoints)
+	modelSpec.RootTransforms = rootTransforms
+
 	return modelSpec, nil
+}
+
+func rootParentTransforms(document *gltf.Document, parsedJoints *ParsedJoints) mgl32.Mat4 {
+	children := map[int][]int{}
+	parents := map[int]*int{}
+	for i, node := range document.Nodes {
+		cs := uint32SliceToIntSlice(node.Children)
+		children[i] = cs
+		for _, c := range cs {
+			parents[c] = &i
+		}
+	}
+
+	transform := mgl32.Ident4()
+	node := parsedJoints.JointIDToNodeID[parsedJoints.RootJoint.ID]
+	for parent := parents[node]; parent != nil; {
+		var mat mgl32.Mat4 = libutils.MatF32FromColumnMajorFloats(document.Nodes[*parent].Matrix)
+		transform = mat.Mul4(transform)
+		node = *parent
+		// fmt.Println(node)
+	}
+
+	return transform
 }
 
 func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedJoints *ParsedJoints) (*modelspec.AnimationSpec, error) {
@@ -199,9 +228,11 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 	jms := map[int]*jointMeta{}
 	jointNodeIDs := uint32SliceToIntSlice(skin.Joints)
 	nodeIDToJointID := map[int]int{}
+	jointIDToNodeID := map[int]int{}
 
 	for jointID, nodeID := range jointNodeIDs {
 		nodeIDToJointID[nodeID] = jointID
+		jointIDToNodeID[jointID] = nodeID
 	}
 
 	for jointID := 0; jointID < len(jointNodeIDs); jointID++ {
@@ -270,7 +301,6 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 			childIDSet[childJointID] = true
 			joints[jointID].Children = append(joints[jointID].Children, joints[childJointID])
 		}
-
 	}
 
 	// find the root
@@ -289,11 +319,12 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 	parsedJoints := &ParsedJoints{
 		RootJoint:       root,
 		NodeIDToJointID: nodeIDToJointID,
+		JointIDToNodeID: jointIDToNodeID,
 	}
 	return parsedJoints, nil
 }
 
-func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*modelspec.MeshSpecification, error) {
+func parseMesh(document *gltf.Document, mesh *gltf.Mesh, parentTransforms mgl32.Mat4, config *ParseConfig) (*modelspec.MeshSpecification, error) {
 	meshSpec := &modelspec.MeshSpecification{}
 
 	for _, primitive := range mesh.Primitives {
@@ -339,7 +370,10 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*
 				}
 
 				for i, position := range positions {
-					meshChunkSpec.UniqueVertices[i].Position = position
+					v := mgl32.Vec3(position).Vec4(1)
+					v = parentTransforms.Mul4x1(v)
+					x, y, z := v.Vec3().Elem()
+					meshChunkSpec.UniqueVertices[i].Position = [3]float32{x, y, z}
 				}
 			} else if attribute == gltf.NORMAL {
 				normals, err := modeler.ReadNormal(document, acr, nil)

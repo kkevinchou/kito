@@ -1,6 +1,7 @@
 package gltf_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltf"
@@ -19,6 +20,8 @@ func TestBasic(t *testing.T) {
 		t.Error(err)
 	}
 	_ = m
+
+	fmt.Println(m.RootTransforms)
 
 	t.Fail()
 }

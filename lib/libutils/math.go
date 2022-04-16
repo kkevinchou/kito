@@ -7,6 +7,15 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 )
 
+func MatF32FromColumnMajorFloats(matrix [16]float32) mgl32.Mat4 {
+	return mgl32.Mat4FromRows(
+		mgl32.Vec4{matrix[0], matrix[1], matrix[2], matrix[3]},
+		mgl32.Vec4{matrix[4], matrix[5], matrix[6], matrix[7]},
+		mgl32.Vec4{matrix[8], matrix[9], matrix[10], matrix[11]},
+		mgl32.Vec4{matrix[12], matrix[13], matrix[14], matrix[15]},
+	)
+}
+
 func Vec3ApproxEqualZero(v mgl64.Vec3) bool {
 	return Vec3ApproxEqualThreshold(v, mgl64.Vec3{}, 1)
 }
