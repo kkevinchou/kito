@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
@@ -61,4 +62,8 @@ func (m *Model) MeshChunks() []*MeshChunk {
 		meshChunks = append(meshChunks, mesh.MeshChunks()...)
 	}
 	return meshChunks
+}
+
+func (m *Model) RootTransforms() mgl32.Mat4 {
+	return m.modelSpec.RootTransforms
 }

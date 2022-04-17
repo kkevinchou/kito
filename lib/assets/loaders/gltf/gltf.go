@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/modelspec"
 	"github.com/qmuntal/gltf"
 	"github.com/qmuntal/gltf/modeler"
@@ -76,12 +75,13 @@ func ParseGLTF(documentPath string, config *ParseConfig) (*modelspec.ModelSpecif
 		modelSpec.Textures = append(modelSpec.Textures, img.Name)
 	}
 
+	rootTransforms := mgl32.Ident4()
 	if parsedJoints != nil {
 		modelSpec.RootJoint = parsedJoints.RootJoint
+		rootTransforms = rootParentTransforms(document, parsedJoints)
 	}
-	modelSpec.Animations = parsedAnimations
 
-	rootTransforms := rootParentTransforms(document, parsedJoints)
+	modelSpec.Animations = parsedAnimations
 	modelSpec.RootTransforms = rootTransforms
 
 	return modelSpec, nil
@@ -100,13 +100,29 @@ func rootParentTransforms(document *gltf.Document, parsedJoints *ParsedJoints) m
 
 	transform := mgl32.Ident4()
 	node := parsedJoints.JointIDToNodeID[parsedJoints.RootJoint.ID]
-	for parent, ok := parents[node]; ; {
-		var mat mgl32.Mat4 = libutils.MatF32FromColumnMajorFloats(document.Nodes[*parent].Matrix)
-		transform = mat.Mul4(transform)
-		node = *parent
-		// fmt.Println(node)
+	parent := parents[node]
+	for parent != nil {
+		parentNode := document.Nodes[*parent]
+		translation := parentNode.Translation
+		rotation := parentNode.Rotation
+		scale := parentNode.Scale
+
+		translationMatrix := mgl32.Translate3D(translation[0], translation[1], translation[2])
+		rotationMatrix := mgl32.Quat{V: mgl32.Vec3{rotation[0], rotation[1], rotation[2]}, W: rotation[3]}.Mat4()
+		scaleMatrix := mgl32.Scale3D(scale[0], scale[1], scale[2])
+		// fmt.Println(translationMatrix)
+		// fmt.Println(rotationMatrix)
+		// rotationMatrix = mgl32.Ident4()
+		// fmt.Println(scaleMatrix)
+		// fmt.Println("------------")
+
+		nodeTransform := translationMatrix.Mul4(rotationMatrix.Mul4(scaleMatrix))
+		// fmt.Println(nodeTransform)
+		transform = nodeTransform.Mul4(transform)
+		parent = parents[*parent]
 	}
 
+	transform = mgl32.Ident4()
 	return transform
 }
 
@@ -370,10 +386,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, parentTransforms mgl32.
 				}
 
 				for i, position := range positions {
-					v := mgl32.Vec3(position).Vec4(1)
-					v = parentTransforms.Mul4x1(v)
-					x, y, z := v.Vec3().Elem()
-					meshChunkSpec.UniqueVertices[i].Position = [3]float32{x, y, z}
+					meshChunkSpec.UniqueVertices[i].Position = position
 				}
 			} else if attribute == gltf.NORMAL {
 				normals, err := modeler.ReadNormal(document, acr, nil)
