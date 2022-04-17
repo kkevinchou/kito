@@ -17,6 +17,9 @@ const (
 	jumpSpeed      float64 = 150
 	zipSpeed       float64 = 400
 	equalThreshold float64 = 1e-5
+
+	// a value of 1 means the normal vector of what you're on must be exactly Vec3{0, 1, 0}
+	groundedStrictness = 0.85
 )
 
 var (
@@ -94,7 +97,9 @@ func ResolveControllerCollision(entity entities.Entity) {
 		separatingVector := combineSeparatingVectors(contactManifolds)
 		// separatingVector := minSeparatingVector(contactManifolds)
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
-		tpcComponent.Grounded = true
+		if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
+			tpcComponent.Grounded = true
+		}
 		tpcComponent.Velocity[1] = 0
 		tpcComponent.BaseVelocity[1] = 0
 		tpcComponent.ZipVelocity = mgl64.Vec3{}

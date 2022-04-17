@@ -122,7 +122,7 @@ func rootParentTransforms(document *gltf.Document, parsedJoints *ParsedJoints) m
 		parent = parents[*parent]
 	}
 
-	transform = mgl32.Ident4()
+	// transform = mgl32.Ident4()
 	return transform
 }
 

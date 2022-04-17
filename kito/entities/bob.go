@@ -37,7 +37,7 @@ func NewBob() *EntityImpl {
 
 	meshComponent := &components.MeshComponent{
 		// Scale:            mgl64.Scale3D(1, 1, 1),
-		Scale: mgl64.Scale3D(10, 10, 10),
+		Scale: mgl64.Scale3D(15, 15, 15),
 		// Scale: mgl64.Scale3D(1, 1, 1),
 		// Orientation: mgl64.Ident4(),
 		Orientation: yr,
