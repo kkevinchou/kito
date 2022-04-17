@@ -91,10 +91,12 @@ func rootParentTransforms(document *gltf.Document, parsedJoints *ParsedJoints) m
 	children := map[int][]int{}
 	parents := map[int]*int{}
 	for i, node := range document.Nodes {
+		nodeID := i
 		cs := uint32SliceToIntSlice(node.Children)
 		children[i] = cs
 		for _, c := range cs {
-			parents[c] = &i
+			// take address of loop index
+			parents[c] = &nodeID
 		}
 	}
 
