@@ -18,6 +18,7 @@ type jointMeta struct {
 type ParsedJoints struct {
 	RootJoint       *modelspec.JointSpec
 	NodeIDToJointID map[int]int
+	JointIDToNodeID map[int]int
 }
 
 type TextureCoordStyle int
@@ -56,7 +57,8 @@ func ParseGLTF(documentPath string, config *ParseConfig) (*modelspec.ModelSpecif
 	modelSpec := &modelspec.ModelSpecification{}
 
 	for _, mesh := range document.Meshes {
-		meshSpec, err := parseMesh(document, mesh, config)
+		mat := mgl32.QuatRotate(mgl32.DegToRad(180), mgl32.Vec3{0, 0, -1}).Mat4()
+		meshSpec, err := parseMesh(document, mesh, mat, config)
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -73,12 +75,57 @@ func ParseGLTF(documentPath string, config *ParseConfig) (*modelspec.ModelSpecif
 		modelSpec.Textures = append(modelSpec.Textures, img.Name)
 	}
 
+	rootTransforms := mgl32.Ident4()
 	if parsedJoints != nil {
 		modelSpec.RootJoint = parsedJoints.RootJoint
+		rootTransforms = rootParentTransforms(document, parsedJoints)
 	}
+
 	modelSpec.Animations = parsedAnimations
+	modelSpec.RootTransforms = rootTransforms
 
 	return modelSpec, nil
+}
+
+func rootParentTransforms(document *gltf.Document, parsedJoints *ParsedJoints) mgl32.Mat4 {
+	children := map[int][]int{}
+	parents := map[int]*int{}
+	for i, node := range document.Nodes {
+		nodeID := i
+		cs := uint32SliceToIntSlice(node.Children)
+		children[i] = cs
+		for _, c := range cs {
+			// take address of loop index
+			parents[c] = &nodeID
+		}
+	}
+
+	transform := mgl32.Ident4()
+	node := parsedJoints.JointIDToNodeID[parsedJoints.RootJoint.ID]
+	parent := parents[node]
+	for parent != nil {
+		parentNode := document.Nodes[*parent]
+		translation := parentNode.Translation
+		rotation := parentNode.Rotation
+		scale := parentNode.Scale
+
+		translationMatrix := mgl32.Translate3D(translation[0], translation[1], translation[2])
+		rotationMatrix := mgl32.Quat{V: mgl32.Vec3{rotation[0], rotation[1], rotation[2]}, W: rotation[3]}.Mat4()
+		scaleMatrix := mgl32.Scale3D(scale[0], scale[1], scale[2])
+		// fmt.Println(translationMatrix)
+		// fmt.Println(rotationMatrix)
+		// rotationMatrix = mgl32.Ident4()
+		// fmt.Println(scaleMatrix)
+		// fmt.Println("------------")
+
+		nodeTransform := translationMatrix.Mul4(rotationMatrix.Mul4(scaleMatrix))
+		// fmt.Println(nodeTransform)
+		transform = nodeTransform.Mul4(transform)
+		parent = parents[*parent]
+	}
+
+	// transform = mgl32.Ident4()
+	return transform
 }
 
 func parseAnimation(document *gltf.Document, animation *gltf.Animation, parsedJoints *ParsedJoints) (*modelspec.AnimationSpec, error) {
@@ -199,9 +246,11 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 	jms := map[int]*jointMeta{}
 	jointNodeIDs := uint32SliceToIntSlice(skin.Joints)
 	nodeIDToJointID := map[int]int{}
+	jointIDToNodeID := map[int]int{}
 
 	for jointID, nodeID := range jointNodeIDs {
 		nodeIDToJointID[nodeID] = jointID
+		jointIDToNodeID[jointID] = nodeID
 	}
 
 	for jointID := 0; jointID < len(jointNodeIDs); jointID++ {
@@ -270,7 +319,6 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 			childIDSet[childJointID] = true
 			joints[jointID].Children = append(joints[jointID].Children, joints[childJointID])
 		}
-
 	}
 
 	// find the root
@@ -289,11 +337,12 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 	parsedJoints := &ParsedJoints{
 		RootJoint:       root,
 		NodeIDToJointID: nodeIDToJointID,
+		JointIDToNodeID: jointIDToNodeID,
 	}
 	return parsedJoints, nil
 }
 
-func parseMesh(document *gltf.Document, mesh *gltf.Mesh, config *ParseConfig) (*modelspec.MeshSpecification, error) {
+func parseMesh(document *gltf.Document, mesh *gltf.Mesh, parentTransforms mgl32.Mat4, config *ParseConfig) (*modelspec.MeshSpecification, error) {
 	meshSpec := &modelspec.MeshSpecification{}
 
 	for _, primitive := range mesh.Primitives {

@@ -33,7 +33,11 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 
 		targetAnimation := "Idle"
 		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
-			targetAnimation = "Walk"
+			if tpcComponent.Grounded {
+				targetAnimation = "Walk"
+			} else {
+				targetAnimation = "Falling"
+			}
 		}
 
 		player := animationComponent.Player

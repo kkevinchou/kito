@@ -21,8 +21,10 @@ const (
 )
 
 func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, meshComponent *components.MeshComponent, animationComponent *components.AnimationComponent, modelMatrix mgl64.Mat4, modelRotationMatrix mgl64.Mat4) {
+	model := meshComponent.Model
+
 	shader.Use()
-	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix))
+	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix).Mul4(model.RootTransforms()))
 	shader.SetUniformMat4("modelRotationMatrix", utils.Mat4F64ToF32(modelRotationMatrix))
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
@@ -41,8 +43,6 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 
 	gl.ActiveTexture(gl.TEXTURE31)
 	gl.BindTexture(gl.TEXTURE_2D, shadowMap.DepthTexture())
-
-	model := meshComponent.Model
 
 	for _, meshChunk := range model.MeshChunks() {
 		if pbr := meshChunk.PBRMaterial(); pbr != nil {
