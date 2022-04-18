@@ -99,7 +99,7 @@ func QuatLookAt(eye, center, up mgl64.Vec3) mgl64.Quat {
 }
 
 // takes a matrix composed of a translation, scale, and rotation (no projection) and decomposes it
-func Decompose(m mgl32.Mat4) (mgl32.Vec3, mgl32.Vec3, mgl32.Quat) {
+func Decompose(m mgl32.Mat4) (mgl32.Vec3, mgl32.Quat, mgl32.Vec3) {
 	translation := m.Col(3).Vec3()
 	m.SetCol(3, mgl32.Vec4{0, 0, 0, 1})
 
@@ -116,7 +116,7 @@ func Decompose(m mgl32.Mat4) (mgl32.Vec3, mgl32.Vec3, mgl32.Quat) {
 	rotation := mgl32.Mat4ToQuat(m)
 	scale := mgl32.Vec3{xScaleCol.Len(), yScaleCol.Len(), zScaleCol.Len()}
 
-	return translation, scale, rotation
+	return translation, rotation, scale
 }
 
 // Quaternion interpolation, reimplemented from: https://github.com/TheThinMatrix/OpenGL-Animation/blob/dde792fe29767192bcb60d30ac3e82d6bcff1110/Animation/animation/Quaternion.java#L158

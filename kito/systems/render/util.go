@@ -11,6 +11,7 @@ import (
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/font"
+	"github.com/kkevinchou/kito/lib/libutils"
 	utils "github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/shaders"
 	"github.com/kkevinchou/kito/lib/textures"
@@ -23,9 +24,14 @@ const (
 func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, meshComponent *components.MeshComponent, animationComponent *components.AnimationComponent, modelMatrix mgl64.Mat4, modelRotationMatrix mgl64.Mat4) {
 	model := meshComponent.Model
 
+	// TOOD: i hate this... Ideally we incorporate the model.RootTransforms to the vertex positions
+	// and the animation poses so that we don't have to multiple this matrix every frame.
+	m32ModelMatrix := utils.Mat4F64ToF32(modelMatrix).Mul4(model.RootTransforms())
+	_, r, _ := libutils.Decompose(m32ModelMatrix)
+
 	shader.Use()
-	shader.SetUniformMat4("model", utils.Mat4F64ToF32(modelMatrix).Mul4(model.RootTransforms()))
-	shader.SetUniformMat4("modelRotationMatrix", utils.Mat4F64ToF32(modelRotationMatrix))
+	shader.SetUniformMat4("model", m32ModelMatrix)
+	shader.SetUniformMat4("modelRotationMatrix", r.Mat4())
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
 	shader.SetUniformVec3("viewPos", utils.Vec3F64ToF32(viewerContext.Position))

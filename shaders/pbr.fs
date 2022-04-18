@@ -149,6 +149,7 @@ void main()
         vec3 fragToLight = -directionalLightDir;
         vec3 lightColor = vec3(5);
         float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, fragToLight);
+        // shadow = 0;
 
         vec3 in_albedo = albedo; 
         if (hasPBRBaseColorTexture == 1) {
@@ -157,7 +158,8 @@ void main()
         Lo += (1 - shadow) * calculateLightOut(normal, fragToCam, fragToLight, distance, lightColor, in_albedo);
     // }   
   
-    vec3 ambient = vec3(0.2) * in_albedo * ao;
+    vec3 ambient = vec3(0.1) * in_albedo * ao;
+    // ambient = vec3(0);
     vec3 color = ambient + Lo;
 	
     color = color / (color + vec3(1.0));

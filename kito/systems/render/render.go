@@ -153,7 +153,7 @@ func (s *RenderSystem) Render(delta time.Duration) {
 	modelSpaceFrustumPoints := CalculateFrustumPoints(transformComponent.Position, transformComponent.Orientation, near, far, s.fovY, s.aspectRatio, shadowDistanceFactor)
 	// NOTE: for some reason, using a negative angle makes shadow calculation wonky.
 	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(45), mgl64.Vec3{0, 1, 0})
-	lightOrientation = lightOrientation.Mul(mgl64.QuatRotate(mgl64.DegToRad(310), mgl64.Vec3{1, 0, 0}))
+	lightOrientation = lightOrientation.Mul(mgl64.QuatRotate(mgl64.DegToRad(300), mgl64.Vec3{1, 0, 0}))
 	lightPosition, lightProjectionMatrix := ComputeDirectionalLightProps(lightOrientation.Mat4(), modelSpaceFrustumPoints, shadowmapZOffset)
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
 
