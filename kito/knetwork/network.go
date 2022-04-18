@@ -44,6 +44,8 @@ type EntitySnapshot struct {
 	Orientation mgl64.Quat
 	Velocity    mgl64.Vec3
 	Impulses    map[string]types.Impulse
+
+	Animation string
 }
 
 type Event struct {

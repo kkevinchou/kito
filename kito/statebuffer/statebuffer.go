@@ -83,6 +83,7 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 				Position:    endSnapshot.Position.Sub(startSnapshot.Position).Mul(float64(i) * cfStep).Add(startSnapshot.Position),
 				Orientation: libutils.QInterpolate64(startSnapshot.Orientation, endSnapshot.Orientation, float64(i)*cfStep),
 				Velocity:    endSnapshot.Velocity.Sub(startSnapshot.Velocity).Mul(float64(i) * cfStep).Add(startSnapshot.Velocity),
+				Animation:   startSnapshot.Animation,
 			}
 		}
 

@@ -81,6 +81,7 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, l
 // PullInput pulls a buffered input for the current command frame
 func (i *InputBuffer) PullInput(globalCommandFrame int, playerID int) *BufferedInput {
 	if len(i.playerInputs[playerID]) == 0 {
+		// fmt.Println("EMPTY")
 		return nil
 	}
 

@@ -41,7 +41,6 @@ func Spawn(entityID int, entityType types.EntityType, position mgl64.Vec3, orien
 func ConstructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 	cc := entity.GetComponentContainer()
 	transformComponent := cc.TransformComponent
-	physicsComponent := cc.PhysicsComponent
 	tpcComponent := cc.ThirdPersonControllerComponent
 
 	snapshot := knetwork.EntitySnapshot{
@@ -51,11 +50,17 @@ func ConstructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 		Orientation: transformComponent.Orientation,
 	}
 
+	physicsComponent := cc.PhysicsComponent
 	if physicsComponent != nil {
 		snapshot.Velocity = physicsComponent.Velocity
 		snapshot.Impulses = physicsComponent.Impulses
 	} else if tpcComponent != nil {
 		snapshot.Velocity = tpcComponent.Velocity
+	}
+
+	animationComponent := cc.AnimationComponent
+	if animationComponent != nil {
+		snapshot.Animation = animationComponent.Player.CurrentAnimation()
 	}
 
 	return snapshot

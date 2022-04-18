@@ -38,9 +38,6 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 	player := s.world.GetPlayer()
 	playerInput := singleton.PlayerInput[player.ID]
 
-	// camera := s.world.GetCamera()
-	// playerInput.CameraOrientation = camera.GetComponentContainer().TransformComponent.Orientation
-
 	inputMessage := &knetwork.InputMessage{
 		CommandFrame: singleton.CommandFrame,
 		Input:        playerInput,

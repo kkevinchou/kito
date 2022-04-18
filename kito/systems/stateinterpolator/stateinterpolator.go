@@ -62,6 +62,9 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 			if cc.ThirdPersonControllerComponent != nil {
 				cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
 			}
+			if cc.AnimationComponent != nil {
+				cc.AnimationComponent.Player.PlayAnimation(entitySnapshot.Animation)
+			}
 		}
 	}
 }

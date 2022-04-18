@@ -27,6 +27,13 @@ func NewAnimationPlayer(m *model.Model) *AnimationPlayer {
 	}
 }
 
+func (player *AnimationPlayer) CurrentAnimation() string {
+	if player.currentAnimation == nil {
+		return ""
+	}
+	return player.currentAnimation.Name
+}
+
 func (player *AnimationPlayer) AnimationTransforms() map[int]mgl32.Mat4 {
 	return player.animationTransforms
 }
