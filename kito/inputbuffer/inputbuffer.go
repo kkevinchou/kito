@@ -29,22 +29,29 @@ type BufferedInput struct {
 }
 
 type InputBuffer struct {
-	playerInputs     map[int][]BufferedInput
+	playerInputs     map[int]map[int]BufferedInput
+	lastPlayerInput  map[int]int
 	maxCommandFrames int
 	seenInputs       map[int]map[int]any
 }
 
 func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 	return &InputBuffer{
-		playerInputs:     map[int][]BufferedInput{},
+		playerInputs:     map[int]map[int]BufferedInput{},
+		lastPlayerInput:  map[int]int{},
 		maxCommandFrames: maxCommandFrames,
 	}
 }
 
-func (i *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
-	var targetGlobalCommandFrame int
-	if len(i.playerInputs[playerID]) > 0 {
-		lastPlayerInput := i.playerInputs[playerID][len(i.playerInputs[playerID])-1]
+func (inputBuffer *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
+	if _, ok := inputBuffer.playerInputs[playerID]; !ok {
+		inputBuffer.playerInputs[playerID] = map[int]BufferedInput{}
+	}
+
+	targetGlobalCommandFrame := globalCommandFrame + inputBuffer.maxCommandFrames
+	if len(inputBuffer.playerInputs[playerID]) > 0 {
+		lastPlayerInputCF := inputBuffer.lastPlayerInput[playerID]
+		lastPlayerInput := inputBuffer.playerInputs[playerID][lastPlayerInputCF]
 		commandFrameDelta := localCommandFrame - lastPlayerInput.LocalCommandFrame
 
 		// assuming a properly behaving client they should only send one input message per
@@ -55,41 +62,53 @@ func (i *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, l
 			fmt.Println("warning: received more than one input for a given command frame")
 		}
 
-		targetGlobalCommandFrame = lastPlayerInput.TargetGlobalCommandFrame + commandFrameDelta
-	} else {
-		targetGlobalCommandFrame = globalCommandFrame + i.maxCommandFrames
+		relativeCF := lastPlayerInput.TargetGlobalCommandFrame + commandFrameDelta
+		if relativeCF >= globalCommandFrame && relativeCF < targetGlobalCommandFrame {
+			// fmt.Println(globalCommandFrame, "|", lastPlayerInput.TargetGlobalCommandFrame, relativeCF, targetGlobalCommandFrame)
+			targetGlobalCommandFrame = relativeCF
+		}
+		// fmt.Println(globalCommandFrame, "|", targetGlobalCommandFrame)
 	}
 
 	// target exceeds the buffer size. drop the input to avoid spiral of death
-	if targetGlobalCommandFrame > (globalCommandFrame + i.maxCommandFrames) {
-		fmt.Printf("target gcf exceeded buffer size %d > %d\n", targetGlobalCommandFrame, (globalCommandFrame + i.maxCommandFrames))
+	if targetGlobalCommandFrame > (globalCommandFrame + inputBuffer.maxCommandFrames) {
+		fmt.Printf("target gcf exceeded buffer size %d > %d\n", targetGlobalCommandFrame, (globalCommandFrame + inputBuffer.maxCommandFrames))
 		return
 	}
 
-	i.playerInputs[playerID] = append(
-		i.playerInputs[playerID],
-		BufferedInput{
-			PlayerID:                 playerID,
-			LocalCommandFrame:        localCommandFrame,
-			TargetGlobalCommandFrame: targetGlobalCommandFrame,
-			Input:                    networkInput.Input,
-			ReceivedTimestamp:        receivedTime,
-		},
-	)
+	inputBuffer.playerInputs[playerID][targetGlobalCommandFrame] = BufferedInput{
+		PlayerID:                 playerID,
+		LocalCommandFrame:        localCommandFrame,
+		TargetGlobalCommandFrame: targetGlobalCommandFrame,
+		Input:                    networkInput.Input,
+		ReceivedTimestamp:        receivedTime,
+	}
+	inputBuffer.lastPlayerInput[playerID] = targetGlobalCommandFrame
 }
 
 // PullInput pulls a buffered input for the current command frame
-func (i *InputBuffer) PullInput(globalCommandFrame int, playerID int) *BufferedInput {
-	if len(i.playerInputs[playerID]) == 0 {
-		// fmt.Println("EMPTY")
+func (inputBuffer *InputBuffer) PullInput(globalCommandFrame int, playerID int) *BufferedInput {
+	if len(inputBuffer.playerInputs[playerID]) == 0 {
 		return nil
 	}
 
-	playerInput := i.playerInputs[playerID][0]
-	if playerInput.TargetGlobalCommandFrame <= globalCommandFrame {
-		i.playerInputs[playerID] = i.playerInputs[playerID][1:]
-		return &playerInput
+	if in, ok := inputBuffer.playerInputs[playerID][globalCommandFrame]; ok {
+		return &in
 	}
 
+	max := 5
+	for i := 1; i < max; i++ {
+		if in, ok := inputBuffer.playerInputs[playerID][globalCommandFrame-i]; ok {
+			copiedInput := in
+			copiedInput.LocalCommandFrame += i
+			copiedInput.TargetGlobalCommandFrame = globalCommandFrame
+			inputBuffer.playerInputs[playerID][globalCommandFrame] = copiedInput
+
+			result := inputBuffer.playerInputs[playerID][globalCommandFrame]
+			return &result
+		}
+	}
+
+	fmt.Printf("failed to fetch input for player %d cf %d\n", playerID, globalCommandFrame)
 	return nil
 }
