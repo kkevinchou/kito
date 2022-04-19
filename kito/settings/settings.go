@@ -65,9 +65,9 @@ const (
 
 	// This is potentially overkill to avoiding absolutely no mispredictions on the client.
 	// The drawback of an input buffer is we now add a delay before we process user inputs.
-	MaxInputBufferCommandFrames int = 0 / MSPerCommandFrame
+	MaxInputBufferCommandFrames int = 5
 
-	MaxStateBufferCommandFrames int = 100 / MSPerCommandFrame
+	MaxStateBufferCommandFrames int = 5
 
 	// The number of command frames on the server before a server update is sent to clients
 	CommandFramesPerServerUpdate = 5
