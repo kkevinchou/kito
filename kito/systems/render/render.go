@@ -73,6 +73,8 @@ func init() {
 }
 
 func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO imgui.IO, width, height int) *RenderSystem {
+	// setting swap interval to 1 locked the framerate to 60 fps on my pc.
+	// something to do with screen tearing / vsync? i dunno
 	sdl.GLSetSwapInterval(0)
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
