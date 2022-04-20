@@ -73,7 +73,7 @@ func init() {
 }
 
 func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO imgui.IO, width, height int) *RenderSystem {
-	sdl.GLSetSwapInterval(1)
+	sdl.GLSetSwapInterval(0)
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
 	gl.Enable(gl.DEPTH_TEST)
