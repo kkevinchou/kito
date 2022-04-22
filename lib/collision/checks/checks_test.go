@@ -1,6 +1,7 @@
 package checks_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/go-gl/mathgl/mgl64"
@@ -157,4 +158,44 @@ func TestCheckCollisionCapsuleTriangle(t *testing.T) {
 	if contact.Point != expectedContactPoint {
 		t.Errorf("expected contact point to be %v but got %v", expectedContactPoint, contact.Point)
 	}
+}
+
+// negative separating vector
+func TestNegativeSeparatingVector(t *testing.T) {
+	capsule := collider.Capsule{
+		Radius: 3,
+		Top:    mgl64.Vec3{228.1377, 47.30595, -293.3103},
+		Bottom: mgl64.Vec3{228.1377, 0.30595, -293.3103},
+	}
+
+	trianglePoints := []mgl64.Vec3{
+		{610.2427978, 1, -731.148681},
+		{-538.179199, 1, -731.148681},
+		{-538.179199, 1, 713.603515},
+	}
+
+	triangle := collider.NewTriangle(trianglePoints)
+	manifold := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
+	fmt.Println(manifold.Contacts[0].SeparatingVector)
+	t.Fail()
+}
+
+func TestPartWayCapsule(t *testing.T) {
+	capsule := collider.Capsule{
+		Radius: 5,
+		Top:    mgl64.Vec3{0, 9, 0},
+		Bottom: mgl64.Vec3{0, 1, 0},
+	}
+
+	trianglePoints := []mgl64.Vec3{
+		{5, 3, 5},
+		{0, 3, -5},
+		{-5, 3, 5},
+	}
+
+	triangle := collider.NewTriangle(trianglePoints)
+	manifold := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
+	fmt.Println(manifold.Contacts[0].SeparatingVector)
+	t.Fail()
+
 }
