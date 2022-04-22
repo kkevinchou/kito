@@ -23,10 +23,10 @@ import (
 const (
 	fovx float64 = 90
 	near float64 = 1
-	far  float64 = 3000
+	far  float64 = 2000
 
 	// shadow map parameters
-	shadowMapDimension   int     = 25000
+	shadowMapDimension   int     = 30000
 	shadowDistanceFactor float64 = .4 // proportion of view fustrum to include in shadow cuboid
 	shadowmapZOffset             = 400
 )
@@ -75,7 +75,7 @@ func init() {
 func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO imgui.IO, width, height int) *RenderSystem {
 	// setting swap interval to 1 locked the framerate to 60 fps on my pc.
 	// something to do with screen tearing / vsync? i dunno
-	sdl.GLSetSwapInterval(0)
+	sdl.GLSetSwapInterval(1)
 	gl.ClearColor(1.0, 0.5, 0.5, 0.0)
 	gl.ClearDepth(1)
 	gl.Enable(gl.DEPTH_TEST)
