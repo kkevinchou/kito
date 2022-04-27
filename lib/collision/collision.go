@@ -37,16 +37,23 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 		collider.Line{P1: capsule.Top, P2: capsule.Bottom},
 		triangle,
 	)
-	closestPointOnTriangle := closestPoints[1]
+	// closestPointCapsule := closestPoints[0]
+	closestPointTriangle := closestPoints[1]
 
 	if closestPointsDistance < capsule.Radius {
 		separatingDistance := capsule.Radius - closestPointsDistance
+		separatingVec := closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance)
+		if separatingVec.Dot(triangle.Normal) < 0 {
+			// fmt.Println("Wat", time.Now())
+			// hacky handling of separating vector pushing the capsule opposite to the triangle normal
+			separatingVec = separatingVec.Add(triangle.Normal.Mul(capsule.Radius * 2))
+		}
 		return &ContactManifold{
 			Contacts: []Contact{
 				{
-					Point:              closestPointOnTriangle,
+					Point:              closestPointTriangle,
 					Normal:             triangle.Normal,
-					SeparatingVector:   closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance),
+					SeparatingVector:   separatingVec,
 					SeparatingDistance: separatingDistance,
 				},
 			},
