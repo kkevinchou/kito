@@ -13,6 +13,12 @@ Here are a couple of things I've built for kito:
 
 Install SDL2 following the instructions at https://github.com/veandco/go-sdl2
 
+# Tools
+
+Windows (My personal dev environment)
+* Mysys2 - https://www.msys2.org/
+* Makefile - https://www.gnu.org/software/make/
+
 # Running the sandbox 
 ```
 # running the server:

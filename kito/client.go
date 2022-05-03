@@ -160,6 +160,8 @@ func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
 		return nil, fmt.Errorf("failed to init OpenGL %s", err)
 	}
 
+	fmt.Println("Open GL Version:", gl.GoStr(gl.GetString(gl.VERSION)))
+
 	return window, nil
 }
 
