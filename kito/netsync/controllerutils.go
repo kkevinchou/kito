@@ -1,4 +1,4 @@
-package controllerutils
+package netsync
 
 import (
 	"fmt"
@@ -13,17 +13,12 @@ import (
 )
 
 const (
-	gravity        float64 = 250
 	jumpSpeed      float64 = 150
 	zipSpeed       float64 = 400
 	equalThreshold float64 = 1e-5
 
 	// a value of 1 means the normal vector of what you're on must be exactly Vec3{0, 1, 0}
 	groundedStrictness = 0.85
-)
-
-var (
-	accelerationDueToGravity = mgl64.Vec3{0, -gravity, 0}
 )
 
 // BaseVelocity - does not involve controller velocities (e.g. WASD)

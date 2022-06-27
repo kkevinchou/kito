@@ -5,9 +5,9 @@ import (
 
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/managers/player"
+	"github.com/kkevinchou/kito/kito/netsync"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/kito/utils/controllerutils"
 )
 
 const (
@@ -43,7 +43,7 @@ func (s *CharacterControllerResolverSystem) Update(delta time.Duration) {
 		if entity == nil {
 			continue
 		}
-		controllerutils.ResolveControllerCollision(entity)
+		netsync.ResolveControllerCollision(entity)
 
 		// cc := entity.GetComponentContainer()
 		// capsule := cc.ColliderComponent.CapsuleCollider.Transform(cc.TransformComponent.Position)

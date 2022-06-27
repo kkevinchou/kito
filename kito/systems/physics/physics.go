@@ -4,10 +4,10 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/kito/components"
+	"github.com/kkevinchou/kito/kito/netsync"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/kito/utils/physutils"
 
 	"github.com/kkevinchou/kito/kito/entities"
 )
@@ -37,6 +37,6 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 	}
 
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagPhysics | components.ComponentFlagTransform) {
-		physutils.PhysicsStep(delta, entity)
+		netsync.PhysicsStep(delta, entity)
 	}
 }

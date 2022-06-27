@@ -7,8 +7,8 @@ import (
 	"github.com/kkevinchou/kito/kito/commandframe"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/knetwork"
+	"github.com/kkevinchou/kito/kito/netsync"
 	"github.com/kkevinchou/kito/kito/settings"
-	"github.com/kkevinchou/kito/kito/utils/controllerutils"
 	"github.com/kkevinchou/kito/lib/network"
 )
 
@@ -142,8 +142,8 @@ func replayInputs(
 
 	// replay inputs and add the new results to the command frame history
 	for i, cf := range cfs {
-		controllerutils.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity, camera, cf.FrameInput)
-		controllerutils.ResolveControllerCollision(entity)
+		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity, camera, cf.FrameInput)
+		netsync.ResolveControllerCollision(entity)
 		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
 	}
 }

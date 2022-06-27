@@ -7,10 +7,10 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/player"
+	"github.com/kkevinchou/kito/kito/netsync"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/kito/utils/controllerutils"
 )
 
 type World interface {
@@ -58,6 +58,6 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		controllerutils.UpdateCharacterController(delta, entity, camera, singleton.PlayerInput[player.ID])
+		netsync.UpdateCharacterController(delta, entity, camera, singleton.PlayerInput[player.ID])
 	}
 }

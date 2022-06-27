@@ -1,4 +1,4 @@
-package physutils
+package netsync
 
 import (
 	"time"
@@ -11,12 +11,7 @@ import (
 
 const (
 	fullDecayThreshold float64 = 0.05
-	gravity            float64 = 120
 	minYPosition       float64 = -1000
-)
-
-var (
-	accelerationDueToGravity = mgl64.Vec3{0, -gravity, 0}
 )
 
 func PhysicsStep(delta time.Duration, entity entities.Entity) {
