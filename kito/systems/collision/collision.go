@@ -44,7 +44,6 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 			transformMatrix := mgl64.Translate3D(cc.TransformComponent.Position.X(), cc.TransformComponent.Position.Y(), cc.TransformComponent.Position.Z())
 			triMesh := cc.ColliderComponent.TriMeshCollider.Transform(transformMatrix)
 			cc.ColliderComponent.TransformedTriMeshCollider = &triMesh
-
 		}
 
 		e.GetComponentContainer().ColliderComponent.CollisionInstances = nil
@@ -62,35 +61,49 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 }
 
 func (s *CollisionSystem) collide(e1 entities.Entity, handledCollisions map[int]map[int]bool) {
-	e1cc := e1.GetComponentContainer()
 	for _, e2 := range s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
-		e2cc := e2.GetComponentContainer()
-
 		// don't check an entity against itself or if we've already computed collisions
 		if e1.GetID() == e2.GetID() {
 			continue
 		}
-		if handledCollisions[e1.GetID()][e2.GetID()] {
+		if handledCollisions[e1.GetID()][e2.GetID()] || handledCollisions[e2.GetID()][e1.GetID()] {
 			continue
 		}
 
-		if e1cc.ColliderComponent.CapsuleCollider != nil {
-			if e2cc.ColliderComponent.TriMeshCollider != nil {
-				contactManifolds := collision.CheckCollisionCapsuleTriMesh(*e1cc.ColliderComponent.TransformedCapsuleCollider, *e2cc.ColliderComponent.TransformedTriMeshCollider)
-				if contactManifolds != nil {
-					e1cc.ColliderComponent.CollisionInstances = append(
-						e1cc.ColliderComponent.CollisionInstances,
-						&components.CollisionInstance{
-							OtherEntityID:    e2.GetID(),
-							ContactManifolds: contactManifolds,
-						},
-					)
-				}
+		isSupportedCollision, capsuleEntity, triMeshEntity := isCapsulteTriMeshCollision(e1, e2)
+		if isSupportedCollision {
+			contactManifolds := collision.CheckCollisionCapsuleTriMesh(*capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider, *triMeshEntity.GetComponentContainer().ColliderComponent.TransformedTriMeshCollider)
+			if contactManifolds != nil {
+				capsuleEntity.GetComponentContainer().ColliderComponent.CollisionInstances = append(
+					capsuleEntity.GetComponentContainer().ColliderComponent.CollisionInstances,
+					&components.CollisionInstance{
+						OtherEntityID:    capsuleEntity.GetID(),
+						ContactManifolds: contactManifolds,
+					},
+				)
 			}
+			// TODO: decide how we want to handle avoiding double calculating collisions
+			handledCollisions[capsuleEntity.GetID()][triMeshEntity.GetID()] = true
+			handledCollisions[triMeshEntity.GetID()][capsuleEntity.GetID()] = true
 		}
-
-		// TODO: decide how we want to handle avoiding double calculating collisions
-		// handledCollisions[e1.GetID()][e2.GetID()] = true
-		// handledCollisions[e2.GetID()][e1.GetID()] = true
 	}
+}
+
+func isCapsulteTriMeshCollision(e1, e2 entities.Entity) (bool, entities.Entity, entities.Entity) {
+	e1cc := e1.GetComponentContainer()
+	e2cc := e2.GetComponentContainer()
+
+	if e1cc.ColliderComponent.CapsuleCollider != nil {
+		if e2cc.ColliderComponent.TriMeshCollider != nil {
+			return true, e1, e2
+		}
+	}
+
+	if e1cc.ColliderComponent.CapsuleCollider != nil {
+		if e2cc.ColliderComponent.TriMeshCollider != nil {
+			return true, e1, e2
+		}
+	}
+
+	return false, nil, nil
 }

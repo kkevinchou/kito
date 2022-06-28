@@ -61,6 +61,7 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 
 		// Sometimes the server is a single tick ahead
 		cf = cfHistory.GetCommandFrame(lookupCommandFrame - 1)
+		fmt.Printf("cf history off by one %v\n", cf)
 	}
 
 	playerEntity := world.GetPlayerEntity()
