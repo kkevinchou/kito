@@ -32,7 +32,7 @@ func serverMessageHandler(world World, message *network.Message) {
 			panic(err)
 		}
 
-		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, player.LastInputLocalCommandFrame, message.SenderID, time.Now(), &inputMessage)
+		singleton.InputBuffer.PushInput(world.CommandFrame(), message.CommandFrame, message.SenderID, time.Now(), &inputMessage)
 	} else if message.MessageType == knetwork.MessageTypePing {
 		var pingMessage knetwork.PingMessage
 		err := network.DeserializeBody(message, &pingMessage)

@@ -43,7 +43,7 @@ func NewInputBuffer(maxCommandFrames int) *InputBuffer {
 	}
 }
 
-func (inputBuffer *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, lastInputCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
+func (inputBuffer *InputBuffer) PushInput(globalCommandFrame int, localCommandFrame int, playerID int, receivedTime time.Time, networkInput *knetwork.InputMessage) {
 	if _, ok := inputBuffer.playerInputs[playerID]; !ok {
 		inputBuffer.playerInputs[playerID] = map[int]BufferedInput{}
 	}
