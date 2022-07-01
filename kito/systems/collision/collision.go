@@ -46,35 +46,37 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 			cc.ColliderComponent.TransformedTriMeshCollider = &triMesh
 		}
 
-		e.GetComponentContainer().ColliderComponent.CollisionInstances = nil
+		e.GetComponentContainer().ColliderComponent.ContactCandidates = nil
 		handledCollisions[e.GetID()] = map[int]bool{}
 	}
 
+	checkPairs := [][]entities.Entity{}
 	if utils.IsClient() {
 		player := s.world.GetPlayerEntity()
 		for _, e2 := range s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
-			if handledCollisions[player.GetID()][e2.GetID()] || handledCollisions[e2.GetID()][player.GetID()] {
-				continue
-			}
-			s.collide(player, e2, handledCollisions)
-			handledCollisions[player.GetID()][e2.GetID()] = true
-			handledCollisions[e2.GetID()][player.GetID()] = true
+			checkPairs = append(checkPairs, []entities.Entity{player, e2})
 		}
 	} else {
 		for _, e1 := range s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
 			for _, e2 := range s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
-				if handledCollisions[e1.GetID()][e2.GetID()] || handledCollisions[e2.GetID()][e1.GetID()] {
-					continue
-				}
-				s.collide(e1, e2, handledCollisions)
-				handledCollisions[e1.GetID()][e2.GetID()] = true
-				handledCollisions[e2.GetID()][e1.GetID()] = true
+				checkPairs = append(checkPairs, []entities.Entity{e1, e2})
 			}
 		}
 	}
+
+	for _, pair := range checkPairs {
+		e1 := pair[0]
+		e2 := pair[1]
+		if handledCollisions[e1.GetID()][e2.GetID()] || handledCollisions[e2.GetID()][e1.GetID()] {
+			continue
+		}
+		s.collide(e1, e2)
+		handledCollisions[e1.GetID()][e2.GetID()] = true
+		handledCollisions[e2.GetID()][e1.GetID()] = true
+	}
 }
 
-func (s *CollisionSystem) collide(e1 entities.Entity, e2 entities.Entity, handledCollisions map[int]map[int]bool) {
+func (s *CollisionSystem) collide(e1 entities.Entity, e2 entities.Entity) {
 	// don't check an entity against itself or if we've already computed collisions
 	if e1.GetID() == e2.GetID() {
 		return
@@ -85,15 +87,18 @@ func (s *CollisionSystem) collide(e1 entities.Entity, e2 entities.Entity, handle
 		return
 	}
 
-	contactManifolds := collision.CheckCollisionCapsuleTriMesh(*capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider, *triMeshEntity.GetComponentContainer().ColliderComponent.TransformedTriMeshCollider)
-	if contactManifolds != nil {
-		capsuleEntity.GetComponentContainer().ColliderComponent.CollisionInstances = append(
-			capsuleEntity.GetComponentContainer().ColliderComponent.CollisionInstances,
-			&components.CollisionInstance{
-				OtherEntityID:    capsuleEntity.GetID(),
-				ContactManifolds: contactManifolds,
-			},
-		)
+	contacts := collision.CheckCollisionCapsuleTriMesh(
+		*capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
+		*triMeshEntity.GetComponentContainer().ColliderComponent.TransformedTriMeshCollider,
+	)
+
+	if contacts != nil {
+		for _, contact := range contacts {
+			triEntityID := triMeshEntity.GetID()
+			contact.EntityID = &triEntityID
+		}
+
+		capsuleEntity.GetComponentContainer().ColliderComponent.ContactCandidates = append(capsuleEntity.GetComponentContainer().ColliderComponent.ContactCandidates, contacts...)
 	}
 }
 

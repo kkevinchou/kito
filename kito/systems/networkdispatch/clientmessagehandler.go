@@ -142,6 +142,8 @@ func replayInputs(
 	cfHistory.ClearFrames()
 
 	// replay inputs and add the new results to the command frame history
+	// TODO(kevin): this should ideally rewind all other entities as well,
+	// not just the player
 	for i, cf := range cfs {
 		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity, camera, cf.FrameInput)
 		netsync.ResolveControllerCollision(entity)

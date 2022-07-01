@@ -86,10 +86,16 @@ func ResolveControllerCollision(entity entities.Entity) {
 	transformComponent := cc.TransformComponent
 	tpcComponent := cc.ThirdPersonControllerComponent
 
-	if colliderComponent.CollisionInstances != nil {
-		contactManifolds := colliderComponent.CollisionInstances[0].ContactManifolds
+	if colliderComponent.ContactCandidates != nil {
+		// contactManifolds := colliderComponent.CollisionInstances[0].ContactManifolds
+		// fmt.Println(colliderComponent.CollisionInstances[0])
 
-		separatingVector := combineSeparatingVectors(contactManifolds)
+		// when running into the corner of the stairs there are three separating vectors that we find on 3 different triangles
+		// Normals: up [0, 1, 0], back [1, 0, 0], right [0, 0, -1]
+		// What our collision resolutioni does not account for is that if we separate based on the first two normals
+		// then separating by the third is no longer necessary. Open question: how do we determine this ahead of time?
+		// Do we iteratively resolve each collision (sorted by minimum separating distance?) until we are no longer colliding?
+		separatingVector := combineSeparatingVectors(colliderComponent.ContactCandidates)
 		// separatingVector := minSeparatingVector(contactManifolds)
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
@@ -104,17 +110,15 @@ func ResolveControllerCollision(entity entities.Entity) {
 	}
 }
 
-func minSeparatingVector(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
-	minVector := contactManifolds[0].Contacts[0].SeparatingVector
-	minDistance := contactManifolds[0].Contacts[0].SeparatingDistance
+func minSeparatingVector(contacts []*collision.Contact) mgl64.Vec3 {
+	minVector := contacts[0].SeparatingVector
+	minDistance := contacts[0].SeparatingDistance
 
 	// one manifold for each object that's being collided with
-	for _, contactManifold := range contactManifolds {
-		for _, contact := range contactManifold.Contacts {
-			if contact.SeparatingDistance < minDistance {
-				minVector = contact.SeparatingVector
-				minDistance = contact.SeparatingDistance
-			}
+	for _, contact := range contacts {
+		if contact.SeparatingDistance < minDistance {
+			minVector = contact.SeparatingVector
+			minDistance = contact.SeparatingDistance
 		}
 	}
 
@@ -130,20 +134,18 @@ func hashVec(v mgl64.Vec3) string {
 // there is still some jittering that happens when we have multiple triangles of varying
 // normals. We probably need to be able to "merge" those somehow rather than naively summing
 // them together like we are doing right now
-func combineSeparatingVectors(contactManifolds []*collision.ContactManifold) mgl64.Vec3 {
+func combineSeparatingVectors(contacts []*collision.Contact) mgl64.Vec3 {
 	seenNormals := map[string]mgl64.Vec3{}
-	for _, contactManifold := range contactManifolds {
-		for _, contact := range contactManifold.Contacts {
-			normalHash := hashVec(contact.Normal)
-			if v, ok := seenNormals[normalHash]; ok {
-				if contact.SeparatingVector.LenSqr() > v.LenSqr() {
-					seenNormals[normalHash] = contact.SeparatingVector
-				}
-				continue
+	for _, contact := range contacts {
+		normalHash := hashVec(contact.Normal)
+		if v, ok := seenNormals[normalHash]; ok {
+			if contact.SeparatingVector.LenSqr() > v.LenSqr() {
+				seenNormals[normalHash] = contact.SeparatingVector
 			}
-
-			seenNormals[normalHash] = contact.SeparatingVector
+			continue
 		}
+
+		seenNormals[normalHash] = contact.SeparatingVector
 	}
 
 	var finalSeparatingVector mgl64.Vec3
