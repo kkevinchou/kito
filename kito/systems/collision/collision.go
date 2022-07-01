@@ -65,6 +65,7 @@ func (s *CollisionSystem) resolveCollisions() {
 		if entity == nil {
 			continue
 		}
+		// fmt.Println(utils.PPrintVec(entity.GetComponentContainer().TransformComponent.Position))
 		netsync.ResolveControllerCollision(entity)
 	}
 }

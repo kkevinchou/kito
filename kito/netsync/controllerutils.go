@@ -96,6 +96,7 @@ func ResolveControllerCollision(entity entities.Entity) {
 		tpcComponent.BaseVelocity[1] = 0
 		tpcComponent.ZipVelocity = mgl64.Vec3{}
 	} else {
+		fmt.Println("NOT GROUNDED")
 		// no collisions were detected (i.e. the ground)
 		tpcComponent.Grounded = false
 	}
