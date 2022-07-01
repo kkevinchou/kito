@@ -19,8 +19,8 @@ type Contact struct {
 }
 
 func (c *Contact) String() string {
-	var result = fmt.Sprintf("{ TriIndex: %d ", c.TriIndex)
-	result += fmt.Sprintf("[ SV: %s, N: %s ]", utils.PPrintVec(c.SeparatingVector), utils.PPrintVec(c.Normal))
+	var result = fmt.Sprintf("{ EntityID: %d, TriIndex: %d ", *c.EntityID, *c.TriIndex)
+	result += fmt.Sprintf("[ SV: %s, N: %s, D: %.3f D2: %.3f]", utils.PPrintVec(c.SeparatingVector), utils.PPrintVec(c.Normal), c.SeparatingDistance, c.SeparatingVector.Len())
 	result += " }"
 	return result
 }
@@ -50,8 +50,10 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 		separatingDistance := capsule.Radius - closestPointsDistance
 		separatingVec := closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance)
 		if separatingVec.Dot(triangle.Normal) < 0 {
+			// TODO(kevin): not sure if this is right, might want to revisit
 			// hacky handling of separating vector pushing the capsule opposite to the triangle normal
 			separatingVec = separatingVec.Add(triangle.Normal.Mul(capsule.Radius * 2))
+			separatingDistance = separatingVec.Len()
 		}
 		return &Contact{
 			Point:              closestPointTriangle,
