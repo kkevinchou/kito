@@ -80,23 +80,13 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	}
 }
 
-func ResolveControllerCollision(entity entities.Entity) {
+func ResolveControllerCollision(entity entities.Entity, contact *collision.Contact) {
 	cc := entity.GetComponentContainer()
-	colliderComponent := cc.ColliderComponent
 	transformComponent := cc.TransformComponent
 	tpcComponent := cc.ThirdPersonControllerComponent
 
-	if colliderComponent.ContactCandidates != nil {
-		// contactManifolds := colliderComponent.CollisionInstances[0].ContactManifolds
-		// fmt.Println(colliderComponent.CollisionInstances[0])
-
-		// when running into the corner of the stairs there are three separating vectors that we find on 3 different triangles
-		// Normals: up [0, 1, 0], back [1, 0, 0], right [0, 0, -1]
-		// What our collision resolutioni does not account for is that if we separate based on the first two normals
-		// then separating by the third is no longer necessary. Open question: how do we determine this ahead of time?
-		// Do we iteratively resolve each collision (sorted by minimum separating distance?) until we are no longer colliding?
-		separatingVector := combineSeparatingVectors(colliderComponent.ContactCandidates)
-		// separatingVector := minSeparatingVector(contactManifolds)
+	if tpcComponent != nil {
+		separatingVector := contact.SeparatingVector
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 			tpcComponent.Grounded = true
@@ -104,9 +94,6 @@ func ResolveControllerCollision(entity entities.Entity) {
 		tpcComponent.Velocity[1] = 0
 		tpcComponent.BaseVelocity[1] = 0
 		tpcComponent.ZipVelocity = mgl64.Vec3{}
-	} else {
-		// no collisions were detected (i.e. the ground)
-		tpcComponent.Grounded = false
 	}
 }
 

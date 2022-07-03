@@ -146,7 +146,8 @@ func replayInputs(
 	// not just the player
 	for i, cf := range cfs {
 		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity, camera, cf.FrameInput)
-		netsync.ResolveControllerCollision(entity)
+		// TODO(kevin): we need to set up the collision candidates before we can try to resolve collisions
+		// netsync.ResolveControllerCollision(entity)
 		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
 	}
 }
