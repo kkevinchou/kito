@@ -137,13 +137,7 @@ func TestCheckCollisionCapsuleTriangle(t *testing.T) {
 	}
 
 	triangle := collider.NewTriangle(trianglePoints)
-	manifold := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
-
-	if len(manifold.Contacts) != 1 {
-		t.Errorf("expected %d contact but got %d instead", 1, len(manifold.Contacts))
-	}
-
-	contact := manifold.Contacts[0]
+	contact := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
 
 	// expectedNormal := mgl64.Vec3{0, 1, 0}
 	// if contact.Normal != expectedNormal {
@@ -175,9 +169,8 @@ func TestNegativeSeparatingVector(t *testing.T) {
 	}
 
 	triangle := collider.NewTriangle(trianglePoints)
-	manifold := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
-	fmt.Println(manifold.Contacts[0].SeparatingVector)
-	t.Fail()
+	contact := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
+	fmt.Println(contact.SeparatingVector)
 }
 
 func TestPartWayCapsule(t *testing.T) {
@@ -194,8 +187,8 @@ func TestPartWayCapsule(t *testing.T) {
 	}
 
 	triangle := collider.NewTriangle(trianglePoints)
-	manifold := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
-	fmt.Println(manifold.Contacts[0].SeparatingVector)
+	contact := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
+	fmt.Println(contact.SeparatingVector)
 	t.Fail()
 
 }
