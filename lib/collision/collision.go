@@ -10,7 +10,9 @@ import (
 )
 
 type Contact struct {
-	EntityID           *int
+	EntityID       *int
+	SourceEntityID *int
+
 	TriIndex           *int
 	Point              mgl64.Vec3
 	Normal             mgl64.Vec3

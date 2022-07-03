@@ -1,7 +1,6 @@
 package components
 
 import (
-	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 )
 
@@ -18,7 +17,7 @@ import (
 // }
 
 type ColliderComponent struct {
-	ContactCandidates []*collision.Contact
+	// ContactCandidates []*collision.Contact
 
 	CapsuleCollider *collider.Capsule
 	TriMeshCollider *collider.TriMesh
