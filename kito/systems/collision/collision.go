@@ -85,7 +85,8 @@ func (s *CollisionSystem) resolveCollisions(contacts []*collision.Contact) []int
 			continue
 		}
 		entity := s.world.GetEntityByID(*contact.EntityID)
-		netsync.ResolveControllerCollision(entity, contact)
+		sourceEntity := s.world.GetEntityByID(*contact.SourceEntityID)
+		netsync.ResolveControllerCollision(entity, sourceEntity, contact)
 
 		seen[*contact.EntityID] = true
 		seen[*contact.SourceEntityID] = true
@@ -128,6 +129,14 @@ func (s *CollisionSystem) collectSortedCollisionCandidates(entityPairs [][]entit
 			continue
 		}
 		contacts := s.collide(e1, e2)
+		// if len(contacts) > 0 {
+		// 	if e2.GetID() == 80002 {
+		// 		fmt.Println(1)
+		// 	}
+		// 	if e1.GetID() == 80002 {
+		// 		fmt.Println(2)
+		// 	}
+		// }
 		allContacts = append(allContacts, contacts...)
 
 		seen[e1.GetID()][e2.GetID()] = true
@@ -143,28 +152,42 @@ func (s *CollisionSystem) collide(e1 entities.Entity, e2 entities.Entity) []*col
 		return nil
 	}
 
-	isSupportedCollision, capsuleEntity, triMeshEntity := isCapsuleTriMeshCollision(e1, e2)
-	if !isSupportedCollision {
-		return nil
-	}
+	if ok, capsuleEntity, triMeshEntity := isCapsuleTriMeshCollision(e1, e2); ok {
+		contacts := collision.CheckCollisionCapsuleTriMesh(
+			*capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
+			*triMeshEntity.GetComponentContainer().ColliderComponent.TransformedTriMeshCollider,
+		)
+		if len(contacts) == 0 {
+			return nil
+		}
 
-	contacts := collision.CheckCollisionCapsuleTriMesh(
-		*capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
-		*triMeshEntity.GetComponentContainer().ColliderComponent.TransformedTriMeshCollider,
-	)
-
-	if contacts == nil {
-		return nil
-	}
-
-	for _, contact := range contacts {
 		triEntityID := triMeshEntity.GetID()
 		capsuleEntityID := capsuleEntity.GetID()
-		contact.EntityID = &capsuleEntityID
-		contact.SourceEntityID = &triEntityID
+
+		for _, contact := range contacts {
+			contact.EntityID = &capsuleEntityID
+			contact.SourceEntityID = &triEntityID
+		}
+		return contacts
 	}
 
-	return contacts
+	if ok := isCapsuleCapsuleCollision(e1, e2); ok {
+		contact := collision.CheckCollisionCapsuleCapsule(
+			*e1.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
+			*e2.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
+		)
+		if contact == nil {
+			return nil
+		}
+
+		e1ID := e1.GetID()
+		e2ID := e2.GetID()
+		contact.EntityID = &e1ID
+		contact.SourceEntityID = &e2ID
+		return []*collision.Contact{contact}
+	}
+
+	return nil
 }
 
 func isCapsuleTriMeshCollision(e1, e2 entities.Entity) (bool, entities.Entity, entities.Entity) {
@@ -184,4 +207,17 @@ func isCapsuleTriMeshCollision(e1, e2 entities.Entity) (bool, entities.Entity, e
 	}
 
 	return false, nil, nil
+}
+
+func isCapsuleCapsuleCollision(e1, e2 entities.Entity) bool {
+	e1cc := e1.GetComponentContainer()
+	e2cc := e2.GetComponentContainer()
+
+	if e1cc.ColliderComponent.CapsuleCollider != nil {
+		if e2cc.ColliderComponent.CapsuleCollider != nil {
+			return true
+		}
+	}
+
+	return false
 }

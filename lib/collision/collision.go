@@ -9,9 +9,15 @@ import (
 	"github.com/kkevinchou/kito/lib/collision/collider"
 )
 
+type ContactType string
+
+var ContactTypeCapsuleTriMesh ContactType = "TRIMESH"
+var ContactTypeCapsuleCapsule ContactType = "CAPSULE"
+
 type Contact struct {
 	EntityID       *int
 	SourceEntityID *int
+	Type           ContactType
 
 	TriIndex           *int
 	Point              mgl64.Vec3
@@ -62,6 +68,28 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 			Normal:             triangle.Normal,
 			SeparatingVector:   separatingVec,
 			SeparatingDistance: separatingDistance,
+			Type:               ContactTypeCapsuleTriMesh,
+		}
+	}
+
+	return nil
+}
+
+// for now assumes vertical capsules only
+func CheckCollisionCapsuleCapsule(capsule1 collider.Capsule, capsule2 collider.Capsule) *Contact {
+	closestPoints, closestPointsDistance := checks.ClosestPointsLineVSLine(
+		collider.Line{P1: capsule1.Top, P2: capsule1.Bottom},
+		collider.Line{P1: capsule2.Top, P2: capsule2.Bottom},
+	)
+
+	separatingDistance := (capsule1.Radius + capsule2.Radius) - closestPointsDistance
+	if separatingDistance > 0 {
+		separatingVec := closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance)
+		return &Contact{
+			Point:              closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(closestPointsDistance),
+			SeparatingVector:   separatingVec,
+			SeparatingDistance: separatingDistance,
+			Type:               ContactTypeCapsuleCapsule,
 		}
 	}
 

@@ -52,7 +52,7 @@ func NewEnemy() *EntityImpl {
 		meshComponent,
 		colliderComponent,
 		renderComponent,
-		&components.AIComponent{},
+		// &components.AIComponent{},
 	}
 
 	entity := NewEntity(
