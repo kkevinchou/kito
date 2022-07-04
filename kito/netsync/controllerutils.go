@@ -98,7 +98,7 @@ func ResolveControllerCollision(entity entities.Entity, sourceEntity entities.En
 		}
 	} else if contact.Type == collision.ContactTypeCapsuleCapsule {
 		// this should skip resolution for the other entity when it's the client
-		fmt.Println("B")
+		// fmt.Println("B")
 		cc := entity.GetComponentContainer()
 		transformComponent := cc.TransformComponent
 		tpcComponent := cc.ThirdPersonControllerComponent
@@ -107,9 +107,8 @@ func ResolveControllerCollision(entity entities.Entity, sourceEntity entities.En
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 
 		if tpcComponent != nil {
-			fmt.Println("1", separatingVector)
-			fmt.Println(sourceEntity.GetID(), sourceEntity.GetComponentContainer().TransformComponent.Position)
-
+			// fmt.Println("1", separatingVector)
+			// fmt.Println(sourceEntity.GetID(), sourceEntity.GetComponentContainer().TransformComponent.Position)
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				tpcComponent.Grounded = true
 			}
@@ -126,9 +125,8 @@ func ResolveControllerCollision(entity entities.Entity, sourceEntity entities.En
 		transformComponent2.Position = transformComponent2.Position.Add(separatingVector2)
 
 		if tpcComponent2 != nil {
-			fmt.Println("2", separatingVector2)
-			fmt.Println(entity.GetID(), entity.GetComponentContainer().TransformComponent.Position)
-
+			// fmt.Println("2", separatingVector2)
+			// fmt.Println(entity.GetID(), entity.GetComponentContainer().TransformComponent.Position)
 			if separatingVector2.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				tpcComponent.Grounded = true
 			}

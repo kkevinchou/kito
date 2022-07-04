@@ -15,7 +15,6 @@ import (
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
 	"github.com/kkevinchou/kito/kito/systems/collision"
-	"github.com/kkevinchou/kito/kito/systems/collisionresolver"
 	historysys "github.com/kkevinchou/kito/kito/systems/history"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/kito/systems/networkinput"
@@ -104,7 +103,6 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	spawnerSystem := spawner.NewSpawnerSystem(g)
 	pingSystem := ping.NewPingSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
-	collisionResolverSystem := collisionresolver.NewCollisionResolverSystem(g)
 
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterAssetManager(assetManager)
@@ -120,7 +118,6 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 		stateInterpolatorSystem,
 		physicsSystem,
 		collisionSystem,
-		collisionResolverSystem,
 		animationSystem,
 		historySystem,
 		pingSystem,
