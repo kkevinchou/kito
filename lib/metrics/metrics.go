@@ -45,6 +45,20 @@ func (m *MetricsRegistry) Inc(name string, value float64) {
 	metric.cursor = (metric.cursor + 1) % bucketSize
 }
 
+func (m *MetricsRegistry) GetLatest(name string) float64 {
+	metric := m.metrics[name]
+	if _, ok := m.metrics[name]; !ok {
+		return 0
+	}
+
+	m.advanceMetricCursors(name, time.Second)
+	cursor := (metric.cursor - 1) % bucketSize
+	if cursor < 0 {
+		cursor += bucketSize
+	}
+	return metric.data[cursor].value
+}
+
 func (m *MetricsRegistry) GetOneSecondSum(name string) float64 {
 	metric := m.metrics[name]
 	if _, ok := m.metrics[name]; !ok {

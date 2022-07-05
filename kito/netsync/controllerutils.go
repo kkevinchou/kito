@@ -97,8 +97,6 @@ func ResolveControllerCollision(entity entities.Entity, sourceEntity entities.En
 			tpcComponent.ZipVelocity = mgl64.Vec3{}
 		}
 	} else if contact.Type == collision.ContactTypeCapsuleCapsule {
-		// this should skip resolution for the other entity when it's the client
-		// fmt.Println("B")
 		cc := entity.GetComponentContainer()
 		transformComponent := cc.TransformComponent
 		tpcComponent := cc.ThirdPersonControllerComponent

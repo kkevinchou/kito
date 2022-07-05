@@ -167,7 +167,11 @@ func (s *CollisionSystem) collide(e1 entities.Entity, e2 entities.Entity) []*col
 		for _, contact := range contacts {
 			contact.EntityID = &capsuleEntityID
 			contact.SourceEntityID = &triEntityID
+			if *contact.EntityID == 80002 {
+				// fmt.Println(s.world.GetSingleton().CommandFrame, utils.PPrintVec(capsuleEntity.GetComponentContainer().TransformComponent.Position), utils.PPrintVec(contact.SeparatingVector))
+			}
 		}
+
 		return contacts
 	}
 

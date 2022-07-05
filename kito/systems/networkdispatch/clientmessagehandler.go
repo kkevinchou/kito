@@ -69,10 +69,15 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 
 	if cf != nil {
 		historyEntity := cf.PostCFState
+		metricsRegistry.Inc("serverPositionDiff", entitySnapshot.Position.Sub(historyEntity.Position).Len())
 
 		if !historyEntity.Position.ApproxEqual(entitySnapshot.Position) || !historyEntity.Orientation.ApproxEqual(entitySnapshot.Orientation) {
 			// if !historyEntity.Position.ApproxEqual(entitySnapshot.Position) {
 			metricsRegistry.Inc("predictionMiss", 1)
+			// fmt.Println(world.CommandFrame(), "miss", historyEntity.Position, "----", utils.PPrintVec(entitySnapshot.Position))
+			if historyEntity.Position.Y() < 0 {
+				fmt.Println("HI")
+			}
 			// fmt.Printf(
 			// 	"--------------------------------------\n[CF:%d] CLIENT-SIDE PREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
 			// 	world.CommandFrame(),
@@ -108,10 +113,11 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
 			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 
-			// TODO: re-enable this when we decide how to implemetn character controller resolution
+			// TODO: re-enable this when we decide how to implement character controller resolution
 			replayInputs(playerEntity, world.GetCamera(), lookupCommandFrame, cfHistory)
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
+			// fmt.Println(world.CommandFrame(), "hit", utils.PPrintVec(historyEntity.Position), "----", utils.PPrintVec(entitySnapshot.Position))
 			// fmt.Println(
 			// 	"CLIENT-SIDE PREDICTION HIT",
 			// 	gameStateUpdate.LastInputCommandFrame,
@@ -140,12 +146,17 @@ func replayInputs(
 	}
 
 	cfHistory.ClearFrames()
+	// before := entity.GetComponentContainer().TransformComponent.Position
 
 	// replay inputs and add the new results to the command frame history
 	// TODO(kevin): this should ideally rewind all other entities as well,
 	// not just the player
+
 	for i, cf := range cfs {
 		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity, camera, cf.FrameInput)
+		// if entity.GetComponentContainer().TransformComponent.Position.Y() < 1 {
+		// 	entity.GetComponentContainer().TransformComponent.Position[1] = 1
+		// }
 		// TODO(kevin): we need to set up the collision candidates before we can try to resolve collisions
 		// netsync.ResolveControllerCollision(entity)
 		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)

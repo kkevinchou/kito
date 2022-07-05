@@ -10,6 +10,7 @@ import (
 func (s *RenderSystem) networkInfoUIComponent() {
 	metricsRegistry := s.world.MetricsRegistry()
 	predictionMiss := int(metricsRegistry.GetOneSecondSum("predictionMiss"))
+	serverPosition := int(metricsRegistry.GetLatest("serverPositionDiff"))
 	predictionHit := int(metricsRegistry.GetOneSecondSum("predictionHit"))
 	ping := int(metricsRegistry.GetOneSecondAverage("ping"))
 	updateMessageSize := int(metricsRegistry.GetOneSecondSum("update_message_size")) / 1000
@@ -21,6 +22,7 @@ func (s *RenderSystem) networkInfoUIComponent() {
 		uiTableRow("Ping", ping)
 		uiTableRow("Predictions Hit", predictionHit)
 		uiTableRow("Predictions Miss", predictionMiss)
+		uiTableRow("Server Position", serverPosition)
 		uiTableRow("Update Count", updateCount)
 		uiTableRow("Update Size", updateMessageSize)
 		uiTableRow("Inputs Sent", newInput)

@@ -244,37 +244,35 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		orientation := componentContainer.TransformComponent.Orientation
 		translation := mgl64.Translate3D(entityPosition.X(), entityPosition.Y(), entityPosition.Z())
 		renderComponent := componentContainer.RenderComponent
-		meshComponent := componentContainer.MeshComponent
 
-		if !renderComponent.IsVisible {
-			continue
+		if renderComponent.IsVisible {
+			meshComponent := componentContainer.MeshComponent
+			meshModelMatrix := createModelMatrix(
+				meshComponent.Scale,
+				orientation.Mat4().Mul4(meshComponent.Orientation),
+				// mgl64.Ident4(),
+				translation,
+			)
+
+			shader := "model_static"
+			if componentContainer.AnimationComponent != nil {
+				shader = "modelpbr"
+			}
+			// if entity.Type() == types.EntityTypeBob {
+			// 	shader = "model_debug"
+			// }
+
+			drawModel(
+				viewerContext,
+				lightContext,
+				s.shadowMap,
+				shaderManager.GetShaderProgram(shader),
+				componentContainer.MeshComponent,
+				componentContainer.AnimationComponent,
+				meshModelMatrix,
+				orientation.Mat4().Mul4(meshComponent.Orientation),
+			)
 		}
-
-		meshModelMatrix := createModelMatrix(
-			meshComponent.Scale,
-			orientation.Mat4().Mul4(meshComponent.Orientation),
-			// mgl64.Ident4(),
-			translation,
-		)
-
-		shader := "model_static"
-		if componentContainer.AnimationComponent != nil {
-			shader = "modelpbr"
-		}
-		// if entity.Type() == types.EntityTypeBob {
-		// 	shader = "model_debug"
-		// }
-
-		drawModel(
-			viewerContext,
-			lightContext,
-			s.shadowMap,
-			shaderManager.GetShaderProgram(shader),
-			componentContainer.MeshComponent,
-			componentContainer.AnimationComponent,
-			meshModelMatrix,
-			orientation.Mat4().Mul4(meshComponent.Orientation),
-		)
 
 		if settings.DebugRenderCollisionVolume {
 			if componentContainer.ColliderComponent != nil {
