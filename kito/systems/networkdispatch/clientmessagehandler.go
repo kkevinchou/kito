@@ -75,9 +75,6 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			// if !historyEntity.Position.ApproxEqual(entitySnapshot.Position) {
 			metricsRegistry.Inc("predictionMiss", 1)
 			// fmt.Println(world.CommandFrame(), "miss", historyEntity.Position, "----", utils.PPrintVec(entitySnapshot.Position))
-			if historyEntity.Position.Y() < 0 {
-				fmt.Println("HI")
-			}
 			// fmt.Printf(
 			// 	"--------------------------------------\n[CF:%d] CLIENT-SIDE PREDICTION MISS\nlastCF: %d\nlastGlobalCF: %d\ncurrentGlobalCF: %d\n%v\n%v\n",
 			// 	world.CommandFrame(),
