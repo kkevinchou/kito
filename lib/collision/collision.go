@@ -9,6 +9,18 @@ import (
 	"github.com/kkevinchou/kito/lib/collision/collider"
 )
 
+type ContactsBySeparatingDistance []*Contact
+
+func (c ContactsBySeparatingDistance) Len() int {
+	return len(c)
+}
+func (c ContactsBySeparatingDistance) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
+func (c ContactsBySeparatingDistance) Less(i, j int) bool {
+	return c[i].SeparatingDistance < c[j].SeparatingDistance
+}
+
 type ContactType string
 
 var ContactTypeCapsuleTriMesh ContactType = "TRIMESH"

@@ -111,7 +111,7 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 
 			// TODO: re-enable this when we decide how to implement character controller resolution
-			replayInputs(playerEntity, world.GetCamera(), lookupCommandFrame, cfHistory)
+			replayInputs(playerEntity, world, lookupCommandFrame, cfHistory)
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
 			// fmt.Println(world.CommandFrame(), "hit", utils.PPrintVec(historyEntity.Position), "----", utils.PPrintVec(entitySnapshot.Position))
@@ -127,8 +127,8 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 }
 
 func replayInputs(
-	entity entities.Entity,
-	camera entities.Entity,
+	player entities.Entity,
+	world World,
 	startFrame int,
 	cfHistory *commandframe.CommandFrameHistory,
 ) {
@@ -150,12 +150,8 @@ func replayInputs(
 	// not just the player
 
 	for i, cf := range cfs {
-		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, entity, camera, cf.FrameInput)
-		// if entity.GetComponentContainer().TransformComponent.Position.Y() < 1 {
-		// 	entity.GetComponentContainer().TransformComponent.Position[1] = 1
-		// }
-		// TODO(kevin): we need to set up the collision candidates before we can try to resolve collisions
-		// netsync.ResolveControllerCollision(entity)
-		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, entity)
+		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, player, world.GetCamera(), cf.FrameInput)
+		netsync.ResolveCollisionsForPlayer(player, world)
+		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, player)
 	}
 }

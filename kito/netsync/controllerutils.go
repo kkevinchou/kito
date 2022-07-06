@@ -19,6 +19,10 @@ const (
 
 	// a value of 1 means the normal vector of what you're on must be exactly Vec3{0, 1, 0}
 	groundedStrictness = 0.85
+
+	// the maximum number of times a distinct entity can have their collision resolved
+	// this presents the collision resolution phase to go on forever
+	resolveCountMax = 10
 )
 
 // BaseVelocity - does not involve controller velocities (e.g. WASD)
@@ -77,57 +81,6 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 		transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, tpcComponent.ControllerVelocity.Normalize(), mgl64.Vec3{0, 1, 0})
 	} else {
 		tpcComponent.MovementSpeed = 0
-	}
-}
-
-func ResolveControllerCollision(entity entities.Entity, sourceEntity entities.Entity, contact *collision.Contact) {
-	if contact.Type == collision.ContactTypeCapsuleTriMesh {
-		cc := entity.GetComponentContainer()
-		transformComponent := cc.TransformComponent
-		tpcComponent := cc.ThirdPersonControllerComponent
-
-		if tpcComponent != nil {
-			separatingVector := contact.SeparatingVector
-			transformComponent.Position = transformComponent.Position.Add(separatingVector)
-			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
-				tpcComponent.Velocity[1] = 0
-				tpcComponent.BaseVelocity[1] = 0
-				tpcComponent.ZipVelocity = mgl64.Vec3{}
-				tpcComponent.Grounded = true
-			}
-		}
-	} else if contact.Type == collision.ContactTypeCapsuleCapsule {
-		cc := entity.GetComponentContainer()
-		transformComponent := cc.TransformComponent
-		tpcComponent := cc.ThirdPersonControllerComponent
-
-		separatingVector := contact.SeparatingVector.Mul(0.5)
-		transformComponent.Position = transformComponent.Position.Add(separatingVector)
-
-		if tpcComponent != nil {
-			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
-				tpcComponent.Grounded = true
-				tpcComponent.Velocity[1] = 0
-				tpcComponent.BaseVelocity[1] = 0
-				tpcComponent.ZipVelocity = mgl64.Vec3{}
-			}
-		}
-
-		cc2 := sourceEntity.GetComponentContainer()
-		transformComponent2 := cc2.TransformComponent
-		tpcComponent2 := cc2.ThirdPersonControllerComponent
-
-		separatingVector2 := separatingVector.Mul(-1)
-		transformComponent2.Position = transformComponent2.Position.Add(separatingVector2)
-
-		if tpcComponent2 != nil {
-			if separatingVector2.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
-				tpcComponent.Grounded = true
-				tpcComponent2.Velocity[1] = 0
-				tpcComponent2.BaseVelocity[1] = 0
-				tpcComponent2.ZipVelocity = mgl64.Vec3{}
-			}
-		}
 	}
 }
 

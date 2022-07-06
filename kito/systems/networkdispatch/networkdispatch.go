@@ -30,6 +30,7 @@ type World interface {
 	GetPlayer() *player.Player
 	GetPlayerByID(id int) *player.Player
 	QueryEntity(componentFlags int) []entities.Entity
+	GetEntityByID(id int) entities.Entity
 }
 
 type NetworkDispatchSystem struct {
