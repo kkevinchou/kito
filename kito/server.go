@@ -2,7 +2,9 @@ package kito
 
 import (
 	"fmt"
+	"math/rand"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/managers/player"
@@ -35,14 +37,20 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
-	return []entities.Entity{
-		entities.NewScene(),
-		entities.NewEnemy(),
-		// entities.NewSlime(mgl64.Vec3{-100, 0, -50}),
-		// entities.NewStaticRigidBody(mgl64.Vec3{-5, 10, 0}),
-		// entities.NewDynamicRigidBody(mgl64.Vec3{-5, 10, 0}),
-		// entities.NewSlime(mgl64.Vec3{-50, 0, -50}),
+	enemies := []entities.Entity{}
+	for i := 0; i < 5; i++ {
+		enemy := entities.NewEnemy()
+		x := rand.Intn(600) - 300
+		z := rand.Intn(600) - 300
+		enemy.GetComponentContainer().TransformComponent.Position = mgl64.Vec3{float64(x), 0, float64(z)}
+		enemies = append(enemies, enemy)
 	}
+
+	entities := []entities.Entity{
+		entities.NewScene(),
+	}
+	entities = append(entities, enemies...)
+	return entities
 }
 
 func serverSystemSetup(g *Game, assetsDirectory string) {

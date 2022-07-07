@@ -1,11 +1,15 @@
 package ai
 
 import (
+	"math"
+	"math/rand"
 	"time"
 
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/systems/base"
 )
 
@@ -51,25 +55,24 @@ func (s *AISystem) Update(delta time.Duration) {
 
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagAI) {
 		componentContainer := entity.GetComponentContainer()
-		transform := componentContainer.TransformComponent
+		transformComponent := componentContainer.TransformComponent
+		aiComponent := componentContainer.AIComponent
 
-		target := playerEntities[0]
-		targetDist := playerEntities[0].GetComponentContainer().TransformComponent.Position.Sub(transform.Position).LenSqr()
-
-		for _, p := range playerEntities {
-			cc := p.GetComponentContainer()
-			if cc.TransformComponent.Position.Sub(transform.Position).LenSqr() < targetDist {
-				target = p
-			}
+		if time.Since(aiComponent.LastUpdate) > 5*time.Second {
+			aiComponent.LastUpdate = time.Now()
+			aiComponent.MovementDir = mgl64.QuatRotate(rand.Float64()*2*math.Pi, mgl64.Vec3{0, 1, 0})
 		}
 
-		vecToTarget := target.GetComponentContainer().TransformComponent.Position.Sub(transform.Position)
+		aiComponent.Velocity = aiComponent.Velocity.Add(settings.AccelerationDueToGravity.Mul(delta.Seconds()))
+		movementVec := aiComponent.MovementDir.Rotate(mgl64.Vec3{0, 0, -1})
+		velocity := aiComponent.Velocity.Add(movementVec.Mul(10))
+		transformComponent.Position = transformComponent.Position.Add(velocity.Mul(delta.Seconds()))
+		transformComponent.Orientation = aiComponent.MovementDir
 
-		if vecToTarget.Len() < 50 {
-			continue
+		// safeguard falling off the map
+		if transformComponent.Position[1] < -1000 {
+			transformComponent.Position[1] = 25
 		}
-
-		transform.Position = transform.Position.Add(vecToTarget.Normalize().Mul(enemyMoveSpeed * delta.Seconds()))
 	}
 
 	// s.spawnTrigger += int(delta.Milliseconds())

@@ -11,11 +11,11 @@ import (
 )
 
 func NewEnemy() *EntityImpl {
-	modelName := "big_cube"
+	modelName := "Elf"
 	assetManager := directory.GetDirectory().AssetManager()
 
 	transformComponent := &components.TransformComponent{
-		Position:    mgl64.Vec3{150, 0, 70},
+		Position:    mgl64.Vec3{78, 78, -73},
 		Orientation: mgl64.QuatIdent(),
 	}
 
@@ -35,7 +35,7 @@ func NewEnemy() *EntityImpl {
 
 	yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
 	meshComponent := &components.MeshComponent{
-		Scale:       mgl64.Scale3D(1, 1, 1),
+		Scale:       mgl64.Scale3D(10, 10, 10),
 		Orientation: yr,
 		Model:       m,
 	}
@@ -52,7 +52,7 @@ func NewEnemy() *EntityImpl {
 		meshComponent,
 		colliderComponent,
 		renderComponent,
-		// &components.AIComponent{},
+		components.NewAIComponent(nil),
 	}
 
 	entity := NewEntity(

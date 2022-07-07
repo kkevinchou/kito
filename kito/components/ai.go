@@ -1,16 +1,24 @@
 package components
 
 import (
+	"time"
+
+	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/behavior"
 )
 
 type AIComponent struct {
-	behaviorTree behavior.BehaviorTree
+	// behaviorTree behavior.BehaviorTree
+	LastUpdate  time.Time
+	MovementDir mgl64.Quat
+	Velocity    mgl64.Vec3
 }
 
 func NewAIComponent(behaviorTree behavior.BehaviorTree) *AIComponent {
 	return &AIComponent{
-		behaviorTree: behaviorTree,
+		LastUpdate:  time.Now(),
+		MovementDir: mgl64.QuatRotate(0, mgl64.Vec3{0, 1, 0}),
+		// behaviorTree: behaviorTree,
 	}
 }
 

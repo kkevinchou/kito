@@ -166,6 +166,7 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		cc := entity.GetComponentContainer()
 		transformComponent := cc.TransformComponent
 		tpcComponent := cc.ThirdPersonControllerComponent
+		aiComponent := cc.AIComponent
 
 		if tpcComponent != nil {
 			separatingVector := contact.SeparatingVector
@@ -176,6 +177,10 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 				tpcComponent.ZipVelocity = mgl64.Vec3{}
 				tpcComponent.Grounded = true
 			}
+		} else if aiComponent != nil {
+			separatingVector := contact.SeparatingVector
+			transformComponent.Position = transformComponent.Position.Add(separatingVector)
+			aiComponent.Velocity[1] = 0
 		}
 	} else if contact.Type == collision.ContactTypeCapsuleCapsule {
 		cc := entity.GetComponentContainer()

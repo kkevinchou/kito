@@ -79,8 +79,6 @@ const (
 	gravity float64 = 250
 )
 
-const ()
-
 var (
 	AccelerationDueToGravity = mgl64.Vec3{0, -gravity, 0}
 )
