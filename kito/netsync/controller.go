@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/systems/common"
 	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/input"
@@ -48,7 +49,6 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 		if !libutils.Vec3ApproxEqualZero(tpcComponent.ZipVelocity) {
 			tpcComponent.ZipVelocity = tpcComponent.ZipVelocity.Normalize().Mul(zipSpeed)
 		} else {
-
 			cameraView := frameInput.CameraOrientation.Rotate(mgl64.Vec3{0, 1, -5})
 			tpcComponent.ZipVelocity = cameraView.Normalize().Mul(zipSpeed)
 		}
@@ -65,7 +65,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	tpcComponent.ControllerVelocity = movementDir.Mul(tpcComponent.MovementSpeed)
 
 	// apply all the various velocity adjustments
-	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(accelerationDueToGravity.Mul(delta.Seconds()))
+	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(settings.AccelerationDueToGravity.Mul(delta.Seconds()))
 	tpcComponent.Velocity = tpcComponent.BaseVelocity
 	tpcComponent.Velocity = tpcComponent.Velocity.Add(tpcComponent.ControllerVelocity)
 	tpcComponent.Velocity = tpcComponent.Velocity.Add(tpcComponent.ZipVelocity)

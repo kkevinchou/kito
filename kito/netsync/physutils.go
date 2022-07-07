@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/libutils"
 )
@@ -48,7 +49,7 @@ func PhysicsStep(delta time.Duration, entity entities.Entity) {
 	// calculate velocity adjusted by acceleration
 	var totalAcceleration mgl64.Vec3
 	if !physicsComponent.IgnoreGravity {
-		totalAcceleration = totalAcceleration.Add(accelerationDueToGravity)
+		totalAcceleration = totalAcceleration.Add(settings.AccelerationDueToGravity)
 	}
 	physicsComponent.Velocity = physicsComponent.Velocity.Add(totalAcceleration.Mul(delta.Seconds()))
 
