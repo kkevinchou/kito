@@ -32,7 +32,7 @@ func queueIncomingMessages(conn net.Conn, messageQueue chan *Message) {
 				continue
 			}
 
-			fmt.Println("error reading:", err.Error())
+			fmt.Println("error reading incoming message:", err.Error())
 			fmt.Println("closing connection")
 			return
 		}

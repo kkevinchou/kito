@@ -15,17 +15,23 @@ type World interface {
 
 type PingSystem struct {
 	*base.BaseSystem
-	world World
+	world   World
+	enabled bool
 }
 
 func NewPingSystem(world World) *PingSystem {
 	return &PingSystem{
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
+		enabled:    true,
 	}
 }
 
 func (s *PingSystem) Update(delta time.Duration) {
+	if !s.enabled {
+		return
+	}
+
 	player := s.world.GetPlayer()
 
 	pingMessage := &knetwork.PingMessage{
@@ -34,6 +40,7 @@ func (s *PingSystem) Update(delta time.Duration) {
 
 	err := player.Client.SendMessage(knetwork.MessageTypePing, pingMessage)
 	if err != nil {
-		fmt.Printf("error sending ping message: %s\n", err)
+		fmt.Printf("error sending ping message: %s\nshutting down ping system\n", err)
+		s.enabled = false
 	}
 }
