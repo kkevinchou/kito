@@ -7,7 +7,6 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/settings"
-	"github.com/kkevinchou/kito/kito/systems/common"
 	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/libutils"
@@ -35,7 +34,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	tpcComponent := componentContainer.ThirdPersonControllerComponent
 
 	keyboardInput := frameInput.KeyboardInput
-	controlVector := common.GetControlVector(keyboardInput)
+	controlVector := getControlVector(keyboardInput)
 
 	// handle jumping
 	if controlVector.Y() > 0 && tpcComponent.Grounded {
@@ -162,4 +161,27 @@ func calculateCameraForwardRightVec(camera entities.Entity) (mgl64.Vec3, mgl64.V
 	rightVector := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{1, 0, 0}).Normalize()
 
 	return forwardVector, rightVector
+}
+
+func getControlVector(keyboardInput input.KeyboardInput) mgl64.Vec3 {
+	var controlVector mgl64.Vec3
+	if key, ok := keyboardInput[input.KeyboardKeyW]; ok && key.Event == input.KeyboardEventDown {
+		controlVector[2]++
+	}
+	if key, ok := keyboardInput[input.KeyboardKeyS]; ok && key.Event == input.KeyboardEventDown {
+		controlVector[2]--
+	}
+	if key, ok := keyboardInput[input.KeyboardKeyA]; ok && key.Event == input.KeyboardEventDown {
+		controlVector[0]--
+	}
+	if key, ok := keyboardInput[input.KeyboardKeyD]; ok && key.Event == input.KeyboardEventDown {
+		controlVector[0]++
+	}
+	if key, ok := keyboardInput[input.KeyboardKeyLShift]; ok && key.Event == input.KeyboardEventDown {
+		controlVector[1]--
+	}
+	if key, ok := keyboardInput[input.KeyboardKeySpace]; ok && key.Event == input.KeyboardEventDown {
+		controlVector[1]++
+	}
+	return controlVector
 }

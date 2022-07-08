@@ -61,5 +61,4 @@ func playAnimationsForEntities(delta time.Duration, entities []entities.Entity) 
 		player.PlayAnimation(targetAnimation)
 		player.Update(delta)
 	}
-
 }
