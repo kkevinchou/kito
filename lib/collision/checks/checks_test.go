@@ -188,14 +188,12 @@ func TestPartWayCapsule(t *testing.T) {
 
 	triangle := collider.NewTriangle(trianglePoints)
 	contact := collision.CheckCollisionCapsuleTriangle(capsule, triangle)
-	fmt.Println(contact.SeparatingVector)
-	t.Fail()
 
+	fmt.Println(contact.SeparatingVector)
 }
 
 func TestDot(t *testing.T) {
 	v1 := mgl64.Vec3{0, 1, 1}
 	v2 := mgl64.Vec3{100, 0, 0}
 	fmt.Println(v1.Dot(v2) / v2.Len())
-	t.Fail()
 }

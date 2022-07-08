@@ -1,7 +1,6 @@
 package gltf_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/kkevinchou/kito/lib/assets/loaders/gltf"
@@ -15,13 +14,8 @@ import (
 // how we handled poses where a joint does not have any poses
 // C:\Users\kkevi\goprojects\kito\lib\assets\loaders\gltf\gltf_test.go
 func TestBasic(t *testing.T) {
-	m, err := gltf.ParseGLTF("../../../../_assets/gltf/human.gltf", &gltf.ParseConfig{TextureCoordStyle: gltf.TextureCoordStyleOpenGL})
+	_, err := gltf.ParseGLTF("../../../../_assets/gltf/human.gltf", &gltf.ParseConfig{TextureCoordStyle: gltf.TextureCoordStyleOpenGL})
 	if err != nil {
 		t.Error(err)
 	}
-	_ = m
-
-	fmt.Println(m.RootTransforms)
-
-	t.Fail()
 }

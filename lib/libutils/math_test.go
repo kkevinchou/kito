@@ -28,8 +28,6 @@ func TestLookAt(t *testing.T) {
 
 	dir = mgl64.Vec3{0, 0, 1}
 	libutils.QuatLookAt(eye, dir, up)
-
-	t.Fail()
 }
 
 func TestQuat(t *testing.T) {
@@ -37,5 +35,4 @@ func TestQuat(t *testing.T) {
 	v2 := mgl64.Vec3{0, 1, 0}
 
 	mgl64.QuatBetweenVectors(v1, v2)
-	t.Fail()
 }
