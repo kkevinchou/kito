@@ -62,6 +62,7 @@ func NewBob() *EntityImpl {
 		meshComponent,
 		colliderComponent,
 		renderComponent,
+		&components.NotepadComponent{LastAction: components.ActionNone},
 	}
 
 	entity := NewEntity(

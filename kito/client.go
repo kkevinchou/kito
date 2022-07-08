@@ -12,6 +12,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/systems/animation"
+	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
 	"github.com/kkevinchou/kito/kito/systems/collision"
@@ -103,6 +104,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	spawnerSystem := spawner.NewSpawnerSystem(g)
 	pingSystem := ping.NewPingSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
+	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
 
 	d.RegisterRenderSystem(renderSystem)
 	d.RegisterAssetManager(assetManager)
@@ -122,6 +124,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 		historySystem,
 		pingSystem,
 		renderSystem,
+		bookKeepingSystem,
 	}...)
 }
 

@@ -15,6 +15,7 @@ const (
 	ComponentFlagThirdPersonController = 1 << 10
 	ComponentFlagTransform             = 1 << 11
 	ComponentFlagAI                    = 1 << 12
+	ComponentFlagNotepad               = 1 << 13
 )
 
 type Component interface {
@@ -37,6 +38,7 @@ type ComponentContainer struct {
 	MeshComponent                  *MeshComponent
 	ColliderComponent              *ColliderComponent
 	ControlComponent               *ControlComponent
+	NotepadComponent               *NotepadComponent
 }
 
 func NewComponentContainer(components ...Component) *ComponentContainer {
