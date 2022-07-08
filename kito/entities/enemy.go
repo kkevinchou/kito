@@ -35,7 +35,7 @@ func NewEnemy() *EntityImpl {
 
 	yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
 	meshComponent := &components.MeshComponent{
-		Scale:       mgl64.Scale3D(10, 10, 10),
+		Scale:       mgl64.Scale3D(7, 7, 7),
 		Orientation: yr,
 		Model:       m,
 	}

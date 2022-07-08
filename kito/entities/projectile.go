@@ -10,7 +10,7 @@ import (
 )
 
 func NewProjectile(position mgl64.Vec3) *EntityImpl {
-	modelName := "human"
+	modelName := "fireball"
 
 	transformComponent := &components.TransformComponent{
 		Position:    position,

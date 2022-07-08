@@ -43,7 +43,7 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 		}
 		if entity != nil {
 			if key, ok := playerInput.KeyboardInput[input.KeyboardKeyQ]; ok && key.Event == input.KeyboardEventUp {
-				projSpeed := 50
+				projSpeed := 200
 				cc := entity.GetComponentContainer()
 				direction := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
 				proj := entities.NewProjectile(cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(5)))
