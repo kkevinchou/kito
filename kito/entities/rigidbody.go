@@ -5,6 +5,7 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 )
@@ -51,6 +52,7 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 	triMesh := collider.NewTriMesh(m)
 	colliderComponent := &components.ColliderComponent{
 		TriMeshCollider: &triMesh,
+		Contacts:        map[int]*collision.Contact{},
 	}
 
 	renderComponent := &components.RenderComponent{

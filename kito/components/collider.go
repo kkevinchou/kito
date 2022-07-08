@@ -1,23 +1,15 @@
 package components
 
 import (
+	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 )
 
-// func (c *CollisionInstance) String() string {
-// 	var result = fmt.Sprintf("{ EntityID: %d ", 69)
-// 	for i, contact := range c.Contacts {
-// 		result += fmt.Sprintf("[ %v ]", contact)
-// 		if i < len(c.Contacts)-1 {
-// 			result += ", "
-// 		}
-// 	}
-// 	result += " }"
-// 	return result
-// }
-
 type ColliderComponent struct {
-	// ContactCandidates []*collision.Contact
+	SkipMovementResolution bool
+
+	// some field that marks which entities it collided with in the current frame
+	Contacts map[int]*collision.Contact
 
 	CapsuleCollider *collider.Capsule
 	TriMeshCollider *collider.TriMesh

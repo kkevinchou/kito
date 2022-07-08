@@ -34,7 +34,8 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 
 	capsule := collider.NewCapsuleFromModel(m)
 	colliderComponent := &components.ColliderComponent{
-		CapsuleCollider: &capsule,
+		SkipMovementResolution: true,
+		CapsuleCollider:        &capsule,
 	}
 
 	physicsComponent := &components.PhysicsComponent{

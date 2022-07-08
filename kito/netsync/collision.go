@@ -38,20 +38,63 @@ func resolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, world Worl
 	// 2. perform collision resolution for any colliding entities
 	// 3. this can cause more collisions, repeat until no more further detected collisions, or we hit the max
 
+	positionalResolutionEntityPairs := [][]entities.Entity{}
+	nonPositionalResolutionEntityPairs := [][]entities.Entity{}
+
+	for _, pair := range entityPairs {
+		cc1 := pair[0].GetComponentContainer()
+		cc2 := pair[1].GetComponentContainer()
+
+		if cc1.ColliderComponent.SkipMovementResolution || cc2.ColliderComponent.SkipMovementResolution {
+			nonPositionalResolutionEntityPairs = append(nonPositionalResolutionEntityPairs, pair)
+		} else {
+			positionalResolutionEntityPairs = append(positionalResolutionEntityPairs, pair)
+		}
+	}
+
 	resolveCount := map[int]int{}
 	reachedMaxCount := false
 	for !reachedMaxCount {
-		collisionCandidates := collectSortedCollisionCandidates(entityPairs, world)
+		collisionCandidates := collectSortedCollisionCandidates(positionalResolutionEntityPairs, world)
 		if len(collisionCandidates) == 0 {
 			break
 		}
 
 		resolvedEntities := resolveCollisions(collisionCandidates, world)
-		for _, id := range resolvedEntities {
-			resolveCount[id] += 1
-			if resolveCount[id] > resolveCountMax {
+		for entityID, otherEntityID := range resolvedEntities {
+			resolveCount[entityID] += 1
+			if resolveCount[entityID] > resolveCountMax {
 				reachedMaxCount = true
 			}
+
+			e1 := world.GetEntityByID(entityID)
+			e2 := world.GetEntityByID(otherEntityID)
+
+			colliderComponent1 := e1.GetComponentContainer().ColliderComponent
+			colliderComponent2 := e2.GetComponentContainer().ColliderComponent
+
+			if _, ok := colliderComponent1.Contacts[e2.GetID()]; !ok {
+				colliderComponent1.Contacts[e2.GetID()] = nil
+			}
+			if _, ok := colliderComponent2.Contacts[e1.GetID()]; !ok {
+				colliderComponent2.Contacts[e1.GetID()] = nil
+			}
+		}
+	}
+
+	collisionCandidates := collectSortedCollisionCandidates(nonPositionalResolutionEntityPairs, world)
+	for _, candidate := range collisionCandidates {
+		e1 := world.GetEntityByID(*candidate.EntityID)
+		e2 := world.GetEntityByID(*candidate.SourceEntityID)
+
+		colliderComponent1 := e1.GetComponentContainer().ColliderComponent
+		colliderComponent2 := e2.GetComponentContainer().ColliderComponent
+
+		if _, ok := colliderComponent1.Contacts[e2.GetID()]; !ok {
+			colliderComponent1.Contacts[e2.GetID()] = nil
+		}
+		if _, ok := colliderComponent2.Contacts[e1.GetID()]; !ok {
+			colliderComponent2.Contacts[e1.GetID()] = nil
 		}
 	}
 }
@@ -140,25 +183,21 @@ func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
 	return nil
 }
 
-func resolveCollisions(contacts []*collision.Contact, world World) []int {
-	seen := map[int]any{}
+func resolveCollisions(contacts []*collision.Contact, world World) map[int]int {
+	resolved := map[int]int{}
 	for _, contact := range contacts {
-		if _, ok := seen[*contact.EntityID]; ok {
+		if _, ok := resolved[*contact.EntityID]; ok {
 			continue
 		}
 		entity := world.GetEntityByID(*contact.EntityID)
 		sourceEntity := world.GetEntityByID(*contact.SourceEntityID)
 		resolveCollision(entity, sourceEntity, contact)
 
-		seen[*contact.EntityID] = true
-		seen[*contact.SourceEntityID] = true
+		resolved[*contact.EntityID] = *contact.SourceEntityID
+		resolved[*contact.SourceEntityID] = *contact.EntityID
 	}
 
-	var resolvedEntities []int
-	for id, _ := range seen {
-		resolvedEntities = append(resolvedEntities, id)
-	}
-	return resolvedEntities
+	return resolved
 }
 
 func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, contact *collision.Contact) {

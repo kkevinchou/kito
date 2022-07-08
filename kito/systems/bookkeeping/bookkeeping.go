@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/input"
 )
 
@@ -37,6 +38,9 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 		}
 	}
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagNotepad) {
-		entity.GetComponentContainer().NotepadComponent.GetNotepadComponent().LastAction = components.ActionNone
+		entity.GetComponentContainer().NotepadComponent.LastAction = components.ActionNone
+	}
+	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider) {
+		entity.GetComponentContainer().ColliderComponent.Contacts = map[int]*collision.Contact{}
 	}
 }

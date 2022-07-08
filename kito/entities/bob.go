@@ -6,6 +6,7 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/animation"
+	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 )
@@ -48,6 +49,7 @@ func NewBob() *EntityImpl {
 	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
 	colliderComponent := &components.ColliderComponent{
 		CapsuleCollider: &capsule,
+		Contacts:        map[int]*collision.Contact{},
 	}
 
 	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{
