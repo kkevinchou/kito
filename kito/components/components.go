@@ -16,6 +16,7 @@ const (
 	ComponentFlagTransform             = 1 << 11
 	ComponentFlagAI                    = 1 << 12
 	ComponentFlagNotepad               = 1 << 13
+	ComponentFlagHealth                = 1 << 14
 )
 
 type Component interface {
@@ -39,6 +40,7 @@ type ComponentContainer struct {
 	ColliderComponent              *ColliderComponent
 	ControlComponent               *ControlComponent
 	NotepadComponent               *NotepadComponent
+	HealthComponent                *HealthComponent
 }
 
 func NewComponentContainer(components ...Component) *ComponentContainer {

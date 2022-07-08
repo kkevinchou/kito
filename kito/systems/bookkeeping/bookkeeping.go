@@ -18,6 +18,7 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	QueryEntity(componentFlags int) []entities.Entity
 	UnregisterEntity(entity entities.Entity)
+	GetEntityByID(id int) entities.Entity
 }
 
 type BookKeepingSystem struct {
@@ -45,10 +46,20 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider) {
 		if entity.Type() == types.EntityTypeProjectile {
 			contacts := entity.GetComponentContainer().ColliderComponent.Contacts
+
+			for e2ID, _ := range contacts {
+				e2 := s.world.GetEntityByID(e2ID)
+				if e2.GetComponentContainer().HealthComponent != nil {
+					s.world.UnregisterEntity(e2)
+				}
+			}
+
 			if len(contacts) > 0 {
 				s.world.UnregisterEntity(entity)
 			}
 		}
+	}
+	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider) {
 		entity.GetComponentContainer().ColliderComponent.Contacts = map[int]*collision.Contact{}
 	}
 }

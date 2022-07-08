@@ -44,7 +44,7 @@ func NewEnemy() *EntityImpl {
 	capsule := collider.NewCapsule(mgl64.Vec3{0, 18, 0}, mgl64.Vec3{0, 6, 0}, 6)
 	colliderComponent := &components.ColliderComponent{
 		CapsuleCollider: &capsule,
-		Contacts: map[int]*collision.Contact{},
+		Contacts:        map[int]*collision.Contact{},
 	}
 
 	entityComponents := []components.Component{
@@ -55,6 +55,7 @@ func NewEnemy() *EntityImpl {
 		colliderComponent,
 		renderComponent,
 		components.NewAIComponent(nil),
+		&components.HealthComponent{Value: 100},
 	}
 
 	entity := NewEntity(
