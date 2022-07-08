@@ -30,14 +30,13 @@ func NewBookKeepingSystem(world World) *BookKeepingSystem {
 }
 
 func (s *BookKeepingSystem) Update(delta time.Duration) {
-	if utils.IsClient() {
-		for _, entity := range s.world.QueryEntity(components.ComponentFlagNotepad) {
-			entity.GetComponentContainer().NotepadComponent.GetNotepadComponent().LastAction = components.ActionNone
-		}
-	} else {
+	if utils.IsServer() {
 		singleton := s.world.GetSingleton()
 		for i, _ := range singleton.PlayerInput {
 			singleton.PlayerInput[i] = input.Input{}
 		}
+	}
+	for _, entity := range s.world.QueryEntity(components.ComponentFlagNotepad) {
+		entity.GetComponentContainer().NotepadComponent.GetNotepadComponent().LastAction = components.ActionNone
 	}
 }
