@@ -13,6 +13,7 @@ import (
 type World interface {
 	QueryEntity(componentFlags int) []entities.Entity
 	GetPlayerEntity() entities.Entity
+	GetEntityByID(id int) entities.Entity
 }
 
 type AnimationSystem struct {
@@ -28,37 +29,52 @@ func NewAnimationSystem(world World) *AnimationSystem {
 }
 
 func (s *AnimationSystem) Update(delta time.Duration) {
-	var entities []entities.Entity
 	if utils.IsClient() {
+		// play animations for the player
 		playerEntity := s.world.GetPlayerEntity()
-		componentContainer := playerEntity.GetComponentContainer()
-		if animationComponent := componentContainer.AnimationComponent; animationComponent != nil {
-			entities = append(entities, playerEntity)
+		findAndPlayAnimation(delta, playerEntity)
+		playerEntity.GetComponentContainer().AnimationComponent.Player.Update(delta)
+
+		// update the animation player for all other entities, relying on animation state
+		// synchronization from the server
+		for _, entity := range s.world.QueryEntity(components.ComponentFlagAnimation) {
+			if entity.GetID() == playerEntity.GetID() {
+				continue
+			}
+			entity.GetComponentContainer().AnimationComponent.Player.Update(delta)
 		}
 	} else {
-		entities = s.world.QueryEntity(components.ComponentFlagAnimation)
+		for _, entity := range s.world.QueryEntity(components.ComponentFlagAnimation) {
+			findAndPlayAnimation(delta, entity)
+			entity.GetComponentContainer().AnimationComponent.Player.Update(delta)
+		}
 	}
-
-	playAnimationsForEntities(delta, entities)
 }
 
-func playAnimationsForEntities(delta time.Duration, entities []entities.Entity) {
-	for _, entity := range entities {
-		componentContainer := entity.GetComponentContainer()
-		animationComponent := componentContainer.AnimationComponent
-		player := animationComponent.Player
+// findAndPlayAnimation takes an entity and finds the appropriate animation to play based on its state, then plays it
+func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
+	componentContainer := entity.GetComponentContainer()
+	animationComponent := componentContainer.AnimationComponent
+	player := animationComponent.Player
 
-		tpcComponent := componentContainer.ThirdPersonControllerComponent
+	tpcComponent := componentContainer.ThirdPersonControllerComponent
 
-		targetAnimation := "Idle"
-		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
-			if tpcComponent.Grounded {
-				targetAnimation = "Walk"
-			} else {
-				targetAnimation = "Falling"
-			}
+	var targetAnimation string
+	if !libutils.Vec3IsZero(tpcComponent.Velocity) {
+		if tpcComponent.Grounded {
+			targetAnimation = "Walk"
+		} else {
+			targetAnimation = "Falling"
 		}
 		player.PlayAnimation(targetAnimation)
-		player.Update(delta)
+	} else {
+		targetAnimation = "Idle"
+		notepad := componentContainer.NotepadComponent
+		if notepad.LastAction == components.ActionCast {
+			targetAnimation = "Cast1"
+			player.PlayOnce(targetAnimation, "Idle")
+		} else {
+			player.PlayAnimation(targetAnimation)
+		}
 	}
 }

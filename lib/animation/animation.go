@@ -17,6 +17,9 @@ type AnimationPlayer struct {
 	// these fields are from the loaded animation and should not be modified
 	animations map[string]*modelspec.AnimationSpec
 	rootJoint  *modelspec.JointSpec
+
+	secondaryAnimation *string
+	loop               bool
 }
 
 // func NewAnimationPlayer(animations map[string]*modelspec.AnimationSpec, rootJoint *modelspec.JointSpec) *AnimationPlayer {
@@ -24,6 +27,7 @@ func NewAnimationPlayer(m *model.Model) *AnimationPlayer {
 	return &AnimationPlayer{
 		animations: m.Animations(),
 		rootJoint:  m.RootJoint(),
+		loop:       true,
 	}
 }
 
@@ -42,6 +46,9 @@ func (player *AnimationPlayer) PlayAnimation(animationName string) {
 	if player.currentAnimation != nil && player.currentAnimation.Name == animationName {
 		return
 	}
+	if player.secondaryAnimation != nil && animationName == *player.secondaryAnimation {
+		return
+	}
 
 	if currentAnimation, ok := player.animations[animationName]; ok {
 		player.currentAnimation = currentAnimation
@@ -49,14 +56,36 @@ func (player *AnimationPlayer) PlayAnimation(animationName string) {
 	}
 }
 
+func (player *AnimationPlayer) PlayOnce(animationName string, secondaryAnimation string) {
+	if player.currentAnimation != nil && player.currentAnimation.Name == animationName {
+		return
+	}
+
+	local := secondaryAnimation
+	player.secondaryAnimation = &local
+
+	if currentAnimation, ok := player.animations[animationName]; ok {
+		player.currentAnimation = currentAnimation
+		player.elapsedTime = 0
+		player.loop = false
+	}
+}
 func (player *AnimationPlayer) Update(delta time.Duration) {
 	if player.currentAnimation == nil {
 		return
 	}
 
+	// TODO(kevin): this code ugly af
 	player.elapsedTime += delta
 	for player.elapsedTime.Milliseconds() > player.currentAnimation.Length.Milliseconds() {
-		player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length.Milliseconds()) * time.Millisecond
+		if player.loop {
+			player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length.Milliseconds()) * time.Millisecond
+		} else {
+			player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length.Milliseconds()) * time.Millisecond
+			player.PlayAnimation(*player.secondaryAnimation)
+			player.loop = true
+			player.secondaryAnimation = nil
+		}
 	}
 
 	pose := calculateCurrentAnimationPose(player.elapsedTime, player.currentAnimation.KeyFrames)

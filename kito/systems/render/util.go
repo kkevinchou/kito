@@ -42,6 +42,11 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 
 	if animationComponent != nil {
 		animationTransforms := animationComponent.Player.AnimationTransforms()
+		// if animationTransforms is nil, the shader will execute reading into invalid memory
+		// so, we need to explicitly guard for this
+		if animationTransforms == nil {
+			panic("animationTransforms not found")
+		}
 		for i := 0; i < len(animationTransforms); i++ {
 			shader.SetUniformMat4(fmt.Sprintf("jointTransforms[%d]", i), animationTransforms[i])
 		}
