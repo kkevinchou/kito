@@ -13,7 +13,6 @@ func NewEntityManager() *EntityManager {
 	return &EntityManager{
 		entities: map[int]entities.Entity{},
 	}
-
 }
 
 func (em *EntityManager) RegisterEntity(e entities.Entity) {
@@ -37,4 +36,16 @@ func (em *EntityManager) Query(componentFlags int) []entities.Entity {
 	}
 
 	return matches
+}
+
+func (em *EntityManager) UnregisterEntity(e entities.Entity) {
+	delete(em.entities, e.GetID())
+	var newEntityIDs []int
+	for _, id := range em.entityIDs {
+		if id == e.GetID() {
+			continue
+		}
+		newEntityIDs = append(newEntityIDs, id)
+	}
+	em.entityIDs = newEntityIDs
 }

@@ -78,3 +78,7 @@ func (g *Game) RegisterEntity(e entities.Entity) {
 func (g *Game) QueryEntity(componentFlags int) []entities.Entity {
 	return g.entityManager.Query(componentFlags)
 }
+
+func (g *Game) UnregisterEntity(entity entities.Entity) {
+	g.entityManager.UnregisterEntity(entity)
+}

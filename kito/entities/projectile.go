@@ -5,6 +5,7 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 )
@@ -36,6 +37,7 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	colliderComponent := &components.ColliderComponent{
 		SkipMovementResolution: true,
 		CapsuleCollider:        &capsule,
+		Contacts:               map[int]*collision.Contact{},
 	}
 
 	physicsComponent := &components.PhysicsComponent{

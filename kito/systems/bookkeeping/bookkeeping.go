@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/input"
@@ -16,6 +17,7 @@ type World interface {
 	CommandFrame() int
 	GetSingleton() *singleton.Singleton
 	QueryEntity(componentFlags int) []entities.Entity
+	UnregisterEntity(entity entities.Entity)
 }
 
 type BookKeepingSystem struct {
@@ -41,6 +43,12 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 		entity.GetComponentContainer().NotepadComponent.LastAction = components.ActionNone
 	}
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider) {
+		if entity.Type() == types.EntityTypeProjectile {
+			contacts := entity.GetComponentContainer().ColliderComponent.Contacts
+			if len(contacts) > 0 {
+				s.world.UnregisterEntity(entity)
+			}
+		}
 		entity.GetComponentContainer().ColliderComponent.Contacts = map[int]*collision.Contact{}
 	}
 }
