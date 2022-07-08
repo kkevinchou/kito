@@ -28,46 +28,38 @@ func NewAnimationSystem(world World) *AnimationSystem {
 }
 
 func (s *AnimationSystem) Update(delta time.Duration) {
+	var entities []entities.Entity
 	if utils.IsClient() {
 		playerEntity := s.world.GetPlayerEntity()
-		for _, entity := range s.world.QueryEntity(components.ComponentFlagAnimation) {
-			componentContainer := entity.GetComponentContainer()
-			animationComponent := componentContainer.AnimationComponent
-			player := animationComponent.Player
-
-			tpcComponent := componentContainer.ThirdPersonControllerComponent
-
-			if entity.GetID() == playerEntity.GetID() {
-				targetAnimation := "Idle"
-				if !libutils.Vec3IsZero(tpcComponent.Velocity) {
-					if tpcComponent.Grounded {
-						targetAnimation = "Walk"
-					} else {
-						targetAnimation = "Falling"
-					}
-				}
-				player.PlayAnimation(targetAnimation)
-			}
-			player.Update(delta)
+		componentContainer := playerEntity.GetComponentContainer()
+		if animationComponent := componentContainer.AnimationComponent; animationComponent != nil {
+			entities = append(entities, playerEntity)
 		}
 	} else {
-		for _, entity := range s.world.QueryEntity(components.ComponentFlagAnimation) {
-			componentContainer := entity.GetComponentContainer()
-			animationComponent := componentContainer.AnimationComponent
-			player := animationComponent.Player
-
-			tpcComponent := componentContainer.ThirdPersonControllerComponent
-
-			targetAnimation := "Idle"
-			if !libutils.Vec3IsZero(tpcComponent.Velocity) {
-				if tpcComponent.Grounded {
-					targetAnimation = "Walk"
-				} else {
-					targetAnimation = "Falling"
-				}
-			}
-			player.PlayAnimation(targetAnimation)
-			player.Update(delta)
-		}
+		entities = s.world.QueryEntity(components.ComponentFlagAnimation)
 	}
+
+	playAnimationsForEntities(delta, entities)
+}
+
+func playAnimationsForEntities(delta time.Duration, entities []entities.Entity) {
+	for _, entity := range entities {
+		componentContainer := entity.GetComponentContainer()
+		animationComponent := componentContainer.AnimationComponent
+		player := animationComponent.Player
+
+		tpcComponent := componentContainer.ThirdPersonControllerComponent
+
+		targetAnimation := "Idle"
+		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
+			if tpcComponent.Grounded {
+				targetAnimation = "Walk"
+			} else {
+				targetAnimation = "Falling"
+			}
+		}
+		player.PlayAnimation(targetAnimation)
+		player.Update(delta)
+	}
+
 }
