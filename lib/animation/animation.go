@@ -1,6 +1,7 @@
 package animation
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -53,6 +54,8 @@ func (player *AnimationPlayer) PlayAnimation(animationName string) {
 	if currentAnimation, ok := player.animations[animationName]; ok {
 		player.currentAnimation = currentAnimation
 		player.elapsedTime = 0
+	} else {
+		panic(fmt.Sprintf("failed to find animation %s", animationName))
 	}
 }
 
@@ -68,6 +71,8 @@ func (player *AnimationPlayer) PlayOnce(animationName string, secondaryAnimation
 		player.currentAnimation = currentAnimation
 		player.elapsedTime = 0
 		player.loop = false
+	} else {
+		panic(fmt.Sprintf("failed to find animation %s", animationName))
 	}
 }
 func (player *AnimationPlayer) Update(delta time.Duration) {
