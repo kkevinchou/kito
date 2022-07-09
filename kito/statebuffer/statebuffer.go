@@ -74,16 +74,24 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 		for id, startSnapshot := range start.gameStateUpdateMessage.Entities {
 			if _, ok := end.gameStateUpdateMessage.Entities[id]; !ok {
 				fmt.Printf("warning, entity from start update (%d) did not exist in the next one\n", id)
-			}
-
-			endSnapshot := end.gameStateUpdateMessage.Entities[id]
-			interpolatedEntities[id] = knetwork.EntitySnapshot{
-				ID:          startSnapshot.ID,
-				Type:        startSnapshot.Type,
-				Position:    endSnapshot.Position.Sub(startSnapshot.Position).Mul(float64(i) * cfStep).Add(startSnapshot.Position),
-				Orientation: libutils.QInterpolate64(startSnapshot.Orientation, endSnapshot.Orientation, float64(i)*cfStep),
-				Velocity:    endSnapshot.Velocity.Sub(startSnapshot.Velocity).Mul(float64(i) * cfStep).Add(startSnapshot.Velocity),
-				Animation:   startSnapshot.Animation,
+				interpolatedEntities[id] = knetwork.EntitySnapshot{
+					ID:          startSnapshot.ID,
+					Type:        startSnapshot.Type,
+					Position:    startSnapshot.Position,
+					Orientation: startSnapshot.Orientation,
+					Velocity:    startSnapshot.Velocity,
+					Animation:   startSnapshot.Animation,
+				}
+			} else {
+				endSnapshot := end.gameStateUpdateMessage.Entities[id]
+				interpolatedEntities[id] = knetwork.EntitySnapshot{
+					ID:          startSnapshot.ID,
+					Type:        startSnapshot.Type,
+					Position:    endSnapshot.Position.Sub(startSnapshot.Position).Mul(float64(i) * cfStep).Add(startSnapshot.Position),
+					Orientation: libutils.QInterpolate64(startSnapshot.Orientation, endSnapshot.Orientation, float64(i)*cfStep),
+					Velocity:    endSnapshot.Velocity.Sub(startSnapshot.Velocity).Mul(float64(i) * cfStep).Add(startSnapshot.Velocity),
+					Animation:   startSnapshot.Animation,
+				}
 			}
 		}
 

@@ -86,7 +86,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		physicsSystem,
 		collisionSystem,
 		animationSystem,
-		networkUpdateSystem,
 		bookKeepingSystem,
+		networkUpdateSystem,
 	}...)
 }
