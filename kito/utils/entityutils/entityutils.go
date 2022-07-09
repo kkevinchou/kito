@@ -9,7 +9,7 @@ import (
 	"github.com/kkevinchou/kito/kito/types"
 )
 
-func Spawn(entityID int, entityType types.EntityType, position mgl64.Vec3, orientation mgl64.Quat) *entities.EntityImpl {
+func Spawn(entityType types.EntityType, position mgl64.Vec3, orientation mgl64.Quat) *entities.EntityImpl {
 	var newEntity *entities.EntityImpl
 
 	if types.EntityType(entityType) == types.EntityTypeBob {
@@ -31,10 +31,15 @@ func Spawn(entityID int, entityType types.EntityType, position mgl64.Vec3, orien
 		return nil
 	}
 
-	newEntity.ID = entityID
 	cc := newEntity.GetComponentContainer()
 	cc.TransformComponent.Position = position
 	cc.TransformComponent.Orientation = orientation
+	return newEntity
+}
+
+func SpawnWithID(entityID int, entityType types.EntityType, position mgl64.Vec3, orientation mgl64.Quat) *entities.EntityImpl {
+	newEntity := Spawn(entityType, position, orientation)
+	newEntity.ID = entityID
 	return newEntity
 }
 

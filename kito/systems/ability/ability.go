@@ -9,6 +9,8 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/kito/utils/entityutils"
 	"github.com/kkevinchou/kito/lib/input"
 )
 
@@ -46,7 +48,8 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 				projSpeed := 200
 				cc := entity.GetComponentContainer()
 				direction := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
-				proj := entities.NewProjectile(cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(5)))
+				position := cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(5))
+				proj := entityutils.Spawn(types.EntityTypeProjectile, position, cc.TransformComponent.Orientation)
 				projcc := proj.GetComponentContainer()
 				projcc.PhysicsComponent.Velocity = direction.Mul(float64(projSpeed))
 				s.world.RegisterEntities([]entities.Entity{proj})

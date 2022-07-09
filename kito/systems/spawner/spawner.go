@@ -49,7 +49,7 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 
 		entity := world.GetEntityByID(snapshot.ID)
 		if entity == nil {
-			newEntity := entityutils.Spawn(snapshot.ID, types.EntityType(snapshot.Type), snapshot.Position, snapshot.Orientation)
+			newEntity := entityutils.SpawnWithID(snapshot.ID, types.EntityType(snapshot.Type), snapshot.Position, snapshot.Orientation)
 			newEntities = append(newEntities, newEntity)
 		}
 	}
