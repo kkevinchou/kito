@@ -15,6 +15,7 @@ type BufferedState struct {
 
 type IncomingEntityUpdate struct {
 	targetCommandFrame     int
+	globalCommandFrame     int
 	gameStateUpdateMessage *knetwork.GameStateUpdateMessage
 }
 
@@ -40,6 +41,7 @@ func (s *StateBuffer) PushEntityUpdate(localCommandFrame int, gameStateUpdateMes
 			IncomingEntityUpdate{
 				gameStateUpdateMessage: gameStateUpdateMessage,
 				targetCommandFrame:     targetCF,
+				globalCommandFrame:     gameStateUpdateMessage.CurrentGlobalCommandFrame,
 			},
 		)
 
@@ -54,6 +56,7 @@ func (s *StateBuffer) PushEntityUpdate(localCommandFrame int, gameStateUpdateMes
 	currentEntityUpdate := IncomingEntityUpdate{
 		gameStateUpdateMessage: gameStateUpdateMessage,
 		targetCommandFrame:     targetCF,
+		globalCommandFrame:     gameStateUpdateMessage.CurrentGlobalCommandFrame,
 	}
 
 	s.incomingEntityUpdates = append(
@@ -89,13 +92,18 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 				if _, ok := unregisteredEntities[id]; !ok {
 					fmt.Printf("warning, entity from start update (%d) did not exist in the next one and a deletion event for it was not found\n", id)
 				}
-				interpolatedEntities[id] = knetwork.EntitySnapshot{
-					ID:          startSnapshot.ID,
-					Type:        startSnapshot.Type,
-					Position:    startSnapshot.Position,
-					Orientation: startSnapshot.Orientation,
-					Velocity:    startSnapshot.Velocity,
-					Animation:   startSnapshot.Animation,
+
+				// drop the entity at the last cf
+				// TODO(kevin) use the gcf to determine which frame we should drop the entity
+				if i != delta {
+					interpolatedEntities[id] = knetwork.EntitySnapshot{
+						ID:          startSnapshot.ID,
+						Type:        startSnapshot.Type,
+						Position:    startSnapshot.Position,
+						Orientation: startSnapshot.Orientation,
+						Velocity:    startSnapshot.Velocity,
+						Animation:   startSnapshot.Animation,
+					}
 				}
 			} else {
 				endSnapshot := end.gameStateUpdateMessage.Entities[id]
@@ -110,11 +118,18 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 			}
 		}
 
-		s.timeline[start.targetCommandFrame+i] = BufferedState{
+		bufferedState := BufferedState{
 			InterpolatedEntities: interpolatedEntities,
-			Events:               end.gameStateUpdateMessage.Events,
 		}
+
+		if i == delta {
+			bufferedState.Events = end.gameStateUpdateMessage.Events
+		}
+
+		s.timeline[start.targetCommandFrame+i] = bufferedState
 	}
+	// lastState := s.timeline[start.targetCommandFrame+delta]
+	// lastState.Events = end.gameStateUpdateMessage.Events
 }
 
 func (s *StateBuffer) PeekEntityInterpolations(cf int) *BufferedState {
