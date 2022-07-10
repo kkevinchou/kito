@@ -247,7 +247,7 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 
 		if tpcComponent2 != nil {
 			if separatingVector2.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
-				tpcComponent.Grounded = true
+				tpcComponent2.Grounded = true
 				tpcComponent2.Velocity[1] = 0
 				tpcComponent2.BaseVelocity[1] = 0
 				tpcComponent2.ZipVelocity = mgl64.Vec3{}
