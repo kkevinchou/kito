@@ -9,5 +9,5 @@ type Event interface {
 }
 
 const (
-	EventTypeCreateEntity EventType = iota
+	EventTypeUnregisterEntity EventType = iota
 )

@@ -9,6 +9,7 @@ import (
 
 type BufferedState struct {
 	InterpolatedEntities map[int]knetwork.EntitySnapshot
+	Events               []knetwork.Event
 }
 
 type IncomingEntityUpdate struct {
@@ -97,6 +98,7 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 
 		s.timeline[start.targetCommandFrame+i] = BufferedState{
 			InterpolatedEntities: interpolatedEntities,
+			Events:               end.gameStateUpdateMessage.Events,
 		}
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/statebuffer"
@@ -20,6 +21,7 @@ type World interface {
 	GetPlayerEntity() entities.Entity
 	GetPlayer() *player.Player
 	MetricsRegistry() *metrics.MetricsRegistry
+	UnregisterEntityByID(entityID int)
 }
 
 type StateInterpolatorSystem struct {
@@ -43,6 +45,13 @@ func (s *StateInterpolatorSystem) Update(delta time.Duration) {
 
 func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World) {
 	playerEntity := world.GetPlayerEntity()
+	for _, event := range bufferedState.Events {
+		if event.Type == int(events.EventTypeUnregisterEntity) {
+			e := events.DeserializeUnregisterEntityEvent(event.Bytes)
+			world.UnregisterEntityByID(e.EntityID)
+		}
+	}
+
 	for _, entitySnapshot := range bufferedState.InterpolatedEntities {
 		if entitySnapshot.ID == playerEntity.GetID() {
 			continue

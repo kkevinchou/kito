@@ -1,6 +1,7 @@
 package ai
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -75,13 +76,17 @@ func (s *AISystem) Update(delta time.Duration) {
 		}
 	}
 
-	// s.spawnTrigger += int(delta.Milliseconds())
-	// if s.spawnTrigger > 3000 {
-	// 	enemy := entities.NewEnemy()
-	// 	x := rand.Intn(600) - 300
-	// 	z := rand.Intn(600) - 300
-	// 	enemy.GetComponentContainer().TransformComponent.Position = mgl64.Vec3{float64(x), 0, float64(z)}
-	// 	s.world.RegisterEntities([]entities.Entity{enemy})
-	// 	s.spawnTrigger -= 3000
-	// }
+	aiCount := len(s.world.QueryEntity(components.ComponentFlagAI))
+	fmt.Println(aiCount)
+	if aiCount < 15 {
+		s.spawnTrigger += int(delta.Milliseconds())
+		if s.spawnTrigger > 2000 {
+			enemy := entities.NewEnemy()
+			x := rand.Intn(600) - 300
+			z := rand.Intn(600) - 300
+			enemy.GetComponentContainer().TransformComponent.Position = mgl64.Vec3{float64(x), 0, float64(z)}
+			s.world.RegisterEntities([]entities.Entity{enemy})
+			s.spawnTrigger -= 3000
+		}
+	}
 }

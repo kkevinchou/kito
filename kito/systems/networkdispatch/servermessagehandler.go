@@ -7,10 +7,8 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
-	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/player"
-	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils/entityutils"
 	"github.com/kkevinchou/kito/lib/network"
 )
@@ -88,10 +86,4 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 
 	player.Client.SendMessage(network.MessageTypeAckCreatePlayer, ack)
 	fmt.Println("Sent entity ack creation message")
-
-	event := &events.CreateEntityEvent{
-		EntityType: types.EntityTypeBob,
-		EntityID:   bob.GetID(),
-	}
-	world.GetEventBroker().Broadcast(event)
 }

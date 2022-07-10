@@ -1,6 +1,7 @@
 package networkupdate
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/components"
@@ -39,14 +40,14 @@ func NewNetworkUpdateSystem(world World) *NetworkUpdateSystem {
 
 	eventBroker := world.GetEventBroker()
 	eventBroker.AddObserver(networkUpdateSystem, []events.EventType{
-		events.EventTypeCreateEntity,
+		events.EventTypeUnregisterEntity,
 	})
 
 	return networkUpdateSystem
 }
 
 func (s *NetworkUpdateSystem) Observe(event events.Event) {
-	if event.Type() == events.EventTypeCreateEntity {
+	if event.Type() == events.EventTypeUnregisterEntity {
 		s.events = append(s.events, event)
 	}
 }
@@ -70,17 +71,17 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 		gameStateUpdate.Entities[entity.GetID()] = entityutils.ConstructEntitySnapshot(entity)
 	}
 
-	// defer s.clearEvents()
-	// for _, event := range s.events {
-	// 	bytes, err := event.Serialize()
-	// 	if err != nil {
-	// 		fmt.Println("failed to serialize event", err)
-	// 		continue
-	// 	}
+	defer s.clearEvents()
+	for _, event := range s.events {
+		bytes, err := event.Serialize()
+		if err != nil {
+			fmt.Println("failed to serialize event", err)
+			continue
+		}
 
-	// 	serializedEvent := knetwork.Event{Type: int(event.Type()), Bytes: bytes}
-	// 	gameStateUpdate.Events = append(gameStateUpdate.Events, serializedEvent)
-	// }
+		serializedEvent := knetwork.Event{Type: int(event.Type()), Bytes: bytes}
+		gameStateUpdate.Events = append(gameStateUpdate.Events, serializedEvent)
+	}
 
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()

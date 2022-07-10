@@ -39,10 +39,14 @@ func (em *EntityManager) Query(componentFlags int) []entities.Entity {
 }
 
 func (em *EntityManager) UnregisterEntity(e entities.Entity) {
-	delete(em.entities, e.GetID())
+	em.UnregisterEntityByID(e.GetID())
+}
+
+func (em *EntityManager) UnregisterEntityByID(entityID int) {
+	delete(em.entities, entityID)
 	var newEntityIDs []int
 	for _, id := range em.entityIDs {
-		if id == e.GetID() {
+		if id == entityID {
 			continue
 		}
 		newEntityIDs = append(newEntityIDs, id)

@@ -1,6 +1,8 @@
 package eventbroker
 
-import "github.com/kkevinchou/kito/kito/events"
+import (
+	"github.com/kkevinchou/kito/kito/events"
+)
 
 type Observer interface {
 	Observe(event events.Event)
