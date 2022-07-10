@@ -1,7 +1,6 @@
 package ai
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -77,7 +76,6 @@ func (s *AISystem) Update(delta time.Duration) {
 	}
 
 	aiCount := len(s.world.QueryEntity(components.ComponentFlagAI))
-	fmt.Println(aiCount)
 	if aiCount < 15 {
 		s.spawnTrigger += int(delta.Milliseconds())
 		if s.spawnTrigger > 2000 {
