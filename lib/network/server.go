@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"sync"
+
+	"github.com/kkevinchou/kito/kito/settings"
 )
 
 type Server struct {
@@ -36,6 +38,10 @@ func (s *Server) Start() error {
 		return err
 	}
 	fmt.Println("listening on " + s.host + ":" + s.port)
+
+	if settings.LatencyInjection > 0 {
+		listener = WrapListener(listener, settings.LatencyInjection)
+	}
 
 	go func() {
 		defer listener.Close()

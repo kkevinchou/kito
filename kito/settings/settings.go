@@ -1,6 +1,8 @@
 package settings
 
 import (
+	"time"
+
 	"github.com/go-gl/mathgl/mgl64"
 )
 
@@ -24,6 +26,7 @@ var (
 // Debugging constants
 const (
 	DebugRenderCollisionVolume = false
+	LatencyInjection           = 0 * time.Millisecond
 )
 
 const (
