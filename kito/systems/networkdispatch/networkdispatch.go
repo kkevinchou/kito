@@ -75,7 +75,17 @@ func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 		filteredMessages = append(filteredMessages, message)
 	}
 
+	sawInputMessage := false
 	for _, message := range filteredMessages {
+		if utils.IsServer() {
+			if message.MessageType == knetwork.MessageTypeInput {
+				sawInputMessage = true
+			}
+		}
 		s.messageHandler(s.world, message)
 	}
+	_ = sawInputMessage
+	// if utils.IsServer() && !sawInputMessage {
+	// 	fmt.Println("MISSED AN INPUT MESSAGE ON CF", s.world.CommandFrame())
+	// }
 }

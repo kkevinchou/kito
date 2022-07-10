@@ -76,7 +76,7 @@ func (s *AISystem) Update(delta time.Duration) {
 	}
 
 	aiCount := len(s.world.QueryEntity(components.ComponentFlagAI))
-	if aiCount < 15 {
+	if aiCount < 10 {
 		s.spawnTrigger += int(delta.Milliseconds())
 		if s.spawnTrigger > 2000 {
 			enemy := entities.NewEnemy()

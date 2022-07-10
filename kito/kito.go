@@ -70,11 +70,16 @@ func (g *Game) Start() {
 		accumulator += delta
 		renderAccumulator += delta
 
+		runCount := 1
 		for accumulator >= float64(settings.MSPerCommandFrame) {
 			// input is handled once per command frame
 			g.HandleInput(g.inputPollingFn())
 			g.runCommandFrame(time.Duration(settings.MSPerCommandFrame) * time.Millisecond)
 			accumulator -= float64(settings.MSPerCommandFrame)
+			// if runCount > 1 {
+			// 	fmt.Println("cf", g.CommandFrame(), "with more than 1 runCount", runCount)
+			// }
+			runCount++
 		}
 
 		if renderAccumulator >= msPerFrame {
