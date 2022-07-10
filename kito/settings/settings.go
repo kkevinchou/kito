@@ -14,10 +14,11 @@ var (
 
 // dynamic settings loaded from config
 var (
-	Host   string = "localhost"
-	Port   int    = 8080
-	Width  int    = 0
-	Height int    = 0
+	ListenAddress string = "localhost"
+	Host          string = "localhost"
+	Port          int    = 8080
+	Width         int    = 0
+	Height        int    = 0
 )
 
 // Debugging constants
