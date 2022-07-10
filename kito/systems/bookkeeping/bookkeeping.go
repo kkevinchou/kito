@@ -60,7 +60,8 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 			if len(contacts) > 0 {
 				s.world.UnregisterEntity(entity)
 				event := &events.UnregisterEntityEvent{
-					EntityID: entity.GetID(),
+					GlobalCommandFrame: s.world.CommandFrame(),
+					EntityID:           entity.GetID(),
 				}
 				s.world.GetEventBroker().Broadcast(event)
 			}
@@ -72,7 +73,8 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 		if entity.GetComponentContainer().HealthComponent.Value <= 0 {
 			s.world.UnregisterEntity(entity)
 			event := &events.UnregisterEntityEvent{
-				EntityID: entity.GetID(),
+				GlobalCommandFrame: s.world.CommandFrame(),
+				EntityID:           entity.GetID(),
 			}
 			s.world.GetEventBroker().Broadcast(event)
 		}

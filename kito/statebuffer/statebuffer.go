@@ -3,6 +3,7 @@ package statebuffer
 import (
 	"fmt"
 
+	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/lib/libutils"
 )
@@ -69,12 +70,25 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 	delta := end.targetCommandFrame - start.targetCommandFrame
 	cfStep := float64(1) / float64(delta)
 
+	// TODO(kevin) doing deserialization here is probably omegaslow
+
+	unregisteredEntities := map[int]any{}
+	for _, event := range end.gameStateUpdateMessage.Events {
+		if event.Type == int(events.EventTypeUnregisterEntity) {
+			e := events.DeserializeUnregisterEntityEvent(event.Bytes)
+			unregisteredEntities[e.EntityID] = true
+		}
+	}
+
 	for i := 1; i <= delta; i++ {
 		interpolatedEntities := map[int]knetwork.EntitySnapshot{}
 
 		for id, startSnapshot := range start.gameStateUpdateMessage.Entities {
 			if _, ok := end.gameStateUpdateMessage.Entities[id]; !ok {
-				fmt.Printf("warning, entity from start update (%d) did not exist in the next one\n", id)
+				// an entity may be deleted in between two game state updates.
+				if _, ok := unregisteredEntities[id]; !ok {
+					fmt.Printf("warning, entity from start update (%d) did not exist in the next one and a deletion event for it was not found\n", id)
+				}
 				interpolatedEntities[id] = knetwork.EntitySnapshot{
 					ID:          startSnapshot.ID,
 					Type:        startSnapshot.Type,
