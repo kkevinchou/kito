@@ -38,15 +38,15 @@ func NewBob() *EntityImpl {
 
 	meshComponent := &components.MeshComponent{
 		// Scale:            mgl64.Scale3D(1, 1, 1),
-		Scale: mgl64.Scale3D(15, 15, 15),
-		// Scale: mgl64.Scale3D(1, 1, 1),
+		// Scale: mgl64.Scale3D(15, 15, 15),
+		Scale: mgl64.Scale3D(1, 1, 1),
 		// Orientation: mgl64.Ident4(),
 		Orientation: yr,
 
 		Model: m,
 	}
 
-	capsule := collider.NewCapsule(mgl64.Vec3{0, 12, 0}, mgl64.Vec3{0, 3, 0}, 3)
+	capsule := collider.NewCapsuleFromModel(m)
 	colliderComponent := &components.ColliderComponent{
 		CapsuleCollider: &capsule,
 		Contacts:        map[int]*collision.Contact{},

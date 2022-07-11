@@ -18,7 +18,7 @@ var (
 )
 
 func NewScene() *EntityImpl {
-	return NewRigidBody("scene_building", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene)
+	return NewRigidBody("scene", mgl64.Ident4(), mgl64.Ident4(), types.EntityTypeScene)
 }
 
 func NewSlime() *EntityImpl {

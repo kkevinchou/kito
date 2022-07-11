@@ -72,6 +72,9 @@ func NewCapsuleFromVertices(vertices []mgl64.Vec3) Capsule {
 	radius = math.Max(radius, math.Abs(minZ))
 	radius = math.Max(radius, math.Abs(maxZ))
 
+	// t-pose usually makes the model wider than it needs to be so we shrink radius by half
+	radius /= 2
+
 	// try our best to construct a capsule that sits above ground
 	topYValue := math.Max((2*radius)+1, maxY)
 

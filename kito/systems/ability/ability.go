@@ -48,7 +48,7 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 				projSpeed := 200
 				cc := entity.GetComponentContainer()
 				direction := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
-				position := cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(5))
+				position := cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(10))
 				proj := entityutils.Spawn(types.EntityTypeProjectile, position, cc.TransformComponent.Orientation)
 				projcc := proj.GetComponentContainer()
 				projcc.PhysicsComponent.Velocity = direction.Mul(float64(projSpeed))
