@@ -10,5 +10,4 @@ func NewBaseSystem() *BaseSystem {
 }
 
 func (b *BaseSystem) Observe(event events.Event) {
-
 }

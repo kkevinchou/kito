@@ -56,9 +56,11 @@ func (s *RenderSystem) entityInfoUIComponent() {
 func (s *RenderSystem) generalInfoComponent() {
 	metricsRegistry := s.world.MetricsRegistry()
 	fps := int(metricsRegistry.GetOneSecondSum("fps"))
+	frameCatchup := int(metricsRegistry.GetOneSecondSum("frameCatchup"))
 	if imgui.CollapsingHeaderV("General", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
 		uiTableRow("FPS", fps)
+		uiTableRow("Frame Catchup", frameCatchup)
 		uiTableRow("CF", s.world.CommandFrame())
 		imgui.EndTable()
 	}

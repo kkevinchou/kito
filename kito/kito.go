@@ -76,9 +76,10 @@ func (g *Game) Start() {
 			g.HandleInput(g.inputPollingFn())
 			g.runCommandFrame(time.Duration(settings.MSPerCommandFrame) * time.Millisecond)
 			accumulator -= float64(settings.MSPerCommandFrame)
-			// if runCount > 1 {
-			// 	fmt.Println("cf", g.CommandFrame(), "with more than 1 runCount", runCount)
-			// }
+			if runCount > 1 {
+				g.metricsRegistry.Inc("frameCatchup", 1)
+				fmt.Println("cf", g.CommandFrame(), "with more than 1 runCount", runCount)
+			}
 			runCount++
 		}
 

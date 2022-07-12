@@ -42,7 +42,7 @@ const (
 	ClientIDStart int = 70000
 	EntityIDStart int = 80000
 
-	PProfEnabled    bool = false
+	PProfEnabled    bool = true
 	PProfClientPort int  = 6060
 	PProfServerPort int  = 6061
 

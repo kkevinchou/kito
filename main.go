@@ -37,6 +37,11 @@ type Game interface {
 }
 
 func main() {
+	// memory ballast
+	ballast := make([]byte, 1<<34)
+	_ = ballast
+	// ballast[1] = 1
+
 	configFile, err := os.Open("config.json")
 	if err != nil {
 		fmt.Printf("failed to load config.json, using defaults: %s\n", err)

@@ -41,4 +41,4 @@ clean:
 .PHONY: profile
 profile:
 	curl http://localhost:6061/debug/pprof/profile?seocnds=20 -o profile
-	go tool pprof -http=localhost/6969 profile
+	go tool pprof -http=localhost:6969 profile
