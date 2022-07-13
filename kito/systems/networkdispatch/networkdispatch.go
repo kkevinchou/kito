@@ -89,3 +89,7 @@ func (s *NetworkDispatchSystem) Update(delta time.Duration) {
 	// 	fmt.Println("MISSED AN INPUT MESSAGE ON CF", s.world.CommandFrame())
 	// }
 }
+
+func (s *NetworkDispatchSystem) Name() string {
+	return "NetworkDispatchSystem"
+}

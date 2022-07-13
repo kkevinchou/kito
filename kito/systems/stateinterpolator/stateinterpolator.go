@@ -73,3 +73,7 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 		}
 	}
 }
+
+func (s *StateInterpolatorSystem) Name() string {
+	return "StateInterpolatorSystem"
+}

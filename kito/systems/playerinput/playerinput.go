@@ -36,6 +36,8 @@ func (s *PlayerInputSystem) Update(delta time.Duration) {
 		bufferedInput := singleton.InputBuffer.PullInput(singleton.CommandFrame, player.ID)
 		if bufferedInput != nil {
 			handlePlayerInput(player, bufferedInput.LocalCommandFrame, bufferedInput.Input, s.world)
+		} else {
+			fmt.Println("failed to pull buffered input for player", player.ID)
 		}
 	}
 }
@@ -53,4 +55,8 @@ func handlePlayerInput(player *player.Player, commandFrame int, input input.Inpu
 	} else {
 		fmt.Printf("received input out of order, last saw %d but got %d\n", player.LastInputLocalCommandFrame, commandFrame)
 	}
+}
+
+func (s *PlayerInputSystem) Name() string {
+	return "PlayerInputSystem"
 }

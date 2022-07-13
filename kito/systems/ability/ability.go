@@ -57,3 +57,7 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 		}
 	}
 }
+
+func (s *AbilitySystem) Name() string {
+	return "AbilitySystem"
+}

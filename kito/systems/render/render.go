@@ -307,3 +307,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 
 func (s *RenderSystem) Update(delta time.Duration) {
 }
+
+func (s *RenderSystem) Name() string {
+	return "RenderSystem"
+}

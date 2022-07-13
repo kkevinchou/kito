@@ -38,3 +38,7 @@ func (s *HistorySystem) Update(delta time.Duration) {
 	cfHistory := s.world.GetCommandFrameHistory()
 	cfHistory.AddCommandFrame(singleton.CommandFrame, playerInput, playerEntity)
 }
+
+func (s *HistorySystem) Name() string {
+	return "HistorySystem"
+}

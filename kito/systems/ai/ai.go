@@ -88,3 +88,7 @@ func (s *AISystem) Update(delta time.Duration) {
 		}
 	}
 }
+
+func (s *AISystem) Name() string {
+	return "AISystem"
+}

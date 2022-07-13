@@ -56,3 +56,7 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 
 	world.RegisterEntities(newEntities)
 }
+
+func (s *SpawnerSystem) Name() string {
+	return "SpawnerSystem"
+}

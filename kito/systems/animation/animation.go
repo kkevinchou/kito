@@ -78,3 +78,7 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 		}
 	}
 }
+
+func (s *AnimationSystem) Name() string {
+	return "AnimationSystem"
+}

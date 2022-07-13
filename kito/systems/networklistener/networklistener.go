@@ -48,3 +48,7 @@ func (s *NetworkListenerSystem) Update(delta time.Duration) {
 		playerManager.RegisterPlayer(incomingConnection.ID, playerClient)
 	}
 }
+
+func (s *NetworkListenerSystem) Name() string {
+	return "NetworkListenerSystem"
+}

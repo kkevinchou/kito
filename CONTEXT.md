@@ -10,3 +10,6 @@ probably describes how to properly handle these scenarios (the vscode model rend
 to implement in the GLTF loader or animation player. My exporting steps are to select nothing and export with "Optimize Animation Size" disabled.
 It looks like this feature was added in for newer versions of blender, but when I was doing development this option was not available. Each
 animation should be stashed in the same NLA track (i think)
+
+## Collision Resolution reaching max on an entity (10)
+Seems like when we are resolving collisions on slopes that cause jitter we hit the collision resolution max somehow

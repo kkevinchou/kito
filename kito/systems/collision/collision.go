@@ -45,3 +45,7 @@ func (s *CollisionSystem) Update(delta time.Duration) {
 		netsync.ResolveCollisions(s.world)
 	}
 }
+
+func (s *CollisionSystem) Name() string {
+	return "CollisionSystem"
+}

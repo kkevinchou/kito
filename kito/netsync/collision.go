@@ -1,6 +1,7 @@
 package netsync
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/go-gl/mathgl/mgl64"
@@ -62,13 +63,21 @@ func resolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, world Worl
 
 		resolvedEntities := resolveCollisions(collisionCandidates, world)
 		for entityID, otherEntityID := range resolvedEntities {
-			resolveCount[entityID] += 1
-			if resolveCount[entityID] > resolveCountMax {
-				reachedMaxCount = true
-			}
-
 			e1 := world.GetEntityByID(entityID)
 			e2 := world.GetEntityByID(otherEntityID)
+			resolveCount[entityID] += 1
+
+			if e1.GetID() == 80001 {
+				position := e1.GetComponentContainer().TransformComponent.Position
+				_ = position
+			}
+
+			if resolveCount[entityID] > resolveCountMax {
+				fmt.Println("reached max count for entity", entityID, e1.GetName(), "most recent collision with", otherEntityID, e2.GetName())
+				// TODO(kevin) this should be exempting the entity from collision resolution. NOT bailing out of resolution for all other entities
+				// we need some way to remove the entities who've reached the max iterations from the entity pair list
+				reachedMaxCount = true
+			}
 
 			colliderComponent1 := e1.GetComponentContainer().ColliderComponent
 			colliderComponent2 := e2.GetComponentContainer().ColliderComponent
@@ -144,6 +153,8 @@ func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
 		return nil
 	}
 
+	var result []*collision.Contact
+
 	if ok, capsuleEntity, triMeshEntity := isCapsuleTriMeshCollision(e1, e2); ok {
 		contacts := collision.CheckCollisionCapsuleTriMesh(
 			*capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
@@ -161,7 +172,7 @@ func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
 			contact.SourceEntityID = &triEntityID
 		}
 
-		return contacts
+		result = contacts
 	}
 
 	if ok := isCapsuleCapsuleCollision(e1, e2); ok {
@@ -177,10 +188,18 @@ func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
 		e2ID := e2.GetID()
 		contact.EntityID = &e1ID
 		contact.SourceEntityID = &e2ID
-		return []*collision.Contact{contact}
+		result = append(result, contact)
 	}
 
-	return nil
+	// filter out contacts that have tiny separating distances
+	threshold := 0.00005
+	var filteredContacts []*collision.Contact
+	for _, contact := range result {
+		if contact.SeparatingDistance > threshold {
+			filteredContacts = append(filteredContacts, contact)
+		}
+	}
+	return filteredContacts
 }
 
 func resolveCollisions(contacts []*collision.Contact, world World) map[int]int {

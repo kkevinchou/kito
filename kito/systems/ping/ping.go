@@ -44,3 +44,7 @@ func (s *PingSystem) Update(delta time.Duration) {
 		s.enabled = false
 	}
 }
+
+func (s *PingSystem) Name() string {
+	return "PingSystem"
+}

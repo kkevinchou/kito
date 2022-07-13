@@ -18,6 +18,7 @@ import (
 )
 
 type System interface {
+	Name() string
 	Update(delta time.Duration)
 }
 
@@ -70,34 +71,40 @@ func (g *Game) Start() {
 		accumulator += delta
 		renderAccumulator += delta
 
-		runCount := 1
+		runCount := 0
+		timings := map[string]int{}
 		for accumulator >= float64(settings.MSPerCommandFrame) {
 			// input is handled once per command frame
 			g.HandleInput(g.inputPollingFn())
-			g.runCommandFrame(time.Duration(settings.MSPerCommandFrame) * time.Millisecond)
-			accumulator -= float64(settings.MSPerCommandFrame)
-			if runCount > 1 {
-				g.metricsRegistry.Inc("frameCatchup", 1)
-				fmt.Println("cf", g.CommandFrame(), "with more than 1 runCount", runCount)
+			curTimings := g.runCommandFrame(time.Duration(settings.MSPerCommandFrame) * time.Millisecond)
+			for k, v := range curTimings {
+				timings[k] += v
 			}
+			accumulator -= float64(settings.MSPerCommandFrame)
 			runCount++
+		}
+		if runCount > 1 {
+			g.metricsRegistry.Inc("frameCatchup", 1)
 		}
 
 		if renderAccumulator >= msPerFrame {
 			frameCount++
 			g.metricsRegistry.Inc("fps", 1)
-			// renderFunction(time.Duration(renderAccumulator) * time.Millisecond)
 			renderFunction(time.Duration(delta) * time.Millisecond)
 			renderAccumulator -= msPerFrame
 		}
 	}
 }
 
-func (g *Game) runCommandFrame(delta time.Duration) {
+func (g *Game) runCommandFrame(delta time.Duration) map[string]int {
+	result := map[string]int{}
 	g.singleton.CommandFrame++
 	for _, system := range g.systems {
+		start := time.Now()
 		system.Update(delta)
+		result[system.Name()] = int(time.Since(start).Milliseconds())
 	}
+	return result
 }
 
 func initSeed() {

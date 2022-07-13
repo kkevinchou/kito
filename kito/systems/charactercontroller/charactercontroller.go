@@ -61,3 +61,7 @@ func (s *CharacterControllerSystem) Update(delta time.Duration) {
 		netsync.UpdateCharacterController(delta, entity, camera, singleton.PlayerInput[player.ID])
 	}
 }
+
+func (s *CharacterControllerSystem) Name() string {
+	return "CharacterControllerSystem"
+}

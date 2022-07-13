@@ -90,3 +90,7 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 		entity.GetComponentContainer().NotepadComponent.LastAction = components.ActionNone
 	}
 }
+
+func (s *BookKeepingSystem) Name() string {
+	return "BookKeepingSystem"
+}

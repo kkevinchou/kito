@@ -134,3 +134,6 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	transformComponent.Orientation = newOrientation
 	return newOrientation
 }
+func (s *CameraSystem) Name() string {
+	return "CameraSystem"
+}

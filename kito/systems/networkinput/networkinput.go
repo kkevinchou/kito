@@ -46,3 +46,7 @@ func (s *NetworkInputSystem) Update(delta time.Duration) {
 	s.world.MetricsRegistry().Inc("newinput", 1)
 	player.Client.SendMessage(knetwork.MessageTypeInput, inputMessage)
 }
+
+func (s *NetworkInputSystem) Name() string {
+	return "NetworkInputSystem"
+}

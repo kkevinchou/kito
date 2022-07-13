@@ -40,3 +40,7 @@ func (s *PhysicsSystem) Update(delta time.Duration) {
 		netsync.PhysicsStep(delta, entity)
 	}
 }
+
+func (s *PhysicsSystem) Name() string {
+	return "PhysicsSystem"
+}
