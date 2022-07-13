@@ -24,11 +24,15 @@ type World interface {
 type AbilitySystem struct {
 	*base.BaseSystem
 	world World
+
+	// probably put this in a component
+	cooldowns map[string]int64
 }
 
 func NewAbilitySystem(world World) *AbilitySystem {
 	return &AbilitySystem{
-		world: world,
+		world:     world,
+		cooldowns: map[string]int64{},
 	}
 }
 
@@ -43,17 +47,26 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 			fmt.Printf("ability system couldn't find player %d\n", player.ID)
 			continue
 		}
-		if entity != nil {
-			if key, ok := playerInput.KeyboardInput[input.KeyboardKeyQ]; ok && key.Event == input.KeyboardEventUp {
-				projSpeed := 200
-				cc := entity.GetComponentContainer()
-				direction := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
-				position := cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(10))
-				proj := entityutils.Spawn(types.EntityTypeProjectile, position, cc.TransformComponent.Orientation)
-				projcc := proj.GetComponentContainer()
-				projcc.PhysicsComponent.Velocity = direction.Mul(float64(projSpeed))
-				s.world.RegisterEntities([]entities.Entity{proj})
+
+		if entity == nil {
+			continue
+		}
+
+		if key, ok := playerInput.KeyboardInput[input.KeyboardKeyQ]; ok && key.Event == input.KeyboardEventDown {
+			cooldownLookup := fmt.Sprintf("%d_%s", player.ID, input.KeyboardKeyQ)
+			if time.Now().UnixMilli()-s.cooldowns[cooldownLookup] < 1000 {
+				continue
 			}
+			s.cooldowns[cooldownLookup] = time.Now().UnixMilli()
+
+			projSpeed := 200
+			cc := entity.GetComponentContainer()
+			direction := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
+			position := cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(10))
+			proj := entityutils.Spawn(types.EntityTypeProjectile, position, cc.TransformComponent.Orientation)
+			projcc := proj.GetComponentContainer()
+			projcc.PhysicsComponent.Velocity = direction.Mul(float64(projSpeed))
+			s.world.RegisterEntities([]entities.Entity{proj})
 		}
 	}
 }
