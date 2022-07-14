@@ -80,7 +80,7 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 			}
 		}
 	} else if entity.Type() == types.EntityTypeEnemy {
-		player.PlayAnimation("Idle")
+		player.PlayAnimation("Walk")
 	}
 }
 

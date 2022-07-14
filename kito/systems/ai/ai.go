@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	enemyMoveSpeed = 30
+	enemyMoveSpeed = 40
 )
 
 type World interface {
@@ -65,7 +65,7 @@ func (s *AISystem) Update(delta time.Duration) {
 
 		aiComponent.Velocity = aiComponent.Velocity.Add(settings.AccelerationDueToGravity.Mul(delta.Seconds()))
 		movementVec := aiComponent.MovementDir.Rotate(mgl64.Vec3{0, 0, -1})
-		velocity := aiComponent.Velocity.Add(movementVec.Mul(10))
+		velocity := aiComponent.Velocity.Add(movementVec.Mul(enemyMoveSpeed))
 		transformComponent.Position = transformComponent.Position.Add(velocity.Mul(delta.Seconds()))
 		transformComponent.Orientation = aiComponent.MovementDir
 
