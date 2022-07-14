@@ -226,15 +226,19 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		tpcComponent := cc.ThirdPersonControllerComponent
 		aiComponent := cc.AIComponent
 
+		separatingVector := contact.SeparatingVector
 		if tpcComponent != nil {
-			separatingVector := contact.SeparatingVector
-			transformComponent.Position = transformComponent.Position.Add(separatingVector)
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
+				// prevent slowly sliding off a tri
+				separatingVector[0] = 0
+				separatingVector[2] = 0
+
 				tpcComponent.Velocity[1] = 0
 				tpcComponent.BaseVelocity[1] = 0
 				tpcComponent.ZipVelocity = mgl64.Vec3{}
 				tpcComponent.Grounded = true
 			}
+			transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		} else if aiComponent != nil {
 			separatingVector := contact.SeparatingVector
 			transformComponent.Position = transformComponent.Position.Add(separatingVector)

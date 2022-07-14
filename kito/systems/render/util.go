@@ -24,7 +24,7 @@ const (
 func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, meshComponent *components.MeshComponent, animationComponent *components.AnimationComponent, modelMatrix mgl64.Mat4, modelRotationMatrix mgl64.Mat4) {
 	model := meshComponent.Model
 
-	// TOOD: i hate this... Ideally we incorporate the model.RootTransforms to the vertex positions
+	// TOOD(kevin): i hate this... Ideally we incorporate the model.RootTransforms to the vertex positions
 	// and the animation poses so that we don't have to multiple this matrix every frame.
 	m32ModelMatrix := utils.Mat4F64ToF32(modelMatrix).Mul4(model.RootTransforms())
 	_, r, _ := libutils.Decompose(m32ModelMatrix)

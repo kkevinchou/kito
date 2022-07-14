@@ -54,7 +54,7 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 
 		if key, ok := playerInput.KeyboardInput[input.KeyboardKeyQ]; ok && key.Event == input.KeyboardEventDown {
 			cooldownLookup := fmt.Sprintf("%d_%s", player.ID, input.KeyboardKeyQ)
-			if time.Now().UnixMilli()-s.cooldowns[cooldownLookup] < 1000 {
+			if time.Now().UnixMilli()-s.cooldowns[cooldownLookup] < 500 {
 				continue
 			}
 			s.cooldowns[cooldownLookup] = time.Now().UnixMilli()

@@ -76,12 +76,12 @@ func (s *AISystem) Update(delta time.Duration) {
 	}
 
 	aiCount := len(s.world.QueryEntity(components.ComponentFlagAI))
-	if aiCount < 10 {
+	if aiCount < 5 {
 		s.spawnTrigger += int(delta.Milliseconds())
 		if s.spawnTrigger > 2000 {
 			enemy := entities.NewEnemy()
-			x := rand.Intn(600) - 300
-			z := rand.Intn(600) - 300
+			x := rand.Intn(1000) - 500
+			z := rand.Intn(1000) - 500
 			enemy.GetComponentContainer().TransformComponent.Position = mgl64.Vec3{float64(x), 0, float64(z)}
 			s.world.RegisterEntities([]entities.Entity{enemy})
 			s.spawnTrigger -= 3000

@@ -8,7 +8,7 @@ import (
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
-var testFile string = "../../../../_assets/gltf/alpha.gltf"
+var testFile string = "../../../../_assets/gltf/alph.gltf"
 
 // bug hint: when a joint is defined but has no poses our
 // animation loading code freaks out. i removed the joint animatiosn from the legs

@@ -6,6 +6,7 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/libutils"
 )
@@ -57,25 +58,29 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 	animationComponent := componentContainer.AnimationComponent
 	player := animationComponent.Player
 
-	tpcComponent := componentContainer.ThirdPersonControllerComponent
+	if entity.Type() == types.EntityTypeBob {
+		tpcComponent := componentContainer.ThirdPersonControllerComponent
 
-	var targetAnimation string
-	if !libutils.Vec3IsZero(tpcComponent.Velocity) {
-		if tpcComponent.Grounded {
-			targetAnimation = "Walk"
-		} else {
-			targetAnimation = "Falling"
-		}
-		player.PlayAnimation(targetAnimation)
-	} else {
-		targetAnimation = "Idle"
-		notepad := componentContainer.NotepadComponent
-		if notepad.LastAction == components.ActionCast {
-			targetAnimation = "Cast1"
-			player.PlayOnce(targetAnimation, "Idle")
-		} else {
+		var targetAnimation string
+		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
+			if tpcComponent.Grounded {
+				targetAnimation = "Walk"
+			} else {
+				targetAnimation = "Falling"
+			}
 			player.PlayAnimation(targetAnimation)
+		} else {
+			targetAnimation = "Idle"
+			notepad := componentContainer.NotepadComponent
+			if notepad.LastAction == components.ActionCast {
+				targetAnimation = "Cast1"
+				player.PlayOnce(targetAnimation, "Idle")
+			} else {
+				player.PlayAnimation(targetAnimation)
+			}
 		}
+	} else if entity.Type() == types.EntityTypeEnemy {
+		player.PlayAnimation("Idle")
 	}
 }
 

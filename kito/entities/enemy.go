@@ -12,7 +12,7 @@ import (
 )
 
 func NewEnemy() *EntityImpl {
-	modelName := "Elf"
+	modelName := "mutant"
 	assetManager := directory.GetDirectory().AssetManager()
 
 	transformComponent := &components.TransformComponent{
@@ -36,12 +36,13 @@ func NewEnemy() *EntityImpl {
 
 	yr := mgl64.QuatRotate(mgl64.DegToRad(180), mgl64.Vec3{0, 1, 0}).Mat4()
 	meshComponent := &components.MeshComponent{
-		Scale:       mgl64.Scale3D(7, 7, 7),
+		Scale:       mgl64.Ident4(),
 		Orientation: yr,
 		Model:       m,
 	}
 
-	capsule := collider.NewCapsule(mgl64.Vec3{0, 18, 0}, mgl64.Vec3{0, 6, 0}, 6)
+	// capsule := collider.NewCapsule(mgl64.Vec3{0, 18, 0}, mgl64.Vec3{0, 6, 0}, 6)
+	capsule := collider.NewCapsuleFromModel(m)
 	colliderComponent := &components.ColliderComponent{
 		CapsuleCollider: &capsule,
 		Contacts:        map[int]*collision.Contact{},
@@ -50,7 +51,7 @@ func NewEnemy() *EntityImpl {
 	entityComponents := []components.Component{
 		&components.NetworkComponent{},
 		transformComponent,
-		// animationComponent,
+		animationComponent,
 		meshComponent,
 		colliderComponent,
 		renderComponent,

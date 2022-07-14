@@ -13,3 +13,7 @@ animation should be stashed in the same NLA track (i think)
 
 ## Collision Resolution reaching max on an entity (10)
 Seems like when we are resolving collisions on slopes that cause jitter we hit the collision resolution max somehow
+
+## GLTF animation bugs
+Currently we don't handle models with multiple roots properly - we are assuming there is only one root. This is problematic because some models
+can have multiple roots - e.g. models using IK

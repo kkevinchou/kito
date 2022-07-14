@@ -82,7 +82,13 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 
 	// reset collision contacts
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider) {
-		entity.GetComponentContainer().ColliderComponent.Contacts = map[int]*collision.Contact{}
+		cc := entity.GetComponentContainer()
+		if len(cc.ColliderComponent.Contacts) == 0 {
+			if cc.ThirdPersonControllerComponent != nil {
+				cc.ThirdPersonControllerComponent.Grounded = false
+			}
+		}
+		cc.ColliderComponent.Contacts = map[int]*collision.Contact{}
 	}
 
 	// reset notepad

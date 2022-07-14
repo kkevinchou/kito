@@ -38,7 +38,7 @@ func NewServerGame(assetsDirectory string) *Game {
 
 func serverEntitySetup(g *Game) []entities.Entity {
 	enemies := []entities.Entity{}
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 1; i++ {
 		enemy := entities.NewEnemy()
 		x := rand.Intn(600) - 300
 		z := rand.Intn(600) - 300
