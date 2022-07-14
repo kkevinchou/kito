@@ -17,3 +17,11 @@ Seems like when we are resolving collisions on slopes that cause jitter we hit t
 ## GLTF animation bugs
 Currently we don't handle models with multiple roots properly - we are assuming there is only one root. This is problematic because some models
 can have multiple roots - e.g. models using IK
+
+## GLTF models from mixamo
+Attempting to scale models from mixamo by scaling the root armature and attempting to apply it to the model (make the scale <1, 1, 1>) will break
+animations. There isn't a good way of resolvintg this at the moment. What this means in practice is that we can scale the model down, but we can't
+apply the scale. This is fine for the engine because we parse the root transform from the model and we apply it to the model matrix before rendering.
+Something to note here is that the vertex positions are properly scaled down even though we don't apply the scaling. i.e. if we construct a capsule
+collider from the model based on its vertices, it is the correctly sized collider and matches up to the animated version of the model (which includes
+the root transform matrix)
