@@ -60,10 +60,6 @@ func (player *AnimationPlayer) PlayAnimation(animationName string) {
 }
 
 func (player *AnimationPlayer) PlayOnce(animationName string, secondaryAnimation string) {
-	if player.currentAnimation != nil && player.currentAnimation.Name == animationName {
-		return
-	}
-
 	local := secondaryAnimation
 	player.secondaryAnimation = &local
 
@@ -75,6 +71,7 @@ func (player *AnimationPlayer) PlayOnce(animationName string, secondaryAnimation
 		panic(fmt.Sprintf("failed to find animation %s", animationName))
 	}
 }
+
 func (player *AnimationPlayer) Update(delta time.Duration) {
 	if player.currentAnimation == nil {
 		return

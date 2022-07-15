@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/lib/collision"
@@ -36,12 +35,6 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 
 	keyboardInput := frameInput.KeyboardInput
 	controlVector := getControlVector(keyboardInput)
-
-	// handle casting
-	if _, ok := keyboardInput[input.KeyboardKeyQ]; ok {
-		notepad := componentContainer.NotepadComponent
-		notepad.LastAction = components.ActionCast
-	}
 
 	// handle jumping
 	if controlVector.Y() > 0 && tpcComponent.Grounded {

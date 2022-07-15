@@ -5,11 +5,13 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/kito/utils/entityutils"
 	"github.com/kkevinchou/kito/lib/input"
 )
@@ -52,6 +54,8 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 			continue
 		}
 
+		cc := entity.GetComponentContainer()
+
 		if key, ok := playerInput.KeyboardInput[input.KeyboardKeyQ]; ok && key.Event == input.KeyboardEventDown {
 			cooldownLookup := fmt.Sprintf("%d_%s", player.ID, input.KeyboardKeyQ)
 			if time.Now().UnixMilli()-s.cooldowns[cooldownLookup] < 500 {
@@ -59,14 +63,18 @@ func (s *AbilitySystem) Update(delta time.Duration) {
 			}
 			s.cooldowns[cooldownLookup] = time.Now().UnixMilli()
 
-			projSpeed := 200
-			cc := entity.GetComponentContainer()
-			direction := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
-			position := cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(10))
-			proj := entityutils.Spawn(types.EntityTypeProjectile, position, cc.TransformComponent.Orientation)
-			projcc := proj.GetComponentContainer()
-			projcc.PhysicsComponent.Velocity = direction.Mul(float64(projSpeed))
-			s.world.RegisterEntities([]entities.Entity{proj})
+			cc.NotepadComponent.LastAction = components.ActionCast
+
+			if utils.IsServer() {
+				projSpeed := 200
+				cc := entity.GetComponentContainer()
+				direction := cc.TransformComponent.Orientation.Rotate(mgl64.Vec3{0, 0, -1})
+				position := cc.TransformComponent.Position.Add(mgl64.Vec3{0, 15, 0}).Add(direction.Mul(10))
+				proj := entityutils.Spawn(types.EntityTypeProjectile, position, cc.TransformComponent.Orientation)
+				projcc := proj.GetComponentContainer()
+				projcc.PhysicsComponent.Velocity = direction.Mul(float64(projSpeed))
+				s.world.RegisterEntities([]entities.Entity{proj})
+			}
 		}
 	}
 }

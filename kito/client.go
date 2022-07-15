@@ -11,6 +11,7 @@ import (
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/settings"
+	"github.com/kkevinchou/kito/kito/systems/ability"
 	"github.com/kkevinchou/kito/kito/systems/animation"
 	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
@@ -99,6 +100,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	animationSystem := animation.NewAnimationSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
+	abilitySystem := ability.NewAbilitySystem(g)
 	historySystem := historysys.NewHistorySystem(g)
 	stateInterpolatorSystem := stateinterpolator.NewStateInterpolatorSystem(g)
 	spawnerSystem := spawner.NewSpawnerSystem(g)
@@ -116,6 +118,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 		networkInputSystem,
 		networkDispatchSystem,
 		characterControllerSystem,
+		abilitySystem,
 		spawnerSystem,
 		stateInterpolatorSystem,
 		physicsSystem,
