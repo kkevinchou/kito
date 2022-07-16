@@ -16,28 +16,50 @@ type World interface {
 	GetEntityByID(id int) entities.Entity
 }
 
-func ResolveCollisionsForPlayer(player entities.Entity, world World) {
+func ResolveCollisionsForPlayer(playerEntity entities.Entity, world World) {
 	entityPairs := [][]entities.Entity{}
-	for _, e2 := range world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
-		entityPairs = append(entityPairs, []entities.Entity{player, e2})
+	entityList := world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform)
+	for _, e2 := range entityList {
+		if playerEntity.GetID() == e2.GetID() {
+			continue
+		}
+		entityPairs = append(entityPairs, []entities.Entity{playerEntity, e2})
 	}
-	resolveCollisionsForEntityPairs(entityPairs, world)
+	detectAndResolveCollisionsForEntityPairs(entityPairs, entityList, world)
 }
 
 func ResolveCollisions(world World) {
 	entityPairs := [][]entities.Entity{}
-	for _, e1 := range world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
-		for _, e2 := range world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
+	// pairExists stores the pairs of entities that we've already created,
+	// don't create a pair for both (e1, e2) and (e2, e1), just one of them
+	pairExists := map[int]map[int]bool{}
+	entityList := world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform)
+	for _, e := range entityList {
+		pairExists[e.GetID()] = map[int]bool{}
+	}
+
+	for _, e1 := range entityList {
+		for _, e2 := range entityList {
+			if e1.GetID() == e2.GetID() {
+				continue
+			}
+
+			if pairExists[e1.GetID()][e2.GetID()] || pairExists[e2.GetID()][e1.GetID()] {
+				continue
+			}
+
 			entityPairs = append(entityPairs, []entities.Entity{e1, e2})
+			pairExists[e1.GetID()][e2.GetID()] = true
+			pairExists[e2.GetID()][e1.GetID()] = true
 		}
 	}
-	resolveCollisionsForEntityPairs(entityPairs, world)
+	detectAndResolveCollisionsForEntityPairs(entityPairs, entityList, world)
 }
 
-func resolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, world World) {
+func detectAndResolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, entityList []entities.Entity, world World) {
 	// 1. collect pairs of entities that are colliding, sorted by separating vector
 	// 2. perform collision resolution for any colliding entities
-	// 3. this can cause more collisions, repeat until no more further detected collisions, or we hit the max
+	// 3. this can cause more collisions, repeat until no more further detected collisions, or we hit the configured max
 
 	positionalResolutionEntityPairs := [][]entities.Entity{}
 	nonPositionalResolutionEntityPairs := [][]entities.Entity{}
@@ -46,7 +68,7 @@ func resolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, world Worl
 		cc1 := pair[0].GetComponentContainer()
 		cc2 := pair[1].GetComponentContainer()
 
-		if cc1.ColliderComponent.SkipMovementResolution || cc2.ColliderComponent.SkipMovementResolution {
+		if cc1.ColliderComponent.SkipSeparation || cc2.ColliderComponent.SkipSeparation {
 			nonPositionalResolutionEntityPairs = append(nonPositionalResolutionEntityPairs, pair)
 		} else {
 			positionalResolutionEntityPairs = append(positionalResolutionEntityPairs, pair)
@@ -54,9 +76,15 @@ func resolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, world Worl
 	}
 
 	resolveCount := map[int]int{}
-	reachedMaxCount := false
-	for !reachedMaxCount {
-		collisionCandidates := collectSortedCollisionCandidates(positionalResolutionEntityPairs, world)
+	maximallyCollidingEntities := map[int]bool{}
+	absoluteMaxRunCount := len(entityList) * resolveCountMax
+
+	// collisionRuns acts as a fail safe for when we run collision detection and resolution infinitely.
+	// given that we have a cap on collision resolution for each entity, we should never run more than
+	// the number of entities times the cap.
+	collisionRuns := 0
+	for collisionRuns = 0; collisionRuns < absoluteMaxRunCount; collisionRuns++ {
+		collisionCandidates := collectSortedCollisionCandidates(positionalResolutionEntityPairs, entityList, maximallyCollidingEntities, world)
 		if len(collisionCandidates) == 0 {
 			break
 		}
@@ -67,57 +95,44 @@ func resolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, world Worl
 			e2 := world.GetEntityByID(otherEntityID)
 			resolveCount[entityID] += 1
 
-			if e1.GetID() == 80001 {
-				position := e1.GetComponentContainer().TransformComponent.Position
-				_ = position
-			}
-
 			if resolveCount[entityID] > resolveCountMax {
+				maximallyCollidingEntities[entityID] = true
 				fmt.Println("reached max count for entity", entityID, e1.GetName(), "most recent collision with", otherEntityID, e2.GetName())
-				// TODO(kevin) this should be exempting the entity from collision resolution. NOT bailing out of resolution for all other entities
-				// we need some way to remove the entities who've reached the max iterations from the entity pair list
-				reachedMaxCount = true
 			}
 
-			colliderComponent1 := e1.GetComponentContainer().ColliderComponent
-			colliderComponent2 := e2.GetComponentContainer().ColliderComponent
-
-			if _, ok := colliderComponent1.Contacts[e2.GetID()]; !ok {
-				colliderComponent1.Contacts[e2.GetID()] = nil
-			}
-			if _, ok := colliderComponent2.Contacts[e1.GetID()]; !ok {
-				colliderComponent2.Contacts[e1.GetID()] = nil
-			}
+			// TODO: consider that two of the same entity may collide twice
+			// also, we may want to support colliding with individual mesh chunks of an
+			// entity rather than consideration of the whole entity itself
+			e1.GetComponentContainer().ColliderComponent.Contacts[e2.GetID()] = &collision.Contact{}
+			e2.GetComponentContainer().ColliderComponent.Contacts[e1.GetID()] = &collision.Contact{}
 		}
 	}
 
-	collisionCandidates := collectSortedCollisionCandidates(nonPositionalResolutionEntityPairs, world)
+	if collisionRuns == absoluteMaxRunCount {
+		fmt.Println("hit absolute max collision run count")
+	}
+
+	// handle entities that we skip separation for. i.e. these entities just want to know if they've collided with something
+	// but it don't want its positon changed
+	collisionCandidates := collectSortedCollisionCandidates(nonPositionalResolutionEntityPairs, entityList, map[int]bool{}, world)
 	for _, candidate := range collisionCandidates {
 		e1 := world.GetEntityByID(*candidate.EntityID)
 		e2 := world.GetEntityByID(*candidate.SourceEntityID)
 
-		colliderComponent1 := e1.GetComponentContainer().ColliderComponent
-		colliderComponent2 := e2.GetComponentContainer().ColliderComponent
-
-		if _, ok := colliderComponent1.Contacts[e2.GetID()]; !ok {
-			colliderComponent1.Contacts[e2.GetID()] = nil
-		}
-		if _, ok := colliderComponent2.Contacts[e1.GetID()]; !ok {
-			colliderComponent2.Contacts[e1.GetID()] = nil
-		}
+		// TODO: consider that two of the same entity may collide twice
+		// also, we may want to support colliding with individual mesh chunks of an
+		// entity rather than consideration of the whole entity itself
+		e1.GetComponentContainer().ColliderComponent.Contacts[e2.GetID()] = &collision.Contact{}
+		e2.GetComponentContainer().ColliderComponent.Contacts[e1.GetID()] = &collision.Contact{}
 	}
 }
 
 // collectSortedCollisionCandidates collects all potential collisions that can occur in the frame.
-// these are "candidates" in that if we resolve some of the collisions in the list, some will be
-// invalidated
-func collectSortedCollisionCandidates(entityPairs [][]entities.Entity, world World) []*collision.Contact {
-	seen := map[int]map[int]bool{}
-
+// these are "candidates" in that if we resolve some of the collisions in the list, some will be invalidated
+func collectSortedCollisionCandidates(entityPairs [][]entities.Entity, entityList []entities.Entity, skipEntitySet map[int]bool, world World) []*collision.Contact {
 	// initialize collision state
-	for _, e := range world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform) {
+	for _, e := range entityList {
 		cc := e.GetComponentContainer()
-
 		if cc.ColliderComponent.CapsuleCollider != nil {
 			capsule := cc.ColliderComponent.CapsuleCollider.Transform(cc.TransformComponent.Position)
 			cc.ColliderComponent.TransformedCapsuleCollider = &capsule
@@ -126,22 +141,19 @@ func collectSortedCollisionCandidates(entityPairs [][]entities.Entity, world Wor
 			triMesh := cc.ColliderComponent.TriMeshCollider.Transform(transformMatrix)
 			cc.ColliderComponent.TransformedTriMeshCollider = &triMesh
 		}
-
-		seen[e.GetID()] = map[int]bool{}
 	}
 
 	var allContacts []*collision.Contact
 	for _, pair := range entityPairs {
-		e1 := pair[0]
-		e2 := pair[1]
-		if seen[e1.GetID()][e2.GetID()] || seen[e2.GetID()][e1.GetID()] {
+		if _, ok := skipEntitySet[pair[0].GetID()]; ok {
 			continue
 		}
-		contacts := collide(e1, e2)
-		allContacts = append(allContacts, contacts...)
+		if _, ok := skipEntitySet[pair[1].GetID()]; ok {
+			continue
+		}
 
-		seen[e1.GetID()][e2.GetID()] = true
-		seen[e2.GetID()][e1.GetID()] = true
+		contacts := collide(pair[0], pair[1])
+		allContacts = append(allContacts, contacts...)
 	}
 	sort.Sort(collision.ContactsBySeparatingDistance(allContacts))
 
@@ -149,10 +161,6 @@ func collectSortedCollisionCandidates(entityPairs [][]entities.Entity, world Wor
 }
 
 func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
-	if e1.GetID() == e2.GetID() {
-		return nil
-	}
-
 	var result []*collision.Contact
 
 	if ok, capsuleEntity, triMeshEntity := isCapsuleTriMeshCollision(e1, e2); ok {
@@ -229,7 +237,7 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		separatingVector := contact.SeparatingVector
 		if tpcComponent != nil {
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
-				// prevent slowly sliding off a tri
+				// prevent sliding when grounded
 				separatingVector[0] = 0
 				separatingVector[2] = 0
 

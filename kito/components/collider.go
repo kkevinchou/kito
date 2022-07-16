@@ -6,7 +6,9 @@ import (
 )
 
 type ColliderComponent struct {
-	SkipMovementResolution bool
+	// Skip separation tells the collision system to skip the step of separating colliding entities
+	// for the entity that owns this component
+	SkipSeparation bool
 
 	// some field that marks which entities it collided with in the current frame
 	Contacts map[int]*collision.Contact
