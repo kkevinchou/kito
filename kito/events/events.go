@@ -6,5 +6,4 @@ var EventTypeUnregisterEntity EventType = "UNREGISTER"
 
 type Event interface {
 	Type() EventType
-	// Serialize() ([]byte, error)
 }

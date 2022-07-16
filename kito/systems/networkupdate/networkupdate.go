@@ -79,8 +79,8 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		serializedEvent := knetwork.Event{Type: event.Type(), Bytes: bytes}
-		gameStateUpdate.Events = append(gameStateUpdate.Events, serializedEvent)
+		networkEvent := knetwork.Event{Type: event.Type(), Bytes: bytes}
+		gameStateUpdate.Events = append(gameStateUpdate.Events, networkEvent)
 	}
 
 	d := directory.GetDirectory()
