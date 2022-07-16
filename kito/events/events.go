@@ -1,13 +1,10 @@
 package events
 
-type EventType int
+type EventType string
+
+var EventTypeUnregisterEntity EventType = "UNREGISTER"
 
 type Event interface {
 	Type() EventType
-	TypeAsInt() int
 	Serialize() ([]byte, error)
 }
-
-const (
-	EventTypeUnregisterEntity EventType = iota
-)

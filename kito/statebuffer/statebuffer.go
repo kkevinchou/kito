@@ -77,7 +77,7 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 
 	unregisteredEntities := map[int]any{}
 	for _, event := range end.gameStateUpdateMessage.Events {
-		if event.Type == int(events.EventTypeUnregisterEntity) {
+		if event.Type == events.EventTypeUnregisterEntity {
 			e := events.DeserializeUnregisterEntityEvent(event.Bytes)
 			unregisteredEntities[e.EntityID] = true
 		}

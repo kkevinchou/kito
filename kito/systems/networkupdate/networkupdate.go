@@ -79,7 +79,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		serializedEvent := knetwork.Event{Type: int(event.Type()), Bytes: bytes}
+		serializedEvent := knetwork.Event{Type: event.Type(), Bytes: bytes}
 		gameStateUpdate.Events = append(gameStateUpdate.Events, serializedEvent)
 	}
 

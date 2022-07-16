@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/input"
 )
@@ -49,7 +50,7 @@ type EntitySnapshot struct {
 }
 
 type Event struct {
-	Type  int
+	Type  events.EventType
 	Bytes []byte
 }
 

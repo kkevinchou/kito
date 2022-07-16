@@ -46,7 +46,7 @@ func (s *StateInterpolatorSystem) Update(delta time.Duration) {
 func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World) {
 	playerEntity := world.GetPlayerEntity()
 	for _, event := range bufferedState.Events {
-		if event.Type == int(events.EventTypeUnregisterEntity) {
+		if event.Type == events.EventTypeUnregisterEntity {
 			e := events.DeserializeUnregisterEntityEvent(event.Bytes)
 			world.UnregisterEntityByID(e.EntityID)
 		}

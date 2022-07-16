@@ -17,10 +17,6 @@ func (e *UnregisterEntityEvent) Type() EventType {
 	return EventTypeUnregisterEntity
 }
 
-func (e *UnregisterEntityEvent) TypeAsInt() int {
-	return int(EventTypeUnregisterEntity)
-}
-
 func DeserializeUnregisterEntityEvent(bytes []byte) UnregisterEntityEvent {
 	event := UnregisterEntityEvent{}
 	err := json.Unmarshal(bytes, &event)
