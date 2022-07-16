@@ -65,7 +65,6 @@ type GameStateUpdateMessage struct {
 	CurrentGlobalCommandFrame   int
 	Entities                    map[int]EntitySnapshot
 	Events                      []Event
-	Events2                     []EventI
 }
 
 type InputMessage struct {
