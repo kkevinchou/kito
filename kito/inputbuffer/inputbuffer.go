@@ -48,7 +48,8 @@ func (inputBuffer *InputBuffer) PushInput(globalCommandFrame int, localCommandFr
 		inputBuffer.playerInputs[playerID] = map[int]BufferedInput{}
 	}
 
-	targetGlobalCommandFrame := globalCommandFrame + inputBuffer.maxCommandFrames
+	maxTargetGlobalCommandFrame := globalCommandFrame + inputBuffer.maxCommandFrames
+	targetGlobalCommandFrame := maxTargetGlobalCommandFrame
 	if len(inputBuffer.playerInputs[playerID]) > 0 {
 		lastPlayerInputCF := inputBuffer.lastPlayerInput[playerID]
 		lastPlayerInput := inputBuffer.playerInputs[playerID][lastPlayerInputCF]
@@ -62,18 +63,13 @@ func (inputBuffer *InputBuffer) PushInput(globalCommandFrame int, localCommandFr
 			fmt.Println("warning: received more than one input for a given command frame")
 		}
 
-		relativeCF := lastPlayerInput.TargetGlobalCommandFrame + commandFrameDelta
-		if relativeCF >= globalCommandFrame && relativeCF < targetGlobalCommandFrame {
-			// fmt.Println(globalCommandFrame, "|", lastPlayerInput.TargetGlobalCommandFrame, relativeCF, targetGlobalCommandFrame)
-			targetGlobalCommandFrame = relativeCF
-		}
-		// fmt.Println(globalCommandFrame, "|", targetGlobalCommandFrame)
-	}
+		targetGlobalCommandFrame = lastPlayerInput.TargetGlobalCommandFrame + commandFrameDelta
 
-	// target exceeds the buffer size. drop the input to avoid spiral of death
-	if targetGlobalCommandFrame > (globalCommandFrame + inputBuffer.maxCommandFrames) {
-		fmt.Printf("target gcf exceeded buffer size %d > %d\n", targetGlobalCommandFrame, (globalCommandFrame + inputBuffer.maxCommandFrames))
-		return
+		// target exceeds the buffer size. clamp it and send a warning message
+		if targetGlobalCommandFrame > maxTargetGlobalCommandFrame {
+			fmt.Printf("target gcf exceeded buffer size %d > %d\n", targetGlobalCommandFrame, (globalCommandFrame + inputBuffer.maxCommandFrames))
+			targetGlobalCommandFrame = maxTargetGlobalCommandFrame
+		}
 	}
 
 	inputBuffer.playerInputs[playerID][targetGlobalCommandFrame] = BufferedInput{
@@ -96,6 +92,12 @@ func (inputBuffer *InputBuffer) PullInput(globalCommandFrame int, playerID int) 
 		return &in
 	}
 
+	// in the scenario where we don't have a player input, we'll assume the input from the player
+	// is the same as the last input they provided
+
+	// TODO(kevin): rather than manipulating the inputbuffer when we try and pull out a player's
+	// input. we should have an explicit step in the player input system that fills in any missing
+	// inputs for the current frame
 	max := 5
 	for i := 1; i < max; i++ {
 		if in, ok := inputBuffer.playerInputs[playerID][globalCommandFrame-i]; ok {
