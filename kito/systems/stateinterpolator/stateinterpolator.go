@@ -6,6 +6,7 @@ import (
 
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
+	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/statebuffer"
@@ -47,7 +48,8 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 	playerEntity := world.GetPlayerEntity()
 	for _, event := range bufferedState.Events {
 		if event.Type == events.EventTypeUnregisterEntity {
-			e := events.DeserializeUnregisterEntityEvent(event.Bytes)
+			var e events.UnregisterEntityEvent
+			knetwork.Deserialize(event.Bytes, &e)
 			world.UnregisterEntityByID(e.EntityID)
 		}
 	}

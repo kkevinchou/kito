@@ -73,7 +73,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 
 	defer s.clearEvents()
 	for _, event := range s.events {
-		bytes, err := event.Serialize()
+		bytes, err := knetwork.Serialize(event)
 		if err != nil {
 			fmt.Println("failed to serialize event", err)
 			continue

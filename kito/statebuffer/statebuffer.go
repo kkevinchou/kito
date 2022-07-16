@@ -78,7 +78,8 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 	unregisteredEntities := map[int]any{}
 	for _, event := range end.gameStateUpdateMessage.Events {
 		if event.Type == events.EventTypeUnregisterEntity {
-			e := events.DeserializeUnregisterEntityEvent(event.Bytes)
+			var e events.UnregisterEntityEvent
+			knetwork.Deserialize(event.Bytes, &e)
 			unregisteredEntities[e.EntityID] = true
 		}
 	}
