@@ -257,7 +257,7 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		transformComponent := cc.TransformComponent
 		tpcComponent := cc.ThirdPersonControllerComponent
 
-		separatingVector := contact.SeparatingVector.Mul(0.5)
+		separatingVector := contact.SeparatingVector
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 
 		if tpcComponent != nil {

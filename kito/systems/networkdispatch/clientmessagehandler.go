@@ -110,7 +110,6 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
 			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 
-			// TODO: re-enable this when we decide how to implement character controller resolution
 			replayInputs(playerEntity, world, lookupCommandFrame, cfHistory)
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
