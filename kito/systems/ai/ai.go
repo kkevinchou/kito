@@ -1,7 +1,6 @@
 package ai
 
 import (
-	"math"
 	"math/rand"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/lib/libutils"
 )
 
 const (
@@ -49,7 +49,7 @@ func (s *AISystem) Update(delta time.Duration) {
 		playerEntities = append(playerEntities, e)
 	}
 
-	if len(playerEntities) <= 0 {
+	if len(playerEntities) == 0 {
 		return
 	}
 
@@ -60,7 +60,16 @@ func (s *AISystem) Update(delta time.Duration) {
 
 		if time.Since(aiComponent.LastUpdate) > 5*time.Second {
 			aiComponent.LastUpdate = time.Now()
-			aiComponent.MovementDir = mgl64.QuatRotate(rand.Float64()*2*math.Pi, mgl64.Vec3{0, 1, 0})
+			playerPosition := playerEntities[0].GetComponentContainer().TransformComponent.Position
+			aiToPlayer := playerPosition.Sub(transformComponent.Position)
+			aiToPlayer[1] = 0
+			dir := mgl64.Vec3{}
+			if aiToPlayer.Len() < 200 {
+				dir = aiToPlayer.Normalize()
+			} else {
+				dir = mgl64.Vec3{rand.Float64()*2 - 1, 0, rand.Float64()*2 - 1}.Normalize()
+			}
+			aiComponent.MovementDir = libutils.Vec3ToQuat(dir)
 		}
 
 		aiComponent.Velocity = aiComponent.Velocity.Add(settings.AccelerationDueToGravity.Mul(delta.Seconds()))

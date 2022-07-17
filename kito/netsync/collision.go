@@ -268,7 +268,6 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 				tpcComponent.ZipVelocity = mgl64.Vec3{}
 			}
 		}
-
 		cc2 := sourceEntity.GetComponentContainer()
 		transformComponent2 := cc2.TransformComponent
 		tpcComponent2 := cc2.ThirdPersonControllerComponent

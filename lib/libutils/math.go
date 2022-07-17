@@ -166,3 +166,7 @@ func QInterpolate64(a, b mgl64.Quat, blend float64) mgl64.Quat {
 
 	return result.Normalize()
 }
+
+func Vec3ToQuat(v mgl64.Vec3) mgl64.Quat {
+	return mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, -1}, v)
+}
