@@ -22,7 +22,7 @@ const (
 
 	// the maximum number of times a distinct entity can have their collision resolved
 	// this presents the collision resolution phase to go on forever
-	resolveCountMax = 10
+	resolveCountMax = 3
 )
 
 // BaseVelocity - does not involve controller velocities (e.g. WASD)

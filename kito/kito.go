@@ -80,6 +80,9 @@ func (g *Game) Start() {
 			for k, v := range curTimings {
 				timings[k] += v
 			}
+			// if timings["CollisionSystem"] != 0 {
+			// 	fmt.Println(timings["CollisionSystem"])
+			// }
 			accumulator -= float64(settings.MSPerCommandFrame)
 			runCount++
 		}
