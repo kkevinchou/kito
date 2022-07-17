@@ -63,15 +63,19 @@ func (s *AISystem) Update(delta time.Duration) {
 
 		if entity.Type() == types.EntityTypeEnemy {
 			if time.Since(aiComponent.LastUpdate) > time.Duration(rand.Intn(5)+2)*time.Second {
+				aiComponent.AIState = components.AIStateWalk
 				aiComponent.LastUpdate = time.Now()
 				aiToPlayer := playerPosition.Sub(transformComponent.Position)
 				aiToPlayer[1] = 0
+
 				dir := mgl64.Vec3{}
 				if aiToPlayer.Len() < 200 {
 					dir = aiToPlayer.Normalize()
+					aiComponent.AIState = components.AIStateAttack
 				} else {
 					dir = mgl64.Vec3{rand.Float64()*2 - 1, 0, rand.Float64()*2 - 1}.Normalize()
 				}
+
 				aiComponent.MovementDir = libutils.Vec3ToQuat(dir)
 			}
 		} else {

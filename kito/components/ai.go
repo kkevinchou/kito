@@ -7,17 +7,28 @@ import (
 	"github.com/kkevinchou/kito/lib/behavior"
 )
 
+type AIState string
+
+const (
+	AIStateWalk   AIState = "WALK"
+	AIStateIdle   AIState = "IDLE"
+	AIStateAttack AIState = "ATTACK"
+)
+
 type AIComponent struct {
 	// behaviorTree behavior.BehaviorTree
 	LastUpdate  time.Time
 	MovementDir mgl64.Quat
 	Velocity    mgl64.Vec3
+
+	AIState AIState
 }
 
 func NewAIComponent(behaviorTree behavior.BehaviorTree) *AIComponent {
 	return &AIComponent{
 		LastUpdate:  time.Now(),
 		MovementDir: mgl64.QuatRotate(0, mgl64.Vec3{0, 1, 0}),
+		AIState:     AIStateIdle,
 		// behaviorTree: behaviorTree,
 	}
 }

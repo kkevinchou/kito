@@ -80,7 +80,16 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 			}
 		}
 	} else if entity.Type() == types.EntityTypeEnemy {
-		player.PlayAnimation("Walk")
+		aiComponent := entity.GetComponentContainer().AIComponent
+		if aiComponent.AIState == components.AIStateIdle {
+			player.PlayAnimation("Idle")
+		} else if aiComponent.AIState == components.AIStateWalk {
+			player.PlayAnimation("Walk")
+		} else if aiComponent.AIState == components.AIStateAttack {
+			player.PlayAnimation("JumpAttack")
+		} else {
+			player.PlayAnimation("Idle")
+		}
 	}
 }
 
