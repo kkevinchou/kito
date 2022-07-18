@@ -7,7 +7,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-gl/gl v0.0.0-20211210172815-726fda9656d6
 	github.com/go-gl/mathgl v1.0.0
-	github.com/inkyblackness/imgui-go/v4 v4.4.0
+	github.com/inkyblackness/imgui-go/v4 v4.5.0
 	github.com/qmuntal/gltf v0.20.2
 	github.com/veandco/go-sdl2 v0.4.18
 	google.golang.org/grpc v1.47.0
