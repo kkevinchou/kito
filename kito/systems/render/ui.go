@@ -109,7 +109,6 @@ func (s *RenderSystem) consoleWindow() {
 		imgui.SetKeyboardFocusHereV(-1)
 	}
 
-	imgui.SetScrollHereY(1)
 	imgui.PopItemWidth()
 	if imgui.IsWindowFocused() {
 		s.world.SetFocusedWindow(types.WindowConsole)
