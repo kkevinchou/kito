@@ -41,6 +41,8 @@ type Game struct {
 
 	// Client
 	commandFrameHistory *commandframe.CommandFrameHistory
+	focusedWindow       types.Window
+	windowVisibility    map[types.Window]bool
 }
 
 func NewBaseGame() *Game {
@@ -51,6 +53,10 @@ func NewBaseGame() *Game {
 		eventBroker:     eventbroker.NewEventBroker(),
 		metricsRegistry: metrics.New(),
 		inputPollingFn:  input.NullInputPoller,
+		focusedWindow:   types.WindowGame,
+		windowVisibility: map[types.Window]bool{
+			types.WindowGame: true,
+		},
 	}
 }
 

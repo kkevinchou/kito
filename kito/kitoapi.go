@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
+	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/metrics"
 )
@@ -85,4 +86,24 @@ func (g *Game) UnregisterEntity(entity entities.Entity) {
 
 func (g *Game) UnregisterEntityByID(entityID int) {
 	g.entityManager.UnregisterEntityByID(entityID)
+}
+
+func (g *Game) SetFocusedWindow(focusedWindow types.Window) {
+	g.focusedWindow = focusedWindow
+}
+
+func (g *Game) GetFocusedWindow() types.Window {
+	return g.focusedWindow
+}
+
+func (g *Game) GetWindowVisibility(window types.Window) bool {
+	return g.windowVisibility[window]
+}
+
+func (g *Game) SetWindowVisibiilty(window types.Window, visible bool) {
+	g.windowVisibility[window] = visible
+}
+
+func (g *Game) ToggleWindowVisibility(window types.Window) {
+	g.windowVisibility[window] = !g.windowVisibility[window]
 }

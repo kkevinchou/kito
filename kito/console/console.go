@@ -14,4 +14,5 @@ type Console struct {
 
 func (c *Console) Send() {
 	c.ConsoleItems = append(c.ConsoleItems, &ConsoleItem{Command: c.Input})
+	c.Input = ""
 }

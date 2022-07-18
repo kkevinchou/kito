@@ -97,7 +97,7 @@ func detectAndResolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, e
 
 			if resolveCount[entityID] > resolveCountMax {
 				maximallyCollidingEntities[entityID] = true
-				fmt.Println("reached max count for entity", entityID, e1.GetName(), "most recent collision with", otherEntityID, e2.GetName())
+				// fmt.Println("reached max count for entity", entityID, e1.GetName(), "most recent collision with", otherEntityID, e2.GetName())
 			}
 
 			// TODO: consider that two of the same entity may collide twice

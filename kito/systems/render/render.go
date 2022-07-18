@@ -15,6 +15,7 @@ import (
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/metrics"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
@@ -38,6 +39,9 @@ type World interface {
 	MetricsRegistry() *metrics.MetricsRegistry
 	QueryEntity(componentFlags int) []entities.Entity
 	CommandFrame() int
+	SetFocusedWindow(focusedWindow types.Window)
+	GetFocusedWindow() types.Window
+	GetWindowVisibility(types.Window) bool
 }
 
 type Platform interface {
@@ -202,18 +206,13 @@ func (s *RenderSystem) renderImgui() {
 	s.platform.NewFrame()
 	imgui.NewFrame()
 
-	imgui.SetNextWindowBgAlpha(0.5)
-	imgui.BeginV("Debug", nil, imgui.WindowFlagsNoFocusOnAppearing)
-	s.generalInfoComponent()
-	s.networkInfoUIComponent()
-	s.entityInfoUIComponent()
-	// s.lightingUIComponent(s.shadowMap.DepthTexture())
-	imgui.SetItemDefaultFocus()
-	imgui.End()
-
-	imgui.BeginV("Console", nil, imgui.WindowFlagsNoFocusOnAppearing)
-	s.consoleComponent()
-	imgui.End()
+	s.world.SetFocusedWindow(types.WindowGame)
+	if s.world.GetWindowVisibility(types.WindowDebug) {
+		s.debugWindow()
+	}
+	if s.world.GetWindowVisibility(types.WindowConsole) {
+		s.consoleWindow()
+	}
 
 	imgui.Render()
 	s.imguiRenderer.Render(s.platform.DisplaySize(), s.platform.FramebufferSize(), imgui.RenderedDrawData())

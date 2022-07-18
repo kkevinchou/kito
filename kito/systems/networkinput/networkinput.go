@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/metrics"
 )
 
@@ -17,6 +18,7 @@ type World interface {
 	CommandFrame() int
 	GetPlayer() *player.Player
 	GetCamera() entities.Entity
+	GetFocusedWindow() types.Window
 }
 
 type NetworkInputSystem struct {

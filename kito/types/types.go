@@ -20,3 +20,11 @@ type NetworkClient interface {
 	SendMessage(messageType int, messageBody any) error
 	PullIncomingMessages() []*network.Message
 }
+
+type Window string
+
+const (
+	WindowConsole Window = "CONSOLE"
+	WindowGame    Window = "GAME"
+	WindowDebug   Window = "DEBUG"
+)

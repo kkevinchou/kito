@@ -61,6 +61,9 @@ const (
 	KeyboardKeySpace  KeyboardKey = "Space"
 	KeyboardKeyEscape KeyboardKey = "Escape"
 
+	KeyboardKeyTick KeyboardKey = "`"
+	KeyboardKeyF1   KeyboardKey = "F1"
+
 	KeyboardEventUp = iota
 	KeyboardEventDown
 )

@@ -5,6 +5,7 @@ import (
 
 	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/kkevinchou/kito/kito/console"
+	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 )
 
@@ -67,9 +68,32 @@ func (s *RenderSystem) generalInfoComponent() {
 	}
 }
 
-func (s *RenderSystem) consoleComponent() {
-	flags := imgui.InputTextFlagsEnterReturnsTrue
-	imgui.Begin("Console")
+func (s *RenderSystem) debugWindow() {
+	imgui.SetNextWindowBgAlpha(0.5)
+	imgui.BeginV("Debug", nil, imgui.WindowFlagsNoFocusOnAppearing)
+	s.generalInfoComponent()
+	s.networkInfoUIComponent()
+	s.entityInfoUIComponent()
+	// s.lightingUIComponent(s.shadowMap.DepthTexture())
+	imgui.SetItemDefaultFocus()
+	if imgui.IsWindowFocused() {
+		s.world.SetFocusedWindow(types.WindowDebug)
+	}
+	imgui.End()
+}
+
+func inputFilterCallback(data imgui.InputTextCallbackData) int32 {
+	if data.EventChar() == '`' {
+		return 1
+	}
+	return 0
+}
+
+func (s *RenderSystem) consoleWindow() {
+	// imgui.SetNextWindowFocus()
+	// imgui.BeginV("Console", nil, imgui.WindowFlagsNoFocusOnAppearing)
+	imgui.BeginV("Console", nil, imgui.WindowFlagsNone)
+
 	imgui.PushItemWidth(-1)
 	imgui.PushStyleColor(imgui.StyleColorFrameBg, imgui.Vec4{X: 0.5, Y: 0.5, Z: 0.5, W: 1})
 	for i, consoleItem := range console.GlobalConsole.ConsoleItems {
@@ -77,14 +101,20 @@ func (s *RenderSystem) consoleComponent() {
 	}
 	imgui.PopStyleColor()
 	imgui.Separator()
-	value := imgui.InputTextV("input", &console.GlobalConsole.Input, flags, nil)
+
+	flags := imgui.InputTextFlagsEnterReturnsTrue | imgui.InputTextFlagsCallbackCharFilter
+	value := imgui.InputTextV("input", &console.GlobalConsole.Input, flags, inputFilterCallback)
 	if value {
 		console.GlobalConsole.Send()
-		console.GlobalConsole.Input = ""
 		imgui.SetKeyboardFocusHereV(-1)
 	}
+
 	imgui.SetScrollHereY(1)
 	imgui.PopItemWidth()
+	if imgui.IsWindowFocused() {
+		s.world.SetFocusedWindow(types.WindowConsole)
+	}
+
 	imgui.End()
 }
 
