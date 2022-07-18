@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/inkyblackness/imgui-go/v4"
+	"github.com/kkevinchou/kito/kito/console"
 	"github.com/kkevinchou/kito/kito/utils"
 )
 
@@ -64,6 +65,27 @@ func (s *RenderSystem) generalInfoComponent() {
 		uiTableRow("CF", s.world.CommandFrame())
 		imgui.EndTable()
 	}
+}
+
+func (s *RenderSystem) consoleComponent() {
+	flags := imgui.InputTextFlagsEnterReturnsTrue
+	imgui.Begin("Console")
+	imgui.PushItemWidth(-1)
+	imgui.PushStyleColor(imgui.StyleColorFrameBg, imgui.Vec4{X: 0.5, Y: 0.5, Z: 0.5, W: 1})
+	for i, consoleItem := range console.GlobalConsole.ConsoleItems {
+		imgui.Textf("%d: %s", i, consoleItem.Command)
+	}
+	imgui.PopStyleColor()
+	imgui.Separator()
+	value := imgui.InputTextV("input", &console.GlobalConsole.Input, flags, nil)
+	if value {
+		console.GlobalConsole.Send()
+		console.GlobalConsole.Input = ""
+		imgui.SetKeyboardFocusHereV(-1)
+	}
+	imgui.SetScrollHereY(1)
+	imgui.PopItemWidth()
+	imgui.End()
 }
 
 func uiTableRow(label string, value any) {

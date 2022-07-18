@@ -203,11 +203,16 @@ func (s *RenderSystem) renderImgui() {
 	imgui.NewFrame()
 
 	imgui.SetNextWindowBgAlpha(0.5)
-	imgui.BeginV("Console", nil, imgui.WindowFlagsNoFocusOnAppearing)
+	imgui.BeginV("Debug", nil, imgui.WindowFlagsNoFocusOnAppearing)
 	s.generalInfoComponent()
 	s.networkInfoUIComponent()
 	s.entityInfoUIComponent()
-	s.lightingUIComponent(s.shadowMap.DepthTexture())
+	// s.lightingUIComponent(s.shadowMap.DepthTexture())
+	imgui.SetItemDefaultFocus()
+	imgui.End()
+
+	imgui.BeginV("Console", nil, imgui.WindowFlagsNoFocusOnAppearing)
+	s.consoleComponent()
 	imgui.End()
 
 	imgui.Render()
