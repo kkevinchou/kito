@@ -70,7 +70,7 @@ func (s *RenderSystem) generalInfoComponent() {
 
 func (s *RenderSystem) debugWindow() {
 	imgui.SetNextWindowBgAlpha(0.5)
-	imgui.BeginV("Debug", nil, imgui.WindowFlagsNoFocusOnAppearing)
+	imgui.BeginV("Debug", nil, imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoTitleBar|imgui.WindowFlagsNoMove)
 	s.generalInfoComponent()
 	s.networkInfoUIComponent()
 	s.entityInfoUIComponent()
