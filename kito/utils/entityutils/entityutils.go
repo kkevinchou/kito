@@ -55,12 +55,8 @@ func ConstructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 		Orientation: transformComponent.Orientation,
 	}
 
-	physicsComponent := cc.PhysicsComponent
-	if physicsComponent != nil {
-		snapshot.Velocity = physicsComponent.Velocity
-		snapshot.Impulses = physicsComponent.Impulses
-	} else if tpcComponent != nil {
-		snapshot.Velocity = tpcComponent.Velocity
+	if tpcComponent != nil {
+		snapshot.Velocity = tpcComponent.BaseVelocity
 	}
 
 	animationComponent := cc.AnimationComponent

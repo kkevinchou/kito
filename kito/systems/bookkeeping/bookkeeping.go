@@ -7,11 +7,11 @@ import (
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/kito/netsync"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
-	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/input"
 )
 
@@ -82,13 +82,7 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 
 	// reset collision contacts
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider) {
-		cc := entity.GetComponentContainer()
-		if len(cc.ColliderComponent.Contacts) == 0 {
-			if cc.ThirdPersonControllerComponent != nil {
-				cc.ThirdPersonControllerComponent.Grounded = false
-			}
-		}
-		cc.ColliderComponent.Contacts = map[int]*collision.Contact{}
+		netsync.CollisionBookKeeping(entity)
 	}
 
 	// reset notepad

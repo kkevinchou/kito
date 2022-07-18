@@ -105,12 +105,34 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			// present.
 
 			cc := playerEntity.GetComponentContainer()
+
+			originalPosition := cc.TransformComponent.Position
+			originalOrientation := cc.TransformComponent.Orientation
+
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
-			cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
+			cc.ThirdPersonControllerComponent.BaseVelocity = entitySnapshot.Velocity
+
 			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
 
 			replayInputs(playerEntity, world, lookupCommandFrame, cfHistory)
+
+			_ = originalPosition
+			_ = originalOrientation
+
+			// Retired blending code
+			// positionDelta := originalPosition.Sub(cc.TransformComponent.Position).Len()
+			// if positionDelta > 2 && positionDelta < 50 {
+			// 	fmt.Println(positionDelta)
+			// 	var lerpValue float64 = 0
+			// 	if positionDelta > 15 {
+			// 		lerpValue = 0
+			// 	} else {
+			// 		lerpValue = 0.2
+			// 	}
+			// 	cc.TransformComponent.Position = cc.TransformComponent.Position.Sub(originalPosition).Mul(lerpValue).Add(originalPosition)
+			// 	cc.TransformComponent.Orientation = mgl64.QuatLerp(originalOrientation, cc.TransformComponent.Orientation, lerpValue)
+			// }
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
 			// fmt.Println(world.CommandFrame(), "hit", utils.PPrintVec(historyEntity.Position), "----", utils.PPrintVec(entitySnapshot.Position))
@@ -126,7 +148,7 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 }
 
 func replayInputs(
-	player entities.Entity,
+	playerEntity entities.Entity,
 	world World,
 	startFrame int,
 	cfHistory *commandframe.CommandFrameHistory,
@@ -149,8 +171,10 @@ func replayInputs(
 	// not just the player
 
 	for i, cf := range cfs {
-		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, player, world.GetCamera(), cf.FrameInput)
-		netsync.ResolveCollisionsForPlayer(player, world)
-		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, player)
+		// todo: do we need to be synchronizing other state like grounded?
+		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, playerEntity, world.GetCamera(), cf.FrameInput)
+		netsync.ResolveCollisionsForPlayer(playerEntity, world)
+		netsync.CollisionBookKeeping(playerEntity)
+		cfHistory.AddCommandFrame(startFrame+i+1, cf.FrameInput, playerEntity)
 	}
 }

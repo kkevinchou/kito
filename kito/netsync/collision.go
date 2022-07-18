@@ -257,10 +257,9 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		transformComponent := cc.TransformComponent
 		tpcComponent := cc.ThirdPersonControllerComponent
 
-		separatingVector := contact.SeparatingVector
-		transformComponent.Position = transformComponent.Position.Add(separatingVector)
-
 		if tpcComponent != nil {
+			separatingVector := contact.SeparatingVector
+			transformComponent.Position = transformComponent.Position.Add(separatingVector)
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				tpcComponent.Grounded = true
 				tpcComponent.Velocity[1] = 0
@@ -272,10 +271,9 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		transformComponent2 := cc2.TransformComponent
 		tpcComponent2 := cc2.ThirdPersonControllerComponent
 
-		separatingVector2 := separatingVector.Mul(-1)
-		transformComponent2.Position = transformComponent2.Position.Add(separatingVector2)
-
 		if tpcComponent2 != nil {
+			separatingVector2 := contact.SeparatingVector.Mul(-1)
+			transformComponent2.Position = transformComponent2.Position.Add(separatingVector2)
 			if separatingVector2.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				tpcComponent2.Grounded = true
 				tpcComponent2.Velocity[1] = 0
@@ -284,6 +282,16 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 			}
 		}
 	}
+}
+
+func CollisionBookKeeping(entity entities.Entity) {
+	cc := entity.GetComponentContainer()
+	if len(cc.ColliderComponent.Contacts) == 0 {
+		if cc.ThirdPersonControllerComponent != nil {
+			cc.ThirdPersonControllerComponent.Grounded = false
+		}
+	}
+	cc.ColliderComponent.Contacts = map[int]*collision.Contact{}
 }
 
 func isCapsuleTriMeshCollision(e1, e2 entities.Entity) (bool, entities.Entity, entities.Entity) {
