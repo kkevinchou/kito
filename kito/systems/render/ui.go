@@ -10,22 +10,22 @@ import (
 func (s *RenderSystem) networkInfoUIComponent() {
 	metricsRegistry := s.world.MetricsRegistry()
 	predictionMiss := int(metricsRegistry.GetOneSecondSum("predictionMiss"))
-	serverPosition := int(metricsRegistry.GetLatest("serverPositionDiff"))
+	// serverPosition := int(metricsRegistry.GetLatest("serverPositionDiff"))
 	predictionHit := int(metricsRegistry.GetOneSecondSum("predictionHit"))
 	ping := int(metricsRegistry.GetOneSecondAverage("ping"))
-	updateMessageSize := int(metricsRegistry.GetOneSecondSum("update_message_size")) / 1000
-	updateCount := int(metricsRegistry.GetOneSecondSum("update_message_count"))
-	newInput := int(metricsRegistry.GetOneSecondSum("newinput"))
+	// updateMessageSize := int(metricsRegistry.GetOneSecondSum("update_message_size")) / 1000
+	// updateCount := int(metricsRegistry.GetOneSecondSum("update_message_count"))
+	// newInput := int(metricsRegistry.GetOneSecondSum("newinput"))
 
 	if imgui.CollapsingHeaderV("Network", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
 		uiTableRow("Ping", ping)
 		uiTableRow("Predictions Hit", predictionHit)
 		uiTableRow("Predictions Miss", predictionMiss)
-		uiTableRow("Server Position", serverPosition)
-		uiTableRow("Update Count", updateCount)
-		uiTableRow("Update Size", updateMessageSize)
-		uiTableRow("Inputs Sent", newInput)
+		// uiTableRow("Server Position", serverPosition)
+		// uiTableRow("Update Count", updateCount)
+		// uiTableRow("Update Size", updateMessageSize)
+		// uiTableRow("Inputs Sent", newInput)
 		imgui.EndTable()
 	}
 }
@@ -56,11 +56,11 @@ func (s *RenderSystem) entityInfoUIComponent() {
 func (s *RenderSystem) generalInfoComponent() {
 	metricsRegistry := s.world.MetricsRegistry()
 	fps := int(metricsRegistry.GetOneSecondSum("fps"))
-	frameCatchup := int(metricsRegistry.GetOneSecondSum("frameCatchup"))
+	// frameCatchup := int(metricsRegistry.GetOneSecondSum("frameCatchup"))
 	if imgui.CollapsingHeaderV("General", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
 		uiTableRow("FPS", fps)
-		uiTableRow("Frame Catchup", frameCatchup)
+		// uiTableRow("Frame Catchup", frameCatchup)
 		uiTableRow("CF", s.world.CommandFrame())
 		imgui.EndTable()
 	}
