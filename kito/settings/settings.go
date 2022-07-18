@@ -12,15 +12,16 @@ var (
 	CurrentGameMode     GameMode = GameModeUndefined
 	CameraStartPosition          = mgl64.Vec3{0, 10, 30}
 	CameraStartView              = mgl64.Vec2{0, 0}
+	ListenAddress       string   = "localhost"
 )
 
 // dynamic settings loaded from config
 var (
-	ListenAddress string = "localhost"
-	Host          string = "localhost"
-	Port          int    = 8080
-	Width         int    = 0
-	Height        int    = 0
+	Host       string = "localhost"
+	Port       int    = 8080
+	Width      int    = 0
+	Height     int    = 0
+	Fullscreen bool   = false
 )
 
 // Debugging constants

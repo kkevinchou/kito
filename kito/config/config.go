@@ -6,4 +6,5 @@ type Config struct {
 	Mode       string
 	Width      int
 	Height     int
+	Fullscreen bool
 }

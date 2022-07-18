@@ -75,18 +75,6 @@ func main() {
 		}
 	}
 
-	// if mode == modeClient {
-	// 	f, err := os.Create("cpuprofile")
-	// 	if err != nil {
-	// 		log.Fatal("could not create CPU profile: ", err)
-	// 	}
-	// 	defer f.Close() // error handling omitted for example
-	// 	if err := pprof.StartCPUProfile(f); err != nil {
-	// 		log.Fatal("could not start CPU profile: ", err)
-	// 	}
-	// 	defer pprof.StopCPUProfile()
-	// }
-
 	if settings.PProfEnabled {
 		go func() {
 			if mode == modeClient {
@@ -114,4 +102,5 @@ func loadConfig(configSettings config.Config) {
 	settings.Port = configSettings.ServerPort
 	settings.Width = configSettings.Width
 	settings.Height = configSettings.Height
+	settings.Fullscreen = configSettings.Fullscreen
 }
