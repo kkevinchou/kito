@@ -77,9 +77,6 @@ func (s *RenderSystem) debugWindow() {
 	s.entityInfoUIComponent()
 	// s.lightingUIComponent(s.shadowMap.DepthTexture())
 	imgui.SetItemDefaultFocus()
-	if imgui.IsWindowFocused() {
-		s.world.SetFocusedWindow(types.WindowDebug)
-	}
 	imgui.End()
 }
 
