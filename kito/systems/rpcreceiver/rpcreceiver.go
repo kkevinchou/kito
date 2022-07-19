@@ -53,12 +53,10 @@ func (s *RPCReceiverSystem) Update(delta time.Duration) {
 		if e, ok := event.(*events.RPCEvent); ok {
 			tokens := strings.Split(e.Command, " ")
 			if len(tokens) == 0 {
-				fmt.Println("skipping", e.Command)
 				continue
 			}
 
 			if len(tokens) != 3 {
-				fmt.Println("skipping", e.Command)
 				continue
 			}
 
@@ -90,6 +88,8 @@ func (s *RPCReceiverSystem) Update(delta time.Duration) {
 				if cc.ThirdPersonControllerComponent != nil {
 					cc.ThirdPersonControllerComponent.BaseVelocity = mgl64.Vec3{}
 				}
+
+				fmt.Println("executed rpc", e.Command)
 			}
 		}
 	}

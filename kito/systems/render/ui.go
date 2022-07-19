@@ -80,39 +80,37 @@ func (s *RenderSystem) debugWindow() {
 	imgui.End()
 }
 
-func inputFilterCallback(data imgui.InputTextCallbackData) int32 {
-	if data.EventChar() == '`' {
-		return 1
-	}
-	return 0
-}
-
 func (s *RenderSystem) consoleWindow() {
-	// imgui.SetNextWindowFocus()
-	// imgui.BeginV("Console", nil, imgui.WindowFlagsNoFocusOnAppearing)
-	imgui.BeginV("Console", nil, imgui.WindowFlagsNone)
+	imgui.BeginV("Console", nil, imgui.WindowFlagsNoTitleBar)
 
 	imgui.PushItemWidth(-1)
 	imgui.PushStyleColor(imgui.StyleColorFrameBg, imgui.Vec4{X: 0.5, Y: 0.5, Z: 0.5, W: 1})
-	for i, consoleItem := range console.GlobalConsole.ConsoleItems {
-		imgui.Textf("%d: %s", i, consoleItem.Command)
+	for _, consoleItem := range console.GlobalConsole.ConsoleHistory {
+		imgui.Textf("%s", consoleItem.Command)
 	}
 	imgui.PopStyleColor()
 	imgui.Separator()
 
-	flags := imgui.InputTextFlagsEnterReturnsTrue | imgui.InputTextFlagsCallbackCharFilter
-	value := imgui.InputTextV("input", &console.GlobalConsole.Input, flags, inputFilterCallback)
+	flags := imgui.InputTextFlagsEnterReturnsTrue | imgui.InputTextFlagsCallbackCharFilter | imgui.InputTextFlagsCallbackHistory
+	value := imgui.InputTextV("input", &console.GlobalConsole.Input, flags, console.GlobalConsole.InputTextCallback)
+
+	if console.GlobalConsole.ScrollToBottom {
+		imgui.SetScrollHereY(1)
+		console.GlobalConsole.ScrollToBottom = false
+	}
+
 	if value {
 		command := console.GlobalConsole.Send()
+		console.GlobalConsole.ScrollToBottom = true
 		s.world.GetEventBroker().Broadcast(&events.RPCEvent{Command: command})
 		imgui.SetKeyboardFocusHereV(-1)
 	}
 
 	imgui.PopItemWidth()
+
 	if imgui.IsWindowFocused() {
 		s.world.SetFocusedWindow(types.WindowConsole)
 	}
-
 	for _, e := range s.events {
 		if e.Type() == events.EventTypeConsoleEnabled {
 			imgui.SetKeyboardFocusHereV(-1)
