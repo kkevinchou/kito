@@ -106,7 +106,8 @@ func (s *RenderSystem) consoleWindow() {
 	flags := imgui.InputTextFlagsEnterReturnsTrue | imgui.InputTextFlagsCallbackCharFilter
 	value := imgui.InputTextV("input", &console.GlobalConsole.Input, flags, inputFilterCallback)
 	if value {
-		console.GlobalConsole.Send()
+		command := console.GlobalConsole.Send()
+		s.world.GetEventBroker().Broadcast(&events.RPCEvent{Command: command})
 		imgui.SetKeyboardFocusHereV(-1)
 	}
 

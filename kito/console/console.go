@@ -12,7 +12,9 @@ type Console struct {
 	Input        string
 }
 
-func (c *Console) Send() {
+func (c *Console) Send() string {
 	c.ConsoleItems = append(c.ConsoleItems, &ConsoleItem{Command: c.Input})
+	command := c.Input
 	c.Input = ""
+	return command
 }

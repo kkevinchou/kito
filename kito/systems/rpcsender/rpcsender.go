@@ -1,0 +1,59 @@
+package rpcsender
+
+import (
+	"time"
+
+	"github.com/kkevinchou/kito/kito/events"
+	"github.com/kkevinchou/kito/kito/knetwork"
+	"github.com/kkevinchou/kito/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/kito/managers/player"
+	"github.com/kkevinchou/kito/kito/systems/base"
+)
+
+type World interface {
+	GetEventBroker() eventbroker.EventBroker
+	GetPlayer() *player.Player
+}
+
+type RPCSenderSystem struct {
+	*base.BaseSystem
+	world  World
+	events []events.Event
+}
+
+func NewRPCSenderSystem(world World) *RPCSenderSystem {
+	rpcSystem := &RPCSenderSystem{
+		BaseSystem: &base.BaseSystem{},
+		world:      world,
+	}
+	eventBroker := world.GetEventBroker()
+	eventBroker.AddObserver(rpcSystem, []events.EventType{
+		events.EventTypeRPC,
+	})
+	return rpcSystem
+}
+
+func (s *RPCSenderSystem) Observe(event events.Event) {
+	if event.Type() == events.EventTypeRPC {
+		s.events = append(s.events, event)
+	}
+}
+
+func (s *RPCSenderSystem) clearEvents() {
+	s.events = nil
+}
+func (s *RPCSenderSystem) Update(delta time.Duration) {
+	defer s.clearEvents()
+
+	for _, event := range s.events {
+		if e, ok := event.(*events.RPCEvent); ok {
+			player := s.world.GetPlayer()
+			rpcMessage := knetwork.RPCMessage{Command: e.Command}
+			player.Client.SendMessage(knetwork.MessageTypeRPC, rpcMessage)
+		}
+	}
+}
+
+func (s *RPCSenderSystem) Name() string {
+	return "RPCSystem"
+}

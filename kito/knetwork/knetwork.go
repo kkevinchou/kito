@@ -17,6 +17,7 @@ const (
 	MessageTypeGameStateUpdate
 	MessageTypePing
 	MessageTypeAckPing
+	MessageTypeRPC
 )
 
 type AcceptMessage struct {
@@ -78,4 +79,8 @@ type PingMessage struct {
 
 type AckPingMessage struct {
 	PingSendTime time.Time
+}
+
+type RPCMessage struct {
+	Command string
 }

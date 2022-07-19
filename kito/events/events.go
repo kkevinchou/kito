@@ -4,6 +4,7 @@ type EventType string
 
 var EventTypeUnregisterEntity EventType = "UNREGISTER"
 var EventTypeConsoleEnabled EventType = "CONSOLE_ENABLED"
+var EventTypeRPC EventType = "RPC"
 
 type Event interface {
 	Type() EventType
@@ -23,4 +24,12 @@ type ConsoleEnabledEvent struct {
 
 func (e *ConsoleEnabledEvent) Type() EventType {
 	return EventTypeConsoleEnabled
+}
+
+type RPCEvent struct {
+	Command string
+}
+
+func (e *RPCEvent) Type() EventType {
+	return EventTypeRPC
 }

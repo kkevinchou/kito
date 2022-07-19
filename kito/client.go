@@ -23,6 +23,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/physics"
 	"github.com/kkevinchou/kito/kito/systems/ping"
 	"github.com/kkevinchou/kito/kito/systems/render"
+	"github.com/kkevinchou/kito/kito/systems/rpcsender"
 	"github.com/kkevinchou/kito/kito/systems/spawner"
 	"github.com/kkevinchou/kito/kito/systems/stateinterpolator"
 	"github.com/kkevinchou/kito/kito/types"
@@ -106,6 +107,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	spawnerSystem := spawner.NewSpawnerSystem(g)
 	pingSystem := ping.NewPingSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
+	rpcSenderSystem := rpcsender.NewRPCSenderSystem(g)
 	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
 
 	d.RegisterRenderSystem(renderSystem)
@@ -127,6 +129,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 		historySystem,
 		pingSystem,
 		renderSystem,
+		rpcSenderSystem,
 		bookKeepingSystem,
 	}...)
 }

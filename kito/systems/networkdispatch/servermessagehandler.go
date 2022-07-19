@@ -7,6 +7,7 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/utils/entityutils"
@@ -42,6 +43,13 @@ func serverMessageHandler(world World, message *network.Message) {
 		if err != nil {
 			fmt.Printf("error sending ackping message %s\n", err)
 		}
+	} else if message.MessageType == knetwork.MessageTypeRPC {
+		var rpcMessage knetwork.RPCMessage
+		err := network.DeserializeBody(message, &rpcMessage)
+		if err != nil {
+			fmt.Printf("error deserializing ping body %s\n", err)
+		}
+		world.GetEventBroker().Broadcast(&events.RPCEvent{Command: rpcMessage.Command})
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}

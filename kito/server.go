@@ -20,6 +20,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/networkupdate"
 	"github.com/kkevinchou/kito/kito/systems/physics"
 	"github.com/kkevinchou/kito/kito/systems/playerinput"
+	"github.com/kkevinchou/kito/kito/systems/rpcreceiver"
 	"github.com/kkevinchou/kito/lib/assets"
 )
 
@@ -66,6 +67,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 
 	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.ListenAddress, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
+	rpcReceiverSystem := rpcreceiver.NewRPCReceiverSystem(g)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	abilitySystem := ability.NewAbilitySystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
@@ -79,6 +81,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	g.systems = append(g.systems, []System{
 		networkListenerSystem,
 		networkDispatchSystem,
+		rpcReceiverSystem,
 		playerInputSystem,
 		aiSystem,
 		characterControllerSystem,
