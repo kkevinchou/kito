@@ -83,10 +83,12 @@ func (s *RPCReceiverSystem) Update(delta time.Duration) {
 
 				positionVec := mgl64.Vec3{float64(x), float64(y), float64(z)}
 				entity := s.world.GetEntityByID(entityID)
-				cc := entity.GetComponentContainer()
-				cc.TransformComponent.Position = positionVec
-				if cc.ThirdPersonControllerComponent != nil {
-					cc.ThirdPersonControllerComponent.BaseVelocity = mgl64.Vec3{}
+				if entity != nil {
+					cc := entity.GetComponentContainer()
+					cc.TransformComponent.Position = positionVec
+					if cc.ThirdPersonControllerComponent != nil {
+						cc.ThirdPersonControllerComponent.BaseVelocity = mgl64.Vec3{}
+					}
 				}
 
 				fmt.Println("executed rpc", e.Command)
