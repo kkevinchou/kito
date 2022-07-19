@@ -12,6 +12,8 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/events"
+	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
@@ -42,6 +44,7 @@ type World interface {
 	SetFocusedWindow(focusedWindow types.Window)
 	GetFocusedWindow() types.Window
 	GetWindowVisibility(types.Window) bool
+	GetEventBroker() eventbroker.EventBroker
 }
 
 type Platform interface {
@@ -67,6 +70,7 @@ type RenderSystem struct {
 	platform      Platform
 
 	entities []entities.Entity
+	events   []events.Event
 }
 
 func init() {
@@ -120,7 +124,22 @@ func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO
 		imguiRenderer: imguiRenderer,
 	}
 
+	eventBroker := world.GetEventBroker()
+	eventBroker.AddObserver(&renderSystem, []events.EventType{
+		events.EventTypeConsoleEnabled,
+	})
+
 	return &renderSystem
+}
+
+func (s *RenderSystem) Observe(event events.Event) {
+	if event.Type() == events.EventTypeConsoleEnabled {
+		s.events = append(s.events, event)
+	}
+}
+
+func (s *RenderSystem) clearEvents() {
+	s.events = nil
 }
 
 func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
@@ -138,6 +157,8 @@ func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 }
 
 func (s *RenderSystem) Render(delta time.Duration) {
+	defer s.clearEvents()
+
 	transformComponent := s.GetCameraTransform()
 	if transformComponent == nil {
 		return

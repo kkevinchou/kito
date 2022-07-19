@@ -95,7 +95,7 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 }
 
 func (s *NetworkUpdateSystem) clearEvents() {
-	s.events = []events.Event{}
+	s.events = nil
 }
 
 func (s *NetworkUpdateSystem) Name() string {

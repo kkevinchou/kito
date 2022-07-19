@@ -104,6 +104,7 @@ func (g *Game) SetWindowVisibiilty(window types.Window, visible bool) {
 	g.windowVisibility[window] = visible
 }
 
-func (g *Game) ToggleWindowVisibility(window types.Window) {
+func (g *Game) ToggleWindowVisibility(window types.Window) bool {
 	g.windowVisibility[window] = !g.windowVisibility[window]
+	return g.windowVisibility[window]
 }

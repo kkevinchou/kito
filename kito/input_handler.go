@@ -3,6 +3,7 @@ package kito
 import (
 	"fmt"
 
+	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/input"
 )
@@ -21,7 +22,9 @@ func (g *Game) HandleInput(frameInput input.Input) {
 
 	if keyEvent, ok := keyboardInput[input.KeyboardKeyTick]; ok {
 		if keyEvent.Event == input.KeyboardEventUp {
-			g.ToggleWindowVisibility(types.WindowConsole)
+			if on := g.ToggleWindowVisibility(types.WindowConsole); on {
+				g.GetEventBroker().Broadcast(&events.ConsoleEnabledEvent{})
+			}
 		}
 	}
 

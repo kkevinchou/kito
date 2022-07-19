@@ -5,6 +5,7 @@ import (
 
 	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/kkevinchou/kito/kito/console"
+	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 )
@@ -112,6 +113,13 @@ func (s *RenderSystem) consoleWindow() {
 	imgui.PopItemWidth()
 	if imgui.IsWindowFocused() {
 		s.world.SetFocusedWindow(types.WindowConsole)
+	}
+
+	for _, e := range s.events {
+		if e.Type() == events.EventTypeConsoleEnabled {
+			imgui.SetKeyboardFocusHereV(-1)
+			break
+		}
 	}
 
 	imgui.End()
