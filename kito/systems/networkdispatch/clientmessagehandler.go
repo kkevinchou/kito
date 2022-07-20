@@ -120,19 +120,10 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			_ = originalPosition
 			_ = originalOrientation
 
-			// Retired blending code
-			// positionDelta := originalPosition.Sub(cc.TransformComponent.Position).Len()
-			// if positionDelta > 2 && positionDelta < 50 {
-			// 	fmt.Println(positionDelta)
-			// 	var lerpValue float64 = 0
-			// 	if positionDelta > 15 {
-			// 		lerpValue = 0
-			// 	} else {
-			// 		lerpValue = 0.2
-			// 	}
-			// 	cc.TransformComponent.Position = cc.TransformComponent.Position.Sub(originalPosition).Mul(lerpValue).Add(originalPosition)
-			// 	cc.TransformComponent.Orientation = mgl64.QuatLerp(originalOrientation, cc.TransformComponent.Orientation, lerpValue)
-			// }
+			positionDelta := originalPosition.Sub(cc.TransformComponent.Position).Len()
+			if positionDelta > 1 && positionDelta < 6 {
+				cc.TransformComponent.Position = cc.TransformComponent.Position.Sub(originalPosition).Mul(0.1).Add(originalPosition)
+			}
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
 			// fmt.Println(world.CommandFrame(), "hit", utils.PPrintVec(historyEntity.Position), "----", utils.PPrintVec(entitySnapshot.Position))
