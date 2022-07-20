@@ -156,28 +156,40 @@ func calculateCurrentAnimationPose(elapsedTime time.Duration, keyFrames []*model
 
 	// progression = 0
 	// startKeyFrame = keyFrames[0]
-	return interpolatePoses(startKeyFrame, endKeyFrame, progression)
+	interpolatedPose := interpolatePoses(startKeyFrame, endKeyFrame, progression)
+	return convertPoseToTransformMatrix(interpolatedPose)
 }
 
-func interpolatePoses(k1, k2 *modelspec.KeyFrame, progression float32) map[int]mgl32.Mat4 {
-	interpolatedPose := map[int]mgl32.Mat4{}
+func convertPoseToTransformMatrix(pose map[int]*modelspec.JointTransform) map[int]mgl32.Mat4 {
+	transformMatrices := map[int]mgl32.Mat4{}
+	for jointID, transform := range pose {
+		translation := transform.Translation
+		rotation := transform.Rotation.Mat4()
+		scale := transform.Scale
+		transformMatrices[jointID] = mgl32.Translate3D(translation.X(), translation.Y(), translation.Z()).Mul4(rotation).Mul4(mgl32.Scale3D(scale.X(), scale.Y(), scale.Z()))
+	}
+	return transformMatrices
+}
+
+func interpolatePoses(k1, k2 *modelspec.KeyFrame, progression float32) map[int]*modelspec.JointTransform {
+	interpolatedPose := map[int]*modelspec.JointTransform{}
 	for jointID := range k1.Pose {
 		k1JointTransform := k1.Pose[jointID]
 		k2JointTransform := k2.Pose[jointID]
 
 		// WTF - this lerp doesn't look right when interpolating keyframes???
 		// rotationQuat := mgl32.QuatLerp(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
-
-		rotationQuat := libutils.QInterpolate(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
-		rotation := rotationQuat.Mat4()
+		rotation := libutils.QInterpolate(k1JointTransform.Rotation, k2JointTransform.Rotation, progression)
 
 		translation := k1JointTransform.Translation.Add(k2JointTransform.Translation.Sub(k1JointTransform.Translation).Mul(progression))
 		scale := k1JointTransform.Scale.Add(k2JointTransform.Scale.Sub(k1JointTransform.Scale).Mul(progression))
-		// scale = mgl32.Vec3{0.5, 0.5, 0.5}
 
-		interpolatedPose[jointID] = mgl32.Translate3D(translation.X(), translation.Y(), translation.Z()).Mul4(rotation).Mul4(mgl32.Scale3D(scale.X(), scale.Y(), scale.Z()))
+		// interpolatedPose[jointID] = mgl32.Translate3D(translation.X(), translation.Y(), translation.Z()).Mul4(rotation).Mul4(mgl32.Scale3D(scale.X(), scale.Y(), scale.Z()))
+		interpolatedPose[jointID] = &modelspec.JointTransform{
+			Translation: translation,
+			Rotation:    rotation,
+			Scale:       scale,
+		}
 	}
-	// pause hip joint
-	// interpolatedPose[42] = mgl32.Ident4()
 	return interpolatedPose
 }
