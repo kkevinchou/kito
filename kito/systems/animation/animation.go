@@ -65,10 +65,11 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
 			if tpcComponent.Grounded {
 				targetAnimation = "Walk"
+				player.PlayAndBlendAnimation(targetAnimation, 250*time.Millisecond)
 			} else {
 				targetAnimation = "Falling"
+				player.PlayAnimation(targetAnimation)
 			}
-			player.PlayAnimation(targetAnimation)
 		} else {
 			targetAnimation = "Idle"
 			notepad := componentContainer.NotepadComponent
