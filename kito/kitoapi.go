@@ -25,10 +25,7 @@ func (g *Game) GetPlayer() *player.Player {
 		panic("invalid call to GetPlayer() as server")
 	}
 
-	d := directory.GetDirectory().PlayerManager()
-	player := d.GetPlayer(g.singleton.PlayerID)
-
-	return player
+	return g.GetPlayerByID(g.singleton.PlayerID)
 }
 
 func (g *Game) GetPlayerByID(id int) *player.Player {
@@ -43,7 +40,11 @@ func (g *Game) GetPlayerEntity() entities.Entity {
 	}
 	player := g.GetPlayer()
 	return g.GetEntityByID(player.EntityID)
+}
 
+func (g *Game) GetPlayerEntityByID(id int) entities.Entity {
+	player := g.GetPlayerByID(id)
+	return g.GetEntityByID(player.EntityID)
 }
 
 func (g *Game) GetCamera() entities.Entity {

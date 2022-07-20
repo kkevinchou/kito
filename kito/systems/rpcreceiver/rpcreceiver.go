@@ -16,6 +16,7 @@ import (
 type World interface {
 	GetEventBroker() eventbroker.EventBroker
 	GetEntityByID(id int) entities.Entity
+	GetPlayerEntityByID(id int) entities.Entity
 }
 
 type RPCReceiverSystem struct {
@@ -62,8 +63,18 @@ func (s *RPCReceiverSystem) Update(delta time.Duration) {
 
 			command := tokens[0]
 			if command == "position" {
-				entityID, err := strconv.Atoi(tokens[1])
-				if err != nil {
+				var entity entities.Entity
+				if tokens[1] == "self" || tokens[1] == "me" {
+					entity = s.world.GetPlayerEntityByID(e.PlayerID)
+				} else {
+					entityID, err := strconv.Atoi(tokens[1])
+					if err != nil {
+						continue
+					}
+					entity = s.world.GetEntityByID(entityID)
+				}
+
+				if entity == nil {
 					continue
 				}
 
@@ -81,14 +92,12 @@ func (s *RPCReceiverSystem) Update(delta time.Duration) {
 					continue
 				}
 
+				cc := entity.GetComponentContainer()
+
 				positionVec := mgl64.Vec3{float64(x), float64(y), float64(z)}
-				entity := s.world.GetEntityByID(entityID)
-				if entity != nil {
-					cc := entity.GetComponentContainer()
-					cc.TransformComponent.Position = positionVec
-					if cc.ThirdPersonControllerComponent != nil {
-						cc.ThirdPersonControllerComponent.BaseVelocity = mgl64.Vec3{}
-					}
+				cc.TransformComponent.Position = positionVec
+				if cc.ThirdPersonControllerComponent != nil {
+					cc.ThirdPersonControllerComponent.BaseVelocity = mgl64.Vec3{}
 				}
 
 				fmt.Println("executed rpc", e.Command)

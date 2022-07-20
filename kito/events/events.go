@@ -27,7 +27,8 @@ func (e *ConsoleEnabledEvent) Type() EventType {
 }
 
 type RPCEvent struct {
-	Command string
+	PlayerID int
+	Command  string
 }
 
 func (e *RPCEvent) Type() EventType {

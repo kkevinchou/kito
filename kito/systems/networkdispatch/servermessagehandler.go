@@ -49,7 +49,7 @@ func serverMessageHandler(world World, message *network.Message) {
 		if err != nil {
 			fmt.Printf("error deserializing ping body %s\n", err)
 		}
-		world.GetEventBroker().Broadcast(&events.RPCEvent{Command: rpcMessage.Command})
+		world.GetEventBroker().Broadcast(&events.RPCEvent{PlayerID: message.SenderID, Command: rpcMessage.Command})
 	} else {
 		fmt.Println("unknown message type:", message.MessageType, string(message.Body))
 	}
