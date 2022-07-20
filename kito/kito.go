@@ -99,7 +99,7 @@ func (g *Game) Start() {
 		if renderAccumulator >= msPerFrame {
 			frameCount++
 			g.metricsRegistry.Inc("fps", 1)
-			renderFunction(time.Duration(delta) * time.Millisecond)
+			renderFunction(time.Duration(msPerFrame) * time.Millisecond)
 			renderAccumulator -= msPerFrame
 		}
 	}

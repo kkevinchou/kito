@@ -18,6 +18,7 @@ import (
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/metrics"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
@@ -71,6 +72,8 @@ type RenderSystem struct {
 
 	entities []entities.Entity
 	events   []events.Event
+
+	timeSoFar time.Duration
 }
 
 func init() {
@@ -157,6 +160,7 @@ func (s *RenderSystem) GetCameraTransform() *components.TransformComponent {
 }
 
 func (s *RenderSystem) Render(delta time.Duration) {
+	s.timeSoFar += delta
 	defer s.clearEvents()
 
 	transformComponent := s.GetCameraTransform()
@@ -178,16 +182,17 @@ func (s *RenderSystem) Render(delta time.Duration) {
 
 	// configure light viewer context
 	modelSpaceFrustumPoints := CalculateFrustumPoints(transformComponent.Position, transformComponent.Orientation, near, far, s.fovY, s.aspectRatio, shadowDistanceFactor)
-	// NOTE: for some reason, using a negative angle makes shadow calculation wonky.
-	lightOrientation := mgl64.QuatRotate(mgl64.DegToRad(45), mgl64.Vec3{0, 1, 0})
-	lightOrientation = lightOrientation.Mul(mgl64.QuatRotate(mgl64.DegToRad(300), mgl64.Vec3{1, 0, 0}))
+
+	lightOrientation := libutils.Vec3ToQuat(mgl64.Vec3{-1, -1, -1})
+	// degrees := float64(s.timeSoFar.Seconds()) * 5
+	// lightOrientation = mgl64.QuatRotate(mgl64.DegToRad(degrees), mgl64.Vec3{1, 0, 0}).Mul(lightOrientation)
+
 	lightPosition, lightProjectionMatrix := ComputeDirectionalLightProps(lightOrientation.Mat4(), modelSpaceFrustumPoints, shadowmapZOffset)
 	lightViewMatrix := mgl64.Translate3D(lightPosition.X(), lightPosition.Y(), lightPosition.Z()).Mul4(lightOrientation.Mat4()).Inv()
 
 	lightViewerContext := ViewerContext{
-		Position:    lightPosition,
-		Orientation: lightOrientation,
-
+		Position:          lightPosition,
+		Orientation:       lightOrientation,
 		InverseViewMatrix: lightViewMatrix,
 		ProjectionMatrix:  lightProjectionMatrix,
 	}

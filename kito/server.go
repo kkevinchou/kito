@@ -41,8 +41,8 @@ func serverEntitySetup(g *Game) []entities.Entity {
 	enemies := []entities.Entity{}
 	for i := 0; i < 5; i++ {
 		enemy := entities.NewEnemy()
-		x := rand.Intn(600) - 300
-		z := rand.Intn(600) - 300
+		x := rand.Intn(1000) - 500
+		z := rand.Intn(1000) - 500
 		enemy.GetComponentContainer().TransformComponent.Position = mgl64.Vec3{float64(x), 0, float64(z)}
 		enemies = append(enemies, enemy)
 	}
