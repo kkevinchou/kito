@@ -21,6 +21,7 @@ type AnimationPlayer struct {
 
 	secondaryAnimation *string
 	loop               bool
+	blendActive        bool
 }
 
 // func NewAnimationPlayer(animations map[string]*modelspec.AnimationSpec, rootJoint *modelspec.JointSpec) *AnimationPlayer {
@@ -59,6 +60,9 @@ func (player *AnimationPlayer) PlayAnimation(animationName string) {
 	}
 }
 
+func (player *AnimationPlayer) PlayAndBlendAnimation(animationName string, blendTime time.Duration) {
+}
+
 func (player *AnimationPlayer) PlayOnce(animationName string, secondaryAnimation string) {
 	local := secondaryAnimation
 	player.secondaryAnimation = &local
@@ -80,19 +84,23 @@ func (player *AnimationPlayer) Update(delta time.Duration) {
 	// TODO(kevin): this code ugly af
 	player.elapsedTime += delta
 	for player.elapsedTime.Milliseconds() > player.currentAnimation.Length.Milliseconds() {
-		if player.loop {
-			player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length.Milliseconds()) * time.Millisecond
-		} else {
-			player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length.Milliseconds()) * time.Millisecond
+		player.elapsedTime = time.Duration(player.elapsedTime.Milliseconds()-player.currentAnimation.Length.Milliseconds()) * time.Millisecond
+
+		// if we're not looping, we should have a secondary animation to fall back into
+		if !player.loop {
 			player.PlayAnimation(*player.secondaryAnimation)
 			player.loop = true
 			player.secondaryAnimation = nil
 		}
 	}
 
-	pose := calculateCurrentAnimationPose(player.elapsedTime, player.currentAnimation.KeyFrames)
+	player.animationTransforms = player.computeAnimationTransforms(player.elapsedTime, player.currentAnimation)
+}
+
+func (player *AnimationPlayer) computeAnimationTransforms(elapsedTime time.Duration, animation *modelspec.AnimationSpec) map[int]mgl32.Mat4 {
+	pose := calculateCurrentAnimationPose(player.elapsedTime, animation.KeyFrames)
 	animationTransforms := computeJointTransforms(player.rootJoint, pose)
-	player.animationTransforms = animationTransforms
+	return animationTransforms
 }
 
 // applyPoseToJoints returns the set of transforms that move the joint from the bind pose to the given pose
