@@ -68,7 +68,7 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 				player.PlayAndBlendAnimation(targetAnimation, 250*time.Millisecond)
 			} else {
 				targetAnimation = "Falling"
-				player.PlayAnimation(targetAnimation)
+				player.PlayAndBlendAnimation(targetAnimation, 250*time.Millisecond)
 			}
 		} else {
 			targetAnimation = "Idle"
@@ -77,19 +77,19 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 				targetAnimation = "Cast1"
 				player.PlayOnce(targetAnimation, "Idle")
 			} else {
-				player.PlayAnimation(targetAnimation)
+				player.PlayAndBlendAnimation(targetAnimation, 250*time.Millisecond)
 			}
 		}
 	} else if entity.Type() == types.EntityTypeEnemy {
 		aiComponent := entity.GetComponentContainer().AIComponent
 		if aiComponent.AIState == components.AIStateIdle {
-			player.PlayAnimation("Idle")
+			player.PlayAndBlendAnimation("Idle", 250*time.Millisecond)
 		} else if aiComponent.AIState == components.AIStateWalk {
-			player.PlayAnimation("Walk")
+			player.PlayAndBlendAnimation("Walk", 250*time.Millisecond)
 		} else if aiComponent.AIState == components.AIStateAttack {
-			player.PlayAnimation("JumpAttack")
+			player.PlayAndBlendAnimation("JumpAttack", 250*time.Millisecond)
 		} else {
-			player.PlayAnimation("Idle")
+			player.PlayAndBlendAnimation("Idle", 250*time.Millisecond)
 		}
 	}
 }
