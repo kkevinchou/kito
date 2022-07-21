@@ -42,6 +42,9 @@ func (player *AnimationPlayer) CurrentAnimation() string {
 	if player.currentAnimation == nil {
 		return ""
 	}
+	if player.blendAnimation != nil {
+		return player.blendAnimation.Name
+	}
 	return player.currentAnimation.Name
 }
 

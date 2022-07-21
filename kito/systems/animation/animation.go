@@ -52,7 +52,7 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 	}
 }
 
-// findAndPlayAnimation takes an entity and finds the appropriate animation to play based on its state, then plays it
+// findAndPlayAnimation takes an entity and finds the appropriate animation based on its state, then plays it
 func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 	componentContainer := entity.GetComponentContainer()
 	animationComponent := componentContainer.AnimationComponent
