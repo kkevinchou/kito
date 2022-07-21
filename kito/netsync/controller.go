@@ -1,7 +1,6 @@
 package netsync
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
@@ -96,36 +95,6 @@ func minSeparatingVector(contacts []*collision.Contact) mgl64.Vec3 {
 	}
 
 	return minVector
-}
-
-func hashVec(v mgl64.Vec3) string {
-	return fmt.Sprintf("%.4f %.4f %.4f", v[0], v[1], v[2])
-}
-
-// combineSeparatingVectors: for triangles that have the same normal, only use the largest separating vector
-// TODO: there might be some edge cases I'm not considering but visually it looks good enough
-// there is still some jittering that happens when we have multiple triangles of varying
-// normals. We probably need to be able to "merge" those somehow rather than naively summing
-// them together like we are doing right now
-func combineSeparatingVectors(contacts []*collision.Contact) mgl64.Vec3 {
-	seenNormals := map[string]mgl64.Vec3{}
-	for _, contact := range contacts {
-		normalHash := hashVec(contact.Normal)
-		if v, ok := seenNormals[normalHash]; ok {
-			if contact.SeparatingVector.LenSqr() > v.LenSqr() {
-				seenNormals[normalHash] = contact.SeparatingVector
-			}
-			continue
-		}
-
-		seenNormals[normalHash] = contact.SeparatingVector
-	}
-
-	var finalSeparatingVector mgl64.Vec3
-	for _, v := range seenNormals {
-		finalSeparatingVector = finalSeparatingVector.Add(v)
-	}
-	return finalSeparatingVector
 }
 
 func computeMoveSpeed(movementSpeed float64) float64 {

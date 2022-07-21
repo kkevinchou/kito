@@ -73,13 +73,11 @@ func handleCreatePlayer(player *player.Player, message *network.Message, world W
 	world.RegisterEntities([]entities.Entity{bob, camera})
 	fmt.Println("Created and registered a new bob with id", bob.ID)
 
-	// TODO: replace with an entityManager call
 	snapshots := map[int]knetwork.EntitySnapshot{}
 	for _, entity := range world.QueryEntity(components.ComponentFlagNetwork) {
 		if entity.GetID() == bob.ID {
 			continue
 		}
-
 		snapshots[entity.GetID()] = entityutils.ConstructEntitySnapshot(entity)
 	}
 

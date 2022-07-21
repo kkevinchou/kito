@@ -9,7 +9,6 @@ type World interface {
 	CommandFrame() int
 }
 
-// TODO: make this an entity with components
 type Player struct {
 	ID       int
 	EntityID int

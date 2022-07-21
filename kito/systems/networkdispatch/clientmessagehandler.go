@@ -162,7 +162,6 @@ func replayInputs(
 	// not just the player
 
 	for i, cf := range cfs {
-		// todo: do we need to be synchronizing other state like grounded?
 		netsync.UpdateCharacterController(time.Duration(settings.MSPerCommandFrame)*time.Millisecond, playerEntity, world.GetCamera(), cf.FrameInput)
 		netsync.ResolveCollisionsForPlayer(playerEntity, world)
 		netsync.CollisionBookKeeping(playerEntity)
