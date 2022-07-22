@@ -9,16 +9,67 @@ const (
 	epsilon float64 = 0.000001
 )
 
-func IntersectRayPlane(ray collider.Ray, plane collider.Plane) *mgl64.Vec3 {
+func IntersectRayPlane(ray collider.Ray, plane collider.Plane) (*mgl64.Vec3, bool) {
+	// front determines whether the plane is in front or behind the ray direction
+	front := true
+
 	directionDotNormal := ray.Direction.Dot(plane.Normal)
 	if directionDotNormal == 0 {
-		return nil
+		return nil, true
 	}
 	t := (plane.Point.Sub(ray.Origin)).Dot(plane.Normal)
 	t /= directionDotNormal
 
+	if t < 0 {
+		front = false
+	}
+
 	intersectionPoint := ray.Origin.Add(ray.Direction.Mul(t))
-	return &intersectionPoint
+	return &intersectionPoint, front
+}
+
+func IntersectRayTriangle(ray collider.Ray, triangle collider.Triangle) *mgl64.Vec3 {
+	plane := collider.Plane{
+		Point:  triangle.Points[0],
+		Normal: triangle.Normal,
+	}
+
+	point, front := IntersectRayPlane(ray, plane)
+	if point == nil || !front {
+		return nil
+	}
+
+	if PointInTriangle(*point, triangle) {
+		return point
+	}
+
+	return nil
+}
+
+func IntersectRayTriMesh(ray collider.Ray, triMesh collider.TriMesh) *mgl64.Vec3 {
+	var minDist *float64
+	var minPoint *mgl64.Vec3
+
+	for _, t := range triMesh.Triangles {
+		point := IntersectRayTriangle(ray, t)
+		if point == nil {
+			continue
+		}
+
+		if minDist == nil {
+			dst := ray.Origin.Sub(*point).Len()
+			minDist = &dst
+			minPoint = point
+		} else {
+			dst := ray.Origin.Sub(*point).Len()
+			if dst < *minDist {
+				minDist = &dst
+				minPoint = point
+			}
+		}
+	}
+
+	return minPoint
 }
 
 // ClosestPointOnLineToPoint returns the point on line segment AB that is closest
@@ -155,7 +206,7 @@ func ProjectPointOnTriangle(point mgl64.Vec3, triangle collider.Triangle) (mgl64
 		Point:  triangle.Points[0],
 		Normal: triangle.Normal,
 	}
-	intersectionPoint := IntersectRayPlane(ray, plane)
+	intersectionPoint, _ := IntersectRayPlane(ray, plane)
 	if intersectionPoint == nil {
 		panic("unexpected intersection point to be nil")
 	}

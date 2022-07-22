@@ -11,6 +11,8 @@ import (
 
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/lib/collision/checks"
+	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/libutils"
 )
@@ -44,14 +46,14 @@ func (s *CameraSystem) Update(delta time.Duration) {
 
 	for _, camera := range s.world.QueryEntity(components.ComponentFlagCamera | components.ComponentFlagControl) {
 		playerID := camera.GetComponentContainer().ControlComponent.PlayerID
-		newOrientation := handleCameraControls(delta, camera, s.world, singleton.PlayerInput[playerID])
+		newOrientation := s.handleCameraControls(delta, camera, s.world, singleton.PlayerInput[playerID])
 		currentInput := singleton.PlayerInput[playerID]
 		currentInput.CameraOrientation = newOrientation
 		singleton.PlayerInput[playerID] = currentInput
 	}
 }
 
-func handleCameraControls(delta time.Duration, entity entities.Entity, world World, frameInput input.Input) mgl64.Quat {
+func (s *CameraSystem) handleCameraControls(delta time.Duration, entity entities.Entity, world World, frameInput input.Input) mgl64.Quat {
 	cc := entity.GetComponentContainer()
 	cameraComponent := cc.CameraComponent
 	transformComponent := cc.TransformComponent
@@ -132,8 +134,54 @@ func handleCameraControls(delta time.Duration, entity entities.Entity, world Wor
 	targetPosition := targetComponentContainer.TransformComponent.Position.Add(mgl64.Vec3{0, cameraComponent.YOffset, 0})
 	transformComponent.Position = newOrientation.Rotate(mgl64.Vec3{0, 0, cameraComponent.FollowDistance}).Add(targetPosition)
 	transformComponent.Orientation = newOrientation
+
+	// figure out if the target we're looking at would be occluded, if so, pull the camera in
+	dir := transformComponent.Position.Sub(targetPosition).Normalize()
+	ray := collider.Ray{Origin: targetPosition, Direction: dir}
+	if occlusionPosition := s.calculateOcclusionPosition(ray); occlusionPosition != nil {
+		if occlusionPosition.Sub(transformComponent.Position).Len() < targetPosition.Sub(transformComponent.Position).Len() {
+			transformComponent.Position = occlusionPosition.Sub(ray.Direction.Mul(5))
+		}
+	}
+
 	return newOrientation
 }
+
+func (s *CameraSystem) calculateOcclusionPosition(ray collider.Ray) *mgl64.Vec3 {
+	var minDistSqr float64
+	var minPoint *mgl64.Vec3
+
+	// figure out if the target we're looking at would be occluded, if so, pull the camera in
+	entities := s.world.QueryEntity(components.ComponentFlagCollider)
+	for _, e := range entities {
+		cc := e.GetComponentContainer()
+		colliderComponent := cc.ColliderComponent
+		if colliderComponent.TriMeshCollider == nil {
+			continue
+		}
+
+		transformMatrix := mgl64.Translate3D(cc.TransformComponent.Position.X(), cc.TransformComponent.Position.Y(), cc.TransformComponent.Position.Z())
+		triMesh := cc.ColliderComponent.TriMeshCollider.Transform(transformMatrix)
+		point := checks.IntersectRayTriMesh(ray, triMesh)
+		if point == nil {
+			continue
+		}
+
+		if minPoint == nil {
+			minPoint = point
+			minDistSqr = point.LenSqr()
+		} else {
+			dist := point.LenSqr()
+			if dist < minDistSqr {
+				minPoint = point
+				minDistSqr = dist
+			}
+		}
+	}
+
+	return minPoint
+}
+
 func (s *CameraSystem) Name() string {
 	return "CameraSystem"
 }
