@@ -139,7 +139,7 @@ func (s *CameraSystem) handleCameraControls(delta time.Duration, entity entities
 	dir := transformComponent.Position.Sub(targetPosition).Normalize()
 	ray := collider.Ray{Origin: targetPosition, Direction: dir}
 	if occlusionPosition := s.calculateOcclusionPosition(ray); occlusionPosition != nil {
-		if occlusionPosition.Sub(transformComponent.Position).Len() < targetPosition.Sub(transformComponent.Position).Len() {
+		if targetPosition.Sub(*occlusionPosition).Len() < targetPosition.Sub(transformComponent.Position).Len() {
 			transformComponent.Position = occlusionPosition.Sub(ray.Direction.Mul(5))
 		}
 	}
