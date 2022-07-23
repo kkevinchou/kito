@@ -101,7 +101,6 @@ func (player *AnimationPlayer) PlayOnce(animationName string, secondaryAnimation
 	player.secondaryAnimation = &local
 
 	if blendAnimation, ok := player.animations[animationName]; ok {
-		fmt.Println("current anim", player.currentAnimation.Name)
 		player.blendAnimation = blendAnimation
 		player.elapsedTime = 0
 		player.blendAnimationElapsedTime = 0

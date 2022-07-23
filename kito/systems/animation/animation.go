@@ -1,7 +1,6 @@
 package animation
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/components"
@@ -67,7 +66,6 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
 			if tpcComponent.Grounded {
 				if notepad.LastAction == components.ActionCast {
-					fmt.Println("CAST")
 					player.PlayOnce("Cast1", "Walk", 250*time.Millisecond)
 				} else {
 					targetAnimation = "Walk"
