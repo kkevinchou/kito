@@ -96,13 +96,17 @@ func (player *AnimationPlayer) PlayAndBlendAnimation(animationName string, blend
 	}
 }
 
-func (player *AnimationPlayer) PlayOnce(animationName string, secondaryAnimation string) {
+func (player *AnimationPlayer) PlayOnce(animationName string, secondaryAnimation string, blendDuration time.Duration) {
 	local := secondaryAnimation
 	player.secondaryAnimation = &local
 
-	if currentAnimation, ok := player.animations[animationName]; ok {
-		player.currentAnimation = currentAnimation
+	if blendAnimation, ok := player.animations[animationName]; ok {
+		fmt.Println("current anim", player.currentAnimation.Name)
+		player.blendAnimation = blendAnimation
 		player.elapsedTime = 0
+		player.blendAnimationElapsedTime = 0
+		player.blendDuration = blendDuration
+		player.blendDurationSoFar = 0
 		player.loop = false
 	} else {
 		panic(fmt.Sprintf("failed to find animation %s", animationName))
@@ -123,9 +127,10 @@ func (player *AnimationPlayer) Update(delta time.Duration) {
 
 		// if we're not looping, we should have a secondary animation to fall back into
 		if !player.loop {
-			player.PlayAnimation(*player.secondaryAnimation)
 			player.loop = true
+			anim := player.secondaryAnimation
 			player.secondaryAnimation = nil
+			player.PlayAndBlendAnimation(*anim, 250*time.Millisecond)
 		}
 	}
 

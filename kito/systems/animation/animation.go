@@ -1,6 +1,7 @@
 package animation
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/components"
@@ -60,22 +61,27 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 
 	if entity.Type() == types.EntityTypeBob {
 		tpcComponent := componentContainer.ThirdPersonControllerComponent
+		notepad := componentContainer.NotepadComponent
 
 		var targetAnimation string
 		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
 			if tpcComponent.Grounded {
-				targetAnimation = "Walk"
-				player.PlayAndBlendAnimation(targetAnimation, 250*time.Millisecond)
+				if notepad.LastAction == components.ActionCast {
+					fmt.Println("CAST")
+					player.PlayOnce("Cast1", "Walk", 250*time.Millisecond)
+				} else {
+					targetAnimation = "Walk"
+					player.PlayAndBlendAnimation(targetAnimation, 250*time.Millisecond)
+				}
 			} else {
 				targetAnimation = "Falling"
 				player.PlayAndBlendAnimation(targetAnimation, 250*time.Millisecond)
 			}
 		} else {
 			targetAnimation = "Idle"
-			notepad := componentContainer.NotepadComponent
 			if notepad.LastAction == components.ActionCast {
 				targetAnimation = "Cast1"
-				player.PlayOnce(targetAnimation, "Idle")
+				player.PlayOnce(targetAnimation, "Idle", 250*time.Millisecond)
 			} else {
 				player.PlayAndBlendAnimation(targetAnimation, 250*time.Millisecond)
 			}
