@@ -91,7 +91,7 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 		} else if aiComponent.AIState == components.AIStateWalk {
 			player.PlayAndBlendAnimation("Walk", 250*time.Millisecond)
 		} else if aiComponent.AIState == components.AIStateAttack {
-			player.PlayAndBlendAnimation("JumpAttack", 250*time.Millisecond)
+			player.PlayAndBlendAnimation("Punch", 250*time.Millisecond)
 		} else {
 			player.PlayAndBlendAnimation("Idle", 250*time.Millisecond)
 		}
