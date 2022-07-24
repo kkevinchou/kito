@@ -12,7 +12,6 @@ type EntityState struct {
 	ID          int
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
-	// TODO scale
 }
 
 type CommandFrame struct {

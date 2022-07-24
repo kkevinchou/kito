@@ -24,10 +24,14 @@ var (
 	Fullscreen bool   = false
 )
 
+// dynamic settings configurable from the console
+var (
+	DebugRenderCollisionVolume = false
+)
+
 // Debugging constants
 const (
-	DebugRenderCollisionVolume = false
-	LatencyInjection           = 0 * time.Millisecond
+	LatencyInjection = 0 * time.Millisecond
 )
 
 const (

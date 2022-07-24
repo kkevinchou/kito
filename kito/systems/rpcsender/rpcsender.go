@@ -1,12 +1,14 @@
 package rpcsender
 
 import (
+	"strings"
 	"time"
 
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/knetwork"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/managers/player"
+	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/systems/base"
 )
 
@@ -47,11 +49,29 @@ func (s *RPCSenderSystem) Update(delta time.Duration) {
 
 	for _, event := range s.events {
 		if e, ok := event.(*events.RPCEvent); ok {
+			if s.handleLocalCommand(e) {
+				continue
+			}
 			player := s.world.GetPlayer()
 			rpcMessage := knetwork.RPCMessage{Command: e.Command}
 			player.Client.SendMessage(knetwork.MessageTypeRPC, rpcMessage)
 		}
 	}
+}
+
+func (s *RPCSenderSystem) handleLocalCommand(e *events.RPCEvent) bool {
+	commandSplit := strings.Split(e.Command, " ")
+	if len(commandSplit) == 2 {
+		if commandSplit[0] == "collision-render" {
+			if commandSplit[1] == "true" {
+				settings.DebugRenderCollisionVolume = true
+			} else if commandSplit[1] == "false" {
+				settings.DebugRenderCollisionVolume = false
+			}
+			return true
+		}
+	}
+	return false
 }
 
 func (s *RPCSenderSystem) Name() string {
