@@ -56,23 +56,23 @@ func ParseGLTF(documentPath string, config *ParseConfig) (*modelspec.ModelSpecif
 
 	modelSpec := &modelspec.ModelSpecification{}
 
-	for _, mesh := range document.Meshes {
-		mat := mgl32.QuatRotate(mgl32.DegToRad(180), mgl32.Vec3{0, 0, -1}).Mat4()
-		meshSpec, err := parseMesh(document, mesh, mat, config)
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-
-		modelSpec.Meshes = append(modelSpec.Meshes, meshSpec)
-	}
-
 	for _, texture := range document.Textures {
 		img := document.Images[int(*texture.Source)]
 		if img.MimeType != "image/png" {
 			panic(fmt.Sprintf("image %s has mimetype %s which is not supported for textures", img.Name, img.MimeType))
 		}
 		modelSpec.Textures = append(modelSpec.Textures, img.Name)
+	}
+
+	for _, mesh := range document.Meshes {
+		mat := mgl32.QuatRotate(mgl32.DegToRad(180), mgl32.Vec3{0, 0, -1}).Mat4()
+		meshSpec, err := parseMesh(document, mesh, mat, modelSpec.Textures, config)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+
+		modelSpec.Meshes = append(modelSpec.Meshes, meshSpec)
 	}
 
 	rootTransforms := mgl32.Ident4()
@@ -342,7 +342,7 @@ func parseJoints(document *gltf.Document, skin *gltf.Skin) (*ParsedJoints, error
 	return parsedJoints, nil
 }
 
-func parseMesh(document *gltf.Document, mesh *gltf.Mesh, parentTransforms mgl32.Mat4, config *ParseConfig) (*modelspec.MeshSpecification, error) {
+func parseMesh(document *gltf.Document, mesh *gltf.Mesh, parentTransforms mgl32.Mat4, textures []string, config *ParseConfig) (*modelspec.MeshSpecification, error) {
 	meshSpec := &modelspec.MeshSpecification{}
 
 	for _, primitive := range mesh.Primitives {
@@ -368,6 +368,7 @@ func parseMesh(document *gltf.Document, mesh *gltf.Mesh, parentTransforms mgl32.
 			if pbr.BaseColorTexture != nil {
 				var intIndex int = int(pbr.BaseColorTexture.Index)
 				meshChunkSpec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex = &intIndex
+				meshChunkSpec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureName = textures[intIndex]
 			}
 		}
 

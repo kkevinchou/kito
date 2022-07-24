@@ -14,7 +14,7 @@ type Model struct {
 func NewModel(spec *modelspec.ModelSpecification) *Model {
 	var meshes []*Mesh
 	for _, ms := range spec.Meshes {
-		meshes = append(meshes, NewMesh(ms, spec.Textures))
+		meshes = append(meshes, NewMesh(ms))
 	}
 
 	m := &Model{

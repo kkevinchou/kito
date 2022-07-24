@@ -111,7 +111,7 @@ func (m *MeshChunk) initialize() {
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(m.spec.VertexIndices)*4, gl.Ptr(m.spec.VertexIndices), gl.STATIC_DRAW)
 }
 
-func NewMesh(spec *modelspec.MeshSpecification, textures []string) *Mesh {
+func NewMesh(spec *modelspec.MeshSpecification) *Mesh {
 	assetManager := directory.GetDirectory().AssetManager()
 	var meshChunks []*MeshChunk
 	for _, mc := range spec.MeshChunks {
@@ -120,7 +120,8 @@ func NewMesh(spec *modelspec.MeshSpecification, textures []string) *Mesh {
 		}
 
 		if utils.IsClient() && mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex != nil {
-			meshChunk.textureID = &assetManager.GetTexture(textures[*mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex]).ID
+			// meshChunk.textureID = &assetManager.GetTexture(textures[*mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex]).ID
+			meshChunk.textureID = &assetManager.GetTexture(mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureName).ID
 		}
 
 		meshChunks = append(meshChunks, meshChunk)
