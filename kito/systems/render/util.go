@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	defaultTexture = "color_grid"
+	defaultTexture    = "color_grid"
+	healthHUDMaxWidth = 30.0
 )
 
 func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap *ShadowMap, shader *shaders.ShaderProgram, meshComponent *components.MeshComponent, animationComponent *components.AnimationComponent, modelMatrix mgl64.Mat4, modelRotationMatrix mgl64.Mat4) {
@@ -115,6 +116,7 @@ func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext,
 	shader.SetUniformMat4("model", mgl32.Ident4())
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	shader.SetUniformFloat("alpha", float32(0.3))
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
 
@@ -153,6 +155,48 @@ func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext,
 	shader.SetUniformMat4("model", utils.Mat4F64ToF32(billboardModelMatrix))
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	shader.SetUniformFloat("alpha", float32(0.3))
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
+}
+
+func drawHealthHUD(healthComponent *components.HealthComponent, viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, billboardModelMatrix mgl64.Mat4) {
+	var vertices []float32
+
+	verticalOffset := mgl64.Vec3{0, 70, 0}
+	horizontalOffset := mgl64.Vec3{-healthHUDMaxWidth / 2, 0, 0}
+	offsetPosition := horizontalOffset.Add(verticalOffset)
+	width := healthComponent.Value / 100.0 * healthHUDMaxWidth
+	height := 2.0
+	points := []mgl64.Vec3{
+		offsetPosition.Add(mgl64.Vec3{0, 0, 0}),
+		offsetPosition.Add(mgl64.Vec3{width, 0, 0}),
+		offsetPosition.Add(mgl64.Vec3{width, height, 0}),
+		offsetPosition.Add(mgl64.Vec3{width, height, 0}),
+		offsetPosition.Add(mgl64.Vec3{0, height, 0}),
+		offsetPosition.Add(mgl64.Vec3{0, 0, 0}),
+	}
+
+	for _, point := range points {
+		vertices = append(vertices, float32(point.X()), float32(point.Y()), float32(point.Z()))
+	}
+
+	var vbo, vao uint32
+	gl.GenBuffers(1, &vbo)
+	gl.GenVertexArrays(1, &vao)
+
+	gl.BindVertexArray(vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, nil)
+	gl.EnableVertexAttribArray(0)
+
+	gl.BindVertexArray(vao)
+	shader.Use()
+	shader.SetUniformMat4("model", utils.Mat4F64ToF32(billboardModelMatrix))
+	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
+	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	shader.SetUniformFloat("alpha", float32(1))
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
 

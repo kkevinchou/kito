@@ -41,13 +41,15 @@ type EntitySnapshot struct {
 	ID   int
 	Type int
 
-	// Physics
+	// Movement
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
 	Velocity    mgl64.Vec3
 	Impulses    map[string]types.Impulse
 
 	Animation string
+
+	Health float64
 }
 
 type Event struct {

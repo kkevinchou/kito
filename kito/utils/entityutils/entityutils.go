@@ -55,6 +55,10 @@ func ConstructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 		Orientation: transformComponent.Orientation,
 	}
 
+	if cc.HealthComponent != nil {
+		snapshot.Health = cc.HealthComponent.Value
+	}
+
 	if tpcComponent != nil {
 		snapshot.Velocity = tpcComponent.BaseVelocity
 	}

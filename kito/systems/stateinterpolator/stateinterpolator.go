@@ -72,6 +72,9 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 			if cc.AnimationComponent != nil {
 				cc.AnimationComponent.Player.PlayAnimation(entitySnapshot.Animation)
 			}
+			if cc.HealthComponent != nil {
+				cc.HealthComponent.Value = entitySnapshot.Health
+			}
 		}
 	}
 }

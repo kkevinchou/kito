@@ -280,7 +280,6 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			meshModelMatrix := createModelMatrix(
 				meshComponent.Scale,
 				orientation.Mat4().Mul4(meshComponent.Orientation),
-				// mgl64.Ident4(),
 				translation,
 			)
 
@@ -288,9 +287,24 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			if componentContainer.AnimationComponent != nil {
 				shader = "modelpbr"
 			}
-			// if entity.Type() == types.EntityTypeBob {
-			// 	shader = "model_debug"
-			// }
+
+			if !shadowPass && componentContainer.HealthComponent != nil {
+				center := mgl64.Vec3{componentContainer.TransformComponent.Position.X(), 0, componentContainer.TransformComponent.Position.Z()}
+				viewerArtificialCenter := mgl64.Vec3{viewerContext.Position.X(), 0, viewerContext.Position.Z()}
+				vecToViewer := viewerArtificialCenter.Sub(center).Normalize()
+				// billboardModelMatrix := translation
+				billboardModelMatrix := translation.Mul4(mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, 1}, vecToViewer).Mat4())
+				// billboardModelMatrix := translation.Mul4(libutils.Vec3ToQuat(vecToViewer).Mat4())
+				// billboardModelMatrix := translation.Mul4(mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, -1}, mgl64.Vec3{1, 0, 1}).Mat4())
+				// fmt.Println(mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, 1}, vecToViewer))
+				drawHealthHUD(
+					componentContainer.HealthComponent,
+					viewerContext,
+					lightContext,
+					shaderManager.GetShaderProgram("basicsolid"),
+					billboardModelMatrix,
+				)
+			}
 
 			drawModel(
 				viewerContext,
@@ -304,7 +318,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			)
 		}
 
-		if settings.DebugRenderCollisionVolume {
+		if !shadowPass && settings.DebugRenderCollisionVolume {
 			if componentContainer.ColliderComponent != nil {
 				if componentContainer.ColliderComponent.CapsuleCollider != nil {
 					// lots of hacky rendering stuff to get the rectangle to billboard
