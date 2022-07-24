@@ -18,6 +18,17 @@ type Mesh struct {
 	meshChunks []*MeshChunk
 }
 
+func NewMeshChunk(spec *modelspec.MeshChunkSpecification) *MeshChunk {
+	mc := &MeshChunk{
+		spec: spec,
+	}
+	if utils.IsClient() {
+		mc.initializeTexture()
+		mc.initializeOpenGLObjects()
+	}
+	return mc
+}
+
 func (m *MeshChunk) VAO() uint32 {
 	return m.vao
 }
@@ -38,7 +49,14 @@ func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {
 	return m.spec.PBRMaterial
 }
 
-func (m *MeshChunk) initialize() {
+func (m *MeshChunk) initializeTexture() {
+	assetManager := directory.GetDirectory().AssetManager()
+	if utils.IsClient() && m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex != nil {
+		m.textureID = &assetManager.GetTexture(m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureName).ID
+	}
+}
+
+func (m *MeshChunk) initializeOpenGLObjects() {
 	// initialize the VAO
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
@@ -112,18 +130,9 @@ func (m *MeshChunk) initialize() {
 }
 
 func NewMesh(spec *modelspec.MeshSpecification) *Mesh {
-	assetManager := directory.GetDirectory().AssetManager()
 	var meshChunks []*MeshChunk
 	for _, mc := range spec.MeshChunks {
-		meshChunk := &MeshChunk{
-			spec: mc,
-		}
-
-		if utils.IsClient() && mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex != nil {
-			// meshChunk.textureID = &assetManager.GetTexture(textures[*mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex]).ID
-			meshChunk.textureID = &assetManager.GetTexture(mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureName).ID
-		}
-
+		meshChunk := NewMeshChunk(mc)
 		meshChunks = append(meshChunks, meshChunk)
 	}
 	return &Mesh{
@@ -133,12 +142,6 @@ func NewMesh(spec *modelspec.MeshSpecification) *Mesh {
 
 func (m *Mesh) MeshChunks() []*MeshChunk {
 	return m.meshChunks
-}
-
-func (m *Mesh) initialize() {
-	for _, chunk := range m.meshChunks {
-		chunk.initialize()
-	}
 }
 
 func (m *Mesh) Vertices() []modelspec.Vertex {

@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
@@ -20,10 +19,6 @@ func NewModel(spec *modelspec.ModelSpecification) *Model {
 	m := &Model{
 		modelSpec: spec,
 		meshes:    meshes,
-	}
-
-	if utils.IsClient() {
-		m.initialize()
 	}
 
 	return m
@@ -48,13 +43,6 @@ func (m *Model) Vertices() []modelspec.Vertex {
 		vertices = append(vertices, meshVerts...)
 	}
 	return vertices
-}
-
-// initialize all the internal rendering metadata. vaos, vbos, ebos, etc
-func (m *Model) initialize() {
-	for _, mesh := range m.meshes {
-		mesh.initialize()
-	}
 }
 
 func (m *Model) MeshChunks() []*MeshChunk {
