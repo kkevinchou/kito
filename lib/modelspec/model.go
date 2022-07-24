@@ -4,6 +4,7 @@ import "github.com/go-gl/mathgl/mgl32"
 
 type PBRMetallicRoughness struct {
 	BaseColorTextureIndex *int
+	BaseColorTextureName  string
 	BaseColorFactor       mgl32.Vec4
 	MetalicFactor         float32
 	RoughnessFactor       float32
@@ -52,5 +53,7 @@ type ModelSpecification struct {
 
 	RootTransforms mgl32.Mat4
 
+	// list of textures by name. the index within this slice is
+	// the id for which the modespec references textures
 	Textures []string
 }

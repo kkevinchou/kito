@@ -4,6 +4,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/settings"
+	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/modelspec"
 )
 
@@ -37,13 +38,7 @@ func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {
 	return m.spec.PBRMaterial
 }
 
-func (m *MeshChunk) prepare(textures []string) {
-	// lookup the textures
-	if m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex != nil {
-		assetManager := directory.GetDirectory().AssetManager()
-		m.textureID = &assetManager.GetTexture(textures[*m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex]).ID
-	}
-
+func (m *MeshChunk) initialize() {
 	// initialize the VAO
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
@@ -116,12 +111,19 @@ func (m *MeshChunk) prepare(textures []string) {
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(m.spec.VertexIndices)*4, gl.Ptr(m.spec.VertexIndices), gl.STATIC_DRAW)
 }
 
-func NewMesh(spec *modelspec.MeshSpecification) *Mesh {
+func NewMesh(spec *modelspec.MeshSpecification, textures []string) *Mesh {
+	assetManager := directory.GetDirectory().AssetManager()
 	var meshChunks []*MeshChunk
 	for _, mc := range spec.MeshChunks {
-		meshChunks = append(meshChunks, &MeshChunk{
+		meshChunk := &MeshChunk{
 			spec: mc,
-		})
+		}
+
+		if utils.IsClient() && mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex != nil {
+			meshChunk.textureID = &assetManager.GetTexture(textures[*mc.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex]).ID
+		}
+
+		meshChunks = append(meshChunks, meshChunk)
 	}
 	return &Mesh{
 		meshChunks: meshChunks,
@@ -132,9 +134,9 @@ func (m *Mesh) MeshChunks() []*MeshChunk {
 	return m.meshChunks
 }
 
-func (m *Mesh) prepare(textures []string) {
+func (m *Mesh) initialize() {
 	for _, chunk := range m.meshChunks {
-		chunk.prepare(textures)
+		chunk.initialize()
 	}
 }
 

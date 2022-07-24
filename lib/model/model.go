@@ -14,7 +14,7 @@ type Model struct {
 func NewModel(spec *modelspec.ModelSpecification) *Model {
 	var meshes []*Mesh
 	for _, ms := range spec.Meshes {
-		meshes = append(meshes, NewMesh(ms))
+		meshes = append(meshes, NewMesh(ms, spec.Textures))
 	}
 
 	m := &Model{
@@ -23,7 +23,7 @@ func NewModel(spec *modelspec.ModelSpecification) *Model {
 	}
 
 	if utils.IsClient() {
-		m.prepare()
+		m.initialize()
 	}
 
 	return m
@@ -50,9 +50,10 @@ func (m *Model) Vertices() []modelspec.Vertex {
 	return vertices
 }
 
-func (m *Model) prepare() {
+// initialize all the internal rendering metadata. vaos, vbos, ebos, etc
+func (m *Model) initialize() {
 	for _, mesh := range m.meshes {
-		mesh.prepare(m.modelSpec.Textures)
+		mesh.initialize()
 	}
 }
 
