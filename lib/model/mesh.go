@@ -50,8 +50,8 @@ func (m *MeshChunk) PBRMaterial() *modelspec.PBRMaterial {
 }
 
 func (m *MeshChunk) initializeTexture() {
-	assetManager := directory.GetDirectory().AssetManager()
-	if utils.IsClient() && m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex != nil {
+	if m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureIndex != nil {
+		assetManager := directory.GetDirectory().AssetManager()
 		m.textureID = &assetManager.GetTexture(m.spec.PBRMaterial.PBRMetallicRoughness.BaseColorTextureName).ID
 	}
 }

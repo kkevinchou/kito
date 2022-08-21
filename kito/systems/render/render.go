@@ -30,7 +30,7 @@ const (
 	far  float64 = 3000
 
 	// shadow map parameters
-	shadowMapDimension   int     = 30000
+	shadowMapDimension   int     = 3000
 	shadowDistanceFactor float64 = .4 // proportion of view fustrum to include in shadow cuboid
 	shadowmapZOffset             = 400
 )

@@ -70,3 +70,16 @@ func ConstructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 
 	return snapshot
 }
+
+// methods
+// 		SpawnWithSnapshot(snapshot)
+//			should call SpawnX() based on the entity type. any extra params for the entity should come from
+//			a bytes blob from the snapshot
+//		SpawnX() -- X for each entity type
+//		ConstructEntitySnapshot(entity entities.Entity)
+//
+// goals
+//		1. replicate an entity between server to client. spawning doesn't always accomplish this if there's dynamic internal state.
+//			should this be related to state synchronization? or entity spawning? perhaps spawning should be one step, and state synch another
+//			yes, should be different. we will want to be able to synchronize internal state
+//		2. spawn an entity from scratch
