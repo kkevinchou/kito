@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/inkyblackness/imgui-go/v4"
-	"github.com/kkevinchou/kito/kito/console"
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
+	"github.com/kkevinchou/kito/lib/console"
 )
 
 func (s *RenderSystem) networkInfoUIComponent() {
