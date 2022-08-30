@@ -5,23 +5,16 @@ import (
 
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
-	"github.com/kkevinchou/kito/kito/events"
-	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/netsync"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/input"
 )
 
 type World interface {
-	CommandFrame() int
 	GetSingleton() *singleton.Singleton
 	QueryEntity(componentFlags int) []entities.Entity
-	UnregisterEntity(entity entities.Entity)
-	GetEntityByID(id int) entities.Entity
-	GetEventBroker() eventbroker.EventBroker
 }
 
 type BookKeepingSystem struct {
@@ -41,43 +34,6 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 		singleton := s.world.GetSingleton()
 		for i, _ := range singleton.PlayerInput {
 			singleton.PlayerInput[i] = input.Input{}
-		}
-	}
-
-	// handle fireball collisions
-	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider) {
-		if entity.Type() == types.EntityTypeProjectile {
-			contacts := entity.GetComponentContainer().ColliderComponent.Contacts
-			if len(contacts) == 0 {
-				continue
-			}
-
-			for e2ID, _ := range contacts {
-				e2 := s.world.GetEntityByID(e2ID)
-				health := e2.GetComponentContainer().HealthComponent
-				if health != nil {
-					health.Value -= 50
-				}
-			}
-
-			s.world.UnregisterEntity(entity)
-			event := &events.UnregisterEntityEvent{
-				GlobalCommandFrame: s.world.CommandFrame(),
-				EntityID:           entity.GetID(),
-			}
-			s.world.GetEventBroker().Broadcast(event)
-		}
-	}
-
-	// handle death events
-	for _, entity := range s.world.QueryEntity(components.ComponentFlagHealth) {
-		if entity.GetComponentContainer().HealthComponent.Value <= 0 {
-			s.world.UnregisterEntity(entity)
-			event := &events.UnregisterEntityEvent{
-				GlobalCommandFrame: s.world.CommandFrame(),
-				EntityID:           entity.GetID(),
-			}
-			s.world.GetEventBroker().Broadcast(event)
 		}
 	}
 

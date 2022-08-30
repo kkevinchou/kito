@@ -15,6 +15,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
 	"github.com/kkevinchou/kito/kito/systems/collision"
+	"github.com/kkevinchou/kito/kito/systems/combat"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
 	"github.com/kkevinchou/kito/kito/systems/networklistener"
 	"github.com/kkevinchou/kito/kito/systems/networkupdate"
@@ -76,6 +77,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
 	playerInputSystem := playerinput.NewPlayerInputSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
+	combatSystem := combat.NewCombatSystem(g)
 	aiSystem := ai.NewAnimationSystem(g)
 
 	g.systems = append(g.systems, []System{
@@ -88,6 +90,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		abilitySystem,
 		physicsSystem,
 		collisionSystem,
+		combatSystem,
 		animationSystem,
 		bookKeepingSystem,
 		networkUpdateSystem,
