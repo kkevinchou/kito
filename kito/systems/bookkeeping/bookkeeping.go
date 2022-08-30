@@ -48,6 +48,9 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagCollider) {
 		if entity.Type() == types.EntityTypeProjectile {
 			contacts := entity.GetComponentContainer().ColliderComponent.Contacts
+			if len(contacts) == 0 {
+				continue
+			}
 
 			for e2ID, _ := range contacts {
 				e2 := s.world.GetEntityByID(e2ID)
@@ -57,14 +60,12 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 				}
 			}
 
-			if len(contacts) > 0 {
-				s.world.UnregisterEntity(entity)
-				event := &events.UnregisterEntityEvent{
-					GlobalCommandFrame: s.world.CommandFrame(),
-					EntityID:           entity.GetID(),
-				}
-				s.world.GetEventBroker().Broadcast(event)
+			s.world.UnregisterEntity(entity)
+			event := &events.UnregisterEntityEvent{
+				GlobalCommandFrame: s.world.CommandFrame(),
+				EntityID:           entity.GetID(),
 			}
+			s.world.GetEventBroker().Broadcast(event)
 		}
 	}
 
