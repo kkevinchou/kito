@@ -47,9 +47,11 @@ func NewBob() *EntityImpl {
 	}
 
 	capsule := collider.NewCapsuleFromModel(m)
+	boundingBox := collider.BoundingBoxFromCapsule(capsule)
 	colliderComponent := &components.ColliderComponent{
-		CapsuleCollider: &capsule,
-		Contacts:        map[int]*collision.Contact{},
+		CapsuleCollider:     &capsule,
+		BoundingBoxCollider: &boundingBox,
+		Contacts:            map[int]*collision.Contact{},
 	}
 
 	thirdPersonControllerComponent := &components.ThirdPersonControllerComponent{

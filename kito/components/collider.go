@@ -13,12 +13,14 @@ type ColliderComponent struct {
 	// some field that marks which entities it collided with in the current frame
 	Contacts map[int]*collision.Contact
 
-	CapsuleCollider *collider.Capsule
-	TriMeshCollider *collider.TriMesh
+	CapsuleCollider     *collider.Capsule
+	TriMeshCollider     *collider.TriMesh
+	BoundingBoxCollider *collider.BoundingBox
 
 	// stores the transformed collider (e.g. if the entity moves)
-	TransformedCapsuleCollider *collider.Capsule
-	TransformedTriMeshCollider *collider.TriMesh
+	TransformedCapsuleCollider     *collider.Capsule
+	TransformedTriMeshCollider     *collider.TriMesh
+	TransformedBoundingBoxCollider *collider.BoundingBox
 }
 
 func (c *ColliderComponent) AddToComponentContainer(container *ComponentContainer) {

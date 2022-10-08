@@ -21,6 +21,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/networkupdate"
 	"github.com/kkevinchou/kito/kito/systems/physics"
 	"github.com/kkevinchou/kito/kito/systems/playerinput"
+	"github.com/kkevinchou/kito/kito/systems/preframe"
 	"github.com/kkevinchou/kito/kito/systems/rpcreceiver"
 	"github.com/kkevinchou/kito/lib/assets"
 )
@@ -70,6 +71,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	rpcReceiverSystem := rpcreceiver.NewRPCReceiverSystem(g)
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
+	preframeSystem := preframe.NewPreFrameSystem(g)
 	abilitySystem := ability.NewAbilitySystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
@@ -84,6 +86,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		networkListenerSystem,
 		networkDispatchSystem,
 		rpcReceiverSystem,
+		preframeSystem,
 		playerInputSystem,
 		aiSystem,
 		characterControllerSystem,
