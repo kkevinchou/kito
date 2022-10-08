@@ -73,10 +73,13 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	preframeSystem := preframe.NewPreFrameSystem(g)
 	playerInputSystem := playerinput.NewPlayerInputSystem(g)
 	aiSystem := ai.NewAnimationSystem(g)
+
+	// systems that can manipulate the transform of an entity
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
-	abilitySystem := ability.NewAbilitySystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
+
+	abilitySystem := ability.NewAbilitySystem(g)
 	combatSystem := combat.NewCombatSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
@@ -90,9 +93,9 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		playerInputSystem,
 		aiSystem,
 		characterControllerSystem,
-		abilitySystem,
 		physicsSystem,
 		collisionSystem,
+		abilitySystem,
 		combatSystem,
 		animationSystem,
 		networkUpdateSystem,

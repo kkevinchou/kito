@@ -98,12 +98,15 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	cameraSystem := camerasys.NewCameraSystem(g)
 	networkInputSystem := networkinput.NewNetworkInputSystem(g)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
-	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
-	abilitySystem := ability.NewAbilitySystem(g)
 	spawnerSystem := spawner.NewSpawnerSystem(g)
 	stateInterpolatorSystem := stateinterpolator.NewStateInterpolatorSystem(g)
+
+	// systems that can manipulate the transform of an entity
+	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
 	collisionSystem := collision.NewCollisionSystem(g)
+
+	abilitySystem := ability.NewAbilitySystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	historySystem := historysys.NewHistorySystem(g)
 	pingSystem := ping.NewPingSystem(g)
@@ -119,12 +122,12 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 		cameraSystem,
 		networkInputSystem,
 		networkDispatchSystem,
-		characterControllerSystem,
-		abilitySystem,
 		spawnerSystem,
 		stateInterpolatorSystem,
+		characterControllerSystem,
 		physicsSystem,
 		collisionSystem,
+		abilitySystem,
 		animationSystem,
 		historySystem,
 		pingSystem,
