@@ -70,17 +70,17 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.ListenAddress, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	rpcReceiverSystem := rpcreceiver.NewRPCReceiverSystem(g)
-	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	preframeSystem := preframe.NewPreFrameSystem(g)
+	playerInputSystem := playerinput.NewPlayerInputSystem(g)
+	aiSystem := ai.NewAnimationSystem(g)
+	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
 	abilitySystem := ability.NewAbilitySystem(g)
 	physicsSystem := physics.NewPhysicsSystem(g)
+	collisionSystem := collision.NewCollisionSystem(g)
+	combatSystem := combat.NewCombatSystem(g)
 	animationSystem := animation.NewAnimationSystem(g)
 	networkUpdateSystem := networkupdate.NewNetworkUpdateSystem(g)
 	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
-	playerInputSystem := playerinput.NewPlayerInputSystem(g)
-	collisionSystem := collision.NewCollisionSystem(g)
-	combatSystem := combat.NewCombatSystem(g)
-	aiSystem := ai.NewAnimationSystem(g)
 
 	g.systems = append(g.systems, []System{
 		networkListenerSystem,
@@ -95,7 +95,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		collisionSystem,
 		combatSystem,
 		animationSystem,
-		bookKeepingSystem,
 		networkUpdateSystem,
+		bookKeepingSystem,
 	}...)
 }
