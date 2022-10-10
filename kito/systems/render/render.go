@@ -250,25 +250,10 @@ func (s *RenderSystem) renderImgui() {
 func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext LightContext, shadowPass bool) {
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
-	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.4)
-
-	if !shadowPass {
-		drawSkyBox(
-			viewerContext,
-			s.skybox,
-			shaderManager.GetShaderProgram("skybox"),
-			assetManager.GetTexture("front"),
-			assetManager.GetTexture("top"),
-			assetManager.GetTexture("left"),
-			assetManager.GetTexture("right"),
-			assetManager.GetTexture("bottom"),
-			assetManager.GetTexture("back"),
-		)
-	}
 
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagRender) {
 		componentContainer := entity.GetComponentContainer()
@@ -325,7 +310,6 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		}
 
 		// rendered objects that should not be picked up by the shadow map
-
 		if settings.DebugRenderCollisionVolume {
 			if componentContainer.ColliderComponent != nil {
 				if componentContainer.ColliderComponent.CapsuleCollider != nil {
@@ -351,31 +335,33 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 				}
 			}
 		}
+	}
 
-		// drawLine(
-		// 	viewerContext,
-		// 	shaderManager.GetShaderProgram("basicsolid"),
-		// 	mgl64.Vec3{0, 30, 0},
-		// 	mgl64.Vec3{0, 45, -50},
-		// 	0.3,
-		// )
+	if shadowPass {
+		return
+	}
 
-		if settings.DebugRenderSpatialPartition {
-			drawSpatialPartition(
-				viewerContext,
-				shaderManager.GetShaderProgram("basicsolid"),
-				s.world.SpatialPartition(),
-				1,
-			)
-			// spatialPartition := s.world.SpatialPartition()
-			// for i := range spatialPartition.Partitions {
-			// 	for j := range spatialPartition.Partitions[i] {
-			// 		for k := range spatialPartition.Partitions[i][j] {
-			// 			partition := spatialPartition.Partitions[i][j][k]
-			// 		}
-			// 	}
-			// }
-		}
+	assetManager := d.AssetManager()
+	drawSkyBox(
+		viewerContext,
+		s.skybox,
+		shaderManager.GetShaderProgram("skybox"),
+		assetManager.GetTexture("front"),
+		assetManager.GetTexture("top"),
+		assetManager.GetTexture("left"),
+		assetManager.GetTexture("right"),
+		assetManager.GetTexture("bottom"),
+		assetManager.GetTexture("back"),
+	)
+
+	if settings.DebugRenderSpatialPartition {
+		drawSpatialPartition(
+			viewerContext,
+			shaderManager.GetShaderProgram("flat"),
+			s.world.SpatialPartition(),
+			1,
+			mgl64.Vec3{0.5, 1, 0},
+		)
 	}
 
 	// var renderText string

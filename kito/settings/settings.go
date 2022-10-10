@@ -13,26 +13,19 @@ var (
 	CameraStartPosition          = mgl64.Vec3{0, 10, 30}
 	CameraStartView              = mgl64.Vec2{0, 0}
 	ListenAddress       string   = "localhost"
-)
 
-// dynamic settings loaded from config
-var (
+	AccelerationDueToGravity = mgl64.Vec3{0, -gravity, 0}
+
+	// dynamic settings loaded from config
 	Host       string = "localhost"
 	Port       int    = 8080
 	Width      int    = 0
 	Height     int    = 0
 	Fullscreen bool   = false
-)
 
-// dynamic settings configurable from the console
-var (
+	// dynamic settings configurable from the console
 	DebugRenderCollisionVolume  = false
 	DebugRenderSpatialPartition = true
-)
-
-// Debugging constants
-const (
-	LatencyInjection = 0 * time.Millisecond
 )
 
 const (
@@ -87,8 +80,10 @@ const (
 
 	// Physics
 	gravity float64 = 250
-)
 
-var (
-	AccelerationDueToGravity = mgl64.Vec3{0, -gravity, 0}
+	SpatialPartitionNumPartitions int = 5
+	SpatialPartitionDimensionSize int = 200
+
+	// Debugging constants
+	LatencyInjection = 0 * time.Millisecond
 )

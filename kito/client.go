@@ -202,9 +202,9 @@ func compileShaders() {
 	if err := shaderManager.CompileShaderProgram("depthDebug", "basictexture", "depthvalue"); err != nil {
 		panic(err)
 	}
-	// if err := shaderManager.CompileShaderProgram("material", "model", "material"); err != nil {
-	// 	panic(err)
-	// }
+	if err := shaderManager.CompileShaderProgram("flat", "flat", "flat"); err != nil {
+		panic(err)
+	}
 	if err := shaderManager.CompileShaderProgram("quadtex", "quadtex", "quadtex"); err != nil {
 		panic(err)
 	}

@@ -52,7 +52,7 @@ func NewBaseGame() *Game {
 		gameMode:         types.GameModePlaying,
 		singleton:        singleton.NewSingleton(),
 		entityManager:    entitymanager.NewEntityManager(),
-		spatialPartition: spatialpartition.NewSpatialPartition(300, 3),
+		spatialPartition: spatialpartition.NewSpatialPartition(settings.SpatialPartitionDimensionSize, settings.SpatialPartitionNumPartitions),
 		eventBroker:      eventbroker.NewEventBroker(),
 		metricsRegistry:  metrics.New(),
 		inputPollingFn:   input.NullInputPoller,
