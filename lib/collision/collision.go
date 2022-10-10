@@ -71,7 +71,7 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 		triangle,
 	)
 	// closestPointCapsule := closestPoints[0]
-	closestPointTriangle := closestPoints[1]
+	// closestPointTriangle := closestPoints[1]
 
 	if closestPointsDistance < capsule.Radius {
 		separatingDistance := capsule.Radius - closestPointsDistance
@@ -83,7 +83,7 @@ func CheckCollisionCapsuleTriangle(capsule collider.Capsule, triangle collider.T
 			separatingDistance = separatingVec.Len()
 		}
 		return &Contact{
-			Point:              closestPointTriangle,
+			Point:              closestPoints[1],
 			Normal:             triangle.Normal,
 			SeparatingVector:   separatingVec,
 			SeparatingDistance: separatingDistance,
@@ -113,6 +113,22 @@ func CheckCollisionCapsuleCapsule(capsule1 collider.Capsule, capsule2 collider.C
 	}
 
 	return nil
+}
+
+func CheckOverlapAABBAABB(aabb1 collider.BoundingBox, aabb2 collider.BoundingBox) bool {
+	if aabb1.MaxVertex.X() < aabb2.MinVertex.X() || aabb1.MinVertex.X() > aabb2.MaxVertex.X() {
+		return false
+	}
+
+	if aabb1.MaxVertex.Y() < aabb2.MinVertex.Y() || aabb1.MinVertex.Y() > aabb2.MaxVertex.Y() {
+		return false
+	}
+
+	if aabb1.MaxVertex.Z() < aabb2.MinVertex.Z() || aabb1.MinVertex.Z() > aabb2.MaxVertex.Z() {
+		return false
+	}
+
+	return true
 }
 
 // func CheckCollisionSpherePoint(sphere collider.Sphere, point mgl64.Vec3) *ContactManifold {
