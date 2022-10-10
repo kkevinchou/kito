@@ -10,6 +10,7 @@ import (
 	"github.com/kkevinchou/kito/kito/entitymanager"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
+	"github.com/kkevinchou/kito/kito/spatialpartition"
 	"github.com/kkevinchou/kito/lib/input"
 	"github.com/kkevinchou/kito/lib/metrics"
 
@@ -30,9 +31,10 @@ type Game struct {
 	gameOver bool
 	gameMode types.GameMode
 
-	singleton     *singleton.Singleton
-	entityManager *entitymanager.EntityManager
-	systems       []System
+	singleton        *singleton.Singleton
+	entityManager    *entitymanager.EntityManager
+	spatialPartition *spatialpartition.SpatialPartition
+	systems          []System
 
 	eventBroker     eventbroker.EventBroker
 	metricsRegistry *metrics.MetricsRegistry
@@ -47,13 +49,14 @@ type Game struct {
 
 func NewBaseGame() *Game {
 	return &Game{
-		gameMode:        types.GameModePlaying,
-		singleton:       singleton.NewSingleton(),
-		entityManager:   entitymanager.NewEntityManager(),
-		eventBroker:     eventbroker.NewEventBroker(),
-		metricsRegistry: metrics.New(),
-		inputPollingFn:  input.NullInputPoller,
-		focusedWindow:   types.WindowGame,
+		gameMode:         types.GameModePlaying,
+		singleton:        singleton.NewSingleton(),
+		entityManager:    entitymanager.NewEntityManager(),
+		spatialPartition: spatialpartition.NewSpatialPartition(300, 3),
+		eventBroker:      eventbroker.NewEventBroker(),
+		metricsRegistry:  metrics.New(),
+		inputPollingFn:   input.NullInputPoller,
+		focusedWindow:    types.WindowGame,
 		windowVisibility: map[types.Window]bool{
 			types.WindowGame: true,
 		},
@@ -95,6 +98,8 @@ func (g *Game) Start() {
 		if runCount > 1 {
 			g.metricsRegistry.Inc("frameCatchup", 1)
 		}
+
+		time.Sleep(5 * time.Millisecond)
 
 		if renderAccumulator >= msPerFrame {
 			frameCount++

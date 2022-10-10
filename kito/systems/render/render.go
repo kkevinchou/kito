@@ -16,6 +16,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
+	"github.com/kkevinchou/kito/kito/spatialpartition"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/libutils"
@@ -46,6 +47,7 @@ type World interface {
 	GetFocusedWindow() types.Window
 	GetWindowVisibility(types.Window) bool
 	GetEventBroker() eventbroker.EventBroker
+	SpatialPartition() *spatialpartition.SpatialPartition
 }
 
 type Platform interface {
@@ -318,7 +320,13 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			)
 		}
 
-		if !shadowPass && settings.DebugRenderCollisionVolume {
+		if shadowPass {
+			continue
+		}
+
+		// rendered objects that should not be picked up by the shadow map
+
+		if settings.DebugRenderCollisionVolume {
 			if componentContainer.ColliderComponent != nil {
 				if componentContainer.ColliderComponent.CapsuleCollider != nil {
 					// lots of hacky rendering stuff to get the rectangle to billboard
@@ -342,6 +350,31 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 					)
 				}
 			}
+		}
+
+		// drawLine(
+		// 	viewerContext,
+		// 	shaderManager.GetShaderProgram("basicsolid"),
+		// 	mgl64.Vec3{0, 30, 0},
+		// 	mgl64.Vec3{0, 45, -50},
+		// 	0.3,
+		// )
+
+		if settings.DebugRenderSpatialPartition {
+			drawSpatialPartition(
+				viewerContext,
+				shaderManager.GetShaderProgram("basicsolid"),
+				s.world.SpatialPartition(),
+				1,
+			)
+			// spatialPartition := s.world.SpatialPartition()
+			// for i := range spatialPartition.Partitions {
+			// 	for j := range spatialPartition.Partitions[i] {
+			// 		for k := range spatialPartition.Partitions[i][j] {
+			// 			partition := spatialPartition.Partitions[i][j][k]
+			// 		}
+			// 	}
+			// }
 		}
 	}
 

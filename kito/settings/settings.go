@@ -26,7 +26,8 @@ var (
 
 // dynamic settings configurable from the console
 var (
-	DebugRenderCollisionVolume = false
+	DebugRenderCollisionVolume  = false
+	DebugRenderSpatialPartition = true
 )
 
 // Debugging constants
