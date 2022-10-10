@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/settings"
+	"github.com/kkevinchou/kito/kito/spatialpartition"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/font"
 	"github.com/kkevinchou/kito/lib/libutils"
@@ -305,54 +306,6 @@ func drawText(shader *shaders.ShaderProgram, font font.Font, text string, x, y f
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(numCharacters*6))
 }
 
-// // drawHUDTextureToQuad does a shitty perspective based rendering of a flat texture
-// func drawTexture(shader *shaders.ShaderProgram, texture uint32, x, y, width, height float32) {
-// 	// convert porportion to pixel value
-// 	x = x * float32(settings.Width)
-// 	y = float32(settings.Height)*(1-y) - height
-
-// 	// texture coords top left = 0,0 | bottom right = 1,1
-// 	var vertices []float32 = []float32{
-// 		0, 0, -5, 0.0, 0.0,
-// 		width, 0, -5, 1.0, 0.0,
-// 		width, height, -5, 1.0, 1.0,
-// 		width, height, -5, 1.0, 1.0,
-// 		0, height, -5, 0.0, 1.0,
-// 		0, 0, -5, 0.0, 0.0,
-// 	}
-
-// 	for i := 0; i < len(vertices); i += 5 {
-// 		vertices[i] = vertices[i] + x
-// 		vertices[i+1] = vertices[i+1] + y
-// 	}
-
-// 	var vbo, vao uint32
-// 	gl.GenBuffers(1, &vbo)
-// 	gl.GenVertexArrays(1, &vao)
-
-// 	gl.BindVertexArray(vao)
-// 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-// 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
-
-// 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 5*4, nil)
-// 	gl.EnableVertexAttribArray(0)
-
-// 	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
-// 	gl.EnableVertexAttribArray(1)
-
-// 	gl.BindVertexArray(vao)
-// 	gl.ActiveTexture(gl.TEXTURE0)
-// 	gl.BindTexture(gl.TEXTURE_2D, texture)
-
-// 	shader.Use()
-// 	// shader.SetUniformMat4("model", mgl32.Translate3D(1.2, 0.8, -2))
-// 	shader.SetUniformMat4("model", mgl32.Ident4())
-// 	shader.SetUniformMat4("view", mgl32.Ident4())
-// 	shader.SetUniformMat4("projection", mgl32.Ortho(0, float32(settings.Width), 0, float32(settings.Height), 1, 100))
-
-// 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
-// }
-
 // drawHUDTextureToQuad does a shitty perspective based rendering of a flat texture
 func drawHUDTextureToQuad(viewerContext ViewerContext, shader *shaders.ShaderProgram, texture uint32, hudScale float32) {
 	// texture coords top left = 0,0 | bottom right = 1,1
@@ -390,6 +343,148 @@ func drawHUDTextureToQuad(viewerContext ViewerContext, shader *shaders.ShaderPro
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
 
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
+}
+
+func drawHorizontalAABBLines(viewerContext ViewerContext, shader *shaders.ShaderProgram, lines [][]mgl64.Vec3, thickness float64, color mgl64.Vec3) {
+	halfThickness := thickness / 2
+	var points []mgl64.Vec3
+	for _, line := range lines {
+		start := line[0]
+		end := line[1]
+
+		points = append(points,
+			start,
+			end,
+			end.Add(mgl64.Vec3{0, -halfThickness, 0}),
+			end.Add(mgl64.Vec3{0, -halfThickness, 0}),
+			start.Add(mgl64.Vec3{0, -halfThickness, 0}),
+			start,
+
+			end,
+			start,
+			start.Add(mgl64.Vec3{0, -halfThickness, 0}),
+			start.Add(mgl64.Vec3{0, -halfThickness, 0}),
+			end.Add(mgl64.Vec3{0, -halfThickness, 0}),
+			end,
+		)
+	}
+	drawTris(viewerContext, shader, points, thickness, color)
+}
+
+func drawVerticalAABBLines(viewerContext ViewerContext, shader *shaders.ShaderProgram, lines [][]mgl64.Vec3, thickness float64, color mgl64.Vec3) {
+	halfThickness := thickness / 2
+	var points []mgl64.Vec3
+	for _, line := range lines {
+		start := line[0]
+		end := line[1]
+
+		points = append(points,
+			start,
+			end,
+			end.Add(mgl64.Vec3{0, 0, -halfThickness}),
+			end.Add(mgl64.Vec3{0, 0, -halfThickness}),
+			start.Add(mgl64.Vec3{0, 0, -halfThickness}),
+			start,
+
+			end,
+			start,
+			start.Add(mgl64.Vec3{0, 0, -halfThickness}),
+			start.Add(mgl64.Vec3{0, 0, -halfThickness}),
+			end.Add(mgl64.Vec3{0, 0, -halfThickness}),
+			end,
+		)
+	}
+	drawTris(viewerContext, shader, points, thickness, color)
+}
+
+// drawTris draws a list of triangles in winding order. each triangle is defined with 3 consecutive points
+func drawTris(viewerContext ViewerContext, shader *shaders.ShaderProgram, points []mgl64.Vec3, thickness float64, color mgl64.Vec3) {
+	var vertices []float32
+	for _, point := range points {
+		vertices = append(vertices, float32(point.X()), float32(point.Y()), float32(point.Z()))
+	}
+
+	var vbo, vao uint32
+	gl.GenBuffers(1, &vbo)
+	gl.GenVertexArrays(1, &vao)
+
+	gl.BindVertexArray(vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, nil)
+	gl.EnableVertexAttribArray(0)
+
+	gl.BindVertexArray(vao)
+	shader.Use()
+	shader.SetUniformMat4("model", utils.Mat4F64ToF32(mgl64.Ident4()))
+	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
+	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	shader.SetUniformFloat("alpha", float32(1))
+	shader.SetUniformVec3("color", utils.Vec3F64ToF32(color))
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
+}
+
+func drawSpatialPartition(viewerContext ViewerContext, shader *shaders.ShaderProgram, spatialPartition *spatialpartition.SpatialPartition, thickness float64, color mgl64.Vec3) {
+	var horizontalLines [][]mgl64.Vec3
+	d := spatialPartition.PartitionDimension * spatialPartition.PartitionCount
+
+	baseHorizontalLines := [][]mgl64.Vec3{}
+
+	// lines along z axis
+	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
+		baseHorizontalLines = append(baseHorizontalLines,
+			[]mgl64.Vec3{{float64(-d/2 + i*spatialPartition.PartitionDimension), float64(-d / 2), float64(-d / 2)}, {float64(-d/2 + i*spatialPartition.PartitionDimension), float64(-d / 2), float64(d / 2)}},
+		)
+	}
+
+	// // lines along x axis
+	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
+		baseHorizontalLines = append(baseHorizontalLines,
+			[]mgl64.Vec3{{float64(-d / 2), float64(-d / 2), float64(-d/2 + i*spatialPartition.PartitionDimension)}, {float64(d / 2), float64(-d / 2), float64(-d/2 + i*spatialPartition.PartitionDimension)}},
+		)
+	}
+
+	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
+		for _, b := range baseHorizontalLines {
+			horizontalLines = append(horizontalLines,
+				[]mgl64.Vec3{b[0].Add(mgl64.Vec3{0, float64(i * spatialPartition.PartitionDimension), 0}), b[1].Add(mgl64.Vec3{0, float64(i * spatialPartition.PartitionDimension), 0})},
+			)
+		}
+	}
+
+	drawHorizontalAABBLines(
+		viewerContext,
+		shader,
+		horizontalLines,
+		thickness,
+		color,
+	)
+
+	var verticalLines [][]mgl64.Vec3
+	baseVerticalLines := [][]mgl64.Vec3{}
+
+	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
+		baseVerticalLines = append(baseVerticalLines,
+			[]mgl64.Vec3{{float64(-d/2 + i*spatialPartition.PartitionDimension), float64(-d / 2), float64(-d / 2)}, {float64(-d/2 + i*spatialPartition.PartitionDimension), float64(d / 2), float64(-d / 2)}},
+		)
+	}
+
+	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
+		for _, b := range baseVerticalLines {
+			verticalLines = append(verticalLines,
+				[]mgl64.Vec3{b[0].Add(mgl64.Vec3{0, 0, float64(i * spatialPartition.PartitionDimension)}), b[1].Add(mgl64.Vec3{0, 0, float64(i * spatialPartition.PartitionDimension)})},
+			)
+		}
+	}
+
+	drawVerticalAABBLines(
+		viewerContext,
+		shader,
+		verticalLines,
+		thickness,
+		color,
+	)
 }
 
 func createModelMatrix(scaleMatrix, rotationMatrix, translationMatrix mgl64.Mat4) mgl64.Mat4 {

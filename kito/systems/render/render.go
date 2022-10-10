@@ -16,6 +16,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/kkevinchou/kito/kito/singleton"
+	"github.com/kkevinchou/kito/kito/spatialpartition"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/libutils"
@@ -46,6 +47,7 @@ type World interface {
 	GetFocusedWindow() types.Window
 	GetWindowVisibility(types.Window) bool
 	GetEventBroker() eventbroker.EventBroker
+	SpatialPartition() *spatialpartition.SpatialPartition
 }
 
 type Platform interface {
@@ -248,25 +250,10 @@ func (s *RenderSystem) renderImgui() {
 func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext LightContext, shadowPass bool) {
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
-	assetManager := d.AssetManager()
 
 	// render a debug shadow map for viewing
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("depthDebug"), s.shadowMap.DepthTexture(), 0.4)
 	// drawHUDTextureToQuad(viewerContext, shaderManager.GetShaderProgram("quadtex"), textTexture, 0.4)
-
-	if !shadowPass {
-		drawSkyBox(
-			viewerContext,
-			s.skybox,
-			shaderManager.GetShaderProgram("skybox"),
-			assetManager.GetTexture("front"),
-			assetManager.GetTexture("top"),
-			assetManager.GetTexture("left"),
-			assetManager.GetTexture("right"),
-			assetManager.GetTexture("bottom"),
-			assetManager.GetTexture("back"),
-		)
-	}
 
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagRender) {
 		componentContainer := entity.GetComponentContainer()
@@ -318,7 +305,12 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			)
 		}
 
-		if !shadowPass && settings.DebugRenderCollisionVolume {
+		if shadowPass {
+			continue
+		}
+
+		// rendered objects that should not be picked up by the shadow map
+		if settings.DebugRenderCollisionVolume {
 			if componentContainer.ColliderComponent != nil {
 				if componentContainer.ColliderComponent.CapsuleCollider != nil {
 					// lots of hacky rendering stuff to get the rectangle to billboard
@@ -343,6 +335,33 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 				}
 			}
 		}
+	}
+
+	if shadowPass {
+		return
+	}
+
+	assetManager := d.AssetManager()
+	drawSkyBox(
+		viewerContext,
+		s.skybox,
+		shaderManager.GetShaderProgram("skybox"),
+		assetManager.GetTexture("front"),
+		assetManager.GetTexture("top"),
+		assetManager.GetTexture("left"),
+		assetManager.GetTexture("right"),
+		assetManager.GetTexture("bottom"),
+		assetManager.GetTexture("back"),
+	)
+
+	if settings.DebugRenderSpatialPartition {
+		drawSpatialPartition(
+			viewerContext,
+			shaderManager.GetShaderProgram("flat"),
+			s.world.SpatialPartition(),
+			1,
+			mgl64.Vec3{0.5, 1, 0},
+		)
 	}
 
 	// var renderText string

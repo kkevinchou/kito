@@ -69,7 +69,15 @@ func (s *RPCSenderSystem) handleLocalCommand(e *events.RPCEvent) bool {
 				settings.DebugRenderCollisionVolume = false
 			}
 			return true
+		} else if commandSplit[0] == "partition-render" {
+			if commandSplit[1] == "true" {
+				settings.DebugRenderSpatialPartition = true
+			} else if commandSplit[1] == "false" {
+				settings.DebugRenderSpatialPartition = false
+			}
+			return true
 		}
+
 	}
 	return false
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
+	"github.com/kkevinchou/kito/kito/spatialpartition"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/metrics"
@@ -108,4 +109,8 @@ func (g *Game) SetWindowVisibiilty(window types.Window, visible bool) {
 func (g *Game) ToggleWindowVisibility(window types.Window) bool {
 	g.windowVisibility[window] = !g.windowVisibility[window]
 	return g.windowVisibility[window]
+}
+
+func (g *Game) SpatialPartition() *spatialpartition.SpatialPartition {
+	return g.spatialPartition
 }
