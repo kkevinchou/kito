@@ -9,6 +9,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
+	"github.com/kkevinchou/kito/kito/spatialpartition"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/metrics"
@@ -31,6 +32,7 @@ type World interface {
 	GetPlayerByID(id int) *player.Player
 	QueryEntity(componentFlags int) []entities.Entity
 	GetEntityByID(id int) entities.Entity
+	SpatialPartition() *spatialpartition.SpatialPartition
 }
 
 type NetworkDispatchSystem struct {

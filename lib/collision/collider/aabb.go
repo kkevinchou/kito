@@ -11,8 +11,8 @@ type BoundingBox struct {
 	MaxVertex mgl64.Vec3
 }
 
-func (c BoundingBox) Transform(position mgl64.Vec3) BoundingBox {
-	return BoundingBox{MinVertex: c.MinVertex.Add(position), MaxVertex: c.MaxVertex.Add(position)}
+func (c *BoundingBox) Transform(position mgl64.Vec3) *BoundingBox {
+	return &BoundingBox{MinVertex: c.MinVertex.Add(position), MaxVertex: c.MaxVertex.Add(position)}
 }
 
 func BoundingBoxFromVertices(vertices []mgl64.Vec3) BoundingBox {
@@ -51,7 +51,7 @@ func BoundingBoxFromVertices(vertices []mgl64.Vec3) BoundingBox {
 	return BoundingBox{MinVertex: minVertex, MaxVertex: maxVertex}
 }
 
-func BoundingBoxFromCapsule(capsule Capsule) BoundingBox {
+func BoundingBoxFromCapsule(capsule Capsule) *BoundingBox {
 	diagonal := math.Sqrt(2 * capsule.Radius * capsule.Radius)
-	return BoundingBox{MinVertex: capsule.Bottom.Sub(mgl64.Vec3{-diagonal, 0, -diagonal}), MaxVertex: capsule.Bottom.Add(mgl64.Vec3{diagonal, 0, diagonal})}
+	return &BoundingBox{MinVertex: capsule.Bottom.Add(mgl64.Vec3{-diagonal, -capsule.Radius, -diagonal}), MaxVertex: capsule.Top.Add(mgl64.Vec3{diagonal, capsule.Radius, diagonal})}
 }

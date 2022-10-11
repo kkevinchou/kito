@@ -13,6 +13,7 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	QueryEntity(componentFlags int) []entities.Entity
 	SpatialPartition() *spatialpartition.SpatialPartition
+	GetPlayerEntity() entities.Entity
 }
 
 type PreFrameSystem struct {

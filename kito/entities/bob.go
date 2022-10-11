@@ -48,9 +48,10 @@ func NewBob() *EntityImpl {
 
 	capsule := collider.NewCapsuleFromModel(m)
 	boundingBox := collider.BoundingBoxFromCapsule(capsule)
+
 	colliderComponent := &components.ColliderComponent{
 		CapsuleCollider:     &capsule,
-		BoundingBoxCollider: &boundingBox,
+		BoundingBoxCollider: boundingBox,
 		Contacts:            map[int]*collision.Contact{},
 	}
 

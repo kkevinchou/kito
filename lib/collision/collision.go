@@ -115,7 +115,7 @@ func CheckCollisionCapsuleCapsule(capsule1 collider.Capsule, capsule2 collider.C
 	return nil
 }
 
-func CheckOverlapAABBAABB(aabb1 collider.BoundingBox, aabb2 collider.BoundingBox) bool {
+func CheckOverlapAABBAABB(aabb1 *collider.BoundingBox, aabb2 *collider.BoundingBox) bool {
 	if aabb1.MaxVertex.X() < aabb2.MinVertex.X() || aabb1.MinVertex.X() > aabb2.MaxVertex.X() {
 		return false
 	}

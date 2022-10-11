@@ -25,7 +25,7 @@ var (
 
 	// dynamic settings configurable from the console
 	DebugRenderCollisionVolume  = false
-	DebugRenderSpatialPartition = true
+	DebugRenderSpatialPartition = false
 )
 
 const (

@@ -5,8 +5,8 @@ import (
 	"sort"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/spatialpartition"
 	"github.com/kkevinchou/kito/lib/collision"
 )
 
@@ -14,11 +14,12 @@ type World interface {
 	QueryEntity(componentFlags int) []entities.Entity
 	GetPlayerEntity() entities.Entity
 	GetEntityByID(id int) entities.Entity
+	SpatialPartition() *spatialpartition.SpatialPartition
 }
 
 func ResolveCollisionsForPlayer(playerEntity entities.Entity, world World) {
 	entityPairs := [][]entities.Entity{}
-	entityList := world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform)
+	entityList := world.SpatialPartition().QueryCollisionCandidates(playerEntity)
 	for _, e2 := range entityList {
 		if playerEntity.GetID() == e2.GetID() {
 			continue
@@ -33,13 +34,14 @@ func ResolveCollisions(world World) {
 	// pairExists stores the pairs of entities that we've already created,
 	// don't create a pair for both (e1, e2) and (e2, e1), just one of them
 	pairExists := map[int]map[int]bool{}
-	entityList := world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform)
+	entityList := world.SpatialPartition().AllCandidates()
 	for _, e := range entityList {
 		pairExists[e.GetID()] = map[int]bool{}
 	}
 
 	for _, e1 := range entityList {
-		for _, e2 := range entityList {
+		candidates := world.SpatialPartition().QueryCollisionCandidates(e1)
+		for _, e2 := range candidates {
 			if e1.GetID() == e2.GetID() {
 				continue
 			}

@@ -48,19 +48,22 @@ type Game struct {
 }
 
 func NewBaseGame() *Game {
-	return &Game{
-		gameMode:         types.GameModePlaying,
-		singleton:        singleton.NewSingleton(),
-		entityManager:    entitymanager.NewEntityManager(),
-		spatialPartition: spatialpartition.NewSpatialPartition(settings.SpatialPartitionDimensionSize, settings.SpatialPartitionNumPartitions),
-		eventBroker:      eventbroker.NewEventBroker(),
-		metricsRegistry:  metrics.New(),
-		inputPollingFn:   input.NullInputPoller,
-		focusedWindow:    types.WindowGame,
+	g := &Game{
+		gameMode:        types.GameModePlaying,
+		singleton:       singleton.NewSingleton(),
+		entityManager:   entitymanager.NewEntityManager(),
+		eventBroker:     eventbroker.NewEventBroker(),
+		metricsRegistry: metrics.New(),
+		inputPollingFn:  input.NullInputPoller,
+		focusedWindow:   types.WindowGame,
 		windowVisibility: map[types.Window]bool{
 			types.WindowGame: true,
 		},
 	}
+
+	s := spatialpartition.NewSpatialPartition(g, settings.SpatialPartitionDimensionSize, settings.SpatialPartitionNumPartitions)
+	g.spatialPartition = s
+	return g
 }
 
 func (g *Game) Start() {
@@ -98,6 +101,8 @@ func (g *Game) Start() {
 		if runCount > 1 {
 			g.metricsRegistry.Inc("frameCatchup", 1)
 		}
+
+		time.Sleep(5 * time.Millisecond)
 
 		if renderAccumulator >= msPerFrame {
 			frameCount++

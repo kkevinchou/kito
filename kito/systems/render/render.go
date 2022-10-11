@@ -303,6 +303,23 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 				meshModelMatrix,
 				orientation.Mat4().Mul4(meshComponent.Orientation),
 			)
+
+			if shadowPass {
+				continue
+			}
+
+			if settings.DebugRenderSpatialPartition {
+				if componentContainer.ColliderComponent.BoundingBoxCollider != nil && entity.Type() == types.EntityTypeBob {
+					bb := componentContainer.ColliderComponent.BoundingBoxCollider.Transform(componentContainer.TransformComponent.Position)
+					drawAABB(
+						viewerContext,
+						shaderManager.GetShaderProgram("flat"),
+						bb,
+						0.5,
+						mgl64.Vec3{.2, 0, .7},
+					)
+				}
+			}
 		}
 
 		if shadowPass {
@@ -359,7 +376,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			viewerContext,
 			shaderManager.GetShaderProgram("flat"),
 			s.world.SpatialPartition(),
-			1,
+			0.5,
 			mgl64.Vec3{0.5, 1, 0},
 		)
 	}

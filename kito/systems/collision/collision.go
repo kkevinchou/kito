@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/netsync"
 	"github.com/kkevinchou/kito/kito/singleton"
+	"github.com/kkevinchou/kito/kito/spatialpartition"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
 )
@@ -23,6 +24,7 @@ type World interface {
 	QueryEntity(componentFlags int) []entities.Entity
 	GetPlayer() *player.Player
 	GetEntityByID(id int) entities.Entity
+	SpatialPartition() *spatialpartition.SpatialPartition
 }
 
 type CollisionSystem struct {

@@ -4,12 +4,14 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 )
 
 type World interface {
 	// GetSingleton() *singleton.Singleton
-	// GetPlayerEntity() entities.Entity
+	GetPlayerEntity() entities.Entity
 	QueryEntity(componentFlags int) []entities.Entity
 	// GetPlayer() *player.Player
 	// GetEntityByID(id int) entities.Entity
@@ -21,6 +23,7 @@ type Partition struct {
 }
 
 type SpatialPartition struct {
+	world              World
 	Partitions         [][][]Partition
 	PartitionDimension int
 	PartitionCount     int
@@ -30,7 +33,7 @@ type SpatialPartition struct {
 // the spatial partition spans the rectangular space for
 // d = partitionDimension * partitionCount
 // <-d, 0, -d> to <d, 2 * d, d>
-func NewSpatialPartition(partitionDimension int, partitionCount int) *SpatialPartition {
+func NewSpatialPartition(world World, partitionDimension int, partitionCount int) *SpatialPartition {
 	d := partitionDimension * partitionCount
 	// partitions := make([][]Partition, 4*partitionDimension)
 	partitions := make([][][]Partition, partitionCount)
@@ -49,6 +52,7 @@ func NewSpatialPartition(partitionDimension int, partitionCount int) *SpatialPar
 		}
 	}
 	return &SpatialPartition{
+		world:              world,
 		Partitions:         partitions,
 		PartitionDimension: partitionDimension,
 		PartitionCount:     partitionCount,
@@ -58,15 +62,32 @@ func NewSpatialPartition(partitionDimension int, partitionCount int) *SpatialPar
 // QueryCollisionCandidates queries for collision candidates that have been stored in
 // the spatial partition
 func (s *SpatialPartition) QueryCollisionCandidates(entity entities.Entity) []entities.Entity {
-	return nil
+	return s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform)
+}
+
+func (s *SpatialPartition) AllCandidates() []entities.Entity {
+	return s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform)
 }
 
 func (s *SpatialPartition) Initialize(world World) {
 	entityList := world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform)
-	_ = entityList
+	for _, entity := range entityList {
+		if entity.Type() != types.EntityTypeBob {
+			continue
+		}
 
-	// fmt.Println("----------")
-	// fmt.Println(s.Partitions)
-	// fmt.Println("----------")
-	// populate partitions with all of the entities
+		cc := entity.GetComponentContainer()
+		boundingBox := cc.ColliderComponent.BoundingBoxCollider.Transform(cc.TransformComponent.Position)
+
+		partitionCount := s.PartitionCount
+		for i := 0; i < partitionCount; i++ {
+			for j := 0; j < partitionCount; j++ {
+				for k := 0; k < partitionCount; k++ {
+					if collision.CheckOverlapAABBAABB(boundingBox, s.Partitions[i][j][k].AABB) {
+						// fmt.Println(i, j, k)
+					}
+				}
+			}
+		}
+	}
 }
