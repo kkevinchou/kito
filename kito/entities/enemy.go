@@ -43,9 +43,12 @@ func NewEnemy() *EntityImpl {
 
 	// capsule := collider.NewCapsule(mgl64.Vec3{0, 18, 0}, mgl64.Vec3{0, 6, 0}, 6)
 	capsule := collider.NewCapsuleFromModel(m)
+	boundingBox := collider.BoundingBoxFromCapsule(capsule)
+
 	colliderComponent := &components.ColliderComponent{
-		CapsuleCollider: &capsule,
-		Contacts:        map[int]*collision.Contact{},
+		BoundingBoxCollider: boundingBox,
+		CapsuleCollider:     &capsule,
+		Contacts:            map[int]*collision.Contact{},
 	}
 
 	entityComponents := []components.Component{

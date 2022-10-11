@@ -34,10 +34,13 @@ func NewProjectile(position mgl64.Vec3) *EntityImpl {
 	}
 
 	capsule := collider.NewCapsuleFromModel(m)
+	boundingBox := collider.BoundingBoxFromCapsule(capsule)
+
 	colliderComponent := &components.ColliderComponent{
-		SkipSeparation:  true,
-		CapsuleCollider: &capsule,
-		Contacts:        map[int]*collision.Contact{},
+		BoundingBoxCollider: boundingBox,
+		SkipSeparation:      true,
+		CapsuleCollider:     &capsule,
+		Contacts:            map[int]*collision.Contact{},
 	}
 
 	physicsComponent := &components.PhysicsComponent{

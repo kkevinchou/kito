@@ -40,6 +40,8 @@ func NewServerGame(assetsDirectory string) *Game {
 }
 
 func serverEntitySetup(g *Game) []entities.Entity {
+	scene := entities.NewScene()
+
 	enemies := []entities.Entity{}
 	for i := 0; i < 5; i++ {
 		enemy := entities.NewEnemy()
@@ -50,7 +52,7 @@ func serverEntitySetup(g *Game) []entities.Entity {
 	}
 
 	entities := []entities.Entity{
-		entities.NewScene(),
+		scene,
 	}
 	entities = append(entities, enemies...)
 	return entities

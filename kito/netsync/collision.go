@@ -166,6 +166,7 @@ func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
 	var result []*collision.Contact
 
 	if ok, capsuleEntity, triMeshEntity := isCapsuleTriMeshCollision(e1, e2); ok {
+		// fmt.Println(capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider)
 		contacts := collision.CheckCollisionCapsuleTriMesh(
 			*capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
 			*triMeshEntity.GetComponentContainer().ColliderComponent.TransformedTriMeshCollider,

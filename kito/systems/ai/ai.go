@@ -95,16 +95,17 @@ func (s *AISystem) Update(delta time.Duration) {
 		}
 	}
 
+	triggerTime := 10
 	aiCount := len(s.world.QueryEntity(components.ComponentFlagAI))
 	if aiCount < 5 {
 		s.spawnTrigger += int(delta.Milliseconds())
-		if s.spawnTrigger > 2000 {
+		if s.spawnTrigger > triggerTime {
 			enemy := entities.NewEnemy()
-			x := rand.Intn(1000) - 500
-			z := rand.Intn(1000) - 500
+			x := rand.Intn(3000) - 1500
+			z := rand.Intn(3000) - 1500
 			enemy.GetComponentContainer().TransformComponent.Position = mgl64.Vec3{float64(x), 0, float64(z)}
 			s.world.RegisterEntities([]entities.Entity{enemy})
-			s.spawnTrigger -= 3000
+			s.spawnTrigger -= triggerTime
 		}
 	}
 }

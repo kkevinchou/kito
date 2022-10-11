@@ -102,8 +102,6 @@ func (g *Game) Start() {
 			g.metricsRegistry.Inc("frameCatchup", 1)
 		}
 
-		time.Sleep(5 * time.Millisecond)
-
 		if renderAccumulator >= msPerFrame {
 			frameCount++
 			g.metricsRegistry.Inc("fps", 1)

@@ -237,3 +237,16 @@ func PointInTriangle(point mgl64.Vec3, triangle collider.Triangle) bool {
 
 	return true
 }
+
+func PointInAABB(point mgl64.Vec3, boundingBox *collider.BoundingBox) bool {
+	if point.X() < boundingBox.MinVertex.X() || point.X() > boundingBox.MaxVertex.X() {
+		return false
+	}
+	if point.Y() < boundingBox.MinVertex.Y() || point.Y() > boundingBox.MaxVertex.Y() {
+		return false
+	}
+	if point.Z() < boundingBox.MinVertex.Z() || point.Z() > boundingBox.MaxVertex.Z() {
+		return false
+	}
+	return true
+}

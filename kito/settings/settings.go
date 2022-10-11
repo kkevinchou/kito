@@ -81,7 +81,7 @@ const (
 	// Physics
 	gravity float64 = 250
 
-	SpatialPartitionNumPartitions int = 5
+	SpatialPartitionNumPartitions int = 10
 	SpatialPartitionDimensionSize int = 200
 
 	// Debugging constants

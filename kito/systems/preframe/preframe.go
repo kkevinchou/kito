@@ -14,6 +14,7 @@ type World interface {
 	QueryEntity(componentFlags int) []entities.Entity
 	SpatialPartition() *spatialpartition.SpatialPartition
 	GetPlayerEntity() entities.Entity
+	GetEntityByID(id int) entities.Entity
 }
 
 type PreFrameSystem struct {
@@ -29,7 +30,7 @@ func NewPreFrameSystem(world World) *PreFrameSystem {
 }
 
 func (s *PreFrameSystem) Update(delta time.Duration) {
-	s.world.SpatialPartition().Initialize(s.world)
+	s.world.SpatialPartition().FrameSetup(s.world)
 
 }
 

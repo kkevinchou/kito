@@ -22,6 +22,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/networkinput"
 	"github.com/kkevinchou/kito/kito/systems/physics"
 	"github.com/kkevinchou/kito/kito/systems/ping"
+	"github.com/kkevinchou/kito/kito/systems/preframe"
 	"github.com/kkevinchou/kito/kito/systems/render"
 	"github.com/kkevinchou/kito/kito/systems/rpcsender"
 	"github.com/kkevinchou/kito/kito/systems/spawner"
@@ -100,6 +101,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	spawnerSystem := spawner.NewSpawnerSystem(g)
 	stateInterpolatorSystem := stateinterpolator.NewStateInterpolatorSystem(g)
+	preframeSystem := preframe.NewPreFrameSystem(g)
 
 	// systems that can manipulate the transform of an entity
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
@@ -124,6 +126,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 		networkDispatchSystem,
 		spawnerSystem,
 		stateInterpolatorSystem,
+		preframeSystem,
 		characterControllerSystem,
 		physicsSystem,
 		collisionSystem,
