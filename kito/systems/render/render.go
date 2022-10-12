@@ -288,7 +288,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 					componentContainer.HealthComponent,
 					viewerContext,
 					lightContext,
-					shaderManager.GetShaderProgram("basicsolid"),
+					shaderManager.GetShaderProgram("flat"),
+					mgl64.Vec3{0.86, 0.1, 0.1},
 					billboardModelMatrix,
 				)
 			}
@@ -314,9 +315,9 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 					drawAABB(
 						viewerContext,
 						shaderManager.GetShaderProgram("flat"),
+						mgl64.Vec3{.2, 0, .7},
 						bb,
 						0.5,
-						mgl64.Vec3{.2, 0, .7},
 					)
 				}
 			}
@@ -338,7 +339,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 					drawCapsuleCollider(
 						viewerContext,
 						lightContext,
-						shaderManager.GetShaderProgram("basicsolid"),
+						shaderManager.GetShaderProgram("flat"),
+						mgl64.Vec3{0.5, 1, 0},
 						componentContainer.ColliderComponent.CapsuleCollider,
 						billboardModelMatrix,
 					)
@@ -346,7 +348,8 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 					drawTriMeshCollider(
 						viewerContext,
 						lightContext,
-						shaderManager.GetShaderProgram("basicsolid"),
+						shaderManager.GetShaderProgram("flat"),
+						mgl64.Vec3{0.5, 1, 0},
 						componentContainer.ColliderComponent.TransformedTriMeshCollider,
 					)
 				}
@@ -375,9 +378,9 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 		drawSpatialPartition(
 			viewerContext,
 			shaderManager.GetShaderProgram("flat"),
+			mgl64.Vec3{0.5, 1, 0},
 			s.world.SpatialPartition(),
 			0.5,
-			mgl64.Vec3{0.5, 1, 0},
 		)
 	}
 

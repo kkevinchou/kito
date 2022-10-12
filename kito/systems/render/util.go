@@ -92,7 +92,7 @@ func drawModel(viewerContext ViewerContext, lightContext LightContext, shadowMap
 	}
 }
 
-func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, triMeshCollider *collider.TriMesh) {
+func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, color mgl64.Vec3, triMeshCollider *collider.TriMesh) {
 	var vertices []float32
 
 	for _, triangle := range triMeshCollider.Triangles {
@@ -117,11 +117,12 @@ func drawTriMeshCollider(viewerContext ViewerContext, lightContext LightContext,
 	shader.SetUniformMat4("model", mgl32.Ident4())
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	shader.SetUniformVec3("color", utils.Vec3F64ToF32(color))
 	shader.SetUniformFloat("alpha", float32(0.3))
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
 
-func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, capsuleCollider *collider.Capsule, billboardModelMatrix mgl64.Mat4) {
+func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, color mgl64.Vec3, capsuleCollider *collider.Capsule, billboardModelMatrix mgl64.Mat4) {
 	radius := float32(capsuleCollider.Radius)
 	top := float32(capsuleCollider.Top.Y()) + radius
 	bottom := float32(capsuleCollider.Bottom.Y()) - radius
@@ -134,11 +135,6 @@ func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext,
 		-radius, top, 0,
 		-radius, bottom, 0,
 	}
-
-	// for i := 0; i < len(vertices); i += 3 {
-	// 	vertices[i] = vertices[i] + float32(capsuleCollider.Bottom.X())
-	// 	vertices[i+2] = vertices[i+2] + float32(capsuleCollider.Bottom.Z())
-	// }
 
 	var vbo, vao uint32
 	gl.GenBuffers(1, &vbo)
@@ -156,11 +152,12 @@ func drawCapsuleCollider(viewerContext ViewerContext, lightContext LightContext,
 	shader.SetUniformMat4("model", utils.Mat4F64ToF32(billboardModelMatrix))
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	shader.SetUniformVec3("color", utils.Vec3F64ToF32(color))
 	shader.SetUniformFloat("alpha", float32(0.3))
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
 
-func drawHealthHUD(healthComponent *components.HealthComponent, viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, billboardModelMatrix mgl64.Mat4) {
+func drawHealthHUD(healthComponent *components.HealthComponent, viewerContext ViewerContext, lightContext LightContext, shader *shaders.ShaderProgram, color mgl64.Vec3, billboardModelMatrix mgl64.Mat4) {
 	var vertices []float32
 
 	verticalOffset := mgl64.Vec3{0, 70, 0}
@@ -197,6 +194,7 @@ func drawHealthHUD(healthComponent *components.HealthComponent, viewerContext Vi
 	shader.SetUniformMat4("model", utils.Mat4F64ToF32(billboardModelMatrix))
 	shader.SetUniformMat4("view", utils.Mat4F64ToF32(viewerContext.InverseViewMatrix))
 	shader.SetUniformMat4("projection", utils.Mat4F64ToF32(viewerContext.ProjectionMatrix))
+	shader.SetUniformVec3("color", utils.Vec3F64ToF32(color))
 	shader.SetUniformFloat("alpha", float32(1))
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
@@ -423,7 +421,7 @@ func drawTris(viewerContext ViewerContext, shader *shaders.ShaderProgram, points
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)))
 }
 
-func drawSpatialPartition(viewerContext ViewerContext, shader *shaders.ShaderProgram, spatialPartition *spatialpartition.SpatialPartition, thickness float64, color mgl64.Vec3) {
+func drawSpatialPartition(viewerContext ViewerContext, shader *shaders.ShaderProgram, color mgl64.Vec3, spatialPartition *spatialpartition.SpatialPartition, thickness float64) {
 	var horizontalLines [][]mgl64.Vec3
 	d := spatialPartition.PartitionDimension * spatialPartition.PartitionCount
 
@@ -485,7 +483,7 @@ func drawSpatialPartition(viewerContext ViewerContext, shader *shaders.ShaderPro
 	)
 }
 
-func drawAABB(viewerContext ViewerContext, shader *shaders.ShaderProgram, aabb *collider.BoundingBox, thickness float64, color mgl64.Vec3) {
+func drawAABB(viewerContext ViewerContext, shader *shaders.ShaderProgram, color mgl64.Vec3, aabb *collider.BoundingBox, thickness float64) {
 	var horizontalLines [][]mgl64.Vec3
 	baseHorizontalLines := [][]mgl64.Vec3{}
 

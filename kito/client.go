@@ -181,18 +181,9 @@ func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
 func compileShaders() {
 	d := directory.GetDirectory()
 	shaderManager := d.ShaderManager()
-	if err := shaderManager.CompileShaderProgram("basic", "basic", "basic"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("basicShadow", "basicshadow", "basicshadow"); err != nil {
-		panic(err)
-	}
 	if err := shaderManager.CompileShaderProgram("skybox", "skybox", "skybox"); err != nil {
 		panic(err)
 	}
-	// if err := shaderManager.CompileShaderProgram("model", "model", "model"); err != nil {
-	// 	panic(err)
-	// }
 	if err := shaderManager.CompileShaderProgram("modelpbr", "model", "pbr"); err != nil {
 		panic(err)
 	}
@@ -209,9 +200,6 @@ func compileShaders() {
 		panic(err)
 	}
 	if err := shaderManager.CompileShaderProgram("quadtex", "quadtex", "quadtex"); err != nil {
-		panic(err)
-	}
-	if err := shaderManager.CompileShaderProgram("basicsolid", "basicsolid", "basicsolid"); err != nil {
 		panic(err)
 	}
 }
