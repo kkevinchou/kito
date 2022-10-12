@@ -9,7 +9,7 @@ import (
 
 func TestPartition(t *testing.T) {
 	partitionCount := 3
-	p := spatialpartition.NewSpatialPartition(5, partitionCount)
+	p := spatialpartition.NewSpatialPartition(nil, 5, partitionCount)
 	expectedPartitionCount := partitionCount * partitionCount * partitionCount
 
 	actualPartitionCount := 0

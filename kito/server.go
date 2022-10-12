@@ -72,9 +72,9 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.ListenAddress, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	rpcReceiverSystem := rpcreceiver.NewRPCReceiverSystem(g)
-	preframeSystem := preframe.NewPreFrameSystem(g)
 	playerInputSystem := playerinput.NewPlayerInputSystem(g)
 	aiSystem := ai.NewAnimationSystem(g)
+	preframeSystem := preframe.NewPreFrameSystem(g)
 
 	// systems that can manipulate the transform of an entity
 	characterControllerSystem := charactercontroller.NewCharacterControllerSystem(g)
@@ -91,9 +91,9 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 		networkListenerSystem,
 		networkDispatchSystem,
 		rpcReceiverSystem,
-		preframeSystem,
 		playerInputSystem,
 		aiSystem,
+		preframeSystem,
 		characterControllerSystem,
 		physicsSystem,
 		collisionSystem,

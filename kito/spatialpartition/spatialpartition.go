@@ -48,10 +48,9 @@ func NewSpatialPartition(world World, partitionDimension int, partitionCount int
 func (s *SpatialPartition) QueryCollisionCandidates(entity entities.Entity) []entities.Entity {
 	// determine which partitions the entity touches
 	// collect all entities that belong to each of the partitions
-	// return s.world.QueryEntity(components.ComponentFlagCollider | components.ComponentFlagTransform)
 
 	cc := entity.GetComponentContainer()
-	if cc.ColliderComponent.BoundingBoxCollider == nil || cc.ColliderComponent.CapsuleCollider == nil {
+	if cc.ColliderComponent.BoundingBoxCollider == nil {
 		return nil
 	}
 
@@ -68,13 +67,6 @@ func (s *SpatialPartition) QueryCollisionCandidates(entity entities.Entity) []en
 				candidates = append(candidates, e)
 			}
 		}
-	}
-
-	terrain := s.world.GetEntityByID(80000)
-	if terrain != nil {
-		// fmt.Println(terrain.GetName())
-		candidates = append(candidates, terrain)
-		// fmt.Println(candidates)
 	}
 
 	return candidates

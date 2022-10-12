@@ -7,6 +7,7 @@ import (
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
+	"github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/model"
 )
 
@@ -51,9 +52,11 @@ func NewRigidBody(modelName string, Scale mgl64.Mat4, Orientation mgl64.Mat4, en
 	}
 
 	triMesh := collider.NewTriMesh(m)
+	boundingBox := collider.BoundingBoxFromVertices(libutils.ModelSpecVertsToVec3(m.Vertices()))
 	colliderComponent := &components.ColliderComponent{
-		TriMeshCollider: &triMesh,
-		Contacts:        map[int]*collision.Contact{},
+		TriMeshCollider:     &triMesh,
+		BoundingBoxCollider: &boundingBox,
+		Contacts:            map[int]*collision.Contact{},
 	}
 
 	renderComponent := &components.RenderComponent{
