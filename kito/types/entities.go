@@ -13,4 +13,5 @@ const (
 	EntityTypeDynamicRigidBody
 	EntityTypeProjectile
 	EntityTypeEnemy
+	EntityTypeLootbox
 )

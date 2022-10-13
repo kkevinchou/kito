@@ -26,6 +26,8 @@ func Spawn(entityType types.EntityType, position mgl64.Vec3, orientation mgl64.Q
 		newEntity = entities.NewProjectile(position)
 	} else if types.EntityType(entityType) == types.EntityTypeEnemy {
 		newEntity = entities.NewEnemy()
+	} else if types.EntityType(entityType) == types.EntityTypeLootbox {
+		newEntity = entities.NewLootbox()
 	} else {
 		fmt.Printf("unrecognized entity with type %v to spawn\n", entityType)
 		return nil

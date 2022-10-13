@@ -51,8 +51,11 @@ func serverEntitySetup(g *Game) []entities.Entity {
 		enemies = append(enemies, enemy)
 	}
 
+	lootbox := entities.NewLootbox()
+
 	entities := []entities.Entity{
 		scene,
+		lootbox,
 	}
 	entities = append(entities, enemies...)
 	return entities

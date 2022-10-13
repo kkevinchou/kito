@@ -311,7 +311,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			}
 
 			if settings.DebugRenderSpatialPartition {
-				if componentContainer.ColliderComponent.BoundingBoxCollider != nil && entity.Type() == types.EntityTypeBob {
+				if componentContainer.ColliderComponent.BoundingBoxCollider != nil {
 					bb := componentContainer.ColliderComponent.BoundingBoxCollider.Transform(componentContainer.TransformComponent.Position)
 					drawAABB(
 						viewerContext,

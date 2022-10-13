@@ -4,6 +4,8 @@ import (
 	"math"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/lib/libutils"
+	"github.com/kkevinchou/kito/lib/model"
 )
 
 type BoundingBox struct {
@@ -15,7 +17,7 @@ func (c *BoundingBox) Transform(position mgl64.Vec3) *BoundingBox {
 	return &BoundingBox{MinVertex: c.MinVertex.Add(position), MaxVertex: c.MaxVertex.Add(position)}
 }
 
-func BoundingBoxFromVertices(vertices []mgl64.Vec3) BoundingBox {
+func BoundingBoxFromVertices(vertices []mgl64.Vec3) *BoundingBox {
 	var minX, minY, minZ, maxX, maxY, maxZ float64
 
 	minX = vertices[0].X()
@@ -48,10 +50,15 @@ func BoundingBoxFromVertices(vertices []mgl64.Vec3) BoundingBox {
 	minVertex := mgl64.Vec3{minX, minY, minZ}
 	maxVertex := mgl64.Vec3{maxX, maxY, maxZ}
 
-	return BoundingBox{MinVertex: minVertex, MaxVertex: maxVertex}
+	return &BoundingBox{MinVertex: minVertex, MaxVertex: maxVertex}
 }
 
 func BoundingBoxFromCapsule(capsule Capsule) *BoundingBox {
 	diagonal := math.Sqrt(2 * capsule.Radius * capsule.Radius)
 	return &BoundingBox{MinVertex: capsule.Bottom.Add(mgl64.Vec3{-diagonal, -capsule.Radius, -diagonal}), MaxVertex: capsule.Top.Add(mgl64.Vec3{diagonal, capsule.Radius, diagonal})}
+}
+
+// BoundingBoxFromModel creates a bounding box from a model's vertices
+func BoundingBoxFromModel(m *model.Model) *BoundingBox {
+	return BoundingBoxFromVertices(libutils.ModelSpecVertsToVec3(m.Vertices()))
 }

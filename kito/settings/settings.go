@@ -80,6 +80,7 @@ const (
 
 	// Physics
 	gravity float64 = 250
+	// gravity float64 = 1
 
 	SpatialPartitionNumPartitions int = 10
 	SpatialPartitionDimensionSize int = 200

@@ -166,7 +166,6 @@ func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
 	var result []*collision.Contact
 
 	if ok, capsuleEntity, triMeshEntity := isCapsuleTriMeshCollision(e1, e2); ok {
-		// fmt.Println(capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider)
 		contacts := collision.CheckCollisionCapsuleTriMesh(
 			*capsuleEntity.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
 			*triMeshEntity.GetComponentContainer().ColliderComponent.TransformedTriMeshCollider,
@@ -184,9 +183,7 @@ func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
 		}
 
 		result = contacts
-	}
-
-	if ok := isCapsuleCapsuleCollision(e1, e2); ok {
+	} else if ok := isCapsuleCapsuleCollision(e1, e2); ok {
 		contact := collision.CheckCollisionCapsuleCapsule(
 			*e1.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
 			*e2.GetComponentContainer().ColliderComponent.TransformedCapsuleCollider,
@@ -236,6 +233,7 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		transformComponent := cc.TransformComponent
 		tpcComponent := cc.ThirdPersonControllerComponent
 		aiComponent := cc.AIComponent
+		physicsComponent := cc.PhysicsComponent
 
 		separatingVector := contact.SeparatingVector
 		if tpcComponent != nil {
@@ -249,12 +247,15 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 				tpcComponent.ZipVelocity = mgl64.Vec3{}
 				tpcComponent.Grounded = true
 			}
-			transformComponent.Position = transformComponent.Position.Add(separatingVector)
 		} else if aiComponent != nil {
-			separatingVector := contact.SeparatingVector
-			transformComponent.Position = transformComponent.Position.Add(separatingVector)
 			aiComponent.Velocity[1] = 0
+		} else if physicsComponent != nil {
+			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
+				physicsComponent.Grounded = true
+			}
+			physicsComponent.Velocity[1] = 0
 		}
+		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 	} else if contact.Type == collision.ContactTypeCapsuleCapsule {
 		cc := entity.GetComponentContainer()
 		transformComponent := cc.TransformComponent
