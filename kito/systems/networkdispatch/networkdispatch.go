@@ -33,6 +33,7 @@ type World interface {
 	QueryEntity(componentFlags int) []entities.Entity
 	GetEntityByID(id int) entities.Entity
 	SpatialPartition() *spatialpartition.SpatialPartition
+	SetServerStats(serverStats map[string]string)
 }
 
 type NetworkDispatchSystem struct {

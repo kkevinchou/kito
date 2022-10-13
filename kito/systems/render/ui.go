@@ -69,12 +69,24 @@ func (s *RenderSystem) generalInfoComponent() {
 	}
 }
 
+func (s *RenderSystem) serverStatsInfoComponent() {
+	serverStats := s.world.ServerStats()
+	if imgui.CollapsingHeaderV("Server Stats", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
+		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
+		for k, v := range serverStats {
+			uiTableRow(k, v)
+		}
+		imgui.EndTable()
+	}
+}
+
 func (s *RenderSystem) debugWindow() {
 	imgui.SetNextWindowBgAlpha(0.5)
 	imgui.BeginV("Debug", nil, imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoTitleBar|imgui.WindowFlagsNoMove)
 	s.generalInfoComponent()
 	s.networkInfoUIComponent()
 	s.entityInfoUIComponent()
+	s.serverStatsInfoComponent()
 	// s.lightingUIComponent(s.shadowMap.DepthTexture())
 	imgui.SetItemDefaultFocus()
 	imgui.End()

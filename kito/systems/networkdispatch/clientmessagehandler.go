@@ -21,6 +21,10 @@ func clientMessageHandler(world World, message *network.Message) {
 			panic(err)
 		}
 
+		if gameStateUpdate.ServerStats != nil {
+			world.SetServerStats(gameStateUpdate.ServerStats)
+		}
+
 		metricsRegistry.Inc("update_message_size", float64(len(message.Body)))
 		metricsRegistry.Inc("update_message_count", 1)
 

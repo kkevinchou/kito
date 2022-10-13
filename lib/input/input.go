@@ -63,6 +63,7 @@ const (
 
 	KeyboardKeyTick KeyboardKey = "`"
 	KeyboardKeyF1   KeyboardKey = "F1"
+	KeyboardKeyF2   KeyboardKey = "F2"
 
 	KeyboardEventUp = iota
 	KeyboardEventDown

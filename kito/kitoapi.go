@@ -114,3 +114,11 @@ func (g *Game) ToggleWindowVisibility(window types.Window) bool {
 func (g *Game) SpatialPartition() *spatialpartition.SpatialPartition {
 	return g.spatialPartition
 }
+
+func (g *Game) SetServerStats(serverStats map[string]string) {
+	g.serverStats = serverStats
+}
+
+func (g *Game) ServerStats() map[string]string {
+	return g.serverStats
+}

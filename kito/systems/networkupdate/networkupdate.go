@@ -15,6 +15,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils/entityutils"
+	"github.com/kkevinchou/kito/lib/metrics"
 )
 
 type World interface {
@@ -23,6 +24,7 @@ type World interface {
 	GetSingleton() *singleton.Singleton
 	CommandFrame() int
 	QueryEntity(componentFlags int) []entities.Entity
+	MetricsRegistry() *metrics.MetricsRegistry
 }
 
 type NetworkUpdateSystem struct {
@@ -60,8 +62,13 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 
 	s.elapsedFrames %= settings.CommandFramesPerServerUpdate
 
+	serverStats := map[string]string{
+		"fps": fmt.Sprintf("%d", int(s.world.MetricsRegistry().GetOneSecondSum("fps"))),
+	}
+
 	gameStateUpdate := &knetwork.GameStateUpdateMessage{
-		Entities: map[int]knetwork.EntitySnapshot{},
+		Entities:    map[int]knetwork.EntitySnapshot{},
+		ServerStats: serverStats,
 	}
 
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagTransform | components.ComponentFlagNetwork) {

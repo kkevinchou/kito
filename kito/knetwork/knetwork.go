@@ -63,6 +63,7 @@ type EventI interface {
 }
 
 type GameStateUpdateMessage struct {
+	ServerStats                 map[string]string
 	LastInputCommandFrame       int
 	LastInputGlobalCommandFrame int
 	CurrentGlobalCommandFrame   int

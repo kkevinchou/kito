@@ -48,6 +48,7 @@ type World interface {
 	GetWindowVisibility(types.Window) bool
 	GetEventBroker() eventbroker.EventBroker
 	SpatialPartition() *spatialpartition.SpatialPartition
+	ServerStats() map[string]string
 }
 
 type Platform interface {

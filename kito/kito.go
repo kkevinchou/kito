@@ -45,6 +45,8 @@ type Game struct {
 	commandFrameHistory *commandframe.CommandFrameHistory
 	focusedWindow       types.Window
 	windowVisibility    map[types.Window]bool
+
+	serverStats map[string]string
 }
 
 func NewBaseGame() *Game {
