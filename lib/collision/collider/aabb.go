@@ -1,8 +1,6 @@
 package collider
 
 import (
-	"math"
-
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/lib/libutils"
 	"github.com/kkevinchou/kito/lib/model"
@@ -54,8 +52,10 @@ func BoundingBoxFromVertices(vertices []mgl64.Vec3) *BoundingBox {
 }
 
 func BoundingBoxFromCapsule(capsule Capsule) *BoundingBox {
-	diagonal := math.Sqrt(2 * capsule.Radius * capsule.Radius)
-	return &BoundingBox{MinVertex: capsule.Bottom.Add(mgl64.Vec3{-diagonal, -capsule.Radius, -diagonal}), MaxVertex: capsule.Top.Add(mgl64.Vec3{diagonal, capsule.Radius, diagonal})}
+	return &BoundingBox{
+		MinVertex: capsule.Bottom.Add(mgl64.Vec3{-capsule.Radius, -capsule.Radius, -capsule.Radius}),
+		MaxVertex: capsule.Top.Add(mgl64.Vec3{capsule.Radius, capsule.Radius, capsule.Radius}),
+	}
 }
 
 // BoundingBoxFromModel creates a bounding box from a model's vertices
