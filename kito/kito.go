@@ -92,12 +92,26 @@ func (g *Game) Start() {
 			for k, v := range curTimings {
 				timings[k] += v
 			}
+
 			// if timings["CollisionSystem"] != 0 {
 			// 	fmt.Println(timings["CollisionSystem"])
 			// }
+
 			accumulator -= float64(settings.MSPerCommandFrame)
 			runCount++
+			// var timingsTotal int
+			// for _, v := range timings {
+			// 	timingsTotal += v
+			// }
+			// fmt.Println(timingsTotal)
+
 		}
+
+		// prevents lighting my CPU on fire
+		if accumulator < float64(settings.MSPerCommandFrame)-10 {
+			time.Sleep(10 * time.Millisecond)
+		}
+
 		if runCount > 1 {
 			g.metricsRegistry.Inc("frameCatchup", 1)
 		}
