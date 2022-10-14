@@ -60,7 +60,7 @@ func NewEnemy() *EntityImpl {
 		renderComponent,
 		components.NewAIComponent(nil),
 		&components.HealthComponent{Value: 100},
-		&components.LootDropperComponent{},
+		components.DefaultLootDropper(),
 	}
 
 	entity := NewEntity(

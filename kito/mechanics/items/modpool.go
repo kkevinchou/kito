@@ -1,6 +1,9 @@
 package items
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type AffixType string
 
@@ -36,24 +39,49 @@ func (m *ModPool) AddMod(mod *Mod) {
 	}
 }
 
-func (m *ModPool) ChooseMods(count int, maxPrefix int, maxSuffix int) []*Mod {
-	if maxPrefix+maxSuffix > count {
-		panic("max prefix and max suffix cannot exceed count")
-	}
+func (m *ModPool) ChooseMods(rarity Rarity) []*Mod {
+	maxPrefix, maxSuffix := maxCountsByRarity(rarity)
 
-	prefixCount := rand.Intn(maxPrefix + 1)
-	suffixCount := count - prefixCount
-
-	// TOOD: shuffle
+	prefixCount := 1 + rand.Intn(maxPrefix)
+	suffixCount := 1 + rand.Intn(maxSuffix)
 
 	mods := []*Mod{}
-	if prefixCount > 0 {
-		prefixes := m.prefixList[0:prefixCount]
-		mods = append(mods, prefixes...)
+	guard := 0
+	maxGuard := 100
+
+	seen := map[int]any{}
+	for i := 0; i < prefixCount; i++ {
+		for guard < maxGuard {
+			guard = +1
+			idx := rand.Intn(len(m.prefixList))
+			if _, ok := seen[idx]; ok {
+				continue
+			}
+
+			prefix := m.prefixList[idx]
+			mods = append(mods, prefix)
+			seen[prefix.ID] = true
+			break
+		}
 	}
-	if suffixCount > 0 {
-		suffixes := m.suffixList[0:suffixCount]
-		mods = append(mods, suffixes...)
+
+	for i := 0; i < suffixCount; i++ {
+		for guard < maxGuard {
+			guard = +1
+			idx := rand.Intn(len(m.suffixList))
+			if _, ok := seen[idx]; ok {
+				continue
+			}
+
+			suffix := m.suffixList[idx]
+			mods = append(mods, suffix)
+			seen[suffix.ID] = true
+			break
+		}
+	}
+
+	if guard >= maxGuard {
+		fmt.Println("WARNING, max guard hit in ChooseMods")
 	}
 
 	return mods
@@ -63,6 +91,10 @@ type Mod struct {
 	ID        int
 	AffixType AffixType
 	Effect    Effect
+}
+
+func (m *Mod) String() string {
+	return fmt.Sprintf("Mod{%d, %s}", m.ID, m.AffixType)
 }
 
 type Effect interface {

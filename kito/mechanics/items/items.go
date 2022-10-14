@@ -10,7 +10,7 @@ const (
 	RarityRare   Rarity = "RARE"
 )
 
-func MaxCountsByRarity(rarity Rarity) (int, int) {
+func maxCountsByRarity(rarity Rarity) (int, int) {
 	if rarity == RarityNormal {
 		return 0, 0
 	} else if rarity == RarityMagic {

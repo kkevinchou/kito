@@ -3,10 +3,8 @@ package components
 import "github.com/kkevinchou/kito/kito/mechanics/items"
 
 type LootDropperComponent struct {
-	Rarities              []items.Rarity
-	RarityWeights         []int
-	IncreasedItemRarity   float64
-	IncreasedItemQuantity float64
+	Rarities      []items.Rarity
+	RarityWeights []int
 }
 
 func (c *LootDropperComponent) AddToComponentContainer(container *ComponentContainer) {
@@ -15,4 +13,11 @@ func (c *LootDropperComponent) AddToComponentContainer(container *ComponentConta
 
 func (c *LootDropperComponent) ComponentFlag() int {
 	return ComponentFlagLootDropper
+}
+
+func DefaultLootDropper() *LootDropperComponent {
+	return &LootDropperComponent{
+		Rarities:      []items.Rarity{items.RarityRare},
+		RarityWeights: []int{1},
+	}
 }

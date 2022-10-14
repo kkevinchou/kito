@@ -20,14 +20,23 @@ type World interface {
 type LootSystem struct {
 	*base.BaseSystem
 	world   World
-	modPool items.ModPool
+	modPool *items.ModPool
 }
 
 func NewLootSystem(world World) *LootSystem {
+	modPool := items.NewModPool()
+
+	for i := 0; i < 100; i++ {
+		modPool.AddMod(&items.Mod{ID: i, AffixType: items.AffixTypePrefix})
+	}
+	for i := 1000; i < 1100; i++ {
+		modPool.AddMod(&items.Mod{ID: i, AffixType: items.AffixTypeSuffix})
+	}
+
 	return &LootSystem{
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
-		modPool:    *items.NewModPool(),
+		modPool:    modPool,
 	}
 }
 
@@ -46,10 +55,9 @@ func (s *LootSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		// rarity := items.SelectRarity(ldComponent.Rarities, ldComponent.RarityWeights)
-		// modCount := items.RarityToModCount(rarity)
-		// maxPrefix, maxSuffix := items.MaxCountsByRarity(rarity)
-		// s.modPool.ChooseMods(modCount, maxPrefix, maxSuffix)
+		rarity := items.SelectRarity(ldComponent.Rarities, ldComponent.RarityWeights)
+		mods := s.modPool.ChooseMods(rarity)
+		_ = mods
 
 		lootbox := entityutils.Spawn(types.EntityTypeLootbox, cc.TransformComponent.Position.Add(mgl64.Vec3{0, 25, 0}), cc.TransformComponent.Orientation)
 		s.world.RegisterEntities([]entities.Entity{lootbox})
