@@ -44,6 +44,7 @@ func (s *RPCSenderSystem) Observe(event events.Event) {
 func (s *RPCSenderSystem) clearEvents() {
 	s.events = nil
 }
+
 func (s *RPCSenderSystem) Update(delta time.Duration) {
 	defer s.clearEvents()
 

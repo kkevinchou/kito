@@ -101,8 +101,8 @@ func (s *AISystem) Update(delta time.Duration) {
 		s.spawnTrigger += int(delta.Milliseconds())
 		if s.spawnTrigger > triggerTime {
 			enemy := entities.NewEnemy()
-			x := rand.Intn(3000) - 1500
-			z := rand.Intn(3000) - 1500
+			x := rand.Intn(1500) - 750
+			z := rand.Intn(1500) - 750
 			enemy.GetComponentContainer().TransformComponent.Position = mgl64.Vec3{float64(x), 0, float64(z)}
 			s.world.RegisterEntities([]entities.Entity{enemy})
 			s.spawnTrigger -= triggerTime

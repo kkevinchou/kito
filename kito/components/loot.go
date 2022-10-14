@@ -1,7 +1,6 @@
 package components
 
 type LootComponent struct {
-	Value float64
 }
 
 func (c *LootComponent) AddToComponentContainer(container *ComponentContainer) {

@@ -53,7 +53,6 @@ func (s *CombatSystem) Update(delta time.Duration) {
 				}
 			}
 
-			s.world.UnregisterEntity(entity)
 			event := &events.UnregisterEntityEvent{
 				GlobalCommandFrame: s.world.CommandFrame(),
 				EntityID:           entity.GetID(),
@@ -65,7 +64,6 @@ func (s *CombatSystem) Update(delta time.Duration) {
 	// handle death events
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagHealth) {
 		if entity.GetComponentContainer().HealthComponent.Value <= 0 {
-			s.world.UnregisterEntity(entity)
 			event := &events.UnregisterEntityEvent{
 				GlobalCommandFrame: s.world.CommandFrame(),
 				EntityID:           entity.GetID(),

@@ -56,6 +56,7 @@ func NewLootbox() *EntityImpl {
 		colliderComponent,
 		renderComponent,
 		physicsComponent,
+		&components.LootComponent{},
 	}
 
 	entity := NewEntity(
