@@ -76,7 +76,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	}
 
 	if !libutils.Vec3ApproxEqualZero(tpcComponent.ControllerVelocity) {
-		transformComponent.Orientation = libutils.QuatLookAt(mgl64.Vec3{0, 0, 0}, tpcComponent.ControllerVelocity.Normalize(), mgl64.Vec3{0, 1, 0})
+		transformComponent.Orientation = mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, -1}, tpcComponent.ControllerVelocity.Normalize())
 	} else {
 		tpcComponent.MovementSpeed = 0
 	}
