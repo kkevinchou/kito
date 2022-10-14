@@ -318,7 +318,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 						shaderManager.GetShaderProgram("flat"),
 						mgl64.Vec3{.2, 0, .7},
 						bb,
-						0.5,
+						settings.DefaultLineThickness,
 					)
 				}
 			}
@@ -381,7 +381,7 @@ func (s *RenderSystem) renderScene(viewerContext ViewerContext, lightContext Lig
 			shaderManager.GetShaderProgram("flat"),
 			mgl64.Vec3{0.5, 1, 0},
 			s.world.SpatialPartition(),
-			0.5,
+			settings.DefaultLineThickness,
 		)
 	}
 

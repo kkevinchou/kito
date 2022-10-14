@@ -87,4 +87,7 @@ const (
 
 	// Debugging constants
 	LatencyInjection = 0 * time.Millisecond
+
+	// Mostly for debug rendering
+	DefaultLineThickness float64 = 0.25
 )

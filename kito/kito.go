@@ -111,7 +111,7 @@ func (g *Game) Start() {
 
 		// prevents lighting my CPU on fire
 		if accumulator < float64(settings.MSPerCommandFrame)-10 {
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(5 * time.Millisecond)
 		}
 
 		if runCount > 1 {

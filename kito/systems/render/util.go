@@ -343,58 +343,85 @@ func drawHUDTextureToQuad(viewerContext ViewerContext, shader *shaders.ShaderPro
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
 
-func drawHorizontalLines(viewerContext ViewerContext, shader *shaders.ShaderProgram, lines [][]mgl64.Vec3, thickness float64, color mgl64.Vec3) {
-	var points []mgl64.Vec3
-	for _, line := range lines {
-		start := line[0]
-		end := line[1]
+func defaultPoints(thickness float64, length float64) []mgl64.Vec3 {
+	var ht float64 = thickness / 2
+	return []mgl64.Vec3{
+		// front
+		{-ht, -ht, 0},
+		{ht, -ht, 0},
+		{ht, ht, 0},
 
-		points = append(points,
-			start,
-			end,
-			end.Add(mgl64.Vec3{0, thickness, 0}),
-			end.Add(mgl64.Vec3{0, thickness, 0}),
-			start.Add(mgl64.Vec3{0, thickness, 0}),
-			start,
+		{ht, ht, 0},
+		{-ht, ht, 0},
+		{-ht, -ht, 0},
 
-			end,
-			start,
-			start.Add(mgl64.Vec3{0, thickness, 0}),
-			start.Add(mgl64.Vec3{0, thickness, 0}),
-			end.Add(mgl64.Vec3{0, thickness, 0}),
-			end,
-		)
+		// back
+		{ht, ht, -length},
+		{ht, -ht, -length},
+		{-ht, -ht, -length},
+
+		{-ht, -ht, -length},
+		{-ht, ht, -length},
+		{ht, ht, -length},
+
+		// right
+		{ht, -ht, 0},
+		{ht, -ht, -length},
+		{ht, ht, -length},
+
+		{ht, ht, -length},
+		{ht, ht, 0},
+		{ht, -ht, 0},
+
+		// left
+		{-ht, ht, -length},
+		{-ht, -ht, -length},
+		{-ht, -ht, 0},
+
+		{-ht, -ht, 0},
+		{-ht, ht, 0},
+		{-ht, ht, -length},
+
+		// top
+		{ht, ht, 0},
+		{ht, ht, -length},
+		{-ht, ht, 0},
+
+		{-ht, ht, 0},
+		{ht, ht, -length},
+		{-ht, ht, -length},
+
+		// bottom
+		{-ht, ht, 0},
+		{ht, ht, -length},
+		{ht, ht, 0},
+
+		{-ht, ht, -length},
+		{ht, ht, -length},
+		{-ht, ht, 0},
 	}
-	drawTris(viewerContext, shader, points, thickness, color)
 }
 
-func drawVerticalLines(viewerContext ViewerContext, shader *shaders.ShaderProgram, lines [][]mgl64.Vec3, thickness float64, color mgl64.Vec3) {
+func drawLines(viewerContext ViewerContext, shader *shaders.ShaderProgram, lines [][]mgl64.Vec3, thickness float64, color mgl64.Vec3) {
 	var points []mgl64.Vec3
 	for _, line := range lines {
 		start := line[0]
 		end := line[1]
+		length := end.Sub(start).Len()
 
-		points = append(points,
-			start,
-			end,
-			end.Add(mgl64.Vec3{0, 0, thickness}),
-			end.Add(mgl64.Vec3{0, 0, thickness}),
-			start.Add(mgl64.Vec3{0, 0, thickness}),
-			start,
+		dir := end.Sub(start).Normalize()
+		q := mgl64.QuatBetweenVectors(mgl64.Vec3{0, 0, -1}, dir)
 
-			end,
-			start,
-			start.Add(mgl64.Vec3{0, 0, thickness}),
-			start.Add(mgl64.Vec3{0, 0, thickness}),
-			end.Add(mgl64.Vec3{0, 0, thickness}),
-			end,
-		)
+		for _, dp := range defaultPoints(thickness, length) {
+			newEnd := q.Rotate(dp).Add(start)
+			points = append(points, newEnd)
+		}
 	}
-	drawTris(viewerContext, shader, points, thickness, color)
+	drawTris(viewerContext, shader, points, color)
 }
 
 // drawTris draws a list of triangles in winding order. each triangle is defined with 3 consecutive points
-func drawTris(viewerContext ViewerContext, shader *shaders.ShaderProgram, points []mgl64.Vec3, thickness float64, color mgl64.Vec3) {
+func drawTris(viewerContext ViewerContext, shader *shaders.ShaderProgram, points []mgl64.Vec3, color mgl64.Vec3) {
 	var vertices []float32
 	for _, point := range points {
 		vertices = append(vertices, float32(point.X()), float32(point.Y()), float32(point.Z()))
@@ -422,10 +449,11 @@ func drawTris(viewerContext ViewerContext, shader *shaders.ShaderProgram, points
 }
 
 func drawSpatialPartition(viewerContext ViewerContext, shader *shaders.ShaderProgram, color mgl64.Vec3, spatialPartition *spatialpartition.SpatialPartition, thickness float64) {
-	var horizontalLines [][]mgl64.Vec3
+	var allLines [][]mgl64.Vec3
+
 	d := spatialPartition.PartitionDimension * spatialPartition.PartitionCount
 
-	baseHorizontalLines := [][]mgl64.Vec3{}
+	var baseHorizontalLines [][]mgl64.Vec3
 
 	// lines along z axis
 	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
@@ -443,22 +471,13 @@ func drawSpatialPartition(viewerContext ViewerContext, shader *shaders.ShaderPro
 
 	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
 		for _, b := range baseHorizontalLines {
-			horizontalLines = append(horizontalLines,
+			allLines = append(allLines,
 				[]mgl64.Vec3{b[0].Add(mgl64.Vec3{0, float64(i * spatialPartition.PartitionDimension), 0}), b[1].Add(mgl64.Vec3{0, float64(i * spatialPartition.PartitionDimension), 0})},
 			)
 		}
 	}
 
-	drawHorizontalLines(
-		viewerContext,
-		shader,
-		horizontalLines,
-		thickness,
-		color,
-	)
-
-	var verticalLines [][]mgl64.Vec3
-	baseVerticalLines := [][]mgl64.Vec3{}
+	var baseVerticalLines [][]mgl64.Vec3
 
 	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
 		baseVerticalLines = append(baseVerticalLines,
@@ -468,31 +487,30 @@ func drawSpatialPartition(viewerContext ViewerContext, shader *shaders.ShaderPro
 
 	for i := 0; i < spatialPartition.PartitionCount+1; i++ {
 		for _, b := range baseVerticalLines {
-			verticalLines = append(verticalLines,
+			allLines = append(allLines,
 				[]mgl64.Vec3{b[0].Add(mgl64.Vec3{0, 0, float64(i * spatialPartition.PartitionDimension)}), b[1].Add(mgl64.Vec3{0, 0, float64(i * spatialPartition.PartitionDimension)})},
 			)
 		}
 	}
 
-	drawVerticalLines(
+	drawLines(
 		viewerContext,
 		shader,
-		verticalLines,
+		allLines,
 		thickness,
 		color,
 	)
 }
 
 func drawAABB(viewerContext ViewerContext, shader *shaders.ShaderProgram, color mgl64.Vec3, aabb *collider.BoundingBox, thickness float64) {
-	var horizontalLines [][]mgl64.Vec3
-	baseHorizontalLines := [][]mgl64.Vec3{}
+	var allLines [][]mgl64.Vec3
 
 	d := aabb.MaxVertex.Sub(aabb.MinVertex)
 	xd := d.X()
 	yd := d.Y()
 	zd := d.Z()
 
-	// lines along z axis
+	baseHorizontalLines := [][]mgl64.Vec3{}
 	baseHorizontalLines = append(baseHorizontalLines,
 		[]mgl64.Vec3{aabb.MinVertex, aabb.MinVertex.Add(mgl64.Vec3{xd, 0, 0})},
 		[]mgl64.Vec3{aabb.MinVertex.Add(mgl64.Vec3{xd, 0, 0}), aabb.MinVertex.Add(mgl64.Vec3{xd, 0, zd})},
@@ -502,23 +520,13 @@ func drawAABB(viewerContext ViewerContext, shader *shaders.ShaderProgram, color 
 
 	for i := 0; i < 2; i++ {
 		for _, b := range baseHorizontalLines {
-			horizontalLines = append(horizontalLines,
+			allLines = append(allLines,
 				[]mgl64.Vec3{b[0].Add(mgl64.Vec3{0, float64(i) * yd, 0}), b[1].Add(mgl64.Vec3{0, float64(i) * yd, 0})},
 			)
 		}
 	}
 
-	drawHorizontalLines(
-		viewerContext,
-		shader,
-		horizontalLines,
-		thickness,
-		color,
-	)
-
-	var verticalLines [][]mgl64.Vec3
 	baseVerticalLines := [][]mgl64.Vec3{}
-
 	for i := 0; i < 2; i++ {
 		baseVerticalLines = append(baseVerticalLines,
 			[]mgl64.Vec3{aabb.MinVertex, aabb.MinVertex.Add(mgl64.Vec3{0, yd, 0})},
@@ -528,16 +536,16 @@ func drawAABB(viewerContext ViewerContext, shader *shaders.ShaderProgram, color 
 
 	for i := 0; i < 2; i++ {
 		for _, b := range baseVerticalLines {
-			verticalLines = append(verticalLines,
+			allLines = append(allLines,
 				[]mgl64.Vec3{b[0].Add(mgl64.Vec3{0, 0, float64(i) * zd}), b[1].Add(mgl64.Vec3{0, 0, float64(i) * zd})},
 			)
 		}
 	}
 
-	drawVerticalLines(
+	drawLines(
 		viewerContext,
 		shader,
-		verticalLines,
+		allLines,
 		thickness,
 		color,
 	)
