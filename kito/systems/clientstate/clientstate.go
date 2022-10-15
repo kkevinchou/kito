@@ -48,7 +48,7 @@ func (s *ClientStateSystem) Update(delta time.Duration) {
 
 	state = singleton.StateBuffer.PullEntityInterpolations(s.world.CommandFrame())
 	if state != nil {
-		interpolateEntities(state, s.world)
+		applyState(state, s.world)
 	}
 }
 
@@ -71,7 +71,7 @@ func spawnNewEntities(bufferedState *statebuffer.BufferedState, world World) {
 	world.RegisterEntities(newEntities)
 }
 
-func interpolateEntities(bufferedState *statebuffer.BufferedState, world World) {
+func applyState(bufferedState *statebuffer.BufferedState, world World) {
 	playerEntity := world.GetPlayerEntity()
 	for _, event := range bufferedState.Events {
 		if event.Type == events.EventTypeUnregisterEntity {
