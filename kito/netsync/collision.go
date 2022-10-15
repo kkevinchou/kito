@@ -102,11 +102,15 @@ func detectAndResolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, e
 				// fmt.Println("reached max count for entity", entityID, e1.GetName(), "most recent collision with", otherEntityID, e2.GetName())
 			}
 
-			// TODO: consider that two of the same entity may collide twice
+			// TODO(kchou): consider that two of the same entity may collide twice
 			// also, we may want to support colliding with individual mesh chunks of an
 			// entity rather than consideration of the whole entity itself
-			e1.GetComponentContainer().ColliderComponent.Contacts[e2.GetID()] = &collision.Contact{}
-			e2.GetComponentContainer().ColliderComponent.Contacts[e1.GetID()] = &collision.Contact{}
+
+			// NOTE(kchou): ideally we'd include the full collision information (contact point, separting vector, etc)
+			// but I don't yet have a good story around registering this information for both entities. i.e. if A is colliding
+			// with B, is B colliding with A? do we share half the separation between the two?
+			e1.GetComponentContainer().ColliderComponent.Contacts[e2.GetID()] = true
+			e2.GetComponentContainer().ColliderComponent.Contacts[e1.GetID()] = true
 		}
 	}
 
@@ -124,8 +128,8 @@ func detectAndResolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, e
 		// TODO: consider that two of the same entity may collide twice
 		// also, we may want to support colliding with individual mesh chunks of an
 		// entity rather than consideration of the whole entity itself
-		e1.GetComponentContainer().ColliderComponent.Contacts[e2.GetID()] = &collision.Contact{}
-		e2.GetComponentContainer().ColliderComponent.Contacts[e1.GetID()] = &collision.Contact{}
+		e1.GetComponentContainer().ColliderComponent.Contacts[e2.GetID()] = true
+		e2.GetComponentContainer().ColliderComponent.Contacts[e1.GetID()] = true
 	}
 }
 
@@ -300,7 +304,7 @@ func CollisionBookKeeping(entity entities.Entity) {
 			cc.ThirdPersonControllerComponent.Grounded = false
 		}
 	}
-	cc.ColliderComponent.Contacts = map[int]*collision.Contact{}
+	cc.ColliderComponent.Contacts = map[int]bool{}
 }
 
 func isCapsuleTriMeshCollision(e1, e2 entities.Entity) (bool, entities.Entity, entities.Entity) {

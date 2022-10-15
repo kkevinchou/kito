@@ -5,7 +5,6 @@ import (
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
-	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 )
@@ -42,7 +41,7 @@ func NewLootbox() *EntityImpl {
 		CapsuleCollider: &capsuleCollider,
 		// TriMeshCollider:     &triMeshCollider,
 		BoundingBoxCollider: boundingBox,
-		Contacts:            map[int]*collision.Contact{},
+		Contacts:            map[int]bool{},
 	}
 
 	physicsComponent := &components.PhysicsComponent{

@@ -6,7 +6,6 @@ import (
 	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/animation"
-	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 	"github.com/kkevinchou/kito/lib/model"
 )
@@ -48,7 +47,7 @@ func NewEnemy() *EntityImpl {
 	colliderComponent := &components.ColliderComponent{
 		BoundingBoxCollider: boundingBox,
 		CapsuleCollider:     &capsule,
-		Contacts:            map[int]*collision.Contact{},
+		Contacts:            map[int]bool{},
 	}
 
 	entityComponents := []components.Component{

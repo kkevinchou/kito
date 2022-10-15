@@ -95,6 +95,13 @@ func (s *RenderSystem) debugWindow() {
 func (s *RenderSystem) InventoryWindow() {
 	imgui.SetNextWindowBgAlpha(0.5)
 	imgui.BeginV("Inventory", nil, imgui.WindowFlagsNoFocusOnAppearing)
+	imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
+	uiTableRow("Placeholder item", 15)
+	// uiTableRow("Server Position", serverPosition)
+	// uiTableRow("Update Count", updateCount)
+	// uiTableRow("Update Size", updateMessageSize)
+	// uiTableRow("Inputs Sent", newInput)
+	imgui.EndTable()
 	imgui.SetItemDefaultFocus()
 	imgui.End()
 }

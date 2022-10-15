@@ -6,6 +6,8 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/components"
 	"github.com/kkevinchou/kito/kito/entities"
+	"github.com/kkevinchou/kito/kito/events"
+	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/mechanics/items"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/types"
@@ -16,6 +18,8 @@ type World interface {
 	QueryEntity(componentFlags int) []entities.Entity
 	RegisterEntities([]entities.Entity)
 	GetEntityByID(id int) entities.Entity
+	CommandFrame() int
+	GetEventBroker() eventbroker.EventBroker
 }
 
 type LootSystem struct {
@@ -73,14 +77,17 @@ func (s *LootSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		// fmt.Println(len(cc.ColliderComponent.Contacts))
-		// fmt.Println(cc.ColliderComponent.Contacts)
-		// for _, c := range cc.ColliderComponent.Contacts {
-		// 	cEntity := s.world.GetEntityByID(*c.SourceEntityID)
-		// 	if cEntity.Type() == types.EntityTypeLootbox {
-		// 		cc.InventoryComponent.Items = append(cc.InventoryComponent.Items, items.Item{ID: -1, Type: items.ItemTypeCoin})
-		// 	}
-		// }
+		for e2ID := range cc.ColliderComponent.Contacts {
+			cEntity := s.world.GetEntityByID(e2ID)
+			if cEntity.Type() == types.EntityTypeLootbox {
+				cc.InventoryComponent.Items = append(cc.InventoryComponent.Items, items.Item{ID: 69, Type: items.ItemTypeCoin})
+				event := &events.UnregisterEntityEvent{
+					GlobalCommandFrame: s.world.CommandFrame(),
+					EntityID:           cEntity.GetID(),
+				}
+				s.world.GetEventBroker().Broadcast(event)
+			}
+		}
 	}
 }
 

@@ -1,7 +1,6 @@
 package components
 
 import (
-	"github.com/kkevinchou/kito/lib/collision"
 	"github.com/kkevinchou/kito/lib/collision/collider"
 )
 
@@ -10,8 +9,8 @@ type ColliderComponent struct {
 	// for the entity that owns this component
 	SkipSeparation bool
 
-	// some field that marks which entities it collided with in the current frame
-	Contacts map[int]*collision.Contact
+	// Contacts marks which entities it collided with in the current frame
+	Contacts map[int]bool
 
 	CapsuleCollider     *collider.Capsule
 	TriMeshCollider     *collider.TriMesh
