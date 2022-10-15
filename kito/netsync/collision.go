@@ -130,7 +130,8 @@ func detectAndResolveCollisionsForEntityPairs(entityPairs [][]entities.Entity, e
 }
 
 // collectSortedCollisionCandidates collects all potential collisions that can occur in the frame.
-// these are "candidates" in that if we resolve some of the collisions in the list, some will be invalidated
+// these are "candidates" in that they are not guaranteed to have actually happened since
+// if we resolve some of the collisions in the list, some will be invalidated
 func collectSortedCollisionCandidates(entityPairs [][]entities.Entity, entityList []entities.Entity, skipEntitySet map[int]bool, world World) []*collision.Contact {
 	// initialize collision state
 	for _, e := range entityList {
@@ -155,6 +156,10 @@ func collectSortedCollisionCandidates(entityPairs [][]entities.Entity, entityLis
 		}
 
 		contacts := collide(pair[0], pair[1])
+		if len(contacts) <= 0 {
+			continue
+		}
+
 		allContacts = append(allContacts, contacts...)
 	}
 	sort.Sort(collision.ContactsBySeparatingDistance(allContacts))

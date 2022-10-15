@@ -19,6 +19,7 @@ const (
 	ComponentFlagHealth                = 1 << 14
 	ComponentFlagLootDropper           = 1 << 15
 	ComponentFlagLoot                  = 1 << 16
+	ComponentFlagInventory             = 1 << 17
 )
 
 type Component interface {
@@ -45,6 +46,7 @@ type ComponentContainer struct {
 	HealthComponent                *HealthComponent
 	LootDropperComponent           *LootDropperComponent
 	LootComponent                  *LootComponent
+	InventoryComponent             *InventoryComponent
 }
 
 func NewComponentContainer(components ...Component) *ComponentContainer {

@@ -3,6 +3,14 @@ package items
 import "math/rand"
 
 type Rarity string
+type ItemType string
+
+var ItemTypeCoin ItemType = "COIN"
+
+type Item struct {
+	ID   int
+	Type ItemType
+}
 
 const (
 	RarityNormal Rarity = "NORMAL"

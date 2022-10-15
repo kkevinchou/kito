@@ -92,6 +92,13 @@ func (s *RenderSystem) debugWindow() {
 	imgui.End()
 }
 
+func (s *RenderSystem) InventoryWindow() {
+	imgui.SetNextWindowBgAlpha(0.5)
+	imgui.BeginV("Inventory", nil, imgui.WindowFlagsNoFocusOnAppearing)
+	imgui.SetItemDefaultFocus()
+	imgui.End()
+}
+
 func (s *RenderSystem) consoleWindow() {
 	imgui.BeginV("Console", nil, imgui.WindowFlagsNoTitleBar)
 

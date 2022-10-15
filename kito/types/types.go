@@ -24,7 +24,8 @@ type NetworkClient interface {
 type Window string
 
 const (
-	WindowConsole Window = "CONSOLE"
-	WindowGame    Window = "GAME"
-	WindowDebug   Window = "DEBUG"
+	WindowConsole   Window = "CONSOLE"
+	WindowGame      Window = "GAME"
+	WindowDebug     Window = "DEBUG"
+	WindowInventory Window = "INVENTORY"
 )
