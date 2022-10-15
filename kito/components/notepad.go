@@ -21,3 +21,15 @@ func (c *NotepadComponent) AddToComponentContainer(container *ComponentContainer
 func (c *NotepadComponent) ComponentFlag() int {
 	return ComponentFlagNotepad
 }
+
+func (c *NotepadComponent) Synchronized() bool {
+	return false
+}
+
+func (c *NotepadComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *NotepadComponent) Serialize() []byte {
+	panic("wat")
+}

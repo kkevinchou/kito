@@ -11,6 +11,7 @@ require (
 	github.com/qmuntal/gltf v0.20.2
 	github.com/veandco/go-sdl2 v0.4.18
 	google.golang.org/grpc v1.47.0
+	google.golang.org/protobuf v1.27.1
 )
 
 require golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect

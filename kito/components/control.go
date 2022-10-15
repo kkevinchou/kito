@@ -12,3 +12,15 @@ func (c *ControlComponent) AddToComponentContainer(container *ComponentContainer
 func (c *ControlComponent) ComponentFlag() int {
 	return ComponentFlagControl
 }
+
+func (c *ControlComponent) Synchronized() bool {
+	return false
+}
+
+func (c *ControlComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *ControlComponent) Serialize() []byte {
+	panic("wat")
+}

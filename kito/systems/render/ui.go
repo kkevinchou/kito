@@ -93,10 +93,16 @@ func (s *RenderSystem) debugWindow() {
 }
 
 func (s *RenderSystem) InventoryWindow() {
+	player := s.world.GetPlayerEntity()
+	cc := player.GetComponentContainer()
+
 	imgui.SetNextWindowBgAlpha(0.5)
 	imgui.BeginV("Inventory", nil, imgui.WindowFlagsNoFocusOnAppearing)
 	imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
-	uiTableRow("Placeholder item", 15)
+
+	for i, itemID := range cc.InventoryComponent.Data.Items {
+		uiTableRow(fmt.Sprintf("Placeholder item %d", itemID), i)
+	}
 	// uiTableRow("Server Position", serverPosition)
 	// uiTableRow("Update Count", updateCount)
 	// uiTableRow("Update Size", updateMessageSize)

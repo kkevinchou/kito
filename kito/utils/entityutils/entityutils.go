@@ -55,10 +55,11 @@ func ConstructEntitySnapshot(entity entities.Entity) knetwork.EntitySnapshot {
 		Type:        int(entity.Type()),
 		Position:    transformComponent.Position,
 		Orientation: transformComponent.Orientation,
+		Components:  cc.Serialize(),
 	}
 
 	if cc.HealthComponent != nil {
-		snapshot.Health = cc.HealthComponent.Value
+		snapshot.Health = cc.HealthComponent.Data.Value
 	}
 
 	if tpcComponent != nil {

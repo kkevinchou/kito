@@ -82,15 +82,19 @@ func applyState(bufferedState *statebuffer.BufferedState, world World) {
 	}
 
 	for _, entitySnapshot := range bufferedState.InterpolatedEntities {
-		if entitySnapshot.ID == playerEntity.GetID() {
-			continue
-		}
 
 		foundEntity := world.GetEntityByID(entitySnapshot.ID)
 		if foundEntity == nil {
 			fmt.Printf("[%d] failed to find entity with id %d type %d to interpolate\n", world.CommandFrame(), entitySnapshot.ID, entitySnapshot.Type)
 		} else {
 			cc := foundEntity.GetComponentContainer()
+			cc.Load(entitySnapshot.Components)
+
+			// do not synchronize transforms or animation
+			if entitySnapshot.ID == playerEntity.GetID() {
+				continue
+			}
+
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
 			if cc.ThirdPersonControllerComponent != nil {
@@ -98,9 +102,6 @@ func applyState(bufferedState *statebuffer.BufferedState, world World) {
 			}
 			if cc.AnimationComponent != nil {
 				cc.AnimationComponent.Player.PlayAnimation(entitySnapshot.Animation)
-			}
-			if cc.HealthComponent != nil {
-				cc.HealthComponent.Value = entitySnapshot.Health
 			}
 		}
 	}

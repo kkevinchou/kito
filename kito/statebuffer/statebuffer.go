@@ -84,6 +84,10 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 		}
 	}
 
+	// if _, ok := start.gameStateUpdateMessage.Entities[80007]; ok {
+	// 	fmt.Println(start.gameStateUpdateMessage.Entities[80007].Components)
+	// }
+
 	for i := 1; i <= delta; i++ {
 		interpolatedEntities := map[int]knetwork.EntitySnapshot{}
 
@@ -104,6 +108,8 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 						Orientation: startSnapshot.Orientation,
 						Velocity:    startSnapshot.Velocity,
 						Animation:   startSnapshot.Animation,
+						Health:      startSnapshot.Health,
+						Components:  startSnapshot.Components,
 					}
 				}
 			} else {
@@ -116,8 +122,8 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 					Velocity:    endSnapshot.Velocity.Sub(startSnapshot.Velocity).Mul(float64(i) * cfStep).Add(startSnapshot.Velocity),
 					Animation:   startSnapshot.Animation,
 					Health:      startSnapshot.Health,
+					Components:  startSnapshot.Components,
 				}
-
 			}
 		}
 

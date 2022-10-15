@@ -1,7 +1,5 @@
 package components
 
-type EntityTypeBitFlag int
-
 const (
 	ComponentFlagAnimation             = 1 << 1
 	ComponentFlagCamera                = 1 << 2
@@ -25,10 +23,14 @@ const (
 type Component interface {
 	AddToComponentContainer(container *ComponentContainer)
 	ComponentFlag() int
+	Synchronized() bool
+	Load(bytes []byte)
+	Serialize() []byte
 }
 
 type ComponentContainer struct {
-	bitflags int
+	bitflags     int
+	componentMap map[int]Component
 
 	AIComponent                    *AIComponent
 	AnimationComponent             *AnimationComponent
@@ -50,12 +52,31 @@ type ComponentContainer struct {
 }
 
 func NewComponentContainer(components ...Component) *ComponentContainer {
-	container := &ComponentContainer{}
+	container := &ComponentContainer{
+		componentMap: map[int]Component{},
+	}
 	for _, component := range components {
 		component.AddToComponentContainer(container)
+		container.componentMap[component.ComponentFlag()] = component
 		container.bitflags |= component.ComponentFlag()
 	}
 	return container
+}
+
+func (cc *ComponentContainer) Load(components map[int][]byte) {
+	for id, bytes := range components {
+		cc.componentMap[id].Load(bytes)
+	}
+}
+
+func (cc *ComponentContainer) Serialize() map[int][]byte {
+	results := map[int][]byte{}
+	for id, c := range cc.componentMap {
+		if c.Synchronized() {
+			results[id] = c.Serialize()
+		}
+	}
+	return results
 }
 
 func (cc *ComponentContainer) SetBitFlag(b int) {

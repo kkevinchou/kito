@@ -11,3 +11,15 @@ func (c *RenderComponent) AddToComponentContainer(container *ComponentContainer)
 func (c *RenderComponent) ComponentFlag() int {
 	return ComponentFlagRender
 }
+
+func (c *RenderComponent) Synchronized() bool {
+	return false
+}
+
+func (c *RenderComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *RenderComponent) Serialize() []byte {
+	panic("wat")
+}

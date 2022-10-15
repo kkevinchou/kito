@@ -57,7 +57,7 @@ func (s *LootSystem) Update(delta time.Duration) {
 			continue
 		}
 
-		if healthComponent.Value > 0 {
+		if healthComponent.Data.Value > 0 {
 			continue
 		}
 
@@ -80,7 +80,7 @@ func (s *LootSystem) Update(delta time.Duration) {
 		for e2ID := range cc.ColliderComponent.Contacts {
 			cEntity := s.world.GetEntityByID(e2ID)
 			if cEntity.Type() == types.EntityTypeLootbox {
-				cc.InventoryComponent.Items = append(cc.InventoryComponent.Items, items.Item{ID: 69, Type: items.ItemTypeCoin})
+				cc.InventoryComponent.Data.Items = append(cc.InventoryComponent.Data.Items, 69)
 				event := &events.UnregisterEntityEvent{
 					GlobalCommandFrame: s.world.CommandFrame(),
 					EntityID:           cEntity.GetID(),

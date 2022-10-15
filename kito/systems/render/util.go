@@ -163,7 +163,7 @@ func drawHealthHUD(healthComponent *components.HealthComponent, viewerContext Vi
 	verticalOffset := mgl64.Vec3{0, 70, 0}
 	horizontalOffset := mgl64.Vec3{-healthHUDMaxWidth / 2, 0, 0}
 	offsetPosition := horizontalOffset.Add(verticalOffset)
-	width := healthComponent.Value / 100.0 * healthHUDMaxWidth
+	width := healthComponent.Data.Value / 100.0 * healthHUDMaxWidth
 	height := 2.0
 	points := []mgl64.Vec3{
 		offsetPosition.Add(mgl64.Vec3{0, 0, 0}),

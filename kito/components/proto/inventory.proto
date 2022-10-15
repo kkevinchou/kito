@@ -1,0 +1,9 @@
+
+syntax = "proto3";
+package components;
+
+option go_package = "kito/components/protogen/inventory";
+
+message Inventory {
+  repeated int64 items = 1;
+}

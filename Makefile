@@ -1,5 +1,7 @@
 RELEASE_FOLDER = "kitorelease"
 TAR_FILE = "kito.tar.gz"
+PROTO_DIR = "kito/components/proto"
+PROTOC_PATH = ~/protoc-21.7-win64/bin/protoc.exe
 
 # On Mac you'll need to run XServer from host machine
 .PHONY: client
@@ -42,3 +44,7 @@ clean:
 profile:
 	curl http://localhost:6061/debug/pprof/profile?seconds=20 -o profile
 	go tool pprof -http=localhost:6969 profile
+
+.PHONY: proto
+proto:
+	for f in ${PROTO_DIR}/*; do echo "compiling $${f}"; ${PROTOC_PATH} $${f} --proto_path=kito/components/proto --go_out=.; done

@@ -16,3 +16,15 @@ func (c *TransformComponent) AddToComponentContainer(container *ComponentContain
 func (c *TransformComponent) ComponentFlag() int {
 	return ComponentFlagTransform
 }
+
+func (c *TransformComponent) Synchronized() bool {
+	return false
+}
+
+func (c *TransformComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *TransformComponent) Serialize() []byte {
+	panic("wat")
+}

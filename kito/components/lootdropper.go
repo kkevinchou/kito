@@ -21,3 +21,15 @@ func DefaultLootDropper() *LootDropperComponent {
 		RarityWeights: []int{1},
 	}
 }
+
+func (c *LootDropperComponent) Synchronized() bool {
+	return false
+}
+
+func (c *LootDropperComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *LootDropperComponent) Serialize() []byte {
+	panic("wat")
+}

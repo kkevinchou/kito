@@ -40,3 +40,15 @@ func (c *AIComponent) AddToComponentContainer(container *ComponentContainer) {
 func (c *AIComponent) ComponentFlag() int {
 	return ComponentFlagAI
 }
+
+func (c *AIComponent) Synchronized() bool {
+	return false
+}
+
+func (c *AIComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *AIComponent) Serialize() []byte {
+	panic("wat")
+}

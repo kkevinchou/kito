@@ -26,3 +26,15 @@ func (c *PhysicsComponent) AddToComponentContainer(container *ComponentContainer
 func (c *PhysicsComponent) ComponentFlag() int {
 	return ComponentFlagPhysics
 }
+
+func (c *PhysicsComponent) Synchronized() bool {
+	return false
+}
+
+func (c *PhysicsComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *PhysicsComponent) Serialize() []byte {
+	panic("wat")
+}

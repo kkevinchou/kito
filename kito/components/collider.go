@@ -29,3 +29,15 @@ func (c *ColliderComponent) AddToComponentContainer(container *ComponentContaine
 func (c *ColliderComponent) ComponentFlag() int {
 	return ComponentFlagCollider
 }
+
+func (c *ColliderComponent) Synchronized() bool {
+	return false
+}
+
+func (c *ColliderComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *ColliderComponent) Serialize() []byte {
+	panic("wat")
+}

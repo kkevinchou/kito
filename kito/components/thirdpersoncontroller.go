@@ -23,3 +23,15 @@ func (c *ThirdPersonControllerComponent) AddToComponentContainer(container *Comp
 func (c *ThirdPersonControllerComponent) ComponentFlag() int {
 	return ComponentFlagThirdPersonController
 }
+
+func (c *ThirdPersonControllerComponent) Synchronized() bool {
+	return false
+}
+
+func (c *ThirdPersonControllerComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *ThirdPersonControllerComponent) Serialize() []byte {
+	panic("wat")
+}

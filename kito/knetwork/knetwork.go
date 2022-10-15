@@ -48,8 +48,9 @@ type EntitySnapshot struct {
 	Impulses    map[string]types.Impulse
 
 	Animation string
+	Health    float64
 
-	Health float64
+	Components map[int][]byte
 }
 
 type Event struct {

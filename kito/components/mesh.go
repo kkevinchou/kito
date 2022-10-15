@@ -22,3 +22,15 @@ func (c *MeshComponent) AddToComponentContainer(container *ComponentContainer) {
 func (c *MeshComponent) ComponentFlag() int {
 	return ComponentFlagMesh
 }
+
+func (c *MeshComponent) Synchronized() bool {
+	return false
+}
+
+func (c *MeshComponent) Load(bytes []byte) {
+	panic("wat")
+}
+
+func (c *MeshComponent) Serialize() []byte {
+	panic("wat")
+}

@@ -58,7 +58,7 @@ func NewEnemy() *EntityImpl {
 		colliderComponent,
 		renderComponent,
 		components.NewAIComponent(nil),
-		&components.HealthComponent{Value: 100},
+		components.NewHealthComponent(100),
 		components.DefaultLootDropper(),
 	}
 

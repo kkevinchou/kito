@@ -49,7 +49,7 @@ func (s *CombatSystem) Update(delta time.Duration) {
 				e2 := s.world.GetEntityByID(e2ID)
 				health := e2.GetComponentContainer().HealthComponent
 				if health != nil {
-					health.Value -= 50
+					health.Data.Value -= 50
 				}
 			}
 
@@ -63,7 +63,7 @@ func (s *CombatSystem) Update(delta time.Duration) {
 
 	// handle death events
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagHealth) {
-		if entity.GetComponentContainer().HealthComponent.Value <= 0 {
+		if entity.GetComponentContainer().HealthComponent.Data.Value <= 0 {
 			event := &events.UnregisterEntityEvent{
 				GlobalCommandFrame: s.world.CommandFrame(),
 				EntityID:           entity.GetID(),
