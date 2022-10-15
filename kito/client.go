@@ -16,6 +16,7 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/bookkeeping"
 	camerasys "github.com/kkevinchou/kito/kito/systems/camera"
 	"github.com/kkevinchou/kito/kito/systems/charactercontroller"
+	"github.com/kkevinchou/kito/kito/systems/clientstate"
 	"github.com/kkevinchou/kito/kito/systems/collision"
 	historysys "github.com/kkevinchou/kito/kito/systems/history"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
@@ -25,8 +26,6 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/preframe"
 	"github.com/kkevinchou/kito/kito/systems/render"
 	"github.com/kkevinchou/kito/kito/systems/rpcsender"
-	"github.com/kkevinchou/kito/kito/systems/spawner"
-	"github.com/kkevinchou/kito/kito/systems/stateinterpolator"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils/entityutils"
 	"github.com/kkevinchou/kito/lib/assets"
@@ -99,8 +98,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	cameraSystem := camerasys.NewCameraSystem(g)
 	networkInputSystem := networkinput.NewNetworkInputSystem(g)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
-	spawnerSystem := spawner.NewSpawnerSystem(g)
-	stateInterpolatorSystem := stateinterpolator.NewStateInterpolatorSystem(g)
+	clientStateSystem := clientstate.NewClientStateSystem(g)
 	preframeSystem := preframe.NewPreFrameSystem(g)
 
 	// systems that can manipulate the transform of an entity
@@ -124,8 +122,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 		cameraSystem,
 		networkInputSystem,
 		networkDispatchSystem,
-		spawnerSystem,
-		stateInterpolatorSystem,
+		clientStateSystem,
 		preframeSystem,
 		characterControllerSystem,
 		physicsSystem,

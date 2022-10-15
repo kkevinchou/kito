@@ -1,4 +1,4 @@
-package stateinterpolator
+package clientstate
 
 import (
 	"fmt"
@@ -11,6 +11,8 @@ import (
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/statebuffer"
 	"github.com/kkevinchou/kito/kito/systems/base"
+	"github.com/kkevinchou/kito/kito/types"
+	"github.com/kkevinchou/kito/kito/utils/entityutils"
 	"github.com/kkevinchou/kito/lib/metrics"
 )
 
@@ -25,23 +27,48 @@ type World interface {
 	UnregisterEntityByID(entityID int)
 }
 
-type StateInterpolatorSystem struct {
+type ClientStateSystem struct {
 	*base.BaseSystem
 	world World
 }
 
-func NewStateInterpolatorSystem(world World) *StateInterpolatorSystem {
-	return &StateInterpolatorSystem{
+func NewClientStateSystem(world World) *ClientStateSystem {
+	return &ClientStateSystem{
 		world: world,
 	}
 }
 
-func (s *StateInterpolatorSystem) Update(delta time.Duration) {
+func (s *ClientStateSystem) Update(delta time.Duration) {
 	singleton := s.world.GetSingleton()
-	state := singleton.StateBuffer.PullEntityInterpolations(s.world.CommandFrame())
+
+	state := singleton.StateBuffer.PeekEntityInterpolations(s.world.CommandFrame())
+	if state != nil {
+		spawnNewEntities(state, s.world)
+	}
+
+	state = singleton.StateBuffer.PullEntityInterpolations(s.world.CommandFrame())
 	if state != nil {
 		handleGameStateUpdate(state, s.world)
 	}
+}
+
+func spawnNewEntities(bufferedState *statebuffer.BufferedState, world World) {
+	playerEntity := world.GetPlayerEntity()
+
+	var newEntities []entities.Entity
+	for _, snapshot := range bufferedState.InterpolatedEntities {
+		if snapshot.ID == playerEntity.GetID() {
+			continue
+		}
+
+		entity := world.GetEntityByID(snapshot.ID)
+		if entity == nil {
+			newEntity := entityutils.SpawnWithID(snapshot.ID, types.EntityType(snapshot.Type), snapshot.Position, snapshot.Orientation)
+			newEntities = append(newEntities, newEntity)
+		}
+	}
+
+	world.RegisterEntities(newEntities)
 }
 
 func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World) {
@@ -79,6 +106,6 @@ func handleGameStateUpdate(bufferedState *statebuffer.BufferedState, world World
 	}
 }
 
-func (s *StateInterpolatorSystem) Name() string {
-	return "StateInterpolatorSystem"
+func (s *ClientStateSystem) Name() string {
+	return "ClientStateSystem"
 }
