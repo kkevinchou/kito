@@ -103,9 +103,10 @@ func CheckCollisionCapsuleCapsule(capsule1 collider.Capsule, capsule2 collider.C
 
 	separatingDistance := (capsule1.Radius + capsule2.Radius) - closestPointsDistance
 	if separatingDistance > 0 {
-		separatingVec := closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(separatingDistance)
+		capsule2To1 := closestPoints[0].Sub(closestPoints[1]).Normalize()
+		separatingVec := capsule2To1.Mul(separatingDistance)
 		return &Contact{
-			Point:              closestPoints[0].Sub(closestPoints[1]).Normalize().Mul(closestPointsDistance),
+			Point:              capsule2To1.Mul(closestPointsDistance),
 			SeparatingVector:   separatingVec,
 			SeparatingDistance: separatingDistance,
 			Type:               ContactTypeCapsuleCapsule,

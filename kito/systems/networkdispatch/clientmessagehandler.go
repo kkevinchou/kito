@@ -123,10 +123,10 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			_ = originalOrientation
 
 			// positionDelta := originalPosition.Sub(cc.TransformComponent.Position).Len()
-			// fmt.Println(positionDelta)
 			// if positionDelta < 5 {
 			// 	cc.TransformComponent.Position = cc.TransformComponent.Position.Sub(originalPosition).Mul(0.1).Add(originalPosition)
 			// }
+			// fmt.Println(positionDelta)
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
 			// fmt.Println(world.CommandFrame(), "hit", utils.PPrintVec(historyEntity.Position), "----", utils.PPrintVec(entitySnapshot.Position))
