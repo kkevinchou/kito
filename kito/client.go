@@ -45,7 +45,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	initSeed()
 	settings.CurrentGameMode = settings.GameModeClient
 
-	window, err := initializeOpenGL(settings.Width, settings.Height)
+	window, err := initializeOpenGL(settings.Width, settings.Height, settings.Fullscreen)
 	if err != nil {
 		panic(err)
 	}
@@ -137,7 +137,7 @@ func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform P
 	}...)
 }
 
-func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
+func initializeOpenGL(windowWidth, windowHeight int, fullscreen bool) (*sdl.Window, error) {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		return nil, fmt.Errorf("failed to init SDL %s", err)
 	}
@@ -153,8 +153,8 @@ func initializeOpenGL(windowWidth, windowHeight int) (*sdl.Window, error) {
 	sdl.SetRelativeMouseMode(false)
 
 	windowFlags := sdl.WINDOW_OPENGL
-	if settings.Fullscreen {
-		windowFlags |= sdl.WINDOW_FULLSCREEN
+	if fullscreen {
+		windowFlags |= sdl.WINDOW_FULLSCREEN_DESKTOP
 	}
 	window, err := sdl.CreateWindow("KITO DEMO", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(windowWidth), int32(windowHeight), uint32(windowFlags))
 	if err != nil {

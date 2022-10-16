@@ -9,7 +9,7 @@ import (
 const (
 	maxFollowDistance     float64 = 300
 	defaultFollowDistance float64 = 60
-	defaultFollowY        float64 = 15
+	defaultFollowY        float64 = 35
 )
 
 func NewThirdPersonCamera(positionOffset mgl64.Vec3, view mgl64.Vec2, playerID int, followTargetEntityID int) *EntityImpl {

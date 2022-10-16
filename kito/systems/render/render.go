@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	fovx float64 = 90
+	fovx float64 = 105
 	near float64 = 1
 	far  float64 = 3000
 

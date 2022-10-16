@@ -13,7 +13,6 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/kkevinchou/kito/kito"
-	"github.com/kkevinchou/kito/kito/config"
 	"github.com/kkevinchou/kito/kito/settings"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -57,7 +56,7 @@ func main() {
 			return
 		}
 
-		var configSettings config.Config
+		var configSettings Config
 		err = json.Unmarshal(configBytes, &configSettings)
 		if err != nil {
 			fmt.Println(err)
@@ -97,10 +96,19 @@ func main() {
 	sdl.Quit()
 }
 
-func loadConfig(configSettings config.Config) {
-	settings.Host = configSettings.ServerIP
-	settings.Port = configSettings.ServerPort
-	settings.Width = configSettings.Width
-	settings.Height = configSettings.Height
-	settings.Fullscreen = configSettings.Fullscreen
+func loadConfig(c Config) {
+	settings.Host = c.ServerIP
+	settings.Port = c.ServerPort
+	settings.Width = c.Width
+	settings.Height = c.Height
+	settings.Fullscreen = c.Fullscreen
+}
+
+type Config struct {
+	ServerIP   string
+	ServerPort int
+	Mode       string
+	Width      int
+	Height     int
+	Fullscreen bool
 }
