@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/kkevinchou/kito/kito/events"
-	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/lib/input"
 )
 
@@ -45,10 +44,8 @@ type EntitySnapshot struct {
 	Position    mgl64.Vec3
 	Orientation mgl64.Quat
 	Velocity    mgl64.Vec3
-	Impulses    map[string]types.Impulse
 
 	Animation string
-	Health    float64
 
 	Components map[int][]byte
 }

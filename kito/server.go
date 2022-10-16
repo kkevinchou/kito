@@ -18,10 +18,10 @@ import (
 	"github.com/kkevinchou/kito/kito/systems/combat"
 	"github.com/kkevinchou/kito/kito/systems/loot"
 	"github.com/kkevinchou/kito/kito/systems/networkdispatch"
-	"github.com/kkevinchou/kito/kito/systems/networklistener"
 	"github.com/kkevinchou/kito/kito/systems/networkupdate"
 	"github.com/kkevinchou/kito/kito/systems/physics"
 	"github.com/kkevinchou/kito/kito/systems/playerinput"
+	"github.com/kkevinchou/kito/kito/systems/playerregistration"
 	"github.com/kkevinchou/kito/kito/systems/preframe"
 	"github.com/kkevinchou/kito/kito/systems/rpcreceiver"
 	"github.com/kkevinchou/kito/lib/assets"
@@ -73,7 +73,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	assetManager := assets.NewAssetManager(assetsDirectory, false)
 	d.RegisterAssetManager(assetManager)
 
-	networkListenerSystem := networklistener.NewNetworkListenerSystem(g, settings.ListenAddress, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
+	playerRegistrationSystem := playerregistration.NewPlayerRegistrationSystem(g, settings.ListenAddress, fmt.Sprintf("%d", settings.Port), settings.ConnectionType)
 	networkDispatchSystem := networkdispatch.NewNetworkDispatchSystem(g)
 	rpcReceiverSystem := rpcreceiver.NewRPCReceiverSystem(g)
 	playerInputSystem := playerinput.NewPlayerInputSystem(g)
@@ -93,7 +93,7 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	bookKeepingSystem := bookkeeping.NewBookKeepingSystem(g)
 
 	g.systems = append(g.systems, []System{
-		networkListenerSystem,
+		playerRegistrationSystem,
 		networkDispatchSystem,
 		rpcReceiverSystem,
 		playerInputSystem,

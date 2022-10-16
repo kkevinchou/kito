@@ -1,4 +1,4 @@
-package networklistener
+package playerregistration
 
 import (
 	"fmt"
@@ -15,25 +15,25 @@ type World interface {
 	CommandFrame() int
 }
 
-type NetworkListenerSystem struct {
+type PlayerRegistrationSystem struct {
 	*base.BaseSystem
 
 	world   World
 	nserver *network.Server
 }
 
-func NewNetworkListenerSystem(world World, host, port, connectionType string) *NetworkListenerSystem {
+func NewPlayerRegistrationSystem(world World, host, port, connectionType string) *PlayerRegistrationSystem {
 	nserver := network.NewServer(host, port, connectionType, settings.ClientIDStart)
 	nserver.Start()
 
-	return &NetworkListenerSystem{
+	return &PlayerRegistrationSystem{
 		BaseSystem: &base.BaseSystem{},
 		world:      world,
 		nserver:    nserver,
 	}
 }
 
-func (s *NetworkListenerSystem) Update(delta time.Duration) {
+func (s *PlayerRegistrationSystem) Update(delta time.Duration) {
 	d := directory.GetDirectory()
 	playerManager := d.PlayerManager()
 
@@ -49,6 +49,6 @@ func (s *NetworkListenerSystem) Update(delta time.Duration) {
 	}
 }
 
-func (s *NetworkListenerSystem) Name() string {
+func (s *PlayerRegistrationSystem) Name() string {
 	return "NetworkListenerSystem"
 }
