@@ -117,17 +117,16 @@ func validateClientPrediction(gameStateUpdate *knetwork.GameStateUpdateMessage, 
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
 			cc.ThirdPersonControllerComponent.BaseVelocity = entitySnapshot.Velocity
 
-			// cc.PhysicsComponent.Impulses = entitySnapshot.Impulses
-
 			replayInputs(playerEntity, world, lookupCommandFrame, cfHistory)
 
 			_ = originalPosition
 			_ = originalOrientation
 
-			positionDelta := originalPosition.Sub(cc.TransformComponent.Position).Len()
-			if positionDelta > 1 && positionDelta < 6 {
-				cc.TransformComponent.Position = cc.TransformComponent.Position.Sub(originalPosition).Mul(0.1).Add(originalPosition)
-			}
+			// positionDelta := originalPosition.Sub(cc.TransformComponent.Position).Len()
+			// fmt.Println(positionDelta)
+			// if positionDelta < 5 {
+			// 	cc.TransformComponent.Position = cc.TransformComponent.Position.Sub(originalPosition).Mul(0.1).Add(originalPosition)
+			// }
 		} else {
 			metricsRegistry.Inc("predictionHit", 1)
 			// fmt.Println(world.CommandFrame(), "hit", utils.PPrintVec(historyEntity.Position), "----", utils.PPrintVec(entitySnapshot.Position))
