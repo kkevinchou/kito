@@ -10,6 +10,79 @@ import (
 	"github.com/kkevinchou/kito/lib/console"
 )
 
+func (s *RenderSystem) debugWindow() {
+	imgui.SetNextWindowBgAlpha(0.5)
+	imgui.BeginV("Debug", nil, imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoTitleBar|imgui.WindowFlagsNoMove)
+	s.generalInfoComponent()
+	s.networkInfoUIComponent()
+	s.entityInfoUIComponent()
+	s.serverStatsInfoComponent()
+	if imgui.IsWindowFocused() {
+		s.world.SetFocusedWindow(types.WindowDebug)
+	}
+	imgui.End()
+}
+
+func (s *RenderSystem) consoleWindow() {
+	imgui.BeginV("Console", nil, imgui.WindowFlagsNoTitleBar)
+
+	imgui.PushItemWidth(-1)
+	imgui.PushStyleColor(imgui.StyleColorFrameBg, imgui.Vec4{X: 0.5, Y: 0.5, Z: 0.5, W: 1})
+	for _, consoleItem := range console.GlobalConsole.ConsoleHistory {
+		imgui.Textf("%s", consoleItem.Command)
+	}
+	imgui.PopStyleColor()
+	imgui.Separator()
+
+	flags := imgui.InputTextFlagsEnterReturnsTrue | imgui.InputTextFlagsCallbackCharFilter | imgui.InputTextFlagsCallbackHistory
+	value := imgui.InputTextV("input", &console.GlobalConsole.Input, flags, console.GlobalConsole.InputTextCallback)
+
+	if console.GlobalConsole.ScrollToBottom {
+		imgui.SetScrollHereY(1)
+		console.GlobalConsole.ScrollToBottom = false
+	}
+
+	if value {
+		command := console.GlobalConsole.Send()
+		console.GlobalConsole.ScrollToBottom = true
+		s.world.GetEventBroker().Broadcast(&events.RPCEvent{Command: command})
+		imgui.SetKeyboardFocusHereV(-1)
+	}
+	imgui.PopItemWidth()
+
+	if imgui.IsWindowFocused() {
+		s.world.SetFocusedWindow(types.WindowConsole)
+	}
+
+	for _, e := range s.events {
+		if e.Type() == events.EventTypeConsoleEnabled {
+			imgui.SetKeyboardFocusHereV(-1)
+			break
+		}
+	}
+
+	imgui.End()
+}
+
+func (s *RenderSystem) inventoryWindow() {
+	player := s.world.GetPlayerEntity()
+	cc := player.GetComponentContainer()
+
+	imgui.SetNextWindowBgAlpha(0.5)
+	imgui.BeginV("Inventory", nil, imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoCollapse)
+	table := imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
+	for i, itemID := range cc.InventoryComponent.Data.Items {
+		uiTableRow(fmt.Sprintf("Placeholder item %d", itemID), i)
+	}
+	if table {
+		imgui.EndTable()
+	}
+	if imgui.IsWindowFocused() {
+		s.world.SetFocusedWindow(types.WindowInventory)
+	}
+	imgui.End()
+}
+
 func (s *RenderSystem) networkInfoUIComponent() {
 	metricsRegistry := s.world.MetricsRegistry()
 	predictionMiss := int(metricsRegistry.GetOneSecondSum("predictionMiss"))
@@ -78,79 +151,6 @@ func (s *RenderSystem) serverStatsInfoComponent() {
 		}
 		imgui.EndTable()
 	}
-}
-
-func (s *RenderSystem) debugWindow() {
-	imgui.SetNextWindowBgAlpha(0.5)
-	imgui.BeginV("Debug", nil, imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoTitleBar|imgui.WindowFlagsNoMove)
-	s.generalInfoComponent()
-	s.networkInfoUIComponent()
-	s.entityInfoUIComponent()
-	s.serverStatsInfoComponent()
-	// s.lightingUIComponent(s.shadowMap.DepthTexture())
-	imgui.SetItemDefaultFocus()
-	imgui.End()
-}
-
-func (s *RenderSystem) InventoryWindow() {
-	player := s.world.GetPlayerEntity()
-	cc := player.GetComponentContainer()
-
-	imgui.SetNextWindowBgAlpha(0.5)
-	imgui.BeginV("Inventory", nil, imgui.WindowFlagsNoFocusOnAppearing)
-	imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
-
-	for i, itemID := range cc.InventoryComponent.Data.Items {
-		uiTableRow(fmt.Sprintf("Placeholder item %d", itemID), i)
-	}
-	// uiTableRow("Server Position", serverPosition)
-	// uiTableRow("Update Count", updateCount)
-	// uiTableRow("Update Size", updateMessageSize)
-	// uiTableRow("Inputs Sent", newInput)
-	imgui.EndTable()
-	imgui.SetItemDefaultFocus()
-	imgui.End()
-}
-
-func (s *RenderSystem) consoleWindow() {
-	imgui.BeginV("Console", nil, imgui.WindowFlagsNoTitleBar)
-
-	imgui.PushItemWidth(-1)
-	imgui.PushStyleColor(imgui.StyleColorFrameBg, imgui.Vec4{X: 0.5, Y: 0.5, Z: 0.5, W: 1})
-	for _, consoleItem := range console.GlobalConsole.ConsoleHistory {
-		imgui.Textf("%s", consoleItem.Command)
-	}
-	imgui.PopStyleColor()
-	imgui.Separator()
-
-	flags := imgui.InputTextFlagsEnterReturnsTrue | imgui.InputTextFlagsCallbackCharFilter | imgui.InputTextFlagsCallbackHistory
-	value := imgui.InputTextV("input", &console.GlobalConsole.Input, flags, console.GlobalConsole.InputTextCallback)
-
-	if console.GlobalConsole.ScrollToBottom {
-		imgui.SetScrollHereY(1)
-		console.GlobalConsole.ScrollToBottom = false
-	}
-
-	if value {
-		command := console.GlobalConsole.Send()
-		console.GlobalConsole.ScrollToBottom = true
-		s.world.GetEventBroker().Broadcast(&events.RPCEvent{Command: command})
-		imgui.SetKeyboardFocusHereV(-1)
-	}
-
-	imgui.PopItemWidth()
-
-	if imgui.IsWindowFocused() {
-		s.world.SetFocusedWindow(types.WindowConsole)
-	}
-	for _, e := range s.events {
-		if e.Type() == events.EventTypeConsoleEnabled {
-			imgui.SetKeyboardFocusHereV(-1)
-			break
-		}
-	}
-
-	imgui.End()
 }
 
 func uiTableRow(label string, value any) {

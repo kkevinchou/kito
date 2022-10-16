@@ -35,8 +35,10 @@ func (g *Game) HandleInput(frameInput input.Input) {
 	}
 
 	if keyEvent, ok := keyboardInput[input.KeyboardKeyI]; ok {
-		if keyEvent.Event == input.KeyboardEventUp {
-			g.ToggleWindowVisibility(types.WindowInventory)
+		if g.GetFocusedWindow() == types.WindowGame || g.GetFocusedWindow() == types.WindowInventory {
+			if keyEvent.Event == input.KeyboardEventUp {
+				g.ToggleWindowVisibility(types.WindowInventory)
+			}
 		}
 	}
 

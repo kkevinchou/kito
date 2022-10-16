@@ -243,7 +243,7 @@ func (s *RenderSystem) renderImgui() {
 		s.consoleWindow()
 	}
 	if s.world.GetWindowVisibility(types.WindowInventory) {
-		s.InventoryWindow()
+		s.inventoryWindow()
 	}
 
 	imgui.Render()
