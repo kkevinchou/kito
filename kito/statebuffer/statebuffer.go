@@ -113,14 +113,18 @@ func (s *StateBuffer) generateIntermediateStateUpdates(start IncomingEntityUpdat
 				}
 			} else {
 				endSnapshot := end.gameStateUpdateMessage.Entities[id]
+				referenceSnapshot := startSnapshot
+				if i == delta {
+					referenceSnapshot = endSnapshot
+				}
 				interpolatedEntities[id] = knetwork.EntitySnapshot{
-					ID:          startSnapshot.ID,
-					Type:        startSnapshot.Type,
+					ID:          referenceSnapshot.ID,
+					Type:        referenceSnapshot.Type,
 					Position:    endSnapshot.Position.Sub(startSnapshot.Position).Mul(float64(i) * cfStep).Add(startSnapshot.Position),
 					Orientation: libutils.QInterpolate64(startSnapshot.Orientation, endSnapshot.Orientation, float64(i)*cfStep),
 					Velocity:    endSnapshot.Velocity.Sub(startSnapshot.Velocity).Mul(float64(i) * cfStep).Add(startSnapshot.Velocity),
-					Animation:   startSnapshot.Animation,
-					Components:  startSnapshot.Components,
+					Animation:   referenceSnapshot.Animation,
+					Components:  referenceSnapshot.Components,
 				}
 			}
 		}
