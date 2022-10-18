@@ -121,7 +121,9 @@ func (g *Game) Start() {
 		if renderAccumulator >= msPerFrame {
 			frameCount++
 			g.metricsRegistry.Inc("fps", 1)
+			start := time.Now()
 			renderFunction(time.Duration(msPerFrame) * time.Millisecond)
+			g.metricsRegistry.Inc("rendertime", float64(time.Since(start).Milliseconds()))
 			renderAccumulator -= msPerFrame
 		}
 	}
@@ -130,11 +132,15 @@ func (g *Game) Start() {
 func (g *Game) runCommandFrame(delta time.Duration) map[string]int {
 	result := map[string]int{}
 	g.singleton.CommandFrame++
+	var total int
 	for _, system := range g.systems {
 		start := time.Now()
 		system.Update(delta)
-		result[system.Name()] = int(time.Since(start).Milliseconds())
+		systemTime := int(time.Since(start).Milliseconds())
+		result[system.Name()] = systemTime
+		total += systemTime
 	}
+	g.MetricsRegistry().Inc("frametime", float64(total))
 	return result
 }
 

@@ -63,7 +63,8 @@ func (s *NetworkUpdateSystem) Update(delta time.Duration) {
 	s.elapsedFrames %= settings.CommandFramesPerServerUpdate
 
 	serverStats := map[string]string{
-		"fps": fmt.Sprintf("%d", int(s.world.MetricsRegistry().GetOneSecondSum("fps"))),
+		"fps":       fmt.Sprintf("%d", int(s.world.MetricsRegistry().GetOneSecondSum("fps"))),
+		"frametime": fmt.Sprintf("%d", int(s.world.MetricsRegistry().GetOneSecondAverage("frametime"))),
 	}
 
 	gameStateUpdate := &knetwork.GameStateUpdateMessage{

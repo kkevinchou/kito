@@ -2,6 +2,7 @@ package render
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/kkevinchou/kito/kito/events"
@@ -136,6 +137,8 @@ func (s *RenderSystem) generalInfoComponent() {
 	if imgui.CollapsingHeaderV("General", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
 		uiTableRow("FPS", fps)
+		uiTableRow("frametime", s.world.MetricsRegistry().GetOneSecondAverage("frametime"))
+		uiTableRow("rendertime", s.world.MetricsRegistry().GetOneSecondAverage("rendertime"))
 		// uiTableRow("Frame Catchup", frameCatchup)
 		uiTableRow("CF", s.world.CommandFrame())
 		imgui.EndTable()
@@ -146,8 +149,15 @@ func (s *RenderSystem) serverStatsInfoComponent() {
 	serverStats := s.world.ServerStats()
 	if imgui.CollapsingHeaderV("Server Stats", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
-		for k, v := range serverStats {
-			uiTableRow(k, v)
+
+		keys := make([]string, 0, len(serverStats))
+		for k := range serverStats {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+
+		for _, k := range keys {
+			uiTableRow(k, serverStats[k])
 		}
 		imgui.EndTable()
 	}
