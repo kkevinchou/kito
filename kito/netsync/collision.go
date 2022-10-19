@@ -269,34 +269,57 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		}
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 	} else if contact.Type == collision.ContactTypeCapsuleCapsule {
-		cc := entity.GetComponentContainer()
-		transformComponent := cc.TransformComponent
-		tpcComponent := cc.ThirdPersonControllerComponent
-		movementComponent := cc.MovementComponent
+		// cc := entity.GetComponentContainer()
+		// transformComponent := cc.TransformComponent
+		// tpcComponent := cc.ThirdPersonControllerComponent
+		// movementComponent := cc.MovementComponent
 
-		if tpcComponent != nil {
-			separatingVector := contact.SeparatingVector
-			transformComponent.Position = transformComponent.Position.Add(separatingVector)
-			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
-				tpcComponent.Grounded = true
-				movementComponent.Velocity[1] = 0
-				tpcComponent.BaseVelocity[1] = 0
-				tpcComponent.ZipVelocity = mgl64.Vec3{}
-			}
-		}
-		cc2 := sourceEntity.GetComponentContainer()
-		transformComponent2 := cc2.TransformComponent
-		tpcComponent2 := cc2.ThirdPersonControllerComponent
-		movementComponent2 := cc2.MovementComponent
+		// if tpcComponent != nil {
+		// 	separatingVector := contact.SeparatingVector
+		// 	transformComponent.Position = transformComponent.Position.Add(separatingVector)
+		// 	if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
+		// 		tpcComponent.Grounded = true
+		// 		movementComponent.Velocity[1] = 0
+		// 		tpcComponent.BaseVelocity[1] = 0
+		// 		tpcComponent.ZipVelocity = mgl64.Vec3{}
+		// 	}
+		// }
+		// cc2 := sourceEntity.GetComponentContainer()
+		// transformComponent2 := cc2.TransformComponent
+		// tpcComponent2 := cc2.ThirdPersonControllerComponent
+		// movementComponent2 := cc2.MovementComponent
 
-		if tpcComponent2 != nil {
-			separatingVector2 := contact.SeparatingVector.Mul(-1)
-			transformComponent2.Position = transformComponent2.Position.Add(separatingVector2)
-			if separatingVector2.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
-				tpcComponent2.Grounded = true
-				movementComponent2.Velocity[1] = 0
-				tpcComponent2.BaseVelocity[1] = 0
-				tpcComponent2.ZipVelocity = mgl64.Vec3{}
+		// if tpcComponent2 != nil {
+		// 	separatingVector2 := contact.SeparatingVector.Mul(-1)
+		// 	transformComponent2.Position = transformComponent2.Position.Add(separatingVector2)
+		// 	if separatingVector2.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
+		// 		tpcComponent2.Grounded = true
+		// 		movementComponent2.Velocity[1] = 0
+		// 		tpcComponent2.BaseVelocity[1] = 0
+		// 		tpcComponent2.ZipVelocity = mgl64.Vec3{}
+		// 	}
+		// }
+
+		bothEntities := []entities.Entity{entity, sourceEntity}
+		for _, e := range bothEntities {
+			cc := e.GetComponentContainer()
+			transformComponent := cc.TransformComponent
+			tpcComponent := cc.ThirdPersonControllerComponent
+			movementComponent := cc.MovementComponent
+
+			if tpcComponent != nil {
+				separatingVector := contact.SeparatingVector
+				if e.GetID() == sourceEntity.GetID() {
+					separatingVector = separatingVector.Mul(-1)
+				}
+
+				transformComponent.Position = transformComponent.Position.Add(separatingVector)
+				if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
+					tpcComponent.Grounded = true
+					movementComponent.Velocity[1] = 0
+					tpcComponent.BaseVelocity[1] = 0
+					tpcComponent.ZipVelocity = mgl64.Vec3{}
+				}
 			}
 		}
 	}
