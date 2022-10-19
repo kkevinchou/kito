@@ -137,8 +137,8 @@ func (s *RenderSystem) generalInfoComponent() {
 	if imgui.CollapsingHeaderV("General", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
 		uiTableRow("FPS", fps)
-		uiTableRow("frametime", s.world.MetricsRegistry().GetOneSecondAverage("frametime"))
-		uiTableRow("rendertime", s.world.MetricsRegistry().GetOneSecondAverage("rendertime"))
+		uiTableRow("frametime", fmt.Sprintf("%.3f", s.world.MetricsRegistry().GetOneSecondAverage("frametime")))
+		uiTableRow("rendertime", fmt.Sprintf("%.3f", s.world.MetricsRegistry().GetOneSecondAverage("rendertime")))
 		// uiTableRow("Frame Catchup", frameCatchup)
 		uiTableRow("CF", s.world.CommandFrame())
 		imgui.EndTable()
