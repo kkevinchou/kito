@@ -243,6 +243,7 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		tpcComponent := cc.ThirdPersonControllerComponent
 		aiComponent := cc.AIComponent
 		physicsComponent := cc.PhysicsComponent
+		movementComponent := cc.MovementComponent
 
 		separatingVector := contact.SeparatingVector
 		if tpcComponent != nil {
@@ -251,7 +252,7 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 				separatingVector[0] = 0
 				separatingVector[2] = 0
 
-				tpcComponent.Velocity[1] = 0
+				movementComponent.Velocity[1] = 0
 				tpcComponent.BaseVelocity[1] = 0
 				tpcComponent.ZipVelocity = mgl64.Vec3{}
 				tpcComponent.Grounded = true
@@ -269,13 +270,14 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		cc := entity.GetComponentContainer()
 		transformComponent := cc.TransformComponent
 		tpcComponent := cc.ThirdPersonControllerComponent
+		movementComponent := cc.MovementComponent
 
 		if tpcComponent != nil {
 			separatingVector := contact.SeparatingVector
 			transformComponent.Position = transformComponent.Position.Add(separatingVector)
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				tpcComponent.Grounded = true
-				tpcComponent.Velocity[1] = 0
+				movementComponent.Velocity[1] = 0
 				tpcComponent.BaseVelocity[1] = 0
 				tpcComponent.ZipVelocity = mgl64.Vec3{}
 			}
@@ -283,13 +285,14 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		cc2 := sourceEntity.GetComponentContainer()
 		transformComponent2 := cc2.TransformComponent
 		tpcComponent2 := cc2.ThirdPersonControllerComponent
+		movementComponent2 := cc2.MovementComponent
 
 		if tpcComponent2 != nil {
 			separatingVector2 := contact.SeparatingVector.Mul(-1)
 			transformComponent2.Position = transformComponent2.Position.Add(separatingVector2)
 			if separatingVector2.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				tpcComponent2.Grounded = true
-				tpcComponent2.Velocity[1] = 0
+				movementComponent2.Velocity[1] = 0
 				tpcComponent2.BaseVelocity[1] = 0
 				tpcComponent2.ZipVelocity = mgl64.Vec3{}
 			}

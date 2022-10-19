@@ -31,6 +31,7 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 	componentContainer := entity.GetComponentContainer()
 	transformComponent := componentContainer.TransformComponent
 	tpcComponent := componentContainer.ThirdPersonControllerComponent
+	movementComponent := componentContainer.MovementComponent
 
 	keyboardInput := frameInput.KeyboardInput
 	controlVector := getControlVector(keyboardInput)
@@ -64,11 +65,11 @@ func UpdateCharacterController(delta time.Duration, entity entities.Entity, came
 
 	// apply all the various velocity adjustments
 	tpcComponent.BaseVelocity = tpcComponent.BaseVelocity.Add(settings.AccelerationDueToGravity.Mul(delta.Seconds()))
-	tpcComponent.Velocity = tpcComponent.BaseVelocity
-	tpcComponent.Velocity = tpcComponent.Velocity.Add(tpcComponent.ControllerVelocity)
-	tpcComponent.Velocity = tpcComponent.Velocity.Add(tpcComponent.ZipVelocity)
+	movementComponent.Velocity = tpcComponent.BaseVelocity
+	movementComponent.Velocity = movementComponent.Velocity.Add(tpcComponent.ControllerVelocity)
+	movementComponent.Velocity = movementComponent.Velocity.Add(tpcComponent.ZipVelocity)
 
-	transformComponent.Position = transformComponent.Position.Add(tpcComponent.Velocity.Mul(delta.Seconds()))
+	transformComponent.Position = transformComponent.Position.Add(movementComponent.Velocity.Mul(delta.Seconds()))
 
 	// safeguard falling off the map
 	if transformComponent.Position[1] < -1000 {

@@ -60,10 +60,11 @@ func findAndPlayAnimation(delta time.Duration, entity entities.Entity) {
 
 	if entity.Type() == types.EntityTypeBob {
 		tpcComponent := componentContainer.ThirdPersonControllerComponent
+		movementComponent := componentContainer.MovementComponent
 		notepad := componentContainer.NotepadComponent
 
 		var targetAnimation string
-		if !libutils.Vec3IsZero(tpcComponent.Velocity) {
+		if !libutils.Vec3IsZero(movementComponent.Velocity) {
 			if tpcComponent.Grounded {
 				if notepad.LastAction == components.ActionCast {
 					player.PlayOnce("Cast1", "Walk", 250*time.Millisecond)

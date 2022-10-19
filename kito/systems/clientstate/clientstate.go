@@ -97,8 +97,8 @@ func applyState(bufferedState *statebuffer.BufferedState, world World) {
 
 			cc.TransformComponent.Position = entitySnapshot.Position
 			cc.TransformComponent.Orientation = entitySnapshot.Orientation
-			if cc.ThirdPersonControllerComponent != nil {
-				cc.ThirdPersonControllerComponent.Velocity = entitySnapshot.Velocity
+			if cc.MovementComponent != nil {
+				cc.MovementComponent.Velocity = entitySnapshot.Velocity
 			}
 			if cc.AnimationComponent != nil {
 				cc.AnimationComponent.Player.PlayAnimation(entitySnapshot.Animation)

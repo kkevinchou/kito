@@ -115,10 +115,10 @@ func (s *RenderSystem) lightingUIComponent(textureID uint32) {
 
 func (s *RenderSystem) entityInfoUIComponent() {
 	entity := s.world.GetPlayerEntity()
-	componentContainer := entity.GetComponentContainer()
-	entityPosition := componentContainer.TransformComponent.Position
-	orientation := componentContainer.TransformComponent.Orientation
-	velocity := componentContainer.ThirdPersonControllerComponent.Velocity
+	cc := entity.GetComponentContainer()
+	entityPosition := cc.TransformComponent.Position
+	orientation := cc.TransformComponent.Orientation
+	velocity := cc.MovementComponent.Velocity
 
 	if imgui.CollapsingHeaderV("Entity", imgui.TreeNodeFlagsCollapsingHeader|imgui.TreeNodeFlagsDefaultOpen) {
 		imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)

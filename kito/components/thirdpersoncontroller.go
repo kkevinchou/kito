@@ -8,7 +8,7 @@ type ThirdPersonControllerComponent struct {
 	Controlled bool
 	Grounded   bool
 
-	Velocity      mgl64.Vec3
+	// Velocity      mgl64.Vec3
 	BaseVelocity  mgl64.Vec3
 	MovementSpeed float64
 
