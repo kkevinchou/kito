@@ -241,29 +241,31 @@ func resolveCollision(entity entities.Entity, sourceEntity entities.Entity, cont
 		cc := entity.GetComponentContainer()
 		transformComponent := cc.TransformComponent
 		tpcComponent := cc.ThirdPersonControllerComponent
-		aiComponent := cc.AIComponent
 		physicsComponent := cc.PhysicsComponent
 		movementComponent := cc.MovementComponent
 
 		separatingVector := contact.SeparatingVector
+		if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
+			if movementComponent != nil {
+				movementComponent.Velocity[1] = 0
+			}
+		}
+
 		if tpcComponent != nil {
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				// prevent sliding when grounded
 				separatingVector[0] = 0
 				separatingVector[2] = 0
 
-				movementComponent.Velocity[1] = 0
 				tpcComponent.BaseVelocity[1] = 0
 				tpcComponent.ZipVelocity = mgl64.Vec3{}
 				tpcComponent.Grounded = true
 			}
-		} else if aiComponent != nil {
-			aiComponent.Velocity[1] = 0
 		} else if physicsComponent != nil {
 			if separatingVector.Normalize().Dot(mgl64.Vec3{0, 1, 0}) >= groundedStrictness {
 				physicsComponent.Grounded = true
+				physicsComponent.Velocity[1] = 0
 			}
-			physicsComponent.Velocity[1] = 0
 		}
 		transformComponent.Position = transformComponent.Position.Add(separatingVector)
 	} else if contact.Type == collision.ContactTypeCapsuleCapsule {

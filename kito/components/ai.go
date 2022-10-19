@@ -19,7 +19,7 @@ type AIComponent struct {
 	// behaviorTree behavior.BehaviorTree
 	LastUpdate  time.Time
 	MovementDir mgl64.Quat
-	Velocity    mgl64.Vec3
+	// Velocity    mgl64.Vec3
 
 	AIState AIState
 }

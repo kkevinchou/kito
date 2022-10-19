@@ -57,9 +57,10 @@ func (s *AISystem) Update(delta time.Duration) {
 	playerPosition := playerEntities[0].GetComponentContainer().TransformComponent.Position
 
 	for _, entity := range s.world.QueryEntity(components.ComponentFlagAI) {
-		componentContainer := entity.GetComponentContainer()
-		transformComponent := componentContainer.TransformComponent
-		aiComponent := componentContainer.AIComponent
+		cc := entity.GetComponentContainer()
+		transformComponent := cc.TransformComponent
+		aiComponent := cc.AIComponent
+		movementComponent := cc.MovementComponent
 
 		if entity.Type() == types.EntityTypeEnemy {
 			if time.Since(aiComponent.LastUpdate) > time.Duration(rand.Intn(5)+2)*time.Second {
@@ -83,9 +84,9 @@ func (s *AISystem) Update(delta time.Duration) {
 			continue
 		}
 
-		aiComponent.Velocity = aiComponent.Velocity.Add(settings.AccelerationDueToGravity.Mul(delta.Seconds()))
+		movementComponent.Velocity = movementComponent.Velocity.Add(settings.AccelerationDueToGravity.Mul(delta.Seconds()))
 		movementVec := aiComponent.MovementDir.Rotate(mgl64.Vec3{0, 0, -1})
-		velocity := aiComponent.Velocity.Add(movementVec.Mul(enemyMoveSpeed))
+		velocity := movementComponent.Velocity.Add(movementVec.Mul(enemyMoveSpeed))
 		transformComponent.Position = transformComponent.Position.Add(velocity.Mul(delta.Seconds()))
 		transformComponent.Orientation = aiComponent.MovementDir
 

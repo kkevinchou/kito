@@ -51,6 +51,7 @@ func NewEnemy() *EntityImpl {
 	}
 
 	entityComponents := []components.Component{
+		&components.MovementComponent{},
 		&components.NetworkComponent{},
 		transformComponent,
 		animationComponent,
