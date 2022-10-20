@@ -222,9 +222,6 @@ func collide(e1 entities.Entity, e2 entities.Entity) []*collision.Contact {
 func resolveCollisions(contacts []*collision.Contact, world World) map[int]int {
 	resolved := map[int]int{}
 	for _, contact := range contacts {
-		if _, ok := resolved[*contact.EntityID]; ok {
-			continue
-		}
 		entity := world.GetEntityByID(*contact.EntityID)
 		sourceEntity := world.GetEntityByID(*contact.SourceEntityID)
 		resolveCollision(entity, sourceEntity, contact)
