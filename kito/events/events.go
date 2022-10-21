@@ -1,13 +1,24 @@
 package events
 
+import "github.com/kkevinchou/kito/kito/playercommand/protogen/playercommand"
+
 type EventType string
 
 var EventTypeUnregisterEntity EventType = "UNREGISTER"
+var EventTypePlayerCommand EventType = "PLAYERCOMMAND"
 var EventTypeConsoleEnabled EventType = "CONSOLE_ENABLED"
 var EventTypeRPC EventType = "RPC"
 
 type Event interface {
 	Type() EventType
+}
+
+type PlayerCommandEvent struct {
+	Command *playercommand.Wrapper
+}
+
+func (e *PlayerCommandEvent) Type() EventType {
+	return EventTypePlayerCommand
 }
 
 type UnregisterEntityEvent struct {

@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/kito/knetwork"
+	"github.com/kkevinchou/kito/kito/playercommand/protogen/playercommand"
 	"github.com/kkevinchou/kito/lib/input"
+	"google.golang.org/protobuf/proto"
 )
 
 // InputBuffer is a buffer of inputs. Inputs are sent from clients and stored in the buffer
@@ -26,6 +28,7 @@ type BufferedInput struct {
 	PlayerID                 int
 	Input                    input.Input
 	ReceivedTimestamp        time.Time
+	PlayerCommands           *playercommand.PlayerCommandList
 }
 
 type InputBuffer struct {
@@ -72,12 +75,19 @@ func (inputBuffer *InputBuffer) PushInput(globalCommandFrame int, localCommandFr
 		}
 	}
 
+	playerCommands := &playercommand.PlayerCommandList{}
+	err := proto.Unmarshal(networkInput.PlayerCommands, playerCommands)
+	if err != nil {
+		panic(err)
+	}
+
 	inputBuffer.playerInputs[playerID][targetGlobalCommandFrame] = BufferedInput{
 		PlayerID:                 playerID,
 		LocalCommandFrame:        localCommandFrame,
 		TargetGlobalCommandFrame: targetGlobalCommandFrame,
 		Input:                    networkInput.Input,
 		ReceivedTimestamp:        receivedTime,
+		PlayerCommands:           playerCommands,
 	}
 	inputBuffer.lastPlayerInput[playerID] = targetGlobalCommandFrame
 }

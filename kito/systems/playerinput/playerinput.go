@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/kkevinchou/kito/kito/directory"
+	"github.com/kkevinchou/kito/kito/inputbuffer"
 	"github.com/kkevinchou/kito/kito/managers/player"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
-	"github.com/kkevinchou/kito/lib/input"
 )
 
 type World interface {
@@ -35,12 +35,12 @@ func (s *PlayerInputSystem) Update(delta time.Duration) {
 	for _, player := range players {
 		bufferedInput := singleton.InputBuffer.PullInput(singleton.CommandFrame, player.ID)
 		if bufferedInput != nil {
-			handlePlayerInput(player, bufferedInput.LocalCommandFrame, bufferedInput.Input, s.world)
+			handlePlayerInput(player, bufferedInput.LocalCommandFrame, bufferedInput, s.world)
 		}
 	}
 }
 
-func handlePlayerInput(player *player.Player, commandFrame int, input input.Input, world World) {
+func handlePlayerInput(player *player.Player, commandFrame int, bufferedInput *inputbuffer.BufferedInput, world World) {
 	// This is to somewhat handle out of order messages coming to the server.
 	// we take the latest command frame. However the current implementation risks
 	// dropping inputs because we simply use only the latest
@@ -49,7 +49,8 @@ func handlePlayerInput(player *player.Player, commandFrame int, input input.Inpu
 		player.LastInputGlobalCommandFrame = world.CommandFrame()
 
 		singleton := world.GetSingleton()
-		singleton.PlayerInput[player.ID] = input
+		singleton.PlayerInput[player.ID] = bufferedInput.Input
+		singleton.PlayerCommands[player.ID] = bufferedInput.PlayerCommands
 	} else {
 		fmt.Printf("received input out of order, last saw %d but got %d\n", player.LastInputLocalCommandFrame, commandFrame)
 	}

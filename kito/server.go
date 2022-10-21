@@ -95,8 +95,8 @@ func serverSystemSetup(g *Game, assetsDirectory string) {
 	g.systems = append(g.systems, []System{
 		playerRegistrationSystem,
 		networkDispatchSystem,
-		rpcReceiverSystem,
 		playerInputSystem,
+		rpcReceiverSystem,
 		aiSystem,
 		preframeSystem,
 		characterControllerSystem,

@@ -3,9 +3,11 @@ package render
 import (
 	"fmt"
 	"sort"
+	"strconv"
 
 	"github.com/inkyblackness/imgui-go/v4"
 	"github.com/kkevinchou/kito/kito/events"
+	"github.com/kkevinchou/kito/kito/playercommand/protogen/playercommand"
 	"github.com/kkevinchou/kito/kito/types"
 	"github.com/kkevinchou/kito/kito/utils"
 	"github.com/kkevinchou/kito/lib/console"
@@ -68,16 +70,47 @@ func (s *RenderSystem) consoleWindow() {
 func (s *RenderSystem) inventoryWindow() {
 	player := s.world.GetPlayerEntity()
 	cc := player.GetComponentContainer()
+	inventoryComponent := cc.InventoryComponent
 
 	imgui.SetNextWindowBgAlpha(0.5)
 	imgui.BeginV("Inventory", nil, imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoCollapse)
-	table := imgui.BeginTableV("", 2, imgui.TableFlagsBorders, imgui.Vec2{}, 0)
-	for i, itemID := range cc.InventoryComponent.Data.Items {
-		uiTableRow(fmt.Sprintf("Placeholder item %d", itemID), i)
+	for i, slot := range inventoryComponent.Data.Items {
+		imgui.PushID(fmt.Sprintf("%d", i))
+		if i%inventoryComponent.Width != 0 {
+			imgui.SameLine()
+		}
+
+		var label string
+		if slot.Id != -1 {
+			label = fmt.Sprintf("%d\n%dx", slot.Id, slot.Count)
+		}
+		imgui.ButtonV(label, imgui.Vec2{X: 50, Y: 50})
+
+		if imgui.BeginDragDropSource(imgui.DragDropFlagsNone) {
+			str := fmt.Sprintf("%d", i)
+			imgui.SetDragDropPayload("slot", []byte(str), imgui.ConditionNone)
+			imgui.EndDragDropSource()
+		}
+		if imgui.BeginDragDropTarget() {
+			if payload := imgui.AcceptDragDropPayload("slot", imgui.DragDropFlagsNone); payload != nil {
+				index, err := strconv.Atoi(string(payload))
+				if err != nil {
+					panic(err)
+				}
+
+				itemSwap := playercommand.Wrapper_Itemswap{Itemswap: &playercommand.ItemSwap{Idx1: int64(index), Idx2: int64(i)}}
+				command := playercommand.Wrapper{Playercommand: &itemSwap}
+				s.world.GetEventBroker().Broadcast(&events.PlayerCommandEvent{
+					Command: &command,
+				})
+			}
+		}
+		imgui.PopID()
 	}
-	if table {
-		imgui.EndTable()
-	}
+
+	// if imgui.CurrentIO().WantCaptureMouse() {
+	// 	fmt.Println("WHOA", time.Now())
+	// }
 	if imgui.IsWindowFocused() {
 		s.world.SetFocusedWindow(types.WindowInventory)
 	}

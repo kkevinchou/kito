@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
+	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/entities"
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
+	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 )
 
@@ -17,6 +19,7 @@ type World interface {
 	GetEventBroker() eventbroker.EventBroker
 	GetEntityByID(id int) entities.Entity
 	GetPlayerEntityByID(id int) entities.Entity
+	GetSingleton() *singleton.Singleton
 }
 
 type RPCReceiverSystem struct {
@@ -48,6 +51,38 @@ func (s *RPCReceiverSystem) clearEvents() {
 	s.events = nil
 }
 func (s *RPCReceiverSystem) Update(delta time.Duration) {
+	s.handlePlayerCommands()
+	s.handleRPCs()
+}
+
+func (s *RPCReceiverSystem) handlePlayerCommands() {
+	playerManager := directory.GetDirectory().PlayerManager()
+	players := playerManager.GetPlayers()
+	singleton := s.world.GetSingleton()
+
+	for _, p := range players {
+		if singleton.PlayerCommands[p.ID] == nil {
+			continue
+		}
+
+		e := s.world.GetEntityByID(p.EntityID)
+		if e == nil {
+			continue
+		}
+
+		cc := e.GetComponentContainer()
+
+		playerCommands := singleton.PlayerCommands[p.ID].Commands
+		for _, playerCommand := range playerCommands {
+			if cmd := playerCommand.GetItemswap(); cmd != nil {
+				inventoryComponent := cc.InventoryComponent
+				inventoryComponent.Swap(int(cmd.Idx1), int(cmd.Idx2))
+			}
+		}
+	}
+}
+
+func (s *RPCReceiverSystem) handleRPCs() {
 	defer s.clearEvents()
 
 	for _, event := range s.events {

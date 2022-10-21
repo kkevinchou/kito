@@ -70,8 +70,9 @@ type GameStateUpdateMessage struct {
 }
 
 type InputMessage struct {
-	CommandFrame int
-	Input        input.Input
+	PlayerCommands []byte
+	CommandFrame   int
+	Input          input.Input
 }
 
 type PingMessage struct {

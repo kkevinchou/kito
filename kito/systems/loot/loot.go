@@ -80,7 +80,7 @@ func (s *LootSystem) Update(delta time.Duration) {
 		for e2ID := range cc.ColliderComponent.Contacts {
 			cEntity := s.world.GetEntityByID(e2ID)
 			if cEntity.Type() == types.EntityTypeLootbox {
-				cc.InventoryComponent.Data.Items = append(cc.InventoryComponent.Data.Items, 69)
+				cc.InventoryComponent.Add(&components.Item{ID: 69})
 				event := &events.UnregisterEntityEvent{
 					GlobalCommandFrame: s.world.CommandFrame(),
 					EntityID:           cEntity.GetID(),

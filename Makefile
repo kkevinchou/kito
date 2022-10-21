@@ -1,6 +1,7 @@
 RELEASE_FOLDER = "kitorelease"
 TAR_FILE = "kito.tar.gz"
-PROTO_DIR = "kito/components/proto"
+COMPONENTS_PROTO_DIR = "kito/components/proto"
+PLAYERCOMMAND_PROTO_DIR = "kito/playercommand/proto"
 PROTOC_PATH = ~/protoc-21.7-win64/bin/protoc.exe
 
 # On Mac you'll need to run XServer from host machine
@@ -47,4 +48,5 @@ profile:
 
 .PHONY: proto
 proto:
-	for f in ${PROTO_DIR}/*; do echo "compiling $${f}"; ${PROTOC_PATH} $${f} --proto_path=kito/components/proto --go_out=.; done
+	for f in ${COMPONENTS_PROTO_DIR}/*; do echo "compiling $${f}"; ${PROTOC_PATH} $${f} --proto_path=kito/components/proto --go_out=.; done
+	for f in ${PLAYERCOMMAND_PROTO_DIR}/*; do echo "compiling $${f}"; ${PROTOC_PATH} $${f} --proto_path=kito/playercommand/proto --go_out=.; done

@@ -235,6 +235,11 @@ func (s *RenderSystem) renderImgui() {
 	s.platform.NewFrame()
 	imgui.NewFrame()
 
+	if settings.ShowExampleIMGUI {
+		open := true
+		imgui.ShowDemoWindow(&open)
+	}
+
 	s.world.SetFocusedWindow(types.WindowGame)
 	if s.world.GetWindowVisibility(types.WindowDebug) {
 		s.debugWindow()

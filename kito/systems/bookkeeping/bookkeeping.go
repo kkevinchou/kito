@@ -8,6 +8,7 @@ import (
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/managers/eventbroker"
 	"github.com/kkevinchou/kito/kito/netsync"
+	"github.com/kkevinchou/kito/kito/playercommand/protogen/playercommand"
 	"github.com/kkevinchou/kito/kito/singleton"
 	"github.com/kkevinchou/kito/kito/systems/base"
 	"github.com/kkevinchou/kito/kito/utils"
@@ -57,6 +58,9 @@ func (s *BookKeepingSystem) Update(delta time.Duration) {
 		singleton := s.world.GetSingleton()
 		for i, _ := range singleton.PlayerInput {
 			singleton.PlayerInput[i] = input.Input{}
+		}
+		for i, _ := range singleton.PlayerCommands {
+			singleton.PlayerCommands[i] = &playercommand.PlayerCommandList{}
 		}
 
 		for _, event := range s.events {
