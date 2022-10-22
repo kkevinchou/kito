@@ -47,7 +47,7 @@ type EntitySnapshot struct {
 
 	Animation string
 
-	Components map[int][]byte
+	Components map[int][]byte // protobuf
 }
 
 type Event struct {
@@ -70,7 +70,7 @@ type GameStateUpdateMessage struct {
 }
 
 type InputMessage struct {
-	PlayerCommands []byte
+	PlayerCommands []byte // protobuf
 	CommandFrame   int
 	Input          input.Input
 }

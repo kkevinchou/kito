@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/inkyblackness/imgui-go/v4"
+	"github.com/kkevinchou/kito/kito/directory"
 	"github.com/kkevinchou/kito/kito/events"
 	"github.com/kkevinchou/kito/kito/playercommand/protogen/playercommand"
 	"github.com/kkevinchou/kito/kito/types"
@@ -71,8 +72,10 @@ func (s *RenderSystem) inventoryWindow() {
 	player := s.world.GetPlayerEntity()
 	cc := player.GetComponentContainer()
 	inventoryComponent := cc.InventoryComponent
+	assetManager := directory.GetDirectory().AssetManager()
+	f := assetManager.GetTexture("front")
 
-	imgui.SetNextWindowBgAlpha(0.5)
+	imgui.SetNextWindowBgAlpha(1)
 	imgui.BeginV("Inventory", nil, imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoCollapse)
 	for i, slot := range inventoryComponent.Data.Items {
 		imgui.PushID(fmt.Sprintf("%d", i))
@@ -80,11 +83,12 @@ func (s *RenderSystem) inventoryWindow() {
 			imgui.SameLine()
 		}
 
-		var label string
 		if slot.Id != -1 {
-			label = fmt.Sprintf("%d\n%dx", slot.Id, slot.Count)
+			label := fmt.Sprintf("%d\n%dx", slot.Id, slot.Count)
+			imgui.ButtonV(label, imgui.Vec2{X: 64, Y: 64})
+		} else {
+			imgui.ImageButtonV(imgui.TextureID(uintptr(f.ID)), imgui.Vec2{X: 64, Y: 64}, imgui.Vec2{}, imgui.Vec2{X: 1, Y: -1}, 0, imgui.Vec4{X: 0, Y: 0, Z: 0, W: 1}, imgui.Vec4{X: 1, Y: 1, Z: 1, W: 1})
 		}
-		imgui.ButtonV(label, imgui.Vec2{X: 50, Y: 50})
 
 		if imgui.BeginDragDropSource(imgui.DragDropFlagsNone) {
 			str := fmt.Sprintf("%d", i)
@@ -108,9 +112,6 @@ func (s *RenderSystem) inventoryWindow() {
 		imgui.PopID()
 	}
 
-	// if imgui.CurrentIO().WantCaptureMouse() {
-	// 	fmt.Println("WHOA", time.Now())
-	// }
 	if imgui.IsWindowFocused() {
 		s.world.SetFocusedWindow(types.WindowInventory)
 	}

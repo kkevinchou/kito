@@ -243,9 +243,10 @@ in vec4 Frag_Color;
 out vec4 Out_Color;
 void main()
 {
-	Out_Color = vec4(Frag_Color.rgb, Frag_Color.a * texture( Texture, Frag_UV.st).r);
+	Out_Color = Frag_Color * texture(Texture, Frag_UV.st);
 }
 `
+	// Out_Color = vec4(Frag_Color.rgb, Frag_Color.a * texture( Texture, Frag_UV.st).r);
 	renderer.shaderHandle = gl.CreateProgram()
 	renderer.vertHandle = gl.CreateShader(gl.VERTEX_SHADER)
 	renderer.fragHandle = gl.CreateShader(gl.FRAGMENT_SHADER)

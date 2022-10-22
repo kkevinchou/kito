@@ -30,7 +30,7 @@ type ImguiOpenGL4Renderer struct {
 func NewImguiOpenGL4Renderer(io imgui.IO) (*ImguiOpenGL4Renderer, error) {
 	renderer := &ImguiOpenGL4Renderer{
 		imguiIO:     io,
-		glslVersion: "#version 150",
+		glslVersion: "#version 330 core",
 	}
 	renderer.createDeviceObjects()
 	return renderer, nil
@@ -238,6 +238,8 @@ void main()
 	Out_Color = vec4(Frag_Color.rgb, Frag_Color.a * texture( Texture, Frag_UV.st).r);
 }
 `
+	// Out_Color = texture(Texture, Frag_UV));
+	// Out_Color = vec4(Frag_Color.rgb, Frag_Color.a * texture( Texture, Frag_UV.st).r);
 	renderer.shaderHandle = gl.CreateProgram()
 	renderer.vertHandle = gl.CreateShader(gl.VERTEX_SHADER)
 	renderer.fragHandle = gl.CreateShader(gl.FRAGMENT_SHADER)

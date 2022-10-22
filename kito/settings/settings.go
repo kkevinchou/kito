@@ -27,8 +27,7 @@ var (
 	DebugRenderCollisionVolume  = false
 	DebugRenderSpatialPartition = false
 
-	ShowImguiDemoWindow = false
-
+	ShowImguiDemoWindow   = false
 	RuntimeMaxTextureSize int
 )
 
