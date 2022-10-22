@@ -235,7 +235,7 @@ func (s *RenderSystem) renderImgui() {
 	s.platform.NewFrame()
 	imgui.NewFrame()
 
-	if settings.ShowExampleIMGUI {
+	if settings.ShowImguiDemoWindow {
 		open := true
 		imgui.ShowDemoWindow(&open)
 	}

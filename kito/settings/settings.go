@@ -27,7 +27,7 @@ var (
 	DebugRenderCollisionVolume  = false
 	DebugRenderSpatialPartition = false
 
-	ShowExampleIMGUI = true
+	ShowImguiDemoWindow = false
 )
 
 const (
