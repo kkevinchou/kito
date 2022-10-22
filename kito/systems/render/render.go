@@ -31,7 +31,6 @@ const (
 	far  float64 = 3000
 
 	// shadow map parameters
-	shadowMapDimension   int     = 3000
 	shadowDistanceFactor float64 = .4 // proportion of view fustrum to include in shadow cuboid
 	shadowmapZOffset             = 400
 )
@@ -86,7 +85,7 @@ func init() {
 	}
 }
 
-func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO imgui.IO, width, height int) *RenderSystem {
+func NewRenderSystem(world World, window *sdl.Window, platform Platform, imguiIO imgui.IO, width, height, shadowMapDimension int) *RenderSystem {
 	// setting swap interval to 1 locked the framerate to 60 fps on my pc.
 	// something to do with screen tearing / vsync? i dunno
 	sdl.GLSetSwapInterval(1)

@@ -2,6 +2,7 @@ package kito
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/inkyblackness/imgui-go/v4"
@@ -69,7 +70,11 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 		panic(err)
 	}
 
-	clientSystemSetup(g, window, imguiIO, platform, assetsDirectory, shaderDirectory)
+	shadowMapDimension := 3000
+	if runtime.GOOS == "windows" {
+		shadowMapDimension = 20000
+	}
+	clientSystemSetup(g, window, imguiIO, platform, assetsDirectory, shaderDirectory, shadowMapDimension)
 	ackCreatePlayer(g, client)
 
 	initialEntities := clientEntitySetup(g)
@@ -84,11 +89,11 @@ func clientEntitySetup(g *Game) []entities.Entity {
 	return []entities.Entity{}
 }
 
-func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform Platform, assetsDirectory, shaderDirectory string) {
+func clientSystemSetup(g *Game, window *sdl.Window, imguiIO imgui.IO, platform Platform, assetsDirectory, shaderDirectory string, shadowMapDimension int) {
 	d := directory.GetDirectory()
 
 	assetManager := assets.NewAssetManager(assetsDirectory, true)
-	renderSystem := render.NewRenderSystem(g, window, platform, imguiIO, settings.Width, settings.Height)
+	renderSystem := render.NewRenderSystem(g, window, platform, imguiIO, settings.Width, settings.Height, shadowMapDimension)
 
 	// Managers
 	shaderManager := shaders.NewShaderManager(shaderDirectory)
