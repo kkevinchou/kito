@@ -28,6 +28,8 @@ var (
 	DebugRenderSpatialPartition = false
 
 	ShowImguiDemoWindow = false
+
+	RuntimeMaxTextureSize int
 )
 
 const (

@@ -43,9 +43,8 @@ func NewShadowMap(width int, height int, shadowDistance float64) (*ShadowMap, er
 	gl.ReadBuffer(gl.NONE)
 
 	defer gl.BindFramebuffer(gl.FRAMEBUFFER, 0)
-
 	if gl.CheckFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE {
-		return nil, errors.New("failed to initialize shadow map frame buffer - who knows why?")
+		return nil, errors.New("failed to initialize shadow map frame buffer - in the past this was due to an overly large shadow map dimension configuration")
 	}
 
 	return &ShadowMap{

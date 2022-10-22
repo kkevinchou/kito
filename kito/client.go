@@ -2,7 +2,6 @@ package kito
 
 import (
 	"fmt"
-	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/inkyblackness/imgui-go/v4"
@@ -54,6 +53,10 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 	imguiIO := imgui.CurrentIO()
 	platform := input.NewSDLPlatform(window, imguiIO)
 
+	var data int32
+	gl.GetIntegerv(gl.MAX_TEXTURE_SIZE, &data)
+	settings.RuntimeMaxTextureSize = int(data)
+
 	g := NewBaseGame()
 	g.inputPollingFn = platform.PollInput
 	g.commandFrameHistory = commandframe.NewCommandFrameHistory()
@@ -70,11 +73,7 @@ func NewClientGame(assetsDirectory string, shaderDirectory string) *Game {
 		panic(err)
 	}
 
-	shadowMapDimension := 3000
-	if runtime.GOOS == "windows" {
-		shadowMapDimension = 20000
-	}
-	clientSystemSetup(g, window, imguiIO, platform, assetsDirectory, shaderDirectory, shadowMapDimension)
+	clientSystemSetup(g, window, imguiIO, platform, assetsDirectory, shaderDirectory, settings.RuntimeMaxTextureSize)
 	ackCreatePlayer(g, client)
 
 	initialEntities := clientEntitySetup(g)
