@@ -74,6 +74,7 @@ func (s *RenderSystem) inventoryWindow() {
 	inventoryComponent := cc.InventoryComponent
 	assetManager := directory.GetDirectory().AssetManager()
 	f := assetManager.GetTexture("front")
+	_ = f
 
 	imgui.SetNextWindowBgAlpha(1)
 	imgui.BeginV("Inventory", nil, imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoFocusOnAppearing|imgui.WindowFlagsNoCollapse)
@@ -84,10 +85,15 @@ func (s *RenderSystem) inventoryWindow() {
 		}
 
 		if slot.Id != -1 {
-			label := fmt.Sprintf("%d\n%dx", slot.Id, slot.Count)
+			label := fmt.Sprintf("money\n%dx", slot.Count)
+			imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{X: 0, Y: 0.4, Z: 0.2, W: 1})
 			imgui.ButtonV(label, imgui.Vec2{X: 64, Y: 64})
+			imgui.PopStyleColor()
 		} else {
-			imgui.ImageButtonV(imgui.TextureID(uintptr(f.ID)), imgui.Vec2{X: 64, Y: 64}, imgui.Vec2{}, imgui.Vec2{X: 1, Y: -1}, 0, imgui.Vec4{X: 0, Y: 0, Z: 0, W: 1}, imgui.Vec4{X: 1, Y: 1, Z: 1, W: 1})
+			imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{X: 1, Y: 0.5, Z: 0, W: 1})
+			imgui.ButtonV("empty", imgui.Vec2{X: 64, Y: 64})
+			imgui.PopStyleColor()
+			// ui.ImageButtonV(imgui.TextureID(uintptr(f.ID)), imgui.Vec2{X: 64, Y: 64}, imgui.Vec2{}, imgui.Vec2{X: 1, Y: -1}, 0, imgui.Vec4{X: 0, Y: 0, Z: 0, W: 1}, imgui.Vec4{X: 1, Y: 1, Z: 1, W: 1})
 		}
 
 		if imgui.BeginDragDropSource(imgui.DragDropFlagsNone) {

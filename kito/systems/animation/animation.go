@@ -33,8 +33,11 @@ func (s *AnimationSystem) Update(delta time.Duration) {
 	if utils.IsClient() {
 		// play animations for the player
 		playerEntity := s.world.GetPlayerEntity()
-		findAndPlayAnimation(delta, playerEntity)
-		playerEntity.GetComponentContainer().AnimationComponent.Player.Update(delta)
+		cc := playerEntity.GetComponentContainer()
+		if cc.AnimationComponent != nil {
+			findAndPlayAnimation(delta, playerEntity)
+			cc.AnimationComponent.Player.Update(delta)
+		}
 
 		// update the animation player for all other entities, relying on animation state
 		// synchronization from the server
