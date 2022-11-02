@@ -18,6 +18,7 @@ func (m MouseMotionEvent) IsZero() bool {
 type MouseInput struct {
 	MouseWheelDelta  int
 	MouseMotionEvent MouseMotionEvent
+	Position         mgl64.Vec2
 	Buttons          [3]bool // left, right, middle
 }
 
