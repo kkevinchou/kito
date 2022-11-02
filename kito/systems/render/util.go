@@ -392,13 +392,13 @@ func defaultPoints(thickness float64, length float64) []mgl64.Vec3 {
 		{-ht, ht, -length},
 
 		// bottom
-		{-ht, ht, 0},
-		{ht, ht, -length},
-		{ht, ht, 0},
+		{-ht, -ht, 0},
+		{ht, -ht, -length},
+		{ht, -ht, 0},
 
-		{-ht, ht, -length},
-		{ht, ht, -length},
-		{-ht, ht, 0},
+		{-ht, -ht, -length},
+		{ht, -ht, -length},
+		{-ht, -ht, 0},
 	}
 }
 
